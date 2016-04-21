@@ -1,0 +1,3 @@
+[submodule "max-api"]
+	path = max-api
+	url = https://github.com/Cycling74/max-api.git
