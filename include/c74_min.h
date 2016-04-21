@@ -258,6 +258,14 @@ namespace min {
 		}
 	}
 	
+
+   	template<class T>
+    void min_bang(minwrap<T>* self) {
+    	auto& meth = self->obj.methods["bang"];
+    	atoms as;
+    	meth->function(as);
+    }
+    
 	
 	template<class T>
 	void min_int(minwrap<T>* self, long v) {
@@ -418,6 +426,8 @@ void define_min_external(const char* maxname, void *resources)
 	for (auto& a_method : dummy.methods) {
 		if (a_method.first == "dspsetup")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_dsp64<cpp_classname>, "dsp64", c74::max::A_CANT, 0);
+		else if (a_method.first == "bang")
+			class_addmethod(minclass, (method)min::min_bang<cpp_classname>, "bang", A_NOTHING, 0);
 		else if (a_method.first == "int")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_int<cpp_classname>, "int", c74::max::A_LONG, 0);
 		else if (a_method.first == "float") {
