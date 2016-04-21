@@ -427,7 +427,7 @@ void define_min_external(const char* maxname, void *resources)
 		if (a_method.first == "dspsetup")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_dsp64<cpp_classname>, "dsp64", c74::max::A_CANT, 0);
 		else if (a_method.first == "bang")
-			class_addmethod(minclass, (method)min::min_bang<cpp_classname>, "bang", A_NOTHING, 0);
+			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_bang<cpp_classname>, "bang", c74::max::A_NOTHING, 0);
 		else if (a_method.first == "int")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_int<cpp_classname>, "int", c74::max::A_LONG, 0);
 		else if (a_method.first == "float") {
