@@ -1,14 +1,14 @@
-# max-sdk
+# Min-API
 
-The Max Software Development Kit contains the API (headers, source, libraries) for building external objects (plug-ins) in C/C++ for [Max](https://cycling74.com/max7/). It additionally includes documentation of the API and example projects using the Xcode 6 and Visual Studio 2013 development environments.
+This folder contains the support files you will need to compile an external object written in C++ using a high-level declarative application programming interface. It is distributed as a part of the [Min-DevKit Package](https://github.com/Cycling74/min-devkit). Please refer to that package for additional documentation and best practices.
 
-The SDK is structured as a Max package. Simply place the SDK in your `Max 7/Packages` folder to begin working.
+## Overview of Contents
 
-## testing
+* `include` : header files
+* `script` : resources to be included and used by CMake
+* `max-api` : a git submodule that provides the low-level bindings to the Max application
 
-It is highly recommended that you test your code thoroughly. One option is use the [max-test](https://github.com/Cycling74/max-test) package.
+## License
 
-## support
- 
-For support, please use the developer forums at:
-http://cycling74.com/forums/
+Use of this Max-API distribution is governed by the MIT License as stated in the accompanying `License.md` file.
+
