@@ -1,0 +1,327 @@
+#pragma once
+
+namespace c74 {
+namespace min {
+	
+	class inlet;
+	class outlet;
+	class method;
+	class attribute_base;
+	template <typename T> class attribute;
+	
+	
+	class object_base {
+	public:
+		
+		~object_base() {
+			
+		}
+
+		int current_inlet() {
+			return proxy_getinlet((max::t_object*)obj);
+		}
+
+		max::t_object*										obj = nullptr;
+		std::vector<min::inlet*>							inlets;
+		std::vector<min::outlet*>							outlets;
+		std::unordered_map<std::string, method*>			methods;
+		std::unordered_map<std::string, attribute_base*>	attributes;
+	};
+	
+	
+	class object : public object_base {
+		;
+	};
+
+	
+	class audio_object : public object_base {
+		;
+	};
+	
+
+	class matrix_object : public object_base {
+		;
+	};
+	
+	
+	// Wrap the C++ class together with the appropriate Max object header
+	// Max object header is selected automatically using the type of the base class.
+	
+	template<class T, class=void>
+	struct minwrap;
+	
+	template<class T>
+	struct minwrap < T, typename std::enable_if< std::is_base_of< min::object, T>::value >::type > {
+		max::t_object 			header;
+		T						obj;
+		
+		void cleanup() {}
+	};
+	
+
+	
+#pragma mark -
+#pragma mark inlets / outlets
+
+	class port {
+	public:
+		port(object_base* an_owner, std::string a_description, std::string a_type)
+		: owner(an_owner)
+		, description(a_description)
+		, type(a_type)
+		{}
+		
+		bool has_signal_connection() {
+			return signal_connection;
+		}
+		
+		object_base*	owner;
+		std::string		description;
+		std::string		type;
+		bool			signal_connection = false;
+	};
+	
+	
+	class inlet : public port {
+	public:
+		//		inlet(maxobject* an_owner, std::string a_description)
+		inlet(object_base* an_owner, std::string a_description, std::string a_type = "")
+		: port(an_owner, a_description, a_type)
+		{
+			owner->inlets.push_back(this);
+		}
+	};
+	
+	
+	class outlet  : public port {
+	public:
+		outlet(object_base* an_owner, std::string a_description, std::string a_type = "")
+		: port(an_owner, a_description, a_type)
+		{
+			owner->outlets.push_back(this);
+		}
+	};
+	
+#ifdef __APPLE__
+# pragma mark -
+# pragma mark methods
+#endif
+
+	using function = std::function<void(atoms&)>;
+	
+	class method {
+	public:
+		method(object_base* an_owner, std::string a_name, function a_function)
+		: owner(an_owner)
+		, function(a_function)
+		{
+			if (a_name == "integer")
+				a_name = "int";
+			else if (a_name == "number")
+				a_name = "float";
+			else if (a_name == "dsp64")
+				type = max::A_CANT;
+			owner->methods[a_name] = this;
+		}
+		
+		void operator ()(atoms args) {
+			function(args);
+		}
+		
+		void operator ()() {
+			atoms a;
+			function(a);
+		}
+		
+		//private:
+		object_base*	owner;
+		long			type = max::A_GIMME;
+		function		function;
+	};
+
+	
+	class attribute_base {
+	public:
+		attribute_base(object_base* an_owner, std::string a_name, function a_function)
+		: owner(an_owner)
+		, name(max::gensym(a_name.c_str()))
+		, setter(a_function)
+		{}
+		
+		virtual attribute_base& operator = (atoms args) = 0;
+		virtual operator atoms() const = 0;
+		
+		object_base*	owner;
+		max::t_symbol*		name;
+		function		setter;
+	};
+	
+	template <typename T>
+	class attribute : public attribute_base {
+	public:
+		attribute(object_base* an_owner, std::string a_name, T a_default_value, function a_function)
+		: attribute_base(an_owner, a_name, a_function)
+		{
+			owner->attributes[a_name] = this;
+			*this = a_default_value;
+		}
+		
+		
+		attribute& operator = (const T arg) {
+			atoms as = { atom(arg) };
+			*this = as;
+			if (owner->obj)
+				object_attr_touch(owner->obj, name);
+			return *this;
+		}
+		
+		
+		attribute& operator = (atoms args) {
+			if (setter)
+				setter(args);
+			value = args[0];
+			return *this;
+		}
+		
+		
+		operator atoms() const {
+			atom a = value;
+			atoms as = { a };
+			return as;
+		}
+		
+		
+		operator T() const {
+			return value;
+		}
+		
+	private:
+		T				value;
+	};
+	
+#ifdef __APPLE__
+# pragma mark -
+# pragma mark c wrap
+#endif
+
+	
+	// All objects use A_GIMME signature for construction
+	
+	template<class T>
+	max::t_object* min_new(max::t_symbol *name, long argc, max::t_atom* argv) {
+		long		attrstart = attr_args_offset(argc, argv);		// support normal arguments
+		minwrap<T>*	self = (minwrap<T>*)max::object_alloc(this_class);
+		
+		new(&self->obj) T(atoms_from_acav(attrstart, argv)); // placement new
+		self->obj.obj = (max::t_object*)self;
+		
+		max::dsp_setup((max::t_pxobject*)self, self->obj.inlets.size());
+		for (auto& outlet : self->obj.outlets) {
+			if (outlet->type == "")
+				max::outlet_new(self, nullptr);
+			else
+				max::outlet_new(self, outlet->type.c_str());
+		}
+		
+		max::attr_args_process(self, argc, argv);
+		
+		return (max::t_object*)self;
+	}
+	
+	
+	template<class T>
+	void min_free(minwrap<T>* self) {
+		self->cleanup();
+		self->obj.~T(); // placement delete
+	}
+	
+	
+	template<class T>
+	void min_assist(minwrap<T>* self, void *b, long m, long a, char *s) {
+		if (m == 2) {
+			const auto& outlet = self->obj.outlets[a];
+			strcpy(s, outlet->description.c_str());
+		}
+		else {
+			const auto& inlet = self->obj.inlets[a];
+			strcpy(s, inlet->description.c_str());
+		}
+	}
+	
+
+   	template<class T>
+    void min_bang(minwrap<T>* self) {
+    	auto& meth = self->obj.methods["bang"];
+    	atoms as;
+    	meth->function(as);
+    }
+    
+	
+	template<class T>
+	void min_int(minwrap<T>* self, long v) {
+		auto& meth = self->obj.methods["int"];
+		max::t_atom a;
+		atom_setlong(&a, v);
+		atoms as = atoms_from_acav(1, &a);
+		meth->function(as);
+	}
+
+	
+	template<class T>
+	void min_int_converted_to_float(minwrap<T>* self, long v) {
+		auto& meth = self->obj.methods["float"];
+		atoms a;
+		a.push_back(v);
+		meth->function(a);
+	}
+	
+	
+	template<class T>
+	void min_float(minwrap<T>* self, double v) {
+		auto& meth = self->obj.methods["float"];
+		atoms a;
+		a.push_back(v);
+		meth->function(a);
+	}
+
+	
+	template<class T>
+	void min_method(minwrap<T>* self, max::t_symbol *s, long ac, max::t_atom *av) {
+		auto& meth = self->obj.methods[s->s_name];
+		atoms as = atoms_from_acav(ac, av);
+		meth->function(as);
+	}
+	
+	
+	static max::t_symbol* ps_getname = max::gensym("getname");
+
+	
+	template<class T>
+	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
+		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, ps_getname);
+		auto& attr = self->obj.attributes[attr_name->s_name];
+		atoms rvals = *attr;
+		
+		*ac = rvals.size();
+		if (!(*av)) // otherwise use memory passed in
+			*av = (max::t_atom*)max::sysmem_newptr(sizeof(max::t_atom) * *ac);
+		for (auto i=0; i<*ac; ++i)
+			(*av)[i] = rvals[i];
+		
+		return 0;
+	}
+	
+	
+	template<class T>
+	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, long ac, max::t_atom* av) {
+		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, ps_getname);
+		auto& attr = self->obj.attributes[attr_name->s_name];
+		*attr = atoms_from_acav(ac, av);
+		return 0;
+	}
+
+	
+}} // namespace c74::min
+
+
+
