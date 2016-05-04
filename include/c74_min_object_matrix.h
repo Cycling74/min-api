@@ -17,6 +17,10 @@ namespace min {
 		max::t_object 		header;
 		T					obj;
 		
+		void setup() {
+			//max::dsp_setup((max::t_pxobject*)self, self->obj.inlets.size());
+		}
+		
 		void cleanup() {}
 	};
 	
@@ -27,7 +31,7 @@ namespace min {
 		
 		atoms args;
 		new(&self->obj) T(args); // placement new
-		self->obj.obj = (max::t_object*)self;
+		self->obj.maxobj = (max::t_object*)self;
 		
 		return (max::t_object*)self;
 	}

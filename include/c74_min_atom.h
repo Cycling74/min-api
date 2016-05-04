@@ -7,6 +7,11 @@ namespace min {
 	class atom : public max::t_atom {
 	public:
 		
+		atom() {
+			this->a_type = c74::max::A_NOTHING;
+			this->a_w.w_obj = nullptr;
+		}
+		
 		atom(const max::t_atom& init) {
 			*this = init;
 		}
@@ -17,6 +22,10 @@ namespace min {
 		
 		atom(const double value) {
 			atom_setfloat(this, value);
+		}
+		
+		atom(const max::t_symbol* value) {
+			max::atom_setsym(this, value);
 		}
 		
 		
@@ -36,6 +45,10 @@ namespace min {
 			return *this;
 		}
 		
+		atom& operator = (const max::t_symbol* value) {
+			atom_setsym(this, value);
+			return *this;
+		}
 		
 		
 		operator double() const {
@@ -50,6 +63,10 @@ namespace min {
 			return symbol(atom_getsym(this));
 		}
 		
+		operator max::t_symbol*() const {
+			return atom_getsym(this);
+		}
+
 		operator std::string() const {
 			std::string s;
 			
@@ -94,6 +111,24 @@ namespace min {
 	
 	
 	using atoms = std::vector<atom>;
+	
+	std::string atoms_to_string(const atoms& as) {
+		long		textsize = 0;
+		char*		text = nullptr;
+		std::string	str;
+		
+		auto err = max::atom_gettext(as.size(), &as[0], &textsize, &text, max::OBEX_UTIL_ATOM_GETTEXT_SYM_NO_QUOTE);
+		if (!err)
+			str = text;
+		else
+			max::object_error(nullptr, "problem geting text from atoms");
+		
+		if (text)
+			max::sysmem_freeptr(text);
+		
+		return str;
+	}
+	
 	
 	
 	// TODO: move the atoms on return instead of copy

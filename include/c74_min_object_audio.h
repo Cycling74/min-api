@@ -10,6 +10,10 @@ namespace min {
 		max::t_pxobject 		header;
 		T						obj;
 		
+		void setup() {
+			max::dsp_setup(&header, obj.inlets.size());
+		}
+		
 		void cleanup() {
 			dsp_free(&header);
 		}
@@ -121,6 +125,14 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 	for (auto& a_method : dummy.methods) {
 		if (a_method.first == "dspsetup")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_dsp64<cpp_classname>, "dsp64", c74::max::A_CANT, 0);
+		else if (a_method.first == "dblclick")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_dblclick<cpp_classname>, "dblclick", c74::max::A_CANT, 0);
+		else if (a_method.first == "okclose")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method<cpp_classname>, "okclose", c74::max::A_CANT, 0);
+		else if (a_method.first == "edclose")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method<cpp_classname>, "edclose", c74::max::A_CANT, 0);
+		else if (a_method.first == "anything")
+			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_anything<cpp_classname>, "anything", c74::max::A_NOTHING, 0);
 		else if (a_method.first == "bang")
 			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_bang<cpp_classname>, "bang", c74::max::A_NOTHING, 0);
 		else if (a_method.first == "int")

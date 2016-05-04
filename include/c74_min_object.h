@@ -18,10 +18,10 @@ namespace min {
 		}
 
 		int current_inlet() {
-			return proxy_getinlet((max::t_object*)obj);
+			return proxy_getinlet((max::t_object*)maxobj);
 		}
 
-		max::t_object*										obj = nullptr;
+		max::t_object*										maxobj = nullptr;
 		std::vector<min::inlet*>							inlets;
 		std::vector<min::outlet*>							outlets;
 		std::unordered_map<std::string, method*>			methods;
@@ -54,6 +54,10 @@ namespace min {
 	struct minwrap < T, typename std::enable_if< std::is_base_of< min::object, T>::value >::type > {
 		max::t_object 			header;
 		T						obj;
+		
+		void setup() {
+			//max::dsp_setup((max::t_pxobject*)self, self->obj.inlets.size());
+		}
 		
 		void cleanup() {}
 	};
@@ -100,6 +104,12 @@ namespace min {
 		{
 			owner->outlets.push_back(this);
 		}
+		
+		void send(double value) {
+			c74::max::outlet_float(instance, value);
+		}
+		
+		void* instance = nullptr;
 	};
 	
 #ifdef __APPLE__
@@ -119,7 +129,7 @@ namespace min {
 				a_name = "int";
 			else if (a_name == "number")
 				a_name = "float";
-			else if (a_name == "dsp64")
+			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose")
 				type = max::A_CANT;
 			owner->methods[a_name] = this;
 		}
@@ -170,8 +180,8 @@ namespace min {
 		attribute& operator = (const T arg) {
 			atoms as = { atom(arg) };
 			*this = as;
-			if (owner->obj)
-				object_attr_touch(owner->obj, name);
+			if (owner->maxobj)
+				object_attr_touch(owner->maxobj, name);
 			return *this;
 		}
 		
@@ -213,14 +223,15 @@ namespace min {
 		minwrap<T>*	self = (minwrap<T>*)max::object_alloc(this_class);
 		
 		new(&self->obj) T(atoms_from_acav(attrstart, argv)); // placement new
-		self->obj.obj = (max::t_object*)self;
+		self->obj.maxobj = (max::t_object*)self;
 		
-		max::dsp_setup((max::t_pxobject*)self, self->obj.inlets.size());
+		self->setup();
+		
 		for (auto& outlet : self->obj.outlets) {
 			if (outlet->type == "")
-				max::outlet_new(self, nullptr);
+				outlet->instance = max::outlet_new(self, nullptr);
 			else
-				max::outlet_new(self, outlet->type.c_str());
+				outlet->instance = max::outlet_new(self, outlet->type.c_str());
 		}
 		
 		max::attr_args_process(self, argc, argv);
@@ -291,7 +302,38 @@ namespace min {
 		atoms as = atoms_from_acav(ac, av);
 		meth->function(as);
 	}
+
 	
+	template<class T>
+	void min_method_dblclick(minwrap<T>* self) {
+		auto& meth = self->obj.methods["dblclick"];
+		atoms as;// = atoms_from_acav(ac, av);
+		meth->function(as);
+	}
+
+	template<class T>
+	void min_method_edclose(minwrap<T>* self) {
+		auto& meth = self->obj.methods["edclose"];
+		atoms as;// = atoms_from_acav(ac, av);
+		meth->function(as);
+	}
+	
+	template<class T>
+	void min_method_okclose(minwrap<T>* self) {
+		auto& meth = self->obj.methods["okclose"];
+		atoms as;// = atoms_from_acav(ac, av);
+		meth->function(as);
+	}
+
+	
+	template<class T>
+	void min_anything(minwrap<T>* self, max::t_symbol *s, long ac, max::t_atom *av) {
+		auto& meth = self->obj.methods["anything"];
+		atoms as = atoms_from_acav(ac, av);
+		as.insert(as.begin(), atom(s));
+		meth->function(as);
+	}
+
 	
 	static max::t_symbol* ps_getname = max::gensym("getname");
 
@@ -323,5 +365,60 @@ namespace min {
 	
 }} // namespace c74::min
 
+
+
+template<class cpp_classname>
+typename std::enable_if<std::is_base_of<c74::min::object, cpp_classname>::value>::type
+define_min_external(const char* cppname, const char* maxname, void *resources)
+{
+	c74::min::atoms	a;
+	cpp_classname	dummy(a);
+	
+	c74::min::this_class = c74::max::class_new( maxname ,(c74::max::method)c74::min::min_new<cpp_classname>, (c74::max::method)c74::min::min_free<cpp_classname>, sizeof( c74::min::minwrap<cpp_classname> ), nullptr, c74::max::A_GIMME, 0);
+	
+	for (auto& a_method : dummy.methods) {
+		if (a_method.first == "dblclick")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_dblclick<cpp_classname>, "dblclick", c74::max::A_CANT, 0);
+		else if (a_method.first == "okclose")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_okclose<cpp_classname>, "okclose", c74::max::A_CANT, 0);
+		else if (a_method.first == "edclose")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_edclose<cpp_classname>, "edclose", c74::max::A_CANT, 0);
+		else if (a_method.first == "anything")
+			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_anything<cpp_classname>, "anything", c74::max::A_GIMME, 0);
+		else if (a_method.first == "bang")
+			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_bang<cpp_classname>, "bang", c74::max::A_NOTHING, 0);
+		else if (a_method.first == "int")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_int<cpp_classname>, "int", c74::max::A_LONG, 0);
+		else if (a_method.first == "float") {
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_float<cpp_classname>, "float", c74::max::A_FLOAT, 0);
+			
+			// if there is a 'float' method but no 'int' method, generate a wrapper for it
+			auto got = dummy.methods.find("int");
+			if ( got == dummy.methods.end() )
+				c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_int_converted_to_float<cpp_classname>, "int", c74::max::A_LONG, 0);
+		}
+		else
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type, 0);
+	}
+	
+	for (auto& an_attribute : dummy.attributes) {
+		std::string				attr_name = an_attribute.first;
+		//min::attribute_base*	attr = an_attribute.second;
+		
+		c74::max::class_addattr(c74::min::this_class,
+								c74::max::attr_offset_new(attr_name.c_str(),
+														  c74::max::gensym("float64"),
+														  0,
+														  (c74::max::method)c74::min::min_attr_getter<cpp_classname>,
+														  (c74::max::method)c74::min::min_attr_setter<cpp_classname>,
+														  0
+														  )
+								);
+	}
+	
+	c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_assist<cpp_classname>, "assist", c74::max::A_CANT, 0);
+	
+	c74::max::class_register(c74::max::CLASS_BOX, c74::min::this_class);
+}
 
 
