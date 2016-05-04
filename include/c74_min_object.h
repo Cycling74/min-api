@@ -108,7 +108,12 @@ namespace min {
 		void send(double value) {
 			c74::max::outlet_float(instance, value);
 		}
-		
+
+		void send(symbol s1, symbol s2) {
+			atom a(s2);
+			c74::max::outlet_anything(instance, s1, 1, &a);
+		}
+
 		void* instance = nullptr;
 	};
 	
@@ -335,6 +340,22 @@ namespace min {
 	}
 
 	
+	template<class T>
+	void min_dictionary(minwrap<T>* self, max::t_symbol *s) {
+		auto& meth = self->obj.methods["dictionary"];
+//		atoms as = atoms_from_acav(ac, av);
+//		as.insert(as.begin(), atom(s));
+		
+//		t_dictionary	*d =
+		auto d = dictobj_findregistered_retain(s);
+		atoms as = { atom(d) };
+		
+		meth->function(as);
+		
+		dictobj_release(d);
+	}
+	
+	
 	static max::t_symbol* ps_getname = max::gensym("getname");
 
 	
@@ -383,6 +404,8 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_okclose<cpp_classname>, "okclose", c74::max::A_CANT, 0);
 		else if (a_method.first == "edclose")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_edclose<cpp_classname>, "edclose", c74::max::A_CANT, 0);
+		else if (a_method.first == "dictionary")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_dictionary<cpp_classname>, "dictionary", c74::max::A_SYM, 0);
 		else if (a_method.first == "anything")
 			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_anything<cpp_classname>, "anything", c74::max::A_GIMME, 0);
 		else if (a_method.first == "bang")

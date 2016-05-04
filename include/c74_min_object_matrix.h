@@ -68,7 +68,7 @@ namespace min {
 		max::jit_object_free(max::max_jit_obex_jitob_get(self));
 		max::max_jit_object_free(self);
 	}
-
+ 
 	
 	// We are using a C++ template to process a vector of the matrix for any of the given types.
 	// Thus, we don't need to duplicate the code for each datatype.

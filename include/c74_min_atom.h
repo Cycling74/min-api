@@ -3,6 +3,7 @@
 namespace c74 {
 namespace min {
 	
+	class dict;
 	
 	class atom : public max::t_atom {
 	public:
@@ -26,6 +27,10 @@ namespace min {
 		
 		atom(const max::t_symbol* value) {
 			max::atom_setsym(this, value);
+		}
+		
+		atom(const max::t_dictionary* value) {
+			max::atom_setobj(this, (void*)value);
 		}
 		
 		
