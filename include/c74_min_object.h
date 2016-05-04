@@ -109,6 +109,10 @@ namespace min {
 			c74::max::outlet_float(instance, value);
 		}
 
+		void send(symbol s1) {
+			c74::max::outlet_anything(instance, s1, 0, nullptr);
+		}
+		
 		void send(symbol s1, symbol s2) {
 			atom a(s2);
 			c74::max::outlet_anything(instance, s1, 1, &a);
