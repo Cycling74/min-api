@@ -293,6 +293,16 @@ namespace min {
 
 	
 	template<class T>
+	void min_toggle(minwrap<T>* self, long v) {
+		auto& meth = self->obj.methods["toggle"];
+		max::t_atom a;
+		atom_setlong(&a, v);
+		atoms as = atoms_from_acav(1, &a);
+		meth->function(as);
+	}
+	
+	
+	template<class T>
 	void min_int_converted_to_float(minwrap<T>* self, long v) {
 		auto& meth = self->obj.methods["float"];
 		atoms a;
@@ -413,6 +423,8 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_anything<cpp_classname>, "anything", c74::max::A_GIMME, 0);
 		else if (a_method.first == "bang")
 			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_bang<cpp_classname>, "bang", c74::max::A_NOTHING, 0);
+		else if (a_method.first == "toggle")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_toggle<cpp_classname>, "int", c74::max::A_LONG, 0);
 		else if (a_method.first == "int")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_int<cpp_classname>, "int", c74::max::A_LONG, 0);
 		else if (a_method.first == "float") {

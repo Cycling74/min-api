@@ -25,6 +25,7 @@ namespace min {
 #include "c74_min_object_audio.h"
 #include "c74_min_object_matrix.h"
 
+#include "c74_min_clock.h"
 
 
 #define MIN_EXTERNAL(cpp_classname,max_classname) \
@@ -37,4 +38,5 @@ void ext_main (void* r) { \
 #define ATTRIBUTE( name, type, default )	c74::min::attribute< type >		name = { this, #name , default, [this](c74::min::atoms& args)
 #define INLET(  name, desc )				c74::min::inlet					name = { this, desc };
 #define OUTLET( name, ... )					c74::min::outlet				name = { this, __VA_ARGS__ };
+#define CLOCK( name )						c74::min::clock					name = { this, [this](c74::min::atoms& args)
 #define END };

@@ -21,10 +21,18 @@ namespace min {
 			atom_setlong(this, value);
 		}
 		
+		atom(const bool value) {
+			atom_setlong(this, value);
+		}
+
 		atom(const double value) {
 			atom_setfloat(this, value);
 		}
 		
+		atom(const symbol value) {
+			max::atom_setsym(this, value);
+		}
+
 		atom(const max::t_symbol* value) {
 			max::atom_setsym(this, value);
 		}
@@ -45,6 +53,10 @@ namespace min {
 			return *this;
 		}
 
+		atom& operator = (const bool value) {
+			atom_setlong(this, value);
+			return *this;
+		}
 		atom& operator = (const double value) {
 			atom_setfloat(this, value);
 			return *this;
@@ -61,9 +73,13 @@ namespace min {
 		}
 		
 		operator long() const {
-			return atom_getfloat(this);
+			return atom_getlong(this);
 		}
-		
+
+		operator bool() const {
+			return atom_getlong(this);
+		}
+
 		operator symbol() const {
 			return symbol(atom_getsym(this));
 		}
@@ -108,10 +124,16 @@ namespace min {
 		
 		
 		/** Compare a symbols against a c-string for equality. */
-		inline friend bool operator == (const max::t_atom& a, max::t_symbol* s)
-		{
+		inline friend bool operator == (const max::t_atom& a, max::t_symbol* s) {
 			return atom_getsym(&a) == s;
 		}
+		
+		
+		inline friend bool operator == (const max::t_atom& a, bool value) {
+			return atom_getlong(&a) == value;
+		}
+		
+		
 		
 	};
 	
