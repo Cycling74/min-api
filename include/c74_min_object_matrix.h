@@ -6,7 +6,10 @@ namespace c74 {
 namespace min {
 
 	using pixel = std::array<uchar,4>;
-	
+
+	template<class matrix_type, size_t planecount>
+	using cell = std::array<matrix_type, planecount>;
+
 	enum {
 		alpha = 0,
 		red,
@@ -58,8 +61,31 @@ namespace min {
 		long height() const {
 			return in_info->dim[1];
 		}
+
 		
 		
+		template<class matrix_type, size_t planecount>
+		const std::array<matrix_type,planecount> in_cell(const matrix_coord& coord) const {
+			matrix_type* p = (matrix_type*)bip;
+			
+			for (auto j=0; j < in_info->dimcount; ++j)
+				p += coord.position[j] * in_info->dimstride[j];
+			
+			std::array<matrix_type,planecount> pa;
+			
+			for (auto plane=0; plane<planecount; ++plane)
+				pa[plane] = *(p+plane);
+			return pa;
+		}
+		
+		template<class matrix_type, size_t planecount>
+		const std::array<matrix_type,planecount> in_cell(int x, int y) const {
+			matrix_coord coord(x, y);
+			return in_cell<matrix_type,planecount>(coord);
+		}
+
+
+	
 		const pixel in_pixel(const matrix_coord& coord) const {
 			uchar* p = (uchar*)bip;
 			
