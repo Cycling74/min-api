@@ -30,6 +30,13 @@ namespace min {
 			max::dictobj_dictionaryfromatoms(&instance, content.size(), &content[0]);
 		}
 		
+		
+		dict(atom an_atom_containing_a_dict) {
+			auto a = (max::t_atom*)&an_atom_containing_a_dict;
+			instance = (max::t_dictionary*)max::atom_getobj(a);
+			max::object_retain(instance);
+		}
+		
 	
 		~dict() {
 			object_free(instance);
@@ -53,6 +60,11 @@ namespace min {
 		
 		symbol name() {
 			return dictobj_namefromptr(instance);
+		}
+		
+		
+		bool valid() {
+			return instance != nullptr;
 		}
 		
 		
