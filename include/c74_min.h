@@ -2,6 +2,7 @@
 
 #include "c74_max.h"
 #include "c74_msp.h"
+#include <array>
 #include <string>
 #include <vector>
 #include <functional>
@@ -40,3 +41,6 @@ void ext_main (void* r) { \
 #define OUTLET( name, ... )					c74::min::outlet				name = { this, __VA_ARGS__ };
 #define CLOCK( name )						c74::min::clock					name = { this, [this](c74::min::atoms& args)
 #define END };
+
+#define MIN_CLAMP( in, lo, hi )				c74::max::clamp<typeof(in)>(in, lo, hi)
+

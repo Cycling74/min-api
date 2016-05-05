@@ -6,6 +6,68 @@ namespace c74 {
 namespace min {
 
 	
+	
+	using pixel = std::array<uchar,4>;
+	
+	enum {
+		alpha = 0,
+		red,
+		green,
+		blue
+	};
+	
+	class matrix_info : public max::t_jit_matrix_info {
+	public:
+		matrix_info(max::t_jit_matrix_info* src) {
+			t_jit_matrix_info::size = src->size;
+			t_jit_matrix_info::type = src->type;
+			t_jit_matrix_info::flags = src->flags;
+			t_jit_matrix_info::dimcount = src->dimcount;
+			for (auto i=0; i<t_jit_matrix_info::dimcount; ++i) {
+				t_jit_matrix_info::dim[i] = src->dim[i];
+				t_jit_matrix_info::dimstride[i] = src->dimstride[i];
+			}
+			t_jit_matrix_info::planecount = src->planecount;
+		}
+
+		
+		long planecount() const {
+			return t_jit_matrix_info::planecount;
+		}
+
+		long dimcount() const {
+			return t_jit_matrix_info::dimcount;
+		}
+
+		long width() const {
+			return dim[0];
+		}
+
+		long height() const {
+			return dim[1];
+		}
+	};
+	
+	
+	class matrix_coord {
+	public:
+		matrix_coord(long x, long y) {
+			position[0] = x;
+			position[1] = y;
+		}
+		
+		long x() {
+			return position[0];
+		}
+		
+		long y() {
+			return position[1];
+		}
+		
+		long position[max::JIT_MATRIX_MAX_DIMCOUNT];
+	};
+
+	
 	// this is for the jitter object (the normal one is used for the max wrapper of that)
 	static max::t_class* this_jit_class = nullptr;
 
@@ -52,13 +114,11 @@ namespace min {
 	
 	template<class T>
 	void* max_jit_new(max::t_symbol* s, long argc, max::t_atom* argv) {
-		max_jit_wrapper* self = (max_jit_wrapper*)max::max_jit_object_alloc(this_class, c74::max::gensym("jit_clamp"));
-// TODO: hard-wired jit_clip above
-		void* o = max::jit_object_new(max::gensym("jit_clamp"));
-// TODO: hard-wired jit_clip above
+		auto cppname = (max::t_symbol*)c74::min::this_class->c_menufun;
+		max_jit_wrapper* self = (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
+		void* o = max::jit_object_new(cppname);
 		max_jit_mop_setup_simple(self, o, argc, argv);
 		max_jit_attr_args(self, argc, argv);
-
 		return self;
 	}
 	
@@ -73,25 +133,50 @@ namespace min {
 	// We are using a C++ template to process a vector of the matrix for any of the given types.
 	// Thus, we don't need to duplicate the code for each datatype.
 	template<class T, typename U>
-	void jit_calculate_vector(minwrap<T>* self, long n, max::t_jit_op_info* in, max::t_jit_op_info* out) {
+	void jit_calculate_vector(minwrap<T>* self, const matrix_info& info, long n, long i, max::t_jit_op_info* in, max::t_jit_op_info* out) {
 		auto ip = ((U*)in->p);
 		auto op = ((U*)out->p);
 		auto is = in->stride;
 		auto os = out->stride;
+		const auto step = is / info.planecount();
 		
-		if ((is==1) && (os==1)) {
-			++n;
-			--op;
-			--ip;
-			while (--n) {
-				const auto tmp = *++ip;
-				*++op = self->obj.calc_cell(tmp);
+		if (info.planecount() == 1) {
+			for (auto j=0; j<n; ++j) {
+				matrix_coord position(j, i);
+				const std::array<U,1> tmp = {{ *(ip) }};
+				const std::array<U,1> out = self->obj.calc_cell(tmp, info, position);
+				*(op) = out[0];
+				ip += is;
+				op += os;
+			}
+		}
+		else if (info.planecount() == 4) {
+			for (auto j=0; j<n; ++j) {
+				matrix_coord position(j, i);
+				const std::array<U,4> tmp = {{ *(ip), *(ip+step), *(ip+step*2), *(ip+step*3) }};
+				const std::array<U,4> out = self->obj.calc_cell(tmp, info, position);
+				*(op) = out[0];
+				*(op+step) = out[1];
+				*(op+step*2) = out[2];
+				*(op+step*3) = out[3];
+				
+				ip += is;
+				op += os;
 			}
 		}
 		else {
-			while (n--) {
-				const auto tmp = *ip;
-				*op = self->obj.calc_cell(tmp);
+			for (auto j=0; j<n; ++j) {
+				std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> tmp;// = { *(ip), *(ip+step), *(ip+step*2), *(ip+step*3) };
+				
+				for (auto k=0; k<info.planecount(); ++k)
+					tmp[k] = *(ip+step*k);
+				
+				matrix_coord position(j, i);
+				const std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> out = self->obj.calc_cell(tmp, info, position);
+				
+				for (auto k=0; k<info.planecount(); ++k)
+					*(op+step*k) = out[k];
+				
 				ip += is;
 				op += os;
 			}
@@ -104,12 +189,11 @@ namespace min {
 	// The calls into these templates should be inlined by the compiler, eliminating concern about any added function call overhead.
 	template<class T, typename U>
 	void jit_calculate_ndim_loop(minwrap<T>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, char* bip, char* bop, long* dim, long planecount, long datasize) {
+		matrix_info info(in_minfo);
 		for (auto i=0; i<dim[1]; i++) {
-			for (auto j=0; j<planecount; j++) {
-				in_opinfo->p  = bip + i * in_minfo->dimstride[1]  + (j % in_minfo->planecount) * datasize;
-				out_opinfo->p = bop + i * out_minfo->dimstride[1] + (j % out_minfo->planecount) * datasize;
-				jit_calculate_vector<T,U>(self, n, in_opinfo, out_opinfo);
-			}
+			in_opinfo->p  = bip + i * in_minfo->dimstride[1];
+			out_opinfo->p = bop + i * out_minfo->dimstride[1];
+			jit_calculate_vector<T,U>(self, info, n, i, in_opinfo, out_opinfo);
 		}
 	}
 
@@ -130,16 +214,8 @@ namespace min {
 				{
 					// if planecount is the same then flatten planes - treat as single plane data for speed
 					auto n = dim[0];
-					if ((in_minfo->dim[0] > 1) && (out_minfo->dim[0] > 1) && (in_minfo->planecount == out_minfo->planecount)) {
-						in_opinfo.stride = 1;
-						out_opinfo.stride = 1;
-						n *= planecount;
-						planecount = 1;
-					}
-					else {
-						in_opinfo.stride =  in_minfo->dim[0]>1  ? in_minfo->planecount  : 0;
-						out_opinfo.stride = out_minfo->dim[0]>1 ? out_minfo->planecount : 0;
-					}
+					in_opinfo.stride =  in_minfo->dim[0]>1  ? in_minfo->planecount  : 0;
+					out_opinfo.stride = out_minfo->dim[0]>1 ? out_minfo->planecount : 0;
 					
 					if (in_minfo->type == max::_jit_sym_char)
 						jit_calculate_ndim_loop<T, uchar>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 1);
@@ -290,6 +366,9 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 	c74::max::max_jit_class_wrap_standard(c74::min::this_class, c74::min::this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
 	
 	c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::max::max_jit_mop_assist, "assist", c74::max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
+	
+	// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
+	c74::min::this_class->c_menufun = (c74::max::method)c74::max::gensym(cppname);
 	
 	c74::max::class_register(c74::max::CLASS_BOX, c74::min::this_class);
 }
