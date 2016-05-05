@@ -70,5 +70,4 @@ namespace min {
 		max::t_dictionary*	instance = nullptr;
 	};
 	
-	
 }} // namespace c74::min

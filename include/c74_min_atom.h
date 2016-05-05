@@ -72,6 +72,7 @@ namespace min {
 			return atom_getsym(this);
 		}
 
+
 		operator std::string() const {
 			std::string s;
 			

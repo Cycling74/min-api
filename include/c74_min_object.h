@@ -347,15 +347,9 @@ namespace min {
 	template<class T>
 	void min_dictionary(minwrap<T>* self, max::t_symbol *s) {
 		auto& meth = self->obj.methods["dictionary"];
-//		atoms as = atoms_from_acav(ac, av);
-//		as.insert(as.begin(), atom(s));
-		
-//		t_dictionary	*d =
 		auto d = dictobj_findregistered_retain(s);
 		atoms as = { atom(d) };
-		
 		meth->function(as);
-		
 		dictobj_release(d);
 	}
 	
