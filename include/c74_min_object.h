@@ -56,7 +56,10 @@ namespace min {
 		T						obj;
 		
 		void setup() {
+			auto self = &header;
 			//max::dsp_setup((max::t_pxobject*)self, self->obj.inlets.size());
+			for (auto i=obj.inlets.size()-1; i>0; --i)
+				obj.inlets[i]->instance = max::proxy_new(self, i, nullptr);
 		}
 		
 		void cleanup() {}
@@ -94,6 +97,8 @@ namespace min {
 		{
 			owner->inlets.push_back(this);
 		}
+
+		void* instance = nullptr;
 	};
 	
 	
