@@ -5,8 +5,6 @@
 namespace c74 {
 namespace min {
 
-	
-	
 	using pixel = std::array<uchar,4>;
 	
 	enum {
@@ -16,39 +14,6 @@ namespace min {
 		blue
 	};
 	
-	class matrix_info : public max::t_jit_matrix_info {
-	public:
-		matrix_info(max::t_jit_matrix_info* src) {
-			t_jit_matrix_info::size = src->size;
-			t_jit_matrix_info::type = src->type;
-			t_jit_matrix_info::flags = src->flags;
-			t_jit_matrix_info::dimcount = src->dimcount;
-			for (auto i=0; i<t_jit_matrix_info::dimcount; ++i) {
-				t_jit_matrix_info::dim[i] = src->dim[i];
-				t_jit_matrix_info::dimstride[i] = src->dimstride[i];
-			}
-			t_jit_matrix_info::planecount = src->planecount;
-		}
-
-		
-		long planecount() const {
-			return t_jit_matrix_info::planecount;
-		}
-
-		long dimcount() const {
-			return t_jit_matrix_info::dimcount;
-		}
-
-		long width() const {
-			return dim[0];
-		}
-
-		long height() const {
-			return dim[1];
-		}
-	};
-	
-	
 	class matrix_coord {
 	public:
 		matrix_coord(long x, long y) {
@@ -56,17 +21,76 @@ namespace min {
 			position[1] = y;
 		}
 		
-		long x() {
+		long x() const {
 			return position[0];
 		}
 		
-		long y() {
+		long y() const {
 			return position[1];
 		}
 		
 		long position[max::JIT_MATRIX_MAX_DIMCOUNT];
 	};
+	
+	class matrix_info {
+	public:
+		matrix_info(max::t_jit_matrix_info* a_in_info, char* ip, max::t_jit_matrix_info* a_out_info, char* op)
+		: in_info(a_in_info)
+		, bip(ip)
+		, out_info(a_out_info)
+		, bop(op)
+		{
+		}
 
+		
+		long planecount() const {
+			return in_info->planecount;
+		}
+
+		long dimcount() const {
+			return in_info->dimcount;
+		}
+
+		long width() const {
+			return in_info->dim[0];
+		}
+
+		long height() const {
+			return in_info->dim[1];
+		}
+		
+		
+		const pixel in_pixel(const matrix_coord& coord) const {
+			uchar* p = (uchar*)bip;
+			
+			for (auto j=0; j < in_info->dimcount; ++j)
+				p += coord.position[j] * in_info->dimstride[j];
+
+			const pixel pa = {{ *(p), *(p+1), *(p+2), *(p+3) }};
+			return pa;
+		}
+		
+		
+		const pixel in_pixel(int x, int y) const {
+			matrix_coord coord(x, y);
+			return in_pixel(coord);
+		}
+		
+
+		pixel& out_pixel(const matrix_coord&) {
+			// TODO: implement
+			;
+		}
+
+		
+		max::t_jit_matrix_info*	in_info;
+		char*		bip;
+		max::t_jit_matrix_info*	out_info;
+		char*		bop;
+		
+	};
+	
+	
 	
 	// this is for the jitter object (the normal one is used for the max wrapper of that)
 	static max::t_class* this_jit_class = nullptr;
@@ -189,7 +213,7 @@ namespace min {
 	// The calls into these templates should be inlined by the compiler, eliminating concern about any added function call overhead.
 	template<class T, typename U>
 	void jit_calculate_ndim_loop(minwrap<T>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, char* bip, char* bop, long* dim, long planecount, long datasize) {
-		matrix_info info(in_minfo);
+		matrix_info info(in_minfo, bip, out_minfo, bop);
 		for (auto i=0; i<dim[1]; i++) {
 			in_opinfo->p  = bip + i * in_minfo->dimstride[1];
 			out_opinfo->p = bop + i * out_minfo->dimstride[1];
