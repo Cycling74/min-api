@@ -103,9 +103,10 @@ namespace min {
 		}
 		
 
-		pixel& out_pixel(const matrix_coord&) {
+		pixel out_pixel(const matrix_coord&) {
 			// TODO: implement
-			;
+			pixel a;
+			return a;
 		}
 
 		
