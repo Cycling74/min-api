@@ -241,11 +241,11 @@ namespace min {
 		
 		self->setup();
 		
-		for (auto& outlet : self->obj.outlets) {
-			if (outlet->type == "")
-				outlet->instance = max::outlet_new(self, nullptr);
+		for (auto outlet = self->obj.outlets.rbegin(); outlet != self->obj.outlets.rend(); ++outlet) {
+			if ((*outlet)->type == "")
+				(*outlet)->instance = max::outlet_new(self, nullptr);
 			else
-				outlet->instance = max::outlet_new(self, outlet->type.c_str());
+				(*outlet)->instance = max::outlet_new(self, (*outlet)->type.c_str());
 		}
 		
 		max::attr_args_process(self, argc, argv);
