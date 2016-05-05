@@ -56,7 +56,20 @@ namespace min {
 				instance = (max::t_dictionary*)max::atom_getobj(a);
 			return *this;
 		}
-	
+		
+		
+		atoms operator[](symbol key){
+			long			argc = 0;
+			max::t_atom*	argv = nullptr;
+			auto			err = max::dictionary_getatoms(instance, key, &argc, &argv);
+			auto			as = atoms_from_acav(argc, argv);
+			
+			if (err)
+				; // TODO: handle the error somehow?  throw an exception?
+			
+			return as;
+		};
+		
 		
 		symbol name() {
 			return dictobj_namefromptr(instance);
