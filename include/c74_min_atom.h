@@ -27,6 +27,10 @@ namespace min {
 			atom_setlong(this, value);
 		}
 		
+		atom(const int value) {
+			atom_setlong(this, value);
+		}
+		
 		atom(const bool value) {
 			atom_setlong(this, value);
 		}
@@ -59,6 +63,11 @@ namespace min {
 			return *this;
 		}
 
+		atom& operator = (const int value) {
+			atom_setlong(this, value);
+			return *this;
+		}
+
 		atom& operator = (const bool value) {
 			atom_setlong(this, value);
 			return *this;
@@ -72,7 +81,17 @@ namespace min {
 			atom_setsym(this, value);
 			return *this;
 		}
+
+		atom& operator = (const max::t_object* value) {
+			atom_setobj(this, (void*)value);
+			return *this;
+		}
 		
+		atom& operator = (void* value) {
+			atom_setobj(this, value);
+			return *this;
+		}
+
 		
 		operator double() const {
 			return atom_getfloat(this);
@@ -92,6 +111,14 @@ namespace min {
 		
 		operator max::t_symbol*() const {
 			return atom_getsym(this);
+		}
+
+		operator max::t_object*() const {
+			return (max::t_object*)atom_getobj(this);
+		}
+
+		operator void*() const {
+			return atom_getobj(this);
 		}
 
 

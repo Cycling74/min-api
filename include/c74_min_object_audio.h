@@ -131,6 +131,8 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_dsp64<cpp_classname>, "dsp64", c74::max::A_CANT, 0);
 		else if (a_method.first == "dblclick")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_dblclick<cpp_classname>, "dblclick", c74::max::A_CANT, 0);
+		else if (a_method.first == "notify")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_notify<cpp_classname>, "notify", c74::max::A_CANT, 0);
 		else if (a_method.first == "okclose")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method<cpp_classname>, "okclose", c74::max::A_CANT, 0);
 		else if (a_method.first == "edclose")

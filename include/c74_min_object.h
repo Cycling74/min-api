@@ -27,7 +27,8 @@ namespace min {
 			return proxy_getinlet((max::t_object*)maxobj);
 		}
 
-		max::t_object*										maxobj = nullptr;
+		max::t_object*										maxobj;
+		bool												initialized = false;
 		std::vector<min::inlet*>							inlets;
 		std::vector<min::outlet*>							outlets;
 		std::unordered_map<std::string, method*>			methods;
@@ -158,9 +159,14 @@ namespace min {
 			function(args);
 		}
 		
+		void operator ()(atom arg) {
+			atoms as = { arg };
+			function(as);
+		}
+		
 		void operator ()() {
-			atoms a;
-			function(a);
+			atoms as;
+			function(as);
 		}
 		
 		//private:
@@ -200,7 +206,7 @@ namespace min {
 		attribute& operator = (const T arg) {
 			atoms as = { atom(arg) };
 			*this = as;
-			if (owner->maxobj)
+			if (owner->initialized)
 				object_attr_touch(owner->maxobj, name);
 			return *this;
 		}
@@ -242,8 +248,9 @@ namespace min {
 		long		attrstart = attr_args_offset(argc, argv);		// support normal arguments
 		minwrap<T>*	self = (minwrap<T>*)max::object_alloc(this_class);
 		
+		self->obj.maxobj = (max::t_object*)self; // maxobj needs to be set prior to placement new
 		new(&self->obj) T(atoms_from_acav(attrstart, argv)); // placement new
-		self->obj.maxobj = (max::t_object*)self;
+		self->obj.initialized = true;
 		
 		self->setup();
 		
@@ -341,6 +348,19 @@ namespace min {
 		meth->function(as);
 	}
 
+	template<class T>
+	void min_method_notify(minwrap<T>* self, max::t_symbol*s, max::t_symbol* msg, void* sender, void* data) {
+		auto& meth = self->obj.methods["notify"];
+		atoms as(5);
+		
+		as[0] = self;
+		as[1] = s;
+		as[2] = msg;
+		as[3] = sender;
+		as[4] = data;
+		meth->function(as);
+	}
+	
 	template<class T>
 	void min_method_edclose(minwrap<T>* self) {
 		auto& meth = self->obj.methods["edclose"];
