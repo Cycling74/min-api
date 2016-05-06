@@ -72,15 +72,16 @@ namespace min {
 		
 		template<class matrix_type, size_t planecount>
 		const std::array<matrix_type,planecount> in_cell(const matrix_coord& coord) const {
-			matrix_type* p = (matrix_type*)bip;
+			auto p = (char*)bip;
 			
 			for (auto j=0; j < in_info->dimcount; ++j)
 				p += coord.position[j] * in_info->dimstride[j];
 			
 			std::array<matrix_type,planecount> pa;
 			
+			auto p2 = (matrix_type*)p;
 			for (auto plane=0; plane<planecount; ++plane)
-				pa[plane] = *(p+plane);
+				pa[plane] = *(p2+plane);
 			return pa;
 		}
 		
@@ -334,7 +335,7 @@ namespace min {
 				//if dimsize is 1, treat as infinite domain across that dimension.
 				//otherwise truncate if less than the output dimsize
 				dim[i] = out_minfo.dim[i];
-				if ((in_minfo.dim[i]<dim[i])&&in_minfo.dim[i]>1) {
+				if ((in_minfo.dim[i]<dim[i]) && in_minfo.dim[i]>1) {
 					dim[i] = in_minfo.dim[i];
 				}
 			}
