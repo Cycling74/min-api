@@ -37,9 +37,9 @@ namespace min {
 #include "c74_min_texteditor.h"
 
 
-#define MIN_EXTERNAL(cpp_classname,max_classname) \
+#define MIN_EXTERNAL(cpp_classname) \
 void ext_main (void* r) { \
-	define_min_external< cpp_classname > ( #cpp_classname, max_classname , r ); \
+	define_min_external< cpp_classname > ( #cpp_classname, __FILE__ , r ); \
 }
 
 

@@ -433,8 +433,30 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 {
 	c74::min::atoms	a;
 	cpp_classname	dummy(a);
+	std::string		smaxname;
 	
-	c74::min::this_class = c74::max::class_new( maxname ,(c74::max::method)c74::min::min_new<cpp_classname>, (c74::max::method)c74::min::min_free<cpp_classname>, sizeof( c74::min::minwrap<cpp_classname> ), nullptr, c74::max::A_GIMME, 0);
+	// maxname may come in as an entire path because of use of the __FILE__ macro
+	{
+		const char* start = strrchr(maxname, '/');
+		if (start)
+			start += 1;
+		else
+			start = maxname;
+		
+		const char* end = strstr(start, "_tilde.cpp");
+		if (end) {
+			smaxname.assign(start, end-start);
+			smaxname += '~';
+		}
+		else {
+			const char* end = strrchr(start, '.');
+			if (!end)
+				end = start + strlen(start);
+			smaxname.assign(start, end-start);
+		}
+	}
+	
+	c74::min::this_class = c74::max::class_new( smaxname.c_str() ,(c74::max::method)c74::min::min_new<cpp_classname>, (c74::max::method)c74::min::min_free<cpp_classname>, sizeof( c74::min::minwrap<cpp_classname> ), nullptr, c74::max::A_GIMME, 0);
 	
 	for (auto& a_method : dummy.methods) {
 		if (a_method.first == "dblclick")

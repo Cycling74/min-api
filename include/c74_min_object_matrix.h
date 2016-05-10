@@ -366,6 +366,31 @@ template<class cpp_classname>
 typename std::enable_if<std::is_base_of<c74::min::matrix_object, cpp_classname>::value>::type
 define_min_external(const char* cppname, const char* maxname, void *resources)
 {
+	std::string		smaxname;
+	
+	// maxname may come in as an entire path because of use of the __FILE__ macro
+	{
+		const char* start = strrchr(maxname, '/');
+		if (start)
+			start += 1;
+		else
+			start = maxname;
+		
+		const char* end = strstr(start, "_tilde.cpp");
+		if (end) {
+			smaxname.assign(start, end-start);
+			smaxname += '~';
+		}
+		else {
+			const char* end = strrchr(start, '.');
+			if (!end)
+				end = start + strlen(start);
+			smaxname.assign(start, end-start);
+		}
+	}
+
+	
+	
 	// 1. Boxless Jit Class
 
 	c74::min::atoms	a;
@@ -409,7 +434,7 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 	// 2. Max Wrapper Class
 	
 	c74::min::this_class = c74::max::class_new(
-											   maxname,
+											   smaxname.c_str(),
 											   (c74::max::method)c74::min::max_jit_new<cpp_classname>,
 											   (c74::max::method)c74::min::max_jit_free,
 											   sizeof( c74::min::max_jit_wrapper ),
