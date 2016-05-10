@@ -20,6 +20,7 @@ namespace min {
 
 #include "c74_min_symbol.h"
 #include "c74_min_atom.h"
+#include "c74_min_map.h"
 #include "c74_min_dictionary.h"
 
 namespace c74 { 
