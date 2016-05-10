@@ -46,7 +46,15 @@ namespace min {
 		atom(const max::t_symbol* value) {
 			max::atom_setsym(this, value);
 		}
-		
+
+		atom(const char* value) {
+			max::atom_setsym(this, max::gensym(value));
+		}
+
+		atom(const std::string value) {
+			max::atom_setsym(this, max::gensym(value.c_str()));
+		}
+
 		atom(const max::t_dictionary* value) {
 			max::atom_setobj(this, (void*)value);
 		}
