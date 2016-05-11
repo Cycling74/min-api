@@ -37,6 +37,8 @@ namespace min {
 #include "c74_min_path.h"
 #include "c74_min_texteditor.h"
 
+#include "c74_min_accessories.h"
+
 
 #define MIN_EXTERNAL(cpp_classname) \
 void ext_main (void* r) { \
