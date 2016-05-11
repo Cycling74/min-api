@@ -124,7 +124,15 @@ namespace min {
 		void send(symbol s1) {
 			c74::max::outlet_anything(instance, s1, 0, nullptr);
 		}
-		
+
+		void send(std::string s1) {
+			c74::max::outlet_anything(instance, c74::max::gensym(s1.c_str()), 0, nullptr);
+		}
+
+		void send(const char* s1) {
+			c74::max::outlet_anything(instance, c74::max::gensym(s1), 0, nullptr);
+		}
+
 		void send(symbol s1, symbol s2) {
 			atom a(s2);
 			c74::max::outlet_anything(instance, s1, 1, &a);

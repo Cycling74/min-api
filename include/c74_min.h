@@ -34,6 +34,7 @@ namespace min {
 
 #include "c74_min_clock.h"
 #include "c74_min_buffer.h"
+#include "c74_min_path.h"
 #include "c74_min_texteditor.h"
 
 
