@@ -239,6 +239,7 @@ namespace min {
 			return value;
 		}
 		
+		
 	private:
 		T				value;
 	};

@@ -8,6 +8,7 @@
 namespace c74 {
 namespace min {
 	
+	class atom;
 	
 	class symbol {
 	public:
@@ -31,6 +32,17 @@ namespace min {
 			s = value;
 			return *this;
 		}
+
+		symbol& operator = (const atom& value); // defined in c74_min_atom.h
+
+		friend bool operator == (const symbol& lhs, const symbol& rhs) {
+			return lhs.s == rhs.s;
+		}
+
+		friend bool operator == (const symbol& lhs, const char* rhs) {
+			return lhs.s == max::gensym(rhs);
+		}
+
 		
 		operator max::t_symbol*() const {
 			return s;

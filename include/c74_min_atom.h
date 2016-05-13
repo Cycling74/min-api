@@ -178,6 +178,14 @@ namespace min {
 		
 	};
 	
+
+	// part of the symbol class but must be defined after atom is defined
+	symbol& symbol::operator = (const atom& value) {
+		s = value;
+		return *this;
+	}
+
+	
 	
 	using atoms = std::vector<atom>;
 	
