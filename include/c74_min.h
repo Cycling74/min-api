@@ -16,6 +16,7 @@
 namespace c74 {
 namespace min {
 	using uchar = unsigned char;
+	using sample = double;
 }}
 
 #include "c74_min_symbol.h"

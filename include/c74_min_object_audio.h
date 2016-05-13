@@ -7,6 +7,19 @@
 
 namespace c74 {
 namespace min {
+	
+	
+	template<int input_count, int output_count>
+	class sample_operator {
+		
+		void foo() {
+			c74::max::cpost("foo");
+		}
+		
+	public:
+		int inputcount = input_count;
+		int outputcount = output_count;
+	};
 
 	
 	template<class T>
@@ -35,15 +48,72 @@ namespace min {
 		long frame_count;
 	};
 	
+	
+	template <typename T>
+	struct has_perform {
+		template <class, class> class checker;
+		
+		template <typename C>
+		static std::true_type test(checker<C, decltype(&C::perform)> *);
+		
+		template <typename C>
+		static std::false_type test(...);
+		
+		typedef decltype(test<T>(nullptr)) type;
+		static const bool value = std::is_same<std::true_type, decltype(test<T>(nullptr))>::value;
+	};
+
+	
+	// the partial specialization of A is enabled via a template parameter
+	template<class T, class Enable = void>
+	class min_performer {
+	public:
+		static void perform(minwrap<T>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+			audio_bundle input = {in_chans, numins, sampleframes};
+			audio_bundle output = {out_chans, numouts, sampleframes};
+			self->obj.perform(input, output);
+		}
+	}; // primary template
+	
+	
+	
 	template<class T>
-	typename std::enable_if<std::is_base_of<c74::min::audio_object, T>::value>::type
-	min_perform(minwrap<T>* self, max::t_object *dsp64, double **ins, long numins, double **outs, long numouts, long sampleframes, long flags, void *userparam) {
-		audio_bundle input = {ins, numins, sampleframes};
-		audio_bundle output = {outs, numouts, sampleframes};
-		self->obj.perform(input, output);
-	}
+	class min_performer<T, typename std::enable_if< std::is_base_of<c74::min::sample_operator<1,1>, T >::value>::type> {
+	public:
+		static void perform(minwrap<T>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+			auto in_samps = in_chans[0];
+			auto out_samps = out_chans[0];
+			
+			for (auto i=0; i<sampleframes; ++i) {
+				auto in = in_samps[i];
+				auto out = self->obj.calculate(in);
+				out_samps[i] = out;
+			}
+		}
+	};
+
 	
+	template<class T>
+	class min_performer<T, typename std::enable_if< std::is_base_of<c74::min::sample_operator<3,1>, T >::value>::type> {
+	public:
+		static void perform(minwrap<T>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+			auto in_samps1 = in_chans[0];
+			auto in_samps2 = in_chans[1];
+			auto in_samps3 = in_chans[2];
+			auto out_samps = out_chans[0];
+			
+			for (auto i=0; i<sampleframes; ++i) {
+				auto in1 = in_samps1[i];
+				auto in2 = in_samps2[i];
+				auto in3 = in_samps3[i];
+				auto out = self->obj.calculate(in1, in2, in3);
+				out_samps[i] = out;
+			}
+		}
+	}; // specialization for floating point types
 	
+
+
 	
 	
 	template <typename T>
@@ -64,8 +134,7 @@ namespace min {
 	
 	
 	template<class T>
-	typename std::enable_if< has_dspsetup<T>::value && std::is_base_of<c74::min::audio_object, T>::value>::type
-	min_dsp64_sel(minwrap<T>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
+	void min_dsp64_io(minwrap<T>* self, short* count) {
 		int i = 0;
 		
 		while (i < self->obj.inlets.size()) {
@@ -76,34 +145,37 @@ namespace min {
 			self->obj.outlets[i - self->obj.inlets.size()]->signal_connection = count[i];
 			++i;
 		}
+	}
+	
+	
+	// TODO: enable a different add_perform if no perform with the correct sig is available?
+	// And/or overload the min_perform for different input and output counts?
+	
+	template<class T>
+	void min_dsp64_add_perform(minwrap<T>* self, max::t_object* dsp64) {
+		// find the perform method and add it
+		object_method_direct(void, (max::t_object*, max::t_object*, max::t_perfroutine64, long, void*),
+							 dsp64, max::gensym("dsp_add64"), (max::t_object*)self, (max::t_perfroutine64)min_performer<T>::perform, 0, NULL);
+	}
+	
+	template<class T>
+	typename std::enable_if< has_dspsetup<T>::value && std::is_base_of<c74::min::audio_object, T>::value>::type
+	min_dsp64_sel(minwrap<T>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
+		min_dsp64_io(self, count);
 		
 		atoms args;
 		args.push_back(atom(samplerate));
 		args.push_back(atom(maxvectorsize));
 		self->obj.dspsetup(args);
 		
-		// find the perform method and add it
-		object_method_direct(void, (max::t_object*, max::t_object*, max::t_perfroutine64, long, void*),
-							 dsp64, max::gensym("dsp_add64"), (max::t_object*)self, (max::t_perfroutine64)min_perform<T>, 0, NULL);
+		min_dsp64_add_perform(self, dsp64);
 	}
 	
 	template<class T>
 	typename std::enable_if< !has_dspsetup<T>::value>::type
 	min_dsp64_sel(minwrap<T>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
-		int i = 0;
-		
-		while (i < self->obj.inlets.size()) {
-			self->obj.inlets[i]->signal_connection = count[i];
-			++i;
-		}
-		while (i < self->obj.outlets.size()) {
-			self->obj.outlets[i - self->obj.inlets.size()]->signal_connection = count[i];
-			++i;
-		}
-		
-		// find the perform method and add it
-		object_method_direct(void, (max::t_object*, max::t_object*, max::t_perfroutine64, long, void*),
-							 dsp64, max::gensym("dsp_add64"), (max::t_object*)self, (max::t_perfroutine64)min_perform<T>, 0, NULL);
+		min_dsp64_io(self, count);
+		min_dsp64_add_perform(self, dsp64);
 	}
 	
 	template<class T>
