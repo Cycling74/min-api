@@ -138,6 +138,11 @@ namespace min {
 			c74::max::outlet_anything(instance, s1, 1, &a);
 		}
 
+		void send(symbol s1, double f2) {
+			atom a(f2);
+			c74::max::outlet_anything(instance, s1, 1, &a);
+		}
+		
 		void* instance = nullptr;
 	};
 	
