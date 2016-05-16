@@ -54,5 +54,8 @@ void ext_main (void* r) { \
 #define CLOCK( name )						c74::min::clock					name = { this, [this](c74::min::atoms& args)
 #define END };
 
+#ifdef WIN_VERSION
 #define MIN_CLAMP( in, lo, hi )				c74::max::clamp<std::remove_reference<decltype(in)>::type>(in, lo, hi)
-
+#else
+#define MIN_CLAMP( in, lo, hi )				c74::max::clamp<typeof(in)>(in, lo, hi)
+#endif
