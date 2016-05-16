@@ -105,6 +105,10 @@ namespace min {
 			return atom_getfloat(this);
 		}
 		
+		operator int() const {
+			return atom_getlong(this);
+		}
+
 		operator long() const {
 			return atom_getlong(this);
 		}
