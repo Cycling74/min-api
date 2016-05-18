@@ -7,6 +7,7 @@
 
 #include "c74_max.h"
 #include "c74_msp.h"
+#include <atomic>
 #include <array>
 #include <string>
 #include <vector>
