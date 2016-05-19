@@ -149,7 +149,7 @@ namespace min {
 					break;
 				case max::A_OBJ:
 					if (a_w.w_obj)
-						s = object_classname(a_w.w_obj)->s_name;
+						s = c74::max::object_classname(a_w.w_obj)->s_name;
 					else
 						s = "NULL";
 					break;

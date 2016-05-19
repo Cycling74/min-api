@@ -152,7 +152,7 @@ inline t_max_err object_free(void *x)
 /**	Return the name of the class represented by a #t_object instance.
 	This mocks the behavior of Max's real object_classname(). 
  */
-inline t_symbol *object_classname(void *x)
+inline t_symbol *object_classname(t_object *x)
 {
 	t_object		*o = (t_object*)x;
 	t_mock_messlist *mock_messlist = (t_mock_messlist*)o->o_messlist;
@@ -160,6 +160,7 @@ inline t_symbol *object_classname(void *x)
 	
 	return c->c_sym;
 }
+
 
 
 inline method zgetfn(t_object *op, t_symbol *msg)
@@ -185,3 +186,4 @@ inline t_object *object_method_direct_getobject(t_object *x, t_symbol *sym)
 
 
 }} // namespace c74::max
+
