@@ -202,9 +202,14 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 		const char* start = strrchr(maxname, '/');
 		if (start)
 			start += 1;
-		else
-			start = maxname;
-		
+		else {
+			start = strrchr(maxname, '\\');
+			if (start)
+				start += 1;
+			else
+				start = maxname;
+		}
+
 		const char* end = strstr(start, "_tilde.cpp");
 		if (end) {
 			smaxname.assign(start, end-start);
