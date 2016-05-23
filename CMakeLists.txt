@@ -18,7 +18,5 @@ foreach(testdir ${TESTDIRS})
 	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir}/CMakeLists.txt")
 		message("Generating Unit Test: ${testdir}")
 		add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir})
-		add_test(NAME ${testdir}
-		         COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test/${testdir}/${testdir})
  	endif ()
 endforeach()

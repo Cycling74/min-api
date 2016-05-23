@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+project(test_${PROJECT_NAME})
+
 enable_testing()
 
 include_directories( 
