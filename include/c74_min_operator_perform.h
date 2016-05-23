@@ -130,7 +130,10 @@ namespace min {
 	}
 	
 	template<class T>
-	typename std::enable_if<std::is_base_of<c74::min::perform_operator_base, T>::value>::type
+	typename std::enable_if<
+		std::is_base_of<c74::min::perform_operator_base, T>::value
+		|| std::is_base_of<c74::min::sample_operator_base, T>::value
+	>::type
 	min_dsp64(minwrap<T>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
 		min_dsp64_sel<T>(self, dsp64, count, samplerate, maxvectorsize, flags);
 	}

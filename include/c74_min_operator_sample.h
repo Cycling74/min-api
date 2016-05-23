@@ -58,9 +58,9 @@ namespace min {
 		}
 	}; // specialization for floating point types
 	
-
-	template<class T>
-	typename std::enable_if< has_dspsetup<T>::value && std::is_base_of<c74::min::sample_operator_base, T>::value>::type
+	/*
+//	template<class T>
+//	typename std::enable_if< has_dspsetup<T>::value && std::is_base_of<c74::min::sample_operator_base, T>::value>::type
 	min_dsp64_sel(minwrap<T>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
 		min_dsp64_io(self, count);
 		
@@ -71,13 +71,13 @@ namespace min {
 		
 		min_dsp64_add_perform(self, dsp64);
 	}
-
+	*/
 	
-	template<class T>
-	typename std::enable_if<std::is_base_of<c74::min::sample_operator_base, T>::value>::type
-	min_dsp64(minwrap<T>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
-		min_dsp64_sel<T>(self, dsp64, count, samplerate, maxvectorsize, flags);
-	}
+//	template<class T>
+//	typename std::enable_if<std::is_base_of<c74::min::sample_operator_base, T>::value>::type
+//	min_dsp64(minwrap<T>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
+//		min_dsp64_sel<T>(self, dsp64, count, samplerate, maxvectorsize, flags);
+//	}
 
 }} // namespace c74::min
 
