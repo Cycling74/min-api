@@ -30,9 +30,11 @@ namespace min {
 	static max::t_class* this_class = nullptr;
 }}
 
-#include "c74_min_object.h"
-#include "c74_min_object_audio.h"
-#include "c74_min_object_matrix.h"
+#include "c74_min_object_components.h"	// Max objects
+#include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
+#include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
+#include "c74_min_operator_matrix.h"	// Jitter MOP
+#include "c74_min_object.h"				// Max objects
 
 #include "c74_min_clock.h"
 #include "c74_min_buffer.h"
@@ -51,8 +53,8 @@ void ext_main (void* r) { \
 #define METHOD( name )								c74::min::method				name = { this, #name , [this](c74::min::atoms& args)
 #define ATTRIBUTE( name, type, default)				c74::min::attribute< type >		name = { this, #name , default, [this](c74::min::atoms& args)
 #define ATTRIBUTE_READONLY( name, type, default)	c74::min::attribute< type >		name = { this, #name , default, [this](c74::min::atoms& args)
-#define INLET(  name, desc )						c74::min::inlet					name = { this, desc };
-#define OUTLET( name, ... )							c74::min::outlet				name = { this, __VA_ARGS__ };
+//#define INLET(  name, desc )						c74::min::inlet					name = { this, desc };
+//#define OUTLET( name, ... )						c74::min::outlet				name = { this, __VA_ARGS__ };
 #define CLOCK( name )								c74::min::clock					name = { this, [this](c74::min::atoms& args)
 #define END };
 

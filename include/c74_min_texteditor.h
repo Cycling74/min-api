@@ -55,7 +55,6 @@ namespace min {
 		}};
 
 		
-//		METHOD (okclose) {
 		c74::min::method okclose_meth = { owner, "okclose", [this](c74::min::atoms& args) {
 			char* text = nullptr;
 			
@@ -63,15 +62,11 @@ namespace min {
 			if (*text == 0)
 				return;	// totally blank text editor
 			
-//			atoms as = {atom(c74::max::gensym("anonymous")), atom(c74::max::gensym(text))};
-//			define(as);
 			callback(text);
 			
 			if (text)
 				c74::max::sysmem_freeptr(text);
 		}};
-//		END
-
 
 	};
 	

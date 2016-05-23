@@ -10,7 +10,11 @@
 namespace c74 {
 namespace min {
 
+	class matrix_operator_base {};
 
+	class matrix_operator : public matrix_operator_base {};
+	
+	
 	using pixel = std::array<uchar,4>;
 
 	template<class matrix_type, size_t planecount>
@@ -130,20 +134,9 @@ namespace min {
 	static max::t_class* this_jit_class = nullptr;
 
 	
-	// NOTE: For Jitter, the minwrap is the Jitter Object -- we then generate another wrapper around that...
-	
-	template<class T>
-	struct minwrap < T, typename std::enable_if< std::is_base_of< min::matrix_object, T>::value >::type > {
-		max::t_object 		header;
-		T					obj;
-		
-		void setup() {
-			//max::dsp_setup((max::t_pxobject*)self, self->obj.inlets.size());
-		}
-		
-		void cleanup() {}
-	};
-	
+	// NOTE: For Jitter, minwrap is the nobox Jitter Object
+	// we then generate another wrapper (max_jit_wrapper) around that...
+
 	
 	template<class T>
 	max::t_object* jit_new(){
@@ -363,31 +356,9 @@ namespace min {
 
 
 template<class cpp_classname>
-typename std::enable_if<std::is_base_of<c74::min::matrix_object, cpp_classname>::value>::type
-define_min_external(const char* cppname, const char* maxname, void *resources)
-{
-	std::string		smaxname;
-	
-	// maxname may come in as an entire path because of use of the __FILE__ macro
-	{
-		const char* start = strrchr(maxname, '/');
-		if (start)
-			start += 1;
-		else
-			start = maxname;
-		
-		const char* end = strstr(start, "_tilde.cpp");
-		if (end) {
-			smaxname.assign(start, end-start);
-			smaxname += '~';
-		}
-		else {
-			const char* end = strrchr(start, '.');
-			if (!end)
-				end = start + strlen(start);
-			smaxname.assign(start, end-start);
-		}
-	}
+typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
+define_min_external(const char* cppname, const char* cmaxname, void *resources) {
+	std::string		maxname = c74::min::deduce_maxclassname(cmaxname);
 
 	
 	
@@ -434,7 +405,7 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 	// 2. Max Wrapper Class
 	
 	c74::min::this_class = c74::max::class_new(
-											   smaxname.c_str(),
+											   maxname.c_str(),
 											   (c74::max::method)c74::min::max_jit_new<cpp_classname>,
 											   (c74::max::method)c74::min::max_jit_free,
 											   sizeof( c74::min::max_jit_wrapper ),
@@ -455,4 +426,3 @@ define_min_external(const char* cppname, const char* maxname, void *resources)
 	
 	c74::max::class_register(c74::max::CLASS_BOX, c74::min::this_class);
 }
-

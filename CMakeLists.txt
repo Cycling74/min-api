@@ -3,6 +3,14 @@ project(MinAPI)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/script/min-package.cmake)
 
+
+file(GLOB_RECURSE MIN_API_HEADERS
+	 RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+	 ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+add_custom_target( API ALL
+	SOURCES ${MIN_API_HEADERS}
+)
+
 enable_testing()
 
 SUBDIRLIST(TESTDIRS ${CMAKE_CURRENT_SOURCE_DIR}/test)
