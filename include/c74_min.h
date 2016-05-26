@@ -18,6 +18,7 @@ namespace c74 {
 namespace min {
 	using uchar = unsigned char;
 	using sample = double;
+	using samples = std::vector<sample>;
 }}
 
 #include "c74_min_symbol.h"
