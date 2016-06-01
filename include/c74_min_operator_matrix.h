@@ -300,66 +300,70 @@ namespace min {
 //	template <typename Type, typename std::enable_if<condition<Type>::value, int>::type = 0>
 //	return_type foo(const Type&);
 
-	template <typename cpp_classname, enable_if_matrix_operator<cpp_classname> = 0>
+//	template <typename cpp_classname, enable_if_matrix_operator<cpp_classname> = 0>
 //	return_type foo(const Type&);
 //
-//	template<class cpp_classname>
+	template<class cpp_classname>
 //	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
-	max::t_jit_err jit_matrix_calc(minwrap<cpp_classname>* self, max::t_object* inputs, max::t_object* outputs) {
+	enable_if_matrix_operator<cpp_classname>
+	/*max::t_jit_err*/ jit_matrix_calc(minwrap<cpp_classname>* self, max::t_object* inputs, max::t_object* outputs) {
 		max::t_jit_err			err = max::JIT_ERR_NONE;
 		auto					in_mop_io = (max::t_object*)max::object_method(inputs, max::_jit_sym_getindex, 0);
 		auto					out_mop_io = (max::t_object*)max::object_method(outputs, max::_jit_sym_getindex, 0);
 		auto					in_matrix 	= (max::t_object*)max::object_method(in_mop_io, max::gensym("getmatrix"));
 		auto					out_matrix 	= (max::t_object*)max::object_method(out_mop_io, max::gensym("getmatrix"));
 		
-		if (!self || !in_matrix || !out_matrix)
-			return max::JIT_ERR_INVALID_PTR;
-
-		auto in_savelock = max::object_method(in_matrix, max::_jit_sym_lock, (void*)1);
-		auto out_savelock = max::object_method(out_matrix, max::_jit_sym_lock, (void*)1);
-		
-		max::t_jit_matrix_info in_minfo;
-		max::t_jit_matrix_info out_minfo;
-		max::object_method(in_matrix, max::_jit_sym_getinfo, &in_minfo);
-		max::object_method(out_matrix, max::_jit_sym_getinfo, &out_minfo);
-		
-		char* in_bp = nullptr;
-		char* out_bp = nullptr;
-		max::object_method(in_matrix, max::_jit_sym_getdata, &in_bp);
-		max::object_method(out_matrix, max::_jit_sym_getdata, &out_bp);
-		
-		if (!in_bp)
-			err = max::JIT_ERR_INVALID_INPUT;
-		else if (!out_bp)
-			err = max::JIT_ERR_INVALID_OUTPUT;
-		else if (in_minfo.type != out_minfo.type)
-			err = max::JIT_ERR_MISMATCH_TYPE;
-		
-		if (in_minfo.type == out_minfo.type && in_bp && out_bp) {
-			long dim[max::JIT_MATRIX_MAX_DIMCOUNT];
-			auto dimcount   = out_minfo.dimcount;
-			auto planecount = out_minfo.planecount;
-			
-			for (auto i=0; i<dimcount; ++i) {
-				//if dimsize is 1, treat as infinite domain across that dimension.
-				//otherwise truncate if less than the output dimsize
-				dim[i] = out_minfo.dim[i];
-				if ((in_minfo.dim[i]<dim[i]) && in_minfo.dim[i]>1) {
-					dim[i] = in_minfo.dim[i];
-				}
-			}
-			
-			max::jit_parallel_ndim_simplecalc2(
-											   (c74::max::method)jit_calculate_ndim<cpp_classname>,
-											   self,
-											   dimcount, dim, planecount, &in_minfo, in_bp, &out_minfo, out_bp,
-											   0, 0
-			);
+		if (!self || !in_matrix || !out_matrix){
+			err = max::JIT_ERR_INVALID_PTR;
 		}
+		else {
+			auto in_savelock = max::object_method(in_matrix, max::_jit_sym_lock, (void*)1);
+			auto out_savelock = max::object_method(out_matrix, max::_jit_sym_lock, (void*)1);
+			
+			max::t_jit_matrix_info in_minfo;
+			max::t_jit_matrix_info out_minfo;
+			max::object_method(in_matrix, max::_jit_sym_getinfo, &in_minfo);
+			max::object_method(out_matrix, max::_jit_sym_getinfo, &out_minfo);
+			
+			char* in_bp = nullptr;
+			char* out_bp = nullptr;
+			max::object_method(in_matrix, max::_jit_sym_getdata, &in_bp);
+			max::object_method(out_matrix, max::_jit_sym_getdata, &out_bp);
+			
+			if (!in_bp)
+				err = max::JIT_ERR_INVALID_INPUT;
+			else if (!out_bp)
+				err = max::JIT_ERR_INVALID_OUTPUT;
+			else if (in_minfo.type != out_minfo.type)
+				err = max::JIT_ERR_MISMATCH_TYPE;
+			
+			if (in_minfo.type == out_minfo.type && in_bp && out_bp) {
+				long dim[max::JIT_MATRIX_MAX_DIMCOUNT];
+				auto dimcount   = out_minfo.dimcount;
+				auto planecount = out_minfo.planecount;
+				
+				for (auto i=0; i<dimcount; ++i) {
+					//if dimsize is 1, treat as infinite domain across that dimension.
+					//otherwise truncate if less than the output dimsize
+					dim[i] = out_minfo.dim[i];
+					if ((in_minfo.dim[i]<dim[i]) && in_minfo.dim[i]>1) {
+						dim[i] = in_minfo.dim[i];
+					}
+				}
+				
+				max::jit_parallel_ndim_simplecalc2(
+												   (c74::max::method)jit_calculate_ndim<cpp_classname>,
+												   self,
+												   dimcount, dim, planecount, &in_minfo, in_bp, &out_minfo, out_bp,
+												   0, 0
+				);
+			}
 
-		max::object_method(out_matrix, max::_jit_sym_lock, out_savelock);
-		max::object_method(in_matrix, max::_jit_sym_lock, in_savelock);
-		return err;
+			max::object_method(out_matrix, max::_jit_sym_lock, out_savelock);
+			max::object_method(in_matrix, max::_jit_sym_lock, in_savelock);
+		}
+		// TODO: can't return an error
+		// return err;
 	}
 
 
