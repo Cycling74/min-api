@@ -31,7 +31,7 @@ typedef std::unordered_map<std::string, method>	t_mock_messlist;
 					messlist at index -1 there will be problems as this messlist is a hashtab and not an array.
 					The code for this function and object_classname() should make be self-evident for how to accomplish this using the mock t_class.
  */
-inline t_class* class_new(const char* name, const method mnew, const method mfree, long size, const method mmenu, short type, ...)
+t_class* class_new(const char* name, const method mnew, const method mfree, long size, const method mmenu, short type, ...)
 //inline t_class *class_new(C74_CONST char *name, C74_CONST method mnew, C74_CONST method mfree, long size, C74_CONST method mmenu, short type, ...)
 {
 	t_class			*c = new t_class;
@@ -61,7 +61,7 @@ inline t_class* class_new(const char* name, const method mnew, const method mfre
 				The way it works in Max itself is that we have a registry at global scope.
 				Ideally we could implement this non-globally, as suggested also in the code surrounding the mock gensym() implementation.
  */
-inline t_max_err class_register(t_symbol *name_space, t_class *c) { return MAX_ERR_NONE; }
+t_max_err class_register(t_symbol *name_space, t_class *c) { return MAX_ERR_NONE; }
 
 
 /**	Add a method to a #t_class.
@@ -101,7 +101,7 @@ namespace max {
  
 	@remark		At the moment this implementation does not know about fancy obex stuff!
  */
-	inline void *object_alloc(t_class *c)
+void *object_alloc(t_class *c)
 {
 	t_object *o = (t_object*)sysmem_newptrclear(c->c_size);
 	
@@ -129,7 +129,7 @@ namespace max {
 	 
 	 @remark	At the moment, we don't know about tinyobjects, should be easy to add support for that.
  */
-inline t_max_err object_free(void *x)
+t_max_err object_free(void *x)
 {
 	if (x) {
 		t_object		*o = (t_object*)x;
@@ -152,7 +152,7 @@ inline t_max_err object_free(void *x)
 /**	Return the name of the class represented by a #t_object instance.
 	This mocks the behavior of Max's real object_classname(). 
  */
-inline t_symbol *object_classname(t_object *x)
+t_symbol *object_classname(t_object *x)
 {
 	t_object		*o = (t_object*)x;
 	t_mock_messlist *mock_messlist = (t_mock_messlist*)o->o_messlist;
@@ -163,7 +163,7 @@ inline t_symbol *object_classname(t_object *x)
 
 
 
-inline method zgetfn(t_object *op, t_symbol *msg)
+method zgetfn(t_object *op, t_symbol *msg)
 {
 	t_mock_messlist *messlist = (t_mock_messlist*)op->o_messlist;
 
@@ -171,14 +171,14 @@ inline method zgetfn(t_object *op, t_symbol *msg)
 }
 
 
-inline method object_method_direct_getmethod(t_object *x, t_symbol *sym)
+method object_method_direct_getmethod(t_object *x, t_symbol *sym)
 {
 	// TODO: This function should be an obex-enhanced version of zgetfn(), but the mock implementation is currently obex crippled.
 	return zgetfn(x, sym);
 }
 
 
-inline t_object *object_method_direct_getobject(t_object *x, t_symbol *sym)
+t_object *object_method_direct_getobject(t_object *x, t_symbol *sym)
 {
 	// TODO: once again, the mock implementation is not currently obex-savvy
 	return x;

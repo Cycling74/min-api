@@ -8,7 +8,7 @@ namespace c74 {
 		/**	Post to the conole, mocking the cpost() function in the Max kernel.
 		 This version is slightly simpler to minimize dependencies on the OS.
 		 */
-		inline void cpost(const char *fmt, ...)
+		void cpost(const char *fmt, ...)
 		{
 			char msg[2048+2];
 			va_list ap;

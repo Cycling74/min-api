@@ -9,15 +9,15 @@ namespace max {
 
 // Mock implementations for basic atom accessors
 
-inline long atom_gettype(const t_atom *a)			{ return a->a_type; }
+long atom_gettype(const t_atom *a)			{ return a->a_type; }
 
-inline t_atom_float atom_getfloat(const t_atom *a)	{ return a->a_w.w_float; }
-inline t_atom_long atom_getlong(const t_atom *a)	{ return a->a_w.w_long; }
-inline t_symbol *atom_getsym(const t_atom *a)		{ return a->a_w.w_sym; }
+t_atom_float atom_getfloat(const t_atom *a)	{ return a->a_w.w_float; }
+t_atom_long atom_getlong(const t_atom *a)	{ return a->a_w.w_long; }
+t_symbol *atom_getsym(const t_atom *a)		{ return a->a_w.w_sym; }
 
-inline t_max_err atom_setfloat(t_atom *a, double v)		{a->a_w.w_float = v; a->a_type = A_FLOAT;return 0;}
-inline t_max_err atom_setlong(t_atom *a, t_atom_long v)	{a->a_w.w_long = v; a->a_type = A_LONG;return 0;}
-inline t_max_err atom_setsym(t_atom *a, t_symbol *s)	{a->a_w.w_sym = s; a->a_type = A_SYM;return 0;}
+t_max_err atom_setfloat(t_atom *a, double v)		{a->a_w.w_float = v; a->a_type = A_FLOAT;return 0;}
+t_max_err atom_setlong(t_atom *a, t_atom_long v)	{a->a_w.w_long = v; a->a_type = A_LONG;return 0;}
+t_max_err atom_setsym(t_atom *a, t_symbol *s)	{a->a_w.w_sym = s; a->a_type = A_SYM;return 0;}
 
 
 // Special stuff for the mocked testing environment
