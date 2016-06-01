@@ -33,6 +33,11 @@ namespace min {
 			return *this;
 		}
 
+		symbol& operator = (const char* value) {
+			s = max::gensym(value);
+			return *this;
+		}
+
 		symbol& operator = (const atom& value); // defined in c74_min_atom.h
 
 		friend bool operator == (const symbol& lhs, const symbol& rhs) {

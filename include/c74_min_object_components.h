@@ -23,6 +23,10 @@ namespace min {
 			return &objstorage.mspobj;
 		}
 
+		operator void*() {
+			return &objstorage.maxobj;
+		}
+
 		
 	private:
 		union storage {
@@ -69,6 +73,7 @@ namespace min {
 	class sample_operator_base;
 	class perform_operator_base;
 	class matrix_operator_base;
+	class gl_operator_base;
 	
 	
 	// Wrap the C++ class together with the appropriate Max object header
@@ -82,6 +87,7 @@ namespace min {
 	struct minwrap < T, typename std::enable_if<
 		!std::is_base_of< min::perform_operator_base, T>::value
 		&& !std::is_base_of< min::sample_operator_base, T>::value
+		&& !std::is_base_of< min::gl_operator_base, T>::value
 	>::type > {
 		maxobject_base	base;
 		T				obj;

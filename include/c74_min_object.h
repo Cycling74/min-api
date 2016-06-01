@@ -247,7 +247,10 @@ void define_min_external_finish() {
 // in c74_min_operator_matrix.h
 
 template<class cpp_classname>
-typename std::enable_if<!std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
+typename std::enable_if<
+	!std::is_base_of<c74::min::matrix_operator, cpp_classname>::value
+	&& !std::is_base_of<c74::min::gl_operator, cpp_classname>::value
+>::type
 define_min_external(const char* cppname, const char* maxname, void *resources) {
 	define_min_external_common<cpp_classname>(cppname, maxname, resources);
 	//if (std::is_base_of<c74::min::audio_object, cpp_classname>())

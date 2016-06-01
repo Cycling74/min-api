@@ -35,6 +35,7 @@ namespace min {
 #include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"	// Jitter MOP
+#include "c74_min_operator_gl.h"		// Jitter GL
 #include "c74_min_object.h"				// Max objects
 
 #include "c74_min_clock.h"
