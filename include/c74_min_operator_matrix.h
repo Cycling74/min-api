@@ -164,8 +164,8 @@ namespace min {
 	
 	
 	template<class cpp_classname>
-	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type*
-	max_jit_new(max::t_symbol* s, long argc, max::t_atom* argv) {
+	void*
+	max_jit_mop_new(max::t_symbol* s, long argc, max::t_atom* argv) {
 		auto cppname = (max::t_symbol*)c74::min::this_class->c_menufun;
 		max_jit_wrapper* self = (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
 		void* o = max::jit_object_new(cppname);
@@ -176,8 +176,8 @@ namespace min {
 	
 	
 	template<class cpp_classname>
-	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
-	max_jit_free(max_jit_wrapper* self) {
+	void
+	max_jit_mop_free(max_jit_wrapper* self) {
 		max::max_jit_mop_free(self);
 		max::jit_object_free(max::max_jit_obex_jitob_get(self));
 		max::max_jit_object_free(self);
@@ -426,8 +426,8 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 	
 	c74::min::this_class = c74::max::class_new(
 											   maxname.c_str(),
-											   (c74::max::method)c74::min::max_jit_new<cpp_classname>,
-											   (c74::max::method)c74::min::max_jit_free<cpp_classname>,
+											   (c74::max::method)c74::min::max_jit_mop_new<cpp_classname>,
+											   (c74::max::method)c74::min::max_jit_mop_free<cpp_classname>,
 											   sizeof( c74::min::max_jit_wrapper ),
 											   nullptr,
 											   c74::max::A_GIMME,

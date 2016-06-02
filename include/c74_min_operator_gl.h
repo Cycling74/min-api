@@ -112,8 +112,8 @@ namespace min {
 	
 	
 	template<class cpp_classname>
-	typename std::enable_if<std::is_base_of<c74::min::gl_operator, cpp_classname>::value>::type*
-	max_jit_new(max::t_symbol* s, long argc, max::t_atom* argv) {
+	void*
+	max_jit_gl_new(max::t_symbol* s, long argc, max::t_atom* argv) {
 		auto cppname = (max::t_symbol*)c74::min::this_class->c_menufun;
 		max_jit_wrapper* self = (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
 		void* o = max::jit_object_new(cppname);
@@ -124,8 +124,8 @@ namespace min {
 	
 	
 	template<class cpp_classname>
-	typename std::enable_if<std::is_base_of<c74::min::gl_operator, cpp_classname>::value>::type
-	max_jit_free(max_jit_wrapper* self) {
+	void
+	max_jit_gl_free(max_jit_wrapper* self) {
 		max::max_jit_mop_free(self);
 		max::jit_object_free(max::max_jit_obex_jitob_get(self));
 		max::max_jit_object_free(self);
@@ -141,7 +141,7 @@ namespace min {
 
 
 template<class cpp_classname>
-typename std::enable_if<std::is_base_of<c74::min::gl_operator, cpp_classname>::value>::type
+typename std::enable_if<std::is_base_of<c74::min::gl_operator_base, cpp_classname>::value>::type
 define_min_external(const char* cppname, const char* cmaxname, void *resources) {
 	std::string		maxname = c74::min::deduce_maxclassname(cmaxname);
 
