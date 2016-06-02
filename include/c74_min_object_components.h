@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <sstream>
+
 namespace c74 {
 namespace min {
 	
@@ -15,6 +17,57 @@ namespace min {
 	class attribute_base;
 	template <typename T> class attribute;
 	
+    enum post_level {
+        message,
+        warning,
+        error
+    };
+    
+    
+    class maxwindow_logger {
+    public:
+        maxwindow_logger(max::t_object* obj, post_level level)
+        : maxobj(obj),
+          messageLevel(level) {
+            
+        }
+        
+        maxwindow_logger(maxwindow_logger&& other)
+        : maxobj(other.maxobj),
+          messageLevel(other.messageLevel),
+          stream(std::move(other.stream)) {
+            
+        }
+        
+        ~maxwindow_logger() {
+            const char* msgstr = stream.str().c_str();
+            
+            switch(messageLevel) {
+                case message:
+                    max::object_post(maxobj, msgstr);
+                    break;
+                    
+                case warning:
+                    max::object_warn(maxobj, msgstr);
+                    break;
+                    
+                case error:
+                    max::object_error(maxobj, msgstr);
+                    break;
+            }
+        }
+        
+        template <typename T>
+        maxwindow_logger& operator<<(const T& x) {
+            stream << x;
+            return *this;
+        }
+        
+    private:
+        max::t_object* maxobj;
+        post_level messageLevel;
+        std::stringstream stream;
+    };
 	
 	class maxobject_base {
 	public:
@@ -56,6 +109,10 @@ namespace min {
 		int current_inlet() {
 			return proxy_getinlet((max::t_object*)maxobj);
 		}
+        
+        maxwindow_logger post(post_level level = message) {
+            return maxwindow_logger(maxobj, message);
+        }
 
 		max::t_object*										maxobj;
 		bool												initialized = false;
