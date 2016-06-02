@@ -191,8 +191,8 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 	
 	c74::min::this_class = c74::max::class_new(
 											   maxname.c_str(),
-											   (c74::max::method)c74::min::max_jit_new<cpp_classname>,
-											   (c74::max::method)c74::min::max_jit_free<cpp_classname>,
+											   (c74::max::method)c74::min::max_jit_gl_new<cpp_classname>,
+											   (c74::max::method)c74::min::max_jit_gl_free<cpp_classname>,
 											   sizeof( c74::min::max_jit_wrapper ),
 											   nullptr,
 											   c74::max::A_GIMME,
