@@ -24,9 +24,11 @@ if (APPLE)
 	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F${C74_MAX_API_DIR}/lib/mac")
 endif ()
 if (WIN32)
-	#target_link_libraries(${PROJECT_NAME} ${MaxAPI_LIB})
-	#target_link_libraries(${PROJECT_NAME} ${MaxAudio_LIB})
-	#target_link_libraries(${PROJECT_NAME} ${Jitter_LIB})
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD	# Adds a post-build event to MyTest
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different		# which executes "cmake - E copy_if_different..."
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../../../tests/mock_kernel.dll"      # <--this is in-file
+        ${CMAKE_CURRENT_BINARY_DIR}                 # <--this is out-file path
+)
 endif ()
 
 add_test(NAME ${PROJECT_NAME}
