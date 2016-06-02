@@ -93,19 +93,15 @@ namespace min {
 			x[0] = 1.0;
 			
 			for (int n=0; n<N; n++) {
-				int i;
-				
-				for (i=0; i<a.size(); i++) {
-					sample	sample = x[n-i];
-					
+				for (auto i=0; i<a.size(); i++) {
 					if (n-i < 0 )
 						y[n] += 0.0;
 					else
-						y[n] += ( a[i] * sample );
+						y[n] += ( a[i] * x[n-i]);
 				}
 				
 				// ignore b[0] and assume it is normalized to 1.0
-				for (i=1; i<b.size(); i++) {
+				for (auto i=1; i<b.size(); i++) {
 					if (n-i < 0)
 						y[n] -= 0.0;
 					else
