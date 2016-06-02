@@ -116,7 +116,7 @@ t_map_object_2_outlet_set g_object_to_outletset;
 	@param i	the index (zero-based) of the outlet reference you want
 	@return		a reference to an outlet
  */
-t_mock_outlet& object_getoutlet(void *o, int i)
+MOCK_EXPORT t_mock_outlet& object_getoutlet(void *o, int i)
 {
 	t_mock_outlets& mock_outlets = g_object_to_outletset[o];
 	
@@ -132,7 +132,7 @@ t_mock_outlet& object_getoutlet(void *o, int i)
 	@param i	the index (zero-based) of the outlet whose sequence you want
 	@return		a reference to the sequence
  */
-t_sequence& object_getoutput(void *o, int outletnum)
+MOCK_EXPORT t_sequence& object_getoutput(void *o, int outletnum)
 {
 	t_mock_outlet& outlet = object_getoutlet(o, outletnum);
 	
@@ -155,7 +155,7 @@ t_sequence& object_getoutput(void *o, int outletnum)
  
 	@remark		For an API improvement in the future we should have new outlet calls, e.g. object_outlet_float() which take an object pointer.
  */
-void *outlet_new(void *x, const char *s)
+MOCK_EXPORT void *outlet_new(void *x, const char *s)
 {
 	t_mock_outlets& mock_outlets = g_object_to_outletset[x];
 	t_mock_outlet	outlet(x, s);
@@ -213,7 +213,7 @@ done:
 	@param value	the value to send
 	@return			usually ignored
  */
-void *outlet_int(void *x, t_atom_long value)
+MOCK_EXPORT void *outlet_int(void *x, t_atom_long value)
 {
 	return outlet_single((t_ptr_int)x, value);
 }
@@ -227,26 +227,11 @@ void *outlet_int(void *x, t_atom_long value)
 	@param value	the value to send
 	@return			usually ignored
  */
-void *outlet_float(void *x, double value)
+MOCK_EXPORT void *outlet_float(void *x, double value)
 {
 	return outlet_single((t_ptr_int)x, (t_atom_float)value);
 }
 
-
-/**	Send a message to an outlet.
-	This mocks the behavior of Max's real function by this same name.
-	 
-	@ingroup		outlets
-	@param x		the outlet's id -- THIS IS DIFFERENT THAN IN MAX, WHICH EXPECTS A POINTER TO THE OUTLET ITSELF
-	@param s		ignored
-	@param ac		count of atoms in av
-	@param av		pointer to the first of an array of atoms
-	@return			usually ignored
- */
-void *outlet_list(void *x, t_symbol *s, short ac, t_atom *av)
-{
-	return outlet_anything(x, gensym("list"), ac, av);
-}
 
 
 /**	Send a message to an outlet.
@@ -259,7 +244,7 @@ void *outlet_list(void *x, t_symbol *s, short ac, t_atom *av)
 	@param av		pointer to the first of an array of atoms
 	@return			usually ignored
  */
-void *outlet_anything(void *x, t_symbol *s, short ac, t_atom *av)
+MOCK_EXPORT void *outlet_anything(void *x, t_symbol *s, short ac, t_atom *av)
 {
 	t_ptr_int outlet_id = (t_ptr_int)x;
 	
@@ -278,5 +263,23 @@ void *outlet_anything(void *x, t_symbol *s, short ac, t_atom *av)
 done:
 	return (void*)1;
 }
+
+
+
+/**	Send a message to an outlet.
+This mocks the behavior of Max's real function by this same name.
+
+@ingroup		outlets
+@param x		the outlet's id -- THIS IS DIFFERENT THAN IN MAX, WHICH EXPECTS A POINTER TO THE OUTLET ITSELF
+@param s		ignored
+@param ac		count of atoms in av
+@param av		pointer to the first of an array of atoms
+@return			usually ignored
+*/
+MOCK_EXPORT void *outlet_list(void *x, t_symbol *s, short ac, t_atom *av)
+{
+	return outlet_anything(x, gensym("list"), ac, av);
+}
+
 
 }} // namespace c74::max

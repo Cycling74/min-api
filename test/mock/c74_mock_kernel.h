@@ -38,7 +38,7 @@ static t_mock_symboltable	mock_symboltable;
 				This is not a vector, it's an unordered_map... should research the safety of relying on pointers to items in the container.
 				The alternative is to do as we do with mock outlets where we return an id rather than a raw pointer.
  */
-t_symbol* gensym(const char* string)
+MOCK_EXPORT t_symbol* gensym(const char* string)
 {
 	std::string			s(string);
 	t_mock_symboliter	i = mock_symboltable.find(s);

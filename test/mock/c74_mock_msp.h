@@ -1,11 +1,26 @@
 //	Copyright 2013 - Cycling '74
 //	Timothy Place, tim@cycling74.com	
 
-#ifndef __MOCK_MSP_H__
-#define __MOCK_MSP_H__
+#pragma once
 
-// only try to implement a mock MSP if it is needed (the code included z_dsp.h)
-#ifdef _Z_DSP_H
+namespace c74 {
+namespace max {
+
+
+	typedef struct t_pxobject {
+		t_object z_ob;	///< The standard #t_object struct.
+		long z_in;
+		void *z_proxy;
+		long z_disabled;	///< set to non-zero if this object is muted (using the pcontrol or mute~ objects)
+		short z_count;		///< an array that indicates what inlets/outlets are connected with signals
+		short z_misc;		///< flags (bitmask) determining object behaviour, such as #Z_NO_INPLACE, #Z_PUT_FIRST, or #Z_PUT_LAST
+	} t_pxobject;
+
+
+	typedef void(*t_perfroutine64)(t_object *x, t_object *dsp64, double **ins, long numins, double **outs, long numouts, long sampleframes, long flags, void *userparam);
+
+
+
 
 
 /**	A vector of audio samples (doubles).
@@ -179,7 +194,9 @@ public:
 		}
 		
 		m_current = &item;
-		object_method_direct(void, (void*,t_object*,short*,double,long,long), x, gensym("dsp64"), (t_object*)this, count, sr, vs, 0);
+
+		object_method((t_object*)x, gensym("dsp64"), (void*)this, count, (void*)(long)sr, (void*)(long)vs, 0);
+
 		m_current = NULL;
 		m_chainitems.push_back(item);
 		
@@ -210,24 +227,22 @@ extern "C" inline void dsp_add64(t_object *dsp64, t_object *x, t_perfroutine64 p
 }
 
 
-void class_dspinit(t_class *c)
+MOCK_EXPORT void class_dspinit(t_class *c)
 {
 	;
 }
 
 	
-void z_dsp_free(t_pxobject *x)
+MOCK_EXPORT void z_dsp_free(t_pxobject *x)
 {
 	;
 }
 	
 	
-void z_dsp_setup(t_pxobject* x, long inletcount)
+MOCK_EXPORT void z_dsp_setup(t_pxobject* x, long inletcount)
 {
 	for (long i=inletcount-1; i>=1; i--)
 		proxy_new(x, i, NULL); // we are using mock inlets, so we don't have to track the pointer or free it manually
 }
 	
-
-#endif // _Z_DSP_H
-#endif // __MOCK_MSP_H__
+}}
