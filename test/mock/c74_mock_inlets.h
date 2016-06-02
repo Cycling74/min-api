@@ -6,6 +6,7 @@
 namespace c74 {
 namespace max {
 
+MOCK_EXPORT void cpost(const char *fmt, ...);
 
 // for documentation, see implementation below
 void object_setinlet(t_object *x, long inletnum);

@@ -14,13 +14,17 @@ include_directories(
 )
 
 
+if (WIN32)
 add_definitions(
 	-DWIN_VERSION
 	-D_USE_MATH_DEFINES
 )
+endif ()
 
 
+if (APPLE)
 set(CMAKE_MACOSX_RPATH 1)
+endif ()
 
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../../tests")
@@ -44,15 +48,6 @@ add_library(
 	SHARED
 	c74_mock.cpp
 )
-
-#if (WIN32)
-#	GENERATE_EXPORT_HEADER( ${PROJECT_NAME}
- #            BASE_NAME ${PROJECT_NAME}
-  #           EXPORT_MACRO_NAME ${PROJECT_NAME}.lib
- #            EXPORT_FILE_NAME MyLibrary_Export.h
- #            STATIC_DEFINE MyLibrary_BUILT_AS_STATIC
-#	)
-#endif ()
 
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)

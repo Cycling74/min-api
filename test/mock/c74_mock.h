@@ -15,34 +15,34 @@
 
 // Mac or Win detection
 #if !defined(WIN_VERSION) && !defined(MAC_VERSION)
-#ifdef __APPLE__
-#define MAC_VERSION
-#else
-#define WIN_VERSION
-#endif
+	#ifdef __APPLE__
+		#define MAC_VERSION
+	#else
+		#define WIN_VERSION
+	#endif
 #endif  // #if !defined(MAC_VERSION) && !defined(WIN_VERSION)
 
 // 64-bit detection
 #ifdef WIN_VERSION
-#ifdef _WIN64
-#define C74_X64
-#endif
+	#ifdef _WIN64
+		#define C74_X64
+	#endif
 #endif  // #ifdef WIN_VERSION
 
 #ifdef MAC_VERSION
-#if __LP64__
-#define C74_X64
-#endif
+	#if __LP64__
+		#define C74_X64
+	#endif
 #endif // #ifdef MAC_VERSION
 
 #ifdef WIN_VERSION
-#ifndef snprintf
-#define snprintf _snprintf
-#endif
+	#ifndef snprintf
+		#define snprintf _snprintf
+	#endif
 
-#define MOCK_EXPORT extern "C" __declspec(dllexport)
+	#define MOCK_EXPORT extern "C" __declspec(dllexport)
 #else
-#define MOCK_EXPORT
+	#define MOCK_EXPORT
 #endif
 
 // Max
