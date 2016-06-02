@@ -11,9 +11,9 @@ include_directories(
 )
 
 #set(CMAKE_CXX_FLAGS "-std=c++1y -stdlib=libc++ -fprofile-arcs -ftest-coverage")
-set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage")
-set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage")
-SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+#set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage")
+#set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage")
+#SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
 add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp)
 
