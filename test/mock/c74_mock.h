@@ -42,7 +42,7 @@
 
 	#define MOCK_EXPORT extern "C" __declspec(dllexport)
 #else
-	#define MOCK_EXPORT extern "C" 
+	#define MOCK_EXPORT extern "C"
 #endif
 
 // Max

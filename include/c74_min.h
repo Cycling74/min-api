@@ -31,14 +31,14 @@ namespace min {
 	static max::t_class* this_class = nullptr;
 }}
 
-#include "c74_min_object_components.h"	// Max objects
+#include "c74_min_object_components.h"	// Shared components of Max objects
 #include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"	// Jitter MOP
 #include "c74_min_operator_gl.h"		// Jitter GL
 #include "c74_min_object.h"				// Max objects
 
-#include "c74_min_clock.h"
+#include "c74_min_clock.h"				// Wrapper for clocks
 #include "c74_min_buffer.h"
 #include "c74_min_path.h"
 #include "c74_min_texteditor.h"
