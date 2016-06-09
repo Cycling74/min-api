@@ -1,6 +1,14 @@
 # Copyright (c) 2016, Cycling '74
 # Usage of this file and its contents is governed by the MIT License
 
+if (${CMAKE_GENERATOR} MATCHES "Xcode")
+ 		if (${XCODE_VERSION} VERSION_LESS 7)
+  			message(STATUS "Xcode 7 is required. Please install from the Mac App Store")
+			return ()
+		endif ()
+endif ()
+
+
 set(C74_MAX_API_DIR ${CMAKE_CURRENT_LIST_DIR}/../max-api)
 include(${C74_MAX_API_DIR}/script/max-pretarget.cmake)
 

@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.0)
 project(MinAPI)
 
+
+if (${CMAKE_GENERATOR} MATCHES "Xcode")
+ 		if (${XCODE_VERSION} VERSION_LESS 7)
+  			message(STATUS "Xcode 7 is required. Please install from the Mac App Store.")
+			return ()
+		endif ()
+endif ()
+
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/script/min-package.cmake)
 
 
