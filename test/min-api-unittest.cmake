@@ -21,7 +21,7 @@ target_link_libraries(${PROJECT_NAME} "mock_kernel")
 
 if (APPLE)
 	target_link_libraries(${PROJECT_NAME} "-weak_framework JitterAPI")
-	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F${C74_MAX_API_DIR}/lib/mac")
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F'${C74_MAX_API_DIR}/lib/mac'")
 endif ()
 if (WIN32)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD	# Adds a post-build event to MyTest

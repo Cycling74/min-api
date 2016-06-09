@@ -33,7 +33,7 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.cpp")
 
 	if (APPLE)
 		target_link_libraries(${PROJECT_NAME} "-weak_framework JitterAPI")
-		set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F${C74_MAX_API_DIR}/lib/mac")
+		set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F'${C74_MAX_API_DIR}/lib/mac'")
 	endif ()
 	if (WIN32)
 		# target_link_libraries(${PROJECT_NAME} ${MaxAPI_LIB})
