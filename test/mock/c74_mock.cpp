@@ -42,9 +42,9 @@ MOCK_EXPORT method object_getmethod(void* x, t_symbol* s) {
 	return nullptr;
 }
 
-//MOCK_EXPORT t_max_err class_register(const t_symbol* name_space, t_class* c) {
-//	return 0;
-//}
+MOCK_EXPORT t_symbol* symbol_unique(void) {
+	return nullptr;
+}
 
 
 }}
