@@ -7,7 +7,7 @@
 
 namespace c74 {
 namespace min {
-	
+
 	
 	class dict {
 	public:
@@ -22,17 +22,21 @@ namespace min {
 				instance = max::dictobj_register(d, &s);
 			}
 		}
-
-		
-		/// Create an unregistered dictionary
-		dict() {
-			instance = max::dictionary_new();
-		}
-		
 		
 		/// Create an unregistered dictionary from dict-syntax
 		dict(atoms content) {
 			max::dictobj_dictionaryfromatoms(&instance, content.size(), &content[0]);
+		}
+		
+		/// Create an unregistered dictionary
+		/// optionally getting a handle to an old-school t_dictionary
+		dict(max::t_dictionary* d = nullptr) {
+			if (d == nullptr)
+				instance = max::dictionary_new();
+			else {
+				max::object_retain(d);
+				instance = d;
+			}
 		}
 		
 		
@@ -62,7 +66,7 @@ namespace min {
 			return *this;
 		}
 		
-		
+/*
 		atoms operator[](symbol key){
 			long			argc = 0;
 			max::t_atom*	argv = nullptr;
@@ -74,7 +78,29 @@ namespace min {
 			
 			return as;
 		};
+*/	
 		
+		// bounds check: if key doesn't exist, throw
+		atom_reference at(symbol key){
+			long			argc = 0;
+			max::t_atom*	argv = nullptr;
+			auto			err = max::dictionary_getatoms(instance, key, &argc, &argv);
+			auto			as = atom_reference(argc, argv);
+			
+			if (err)
+				; // TODO: handle the error somehow?  throw an exception?
+			
+			return as;
+		}
+		
+		
+		// bounds check: if key doesn't exist, create it
+		atom_reference operator[](symbol key){
+			if (!max::dictionary_hasentry(instance, key))
+				max::dictionary_appendatom(instance, key, &atoms{0}[0]);
+			return at(key);
+		};
+
 		
 		symbol name() {
 			return dictobj_namefromptr(instance);
@@ -92,7 +118,7 @@ namespace min {
 		
 		
 		void touch() {
-			object_notify(instance, max::gensym("modified"), nullptr);
+			object_notify(instance, k_sym_modified, nullptr);
 		}
 		
 		
