@@ -87,5 +87,16 @@ namespace min {
 		logger::type		target;
 		std::stringstream	stream;
 	};
+	
+	
+	/// A standard interface for flagging serious runtime snafus.
+	/// At the moment this is hardwired to throw an exception but offers us the ability to
+	/// change that behavior later or specialize it for certain contexts.
+	///
+	/// Because this throws an exception you should **not** call this function in an audio perform routine.
+	
+	void error(std::string description) {
+		throw std::runtime_error(description);
+	}
 
 }} // namespace c74::min
