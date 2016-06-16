@@ -116,10 +116,8 @@ t_map_object_2_outlet_set g_object_to_outletset;
 	@param i	the index (zero-based) of the outlet reference you want
 	@return		a reference to an outlet
  */
-MOCK_EXPORT t_mock_outlet& object_getoutlet(void *o, int i)
-{
+MOCK_EXPORT_CPP t_mock_outlet& object_getoutlet(void *o, int i) {
 	t_mock_outlets& mock_outlets = g_object_to_outletset[o];
-	
 	return mock_outlets[i];
 }
 
@@ -132,10 +130,8 @@ MOCK_EXPORT t_mock_outlet& object_getoutlet(void *o, int i)
 	@param i	the index (zero-based) of the outlet whose sequence you want
 	@return		a reference to the sequence
  */
-MOCK_EXPORT t_sequence& object_getoutput(void *o, int outletnum)
-{
+MOCK_EXPORT_CPP t_sequence& object_getoutput(void *o, int outletnum) {
 	t_mock_outlet& outlet = object_getoutlet(o, outletnum);
-	
 	return outlet.get_messages();
 }
 

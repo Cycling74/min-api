@@ -22,7 +22,7 @@ MOCK_EXPORT t_dictionary* dictobj_findregistered_retain(t_symbol* name) {
 MOCK_EXPORT t_max_err dictobj_release(t_dictionary* d) {
 	return 0;
 }
-
+	
 
 MOCK_EXPORT t_max_err object_attr_touch(t_object* x, t_symbol* attrname) {
 	return 0;
@@ -46,5 +46,9 @@ MOCK_EXPORT t_symbol* symbol_unique(void) {
 	return nullptr;
 }
 
+
+MOCK_EXPORT t_max_err object_retain(t_object*) {
+	return 0;
+}
 
 }}

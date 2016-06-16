@@ -133,7 +133,7 @@ namespace max {
 	MOCK_EXPORT t_max_err atom_gettext(long ac, t_atom *av, long *textsize, char **text, long flags)
 	{
 		// TODO: return something reasonable?  Strip out all usage?  Use code from kernel?
-		*text = "";
+		*text = 0;
 		*textsize = 0;
 		return 0;
 	}
