@@ -10,6 +10,7 @@
 #include <atomic>
 #include <array>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <functional>
 #include <unordered_map>
@@ -25,6 +26,7 @@ namespace min {
 #include "c74_min_atom.h"
 #include "c74_min_map.h"
 #include "c74_min_dictionary.h"
+#include "c74_min_logger.h"
 
 namespace c74 { 
 namespace min {
