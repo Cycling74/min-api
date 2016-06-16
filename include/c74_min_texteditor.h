@@ -50,12 +50,12 @@ namespace min {
 		c74::max::t_object*	jed = nullptr;
 
 		
-		c74::min::method edclose_meth = { owner, "edclose", [this](c74::min::atoms& args) {
+		c74::min::method edclose_meth = { owner, "edclose", [this](const c74::min::atoms& args) {
 			jed = nullptr;
 		}};
 
 		
-		c74::min::method okclose_meth = { owner, "okclose", [this](c74::min::atoms& args) {
+		c74::min::method okclose_meth = { owner, "okclose", [this](const c74::min::atoms& args) {
 			char* text = nullptr;
 			
 			object_method(jed, c74::max::gensym("gettext"), &text);
