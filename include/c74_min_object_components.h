@@ -101,9 +101,11 @@ namespace min {
 	
 	class object_base {
 	public:
+		object_base()
+		: state((max::t_dictionary*)k_sym__pound_d) {
+		}
 		
 		~object_base() {
-			
 		}
 
 		int current_inlet() {
@@ -113,13 +115,14 @@ namespace min {
         maxwindow_logger post(post_level level = message) {
             return maxwindow_logger(maxobj, message);
         }
-
+		
 		max::t_object*										maxobj;
 		bool												initialized = false;
 		std::vector<min::inlet*>							inlets;
 		std::vector<min::outlet*>							outlets;
 		std::unordered_map<std::string, method*>			methods;
 		std::unordered_map<std::string, attribute_base*>	attributes;
+		dict												state;
 	};
 	
 	
