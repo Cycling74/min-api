@@ -12,12 +12,12 @@ namespace min {
 	// All objects use A_GIMME signature for construction
 	
 	template<class T>
-	max::t_object* min_new(max::t_symbol *name, long argc, max::t_atom* argv) {
-		long		attrstart = attr_args_offset(argc, argv);		// support normal arguments
+	max::t_object* min_new(max::t_symbol *name, atom_reference args) {
+		long		attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
 		minwrap<T>*	self = (minwrap<T>*)max::object_alloc(this_class);
 		
 		self->obj.maxobj = (max::t_object*)self; // maxobj needs to be set prior to placement new
-		new(&self->obj) T(atoms_from_acav(attrstart, argv)); // placement new
+		new(&self->obj) T(atoms(args.begin(), args.begin()+attrstart)); // placement new
 		self->obj.initialized = true;
 		
 		self->setup();
@@ -29,8 +29,7 @@ namespace min {
 				(*outlet)->instance = max::outlet_new(self, (*outlet)->type.c_str());
 		}
 		
-		max::attr_args_process(self, argc, argv);
-		
+		max::attr_args_process(self, args.size(), args.begin());
 		return (max::t_object*)self;
 	}
 	
@@ -66,9 +65,7 @@ namespace min {
 	template<class T>
 	void min_int(minwrap<T>* self, long v) {
 		auto& meth = self->obj.methods["int"];
-		max::t_atom a;
-		atom_setlong(&a, v);
-		atoms as = atoms_from_acav(1, &a);
+		atoms as = {v};
 		meth->function(as);
 	}
 
@@ -76,9 +73,7 @@ namespace min {
 	template<class T>
 	void min_toggle(minwrap<T>* self, long v) {
 		auto& meth = self->obj.methods["toggle"];
-		max::t_atom a;
-		atom_setlong(&a, v);
-		atoms as = atoms_from_acav(1, &a);
+		atoms as = {v};
 		meth->function(as);
 	}
 	
@@ -86,25 +81,23 @@ namespace min {
 	template<class T>
 	void min_int_converted_to_float(minwrap<T>* self, long v) {
 		auto& meth = self->obj.methods["float"];
-		atoms a;
-		a.push_back(v);
-		meth->function(a);
+		atoms as = {v};
+		meth->function(as);
 	}
 	
 	
 	template<class T>
 	void min_float(minwrap<T>* self, double v) {
 		auto& meth = self->obj.methods["float"];
-		atoms a;
-		a.push_back(v);
-		meth->function(a);
+		atoms as = {v};
+		meth->function(as);
 	}
 
 	
 	template<class T>
-	void min_method(minwrap<T>* self, max::t_symbol *s, long ac, max::t_atom *av) {
+	void min_method(minwrap<T>* self, max::t_symbol *s, atom_reference ar) {
 		auto& meth = self->obj.methods[s->s_name];
-		atoms as = atoms_from_acav(ac, av);
+		atoms as(atoms(ar.begin(), ar.end()));
 		meth->function(as);
 	}
 
@@ -112,7 +105,7 @@ namespace min {
 	template<class T>
 	void min_method_dblclick(minwrap<T>* self) {
 		auto& meth = self->obj.methods["dblclick"];
-		atoms as;// = atoms_from_acav(ac, av);
+		atoms as;
 		meth->function(as);
 	}
 
@@ -145,9 +138,9 @@ namespace min {
 
 	
 	template<class T>
-	void min_anything(minwrap<T>* self, max::t_symbol *s, long ac, max::t_atom *av) {
+	void min_anything(minwrap<T>* self, max::t_symbol *s, atom_reference ar) {
 		auto& meth = self->obj.methods["anything"];
-		atoms as = atoms_from_acav(ac, av);
+		atoms as(ar.begin(), ar.end());
 		as.insert(as.begin(), atom(s));
 		meth->function(as);
 	}
@@ -162,7 +155,6 @@ namespace min {
 		dictobj_release(d);
 	}
 	
-
 	
 }} // namespace c74::min
 
