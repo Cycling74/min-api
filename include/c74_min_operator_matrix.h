@@ -310,8 +310,8 @@ namespace min {
 		max::t_jit_err			err = max::JIT_ERR_NONE;
 		auto					in_mop_io = (max::t_object*)max::object_method(inputs, max::_jit_sym_getindex, 0);
 		auto					out_mop_io = (max::t_object*)max::object_method(outputs, max::_jit_sym_getindex, 0);
-		auto					in_matrix 	= (max::t_object*)max::object_method(in_mop_io, max::gensym("getmatrix"));
-		auto					out_matrix 	= (max::t_object*)max::object_method(out_mop_io, max::gensym("getmatrix"));
+		auto					in_matrix 	= (max::t_object*)max::object_method(in_mop_io, k_sym_getmatrix);
+		auto					out_matrix 	= (max::t_object*)max::object_method(out_mop_io, k_sym_getmatrix);
 		
 		if (!self || !in_matrix || !out_matrix){
 			err = max::JIT_ERR_INVALID_PTR;
