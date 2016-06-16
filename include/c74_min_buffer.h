@@ -9,16 +9,16 @@ namespace c74 {
 namespace min {
 	
 	
-	class buffer {
+	class buffer_reference {
 	public:
 		friend class buffer_lock;
 		
-		buffer(object_base* an_owner)
+		buffer_reference(object_base* an_owner)
 		: owner(an_owner)
 		{}
 		
 		
-		~buffer() {
+		~buffer_reference() {
 			object_free(instance);
 		}
 		
@@ -60,7 +60,7 @@ namespace min {
 	class buffer_lock {
 	public:
 		
-		buffer_lock(buffer& a_buffer_ref)
+		buffer_lock(buffer_reference& a_buffer_ref)
 		: buffer_ref(a_buffer_ref)
 		{
 			buffer_obj = buffer_ref_getobject(buffer_ref.instance);
@@ -111,7 +111,7 @@ namespace min {
 		}
 		
 	private:
-		buffer&				buffer_ref;
+		buffer_reference&	buffer_ref;
 		max::t_buffer_obj*	buffer_obj = nullptr;
 		float*				tab = nullptr;
 	};
