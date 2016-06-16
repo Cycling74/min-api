@@ -39,11 +39,11 @@ namespace min {
 #include "c74_min_object.h"				// Max objects
 
 #include "c74_min_clock.h"				// Wrapper for clocks
-#include "c74_min_buffer.h"
-#include "c74_min_path.h"
-#include "c74_min_texteditor.h"
+#include "c74_min_buffer.h"				// Wrapper for MSP buffers
+#include "c74_min_path.h"				// Wrapper class for accessing the Max path system
+#include "c74_min_texteditor.h"			// Wrapper for text editor window
 
-#include "c74_min_accessories.h"
+#include "c74_min_accessories.h"		// Library of miscellaneous helper functions and widgets
 
 
 #define MIN_EXTERNAL(cpp_classname) \
