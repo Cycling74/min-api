@@ -213,12 +213,12 @@ void define_min_external_common(const char* cppname, const char* cmaxname, void 
 	
 	
 	for (auto& an_attribute : dummy.attributes) {
-		std::string				attr_name = an_attribute.first;
-		//min::attribute_base*	attr = an_attribute.second;
+		std::string					attr_name = an_attribute.first;
+		c74::min::attribute_base*	attr = an_attribute.second;
 		
 		c74::max::class_addattr(c74::min::this_class,
 								c74::max::attr_offset_new(attr_name.c_str(),
-														  c74::max::gensym("float64"),
+														  attr->type,
 														  0,
 														  (c74::max::method)c74::min::min_attr_getter<cpp_classname>,
 														  (c74::max::method)c74::min::min_attr_setter<cpp_classname>,

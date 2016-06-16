@@ -287,7 +287,8 @@ namespace min {
 		virtual operator atoms() const = 0;
 		
 		object_base*	owner;
-		max::t_symbol*		name;
+		max::t_symbol*	name;
+		symbol			type;
 		function		setter;
 	};
 	
@@ -299,6 +300,18 @@ namespace min {
 		{
 			owner->attributes[a_name] = this;
 			*this = a_default_value;
+			
+			if (std::is_same<T, bool>::value)
+				type = k_sym_long;
+			else if (std::is_same<T, int>::value)
+				type = k_sym_long;
+			else if (std::is_same<T, symbol>::value)
+				type = k_sym_symbol;
+			else if (std::is_same<T, float>::value)
+				type = k_sym_float32;
+			else // (std::is_same<T, double>::value)
+				type = k_sym_float64;
+
 		}
 		
 		
