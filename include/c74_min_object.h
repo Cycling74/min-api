@@ -121,7 +121,14 @@ namespace min {
 		as[4] = data;
 		meth->function(as);
 	}
-	
+
+	template<class T>
+	void min_method_appendtodictionary(minwrap<T>* self, max::t_dictionary* d) {
+		auto& meth = self->obj.methods["savestate"];
+		atoms as = {d};
+		meth->function(as);
+	}
+
 	template<class T>
 	void min_method_edclose(minwrap<T>* self) {
 		auto& meth = self->obj.methods["edclose"];
@@ -176,6 +183,8 @@ void define_min_external_common(const char* cppname, const char* cmaxname, void 
 			; // skip -- handle it in operator classes
 		else if (a_method.first == "notify")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_notify<cpp_classname>, "notify", c74::max::A_CANT, 0);
+		else if (a_method.first == "savestate")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_appendtodictionary<cpp_classname>, "appendtodictionary", c74::max::A_CANT, 0);
 		else if (a_method.first == "okclose")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_okclose<cpp_classname>, "okclose", c74::max::A_CANT, 0);
 		else if (a_method.first == "edclose")
