@@ -56,6 +56,7 @@
 #include "c74_mock_kernel.h"
 #include "c74_mock_memory.h"
 #include "c74_mock_misc.h"
+#include "c74_mock_dictionary.h"
 
 // MSP
 #include "c74_mock_msp.h"
