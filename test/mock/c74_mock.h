@@ -3,15 +3,23 @@
 
 #pragma once
 
+#include <algorithm>
+#include <chrono>
+#include <condition_variable>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <ctime>
+#include <functional>
 #include <iostream>
+#include <mutex>
+#include <ratio>
+#include <set>
 #include <string>
+#include <thread>
 #include <vector>
 #include <unordered_map>
-#include <algorithm>
-#include <functional>
+
 
 // Mac or Win detection
 #if !defined(WIN_VERSION) && !defined(MAC_VERSION)
@@ -57,6 +65,7 @@
 #include "c74_mock_memory.h"
 #include "c74_mock_misc.h"
 #include "c74_mock_dictionary.h"
+#include "c74_mock_clock.h"
 
 // MSP
 #include "c74_mock_msp.h"
