@@ -234,6 +234,7 @@ namespace min {
 		attribute_base(object_base* an_owner, std::string a_name, function a_function)
 		: owner(an_owner)
 		, name(max::gensym(a_name.c_str()))
+        , label(name)
 		, setter(a_function)
 		{}
 		
@@ -242,6 +243,7 @@ namespace min {
 		
 		object_base*	owner;
 		max::t_symbol*	name;
+        max::t_symbol*	label;
 		symbol			type;
 		function		setter;
 	};
