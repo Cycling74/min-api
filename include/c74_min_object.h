@@ -110,6 +110,21 @@ namespace min {
 	}
 
 	template<class T>
+	void min_method_patchlineupdate(minwrap<T>* self, max::t_object* patchline, long updatetype, max::t_object *src, long srcout, max::t_object *dst, long dstin) {
+		auto& meth = self->obj.methods["patchlineupdate"];
+		atoms as(7);
+		
+		as[0] = self;
+		as[1] = patchline;
+		as[2] = updatetype;
+		as[3] = src;
+        as[4] = srcout;
+        as[5] = dst;
+        as[6] = dstin;
+		meth->function(as);
+	}
+    
+	template<class T>
 	void min_method_notify(minwrap<T>* self, max::t_symbol*s, max::t_symbol* msg, void* sender, void* data) {
 		auto& meth = self->obj.methods["notify"];
 		atoms as(5);
@@ -179,6 +194,8 @@ void define_min_external_common(const char* cppname, const char* cmaxname, void 
 	for (auto& a_method : dummy.methods) {
 		if (a_method.first == "dblclick")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_dblclick<cpp_classname>, "dblclick", c74::max::A_CANT, 0);
+		else if (a_method.first == "patchlineupdate")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_patchlineupdate<cpp_classname>, "patchlineupdate", c74::max::A_CANT, 0);
 		else if (a_method.first == "dspsetup")
 			; // skip -- handle it in operator classes
 		else if (a_method.first == "notify")

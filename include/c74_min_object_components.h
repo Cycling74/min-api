@@ -203,7 +203,7 @@ namespace min {
 				a_name = "int";
 			else if (a_name == "number")
 				a_name = "float";
-			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose")
+			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose" || a_name == "patchlineupdate")
 				type = max::A_CANT;
 			owner->methods[a_name] = this;
 		}
