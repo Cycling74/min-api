@@ -367,6 +367,46 @@ namespace min {
 	}
 
 
+	template<class T>
+	void min_jit_mop_method_patchlineupdate(void* mob, max::t_object* patchline, long updatetype, max::t_object *src, long srcout, max::t_object *dst, long dstin) {
+        minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
+		auto& meth = self->obj.methods["patchlineupdate"];
+		atoms as(7);
+		
+		as[0] = mob;
+		as[1] = patchline;
+		as[2] = updatetype;
+		as[3] = src;
+        as[4] = srcout;
+        as[5] = dst;
+        as[6] = dstin;
+		meth->function(as);
+	}
+    
+	template<class T>
+	void min_jit_mop_method_notify(void* mob, max::t_symbol*s, max::t_symbol* msg, void* sender, void* data) {
+        minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
+		auto& meth = self->obj.methods["notify"];
+		atoms as(5);
+		
+		as[0] = self;
+		as[1] = s;
+		as[2] = msg;
+		as[3] = sender;
+		as[4] = data;
+		meth->function(as);
+	}
+	
+	template<class T>
+	void min_jit_mop_method_dictionary(void* mob, max::t_symbol *s) {
+        minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
+		auto& meth = self->obj.methods["dictionary"];
+		auto d = dictobj_findregistered_retain(s);
+		atoms as = { atom(d) };
+		meth->function(as);
+		dictobj_release(d);
+	}
+
 }} // namespace c74::min
 
 
@@ -440,6 +480,15 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 	c74::max::max_jit_class_wrap_standard(c74::min::this_class, c74::min::this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
 	
 	c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::max::max_jit_mop_assist, "assist", c74::max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
+	
+    for (auto& a_method : dummy.methods) {
+		if (a_method.first == "patchlineupdate")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_method_patchlineupdate<cpp_classname>, "patchlineupdate", c74::max::A_CANT, 0);
+		else if (a_method.first == "notify")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_method_notify<cpp_classname>, "notify", c74::max::A_CANT, 0);
+		else if (a_method.first == "dictionary")
+			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_method_dictionary<cpp_classname>, "dictionary", c74::max::A_SYM, 0);
+	}
 	
 	// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
 	c74::min::this_class->c_menufun = (c74::max::method)c74::max::gensym(cppname);
