@@ -15,6 +15,10 @@ include_directories(
 #set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage")
 #SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
+if (APPLE)
+	set(CMAKE_OSX_ARCHITECTURES x86_64;i386)
+endif ()
+
 add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp)
 
 target_link_libraries(${PROJECT_NAME} "mock_kernel")

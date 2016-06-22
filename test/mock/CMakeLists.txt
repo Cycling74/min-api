@@ -15,15 +15,16 @@ include_directories(
 
 
 if (WIN32)
-add_definitions(
-	-DWIN_VERSION
-	-D_USE_MATH_DEFINES
-)
+	add_definitions(
+		-DWIN_VERSION
+		-D_USE_MATH_DEFINES
+	)
 endif ()
 
 
 if (APPLE)
-set(CMAKE_MACOSX_RPATH 1)
+	set(CMAKE_OSX_ARCHITECTURES x86_64;i386)
+	set(CMAKE_MACOSX_RPATH 1)
 endif ()
 
 
