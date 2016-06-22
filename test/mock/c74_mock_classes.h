@@ -186,10 +186,9 @@ namespace max {
 	 
 	 @remark	At the moment, we don't know about tinyobjects, should be easy to add support for that.
  */
-MOCK_EXPORT t_max_err object_free(void *x)
-{
-	if (x) {
-		t_object		*o = (t_object*)x;
+MOCK_EXPORT t_max_err object_free(void *x) {
+	auto o = (t_object*)x;
+	if (o && o->o_magic == OB_MAGIC) {
 		t_mock_messlist *mock_messlist = (t_mock_messlist*)o->o_messlist;
 		t_class			*c = (t_class *) ((*mock_messlist)["###CLASS###"]);
 		

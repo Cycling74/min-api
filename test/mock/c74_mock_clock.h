@@ -8,80 +8,78 @@
 
 #pragma once
 
-
 using namespace std::chrono_literals;
 
-namespace qax {
-
-	using hires_clock = std::chrono::time_point<std::chrono::high_resolution_clock>;
-	using lock = std::lock_guard<std::mutex>;
-	using timepoint = std::chrono::high_resolution_clock::time_point;
-	using duration_ms = std::chrono::milliseconds;
-
+namespace c74 {
+namespace mock {
 	
-	class Clock {
+	using function = std::function<void(void)>;
+	using generic_callback = void(*)(void*); // TODO: convert to std::function?
+
+	using clock_type = std::chrono::time_point<std::chrono::steady_clock>;
+	using lock = std::lock_guard<std::mutex>;
+	using timepoint = std::chrono::steady_clock::time_point;
+	using duration_ms = std::chrono::milliseconds;
+	
+	class clock {
 		
 		class event {
 			timepoint	m_onset;
-			Function	m_meth;
+//			function	m_meth;
+			max::method	m_meth;
+			void*		m_baton;
 
 		public:
-			event(timepoint onset_, Function meth_)
-			: m_onset(onset_)
-			, m_meth(meth_)
+			event(timepoint onset, max::method meth, void* baton)
+			: m_onset(onset)
+			, m_meth(meth)
+			, m_baton(baton)
 			{}
 			
 			
-			friend bool operator< (const event& lhs, const event& rhs)
-			{
+			friend bool operator< (const event& lhs, const event& rhs) {
 				return lhs.m_onset < rhs.m_onset;
 			}
 		
-			friend bool operator< (const event& lhs, const timepoint rhs)
-			{
+			friend bool operator< (const event& lhs, const timepoint rhs) {
 				return lhs.m_onset < rhs;
 			}
 
-			friend bool operator > (const event& lhs, const timepoint rhs)
-			{
+			friend bool operator > (const event& lhs, const timepoint rhs) {
 				return lhs.m_onset > rhs;
 			}
 
-			void operator ()() const
-			{
-				m_meth();
+			void operator ()() const {
+				m_meth(m_baton);
 			}
 			
-			auto onset() const
-			{
+			auto onset() const {
 				return m_onset;
 			}
 		};
 		
 		
 	public:
-		Clock()
+		clock(max::method a_callback, void* a_baton)
+		: meth(a_callback)
+		, baton(a_baton)
 		{}
 		
-		~Clock()
-		{
+		~clock() {
 			t.join();
 		}
 		
-		// mark class as not copyable?
+		// TODO: mark class as not copyable?
 		
-		auto time(hires_clock onset)
-		{
+		auto time(clock_type onset) {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(onset - started_at).count();
 		}
 		
-		auto now()
-		{
+		auto now() {
 			return std::chrono::high_resolution_clock::now();
 		}
 		
-		void tick()
-		{
+		void tick() {
 			while (true) {
 				std::vector<event>				events_to_run;
 				std::unique_lock<std::mutex>	lock(mutex);	// locks mutex immediately, guarantees unlock on dtor
@@ -130,10 +128,9 @@ namespace qax {
 			}
 		}
 		
-		void add(const std::chrono::milliseconds delay, Function meth)
-		{
+		void add(const std::chrono::milliseconds delay/*, function meth*/) {
 			auto			onset = now() + delay;
-			Clock::event	event {onset, meth};
+			clock::event	event {onset, meth, baton};
 
 			//std::cout << time(now()) << " NEW EVENT: " << std::chrono::duration_cast<std::chrono::milliseconds>(onset - started_at).count() << "   " << baton << std::endl;
 			
@@ -151,25 +148,52 @@ namespace qax {
 			@param meth		pointer to member method to be called
 			@param target	pointer to this
 		 */
-		template<class MethType, class T>
-		void add(const std::chrono::milliseconds delay, MethType meth, T* target)
-		{
-			add(delay, std::bind(meth, target));
-		}
+//		template<class MethType, class T>
+//		void add(const std::chrono::milliseconds delay, MethType meth, T* target) {
+//			add(delay, std::bind(meth, target));
+//		}
 		
 		
-		const std::thread::id threadid() const
-		{
+		const std::thread::id threadid() const {
 			return t.get_id();
 		}
 		
 	private:
-		hires_clock				started_at = { std::chrono::high_resolution_clock::now() };
-		std::thread				t { &Clock::tick, this };
+		clock_type				started_at = { std::chrono::steady_clock::now() };
+		std::thread				t { &clock::tick, this };
 		std::mutex				mutex;
 		std::multiset<event>	events;	// using multiset instead of vector because we want to keep it sorted, performance impacts?
 		std::condition_variable	cv;
 		std::vector<event>		new_events;
+		
+		max::method				meth;
+		void*					baton;
 	};
 	
-}
+}} //namespace c74::mock
+
+
+namespace c74 {
+namespace max {
+	
+	using t_clock = mock::clock;
+
+	MOCK_EXPORT t_clock* clock_new(void* obj, method fn) {
+		
+		// TODO: we're going to run into trouble freeing this with object_free...
+		
+		return new mock::clock(fn, obj);
+	}
+
+	
+	MOCK_EXPORT void clock_unset(t_clock* self) {
+		// TODO: implement
+	}
+	
+	
+	MOCK_EXPORT void clock_fdelay(t_clock* self, double duration_in_ms) {
+		self->add(std::chrono::milliseconds((int)duration_in_ms));
+	}
+	
+		
+}} // namespace c74::max
