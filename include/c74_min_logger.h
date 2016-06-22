@@ -55,18 +55,22 @@ namespace min {
 
 			switch(target) {
 				case message:
+					std::cout << msgstr << std::endl;
 					max::object_post(maxobj, msgstr);
 					break;
 				case warning:
+					std::cout << msgstr << std::endl;
 					max::object_warn(maxobj, msgstr);
 					break;
 				case error:
+					std::cerr << msgstr << std::endl;
 					max::object_error(maxobj, msgstr);
 					break;
 				case console:
 					max::cpost(msgstr);
 					break;
 				case obtrusive:
+					std::cerr << msgstr << std::endl;
 					max::object_error_obtrusive(maxobj, msgstr);
 					break;
 			}
