@@ -370,7 +370,7 @@ namespace min {
 	template<class T>
 	void min_jit_mop_method_patchlineupdate(void* mob, max::t_object* patchline, long updatetype, max::t_object *src, long srcout, max::t_object *dst, long dstin) {
         minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
-		auto& meth = self->obj.methods["patchlineupdate"];
+		auto& meth = self->obj.methods()["patchlineupdate"];
 		atoms as(7);
 		
 		as[0] = mob;
@@ -386,7 +386,7 @@ namespace min {
 	template<class T>
 	void min_jit_mop_method_notify(void* mob, max::t_symbol*s, max::t_symbol* msg, void* sender, void* data) {
         minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
-		auto& meth = self->obj.methods["notify"];
+		auto& meth = self->obj.methods()["notify"];
 		atoms as(5);
 		
 		as[0] = self;
@@ -400,7 +400,7 @@ namespace min {
 	template<class T>
 	void min_jit_mop_method_dictionary(void* mob, max::t_symbol *s) {
         minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
-		auto& meth = self->obj.methods["dictionary"];
+		auto& meth = self->obj.methods()["dictionary"];
 		auto d = dictobj_findregistered_retain(s);
 		atoms as = { atom(d) };
 		meth->function(as);
@@ -483,7 +483,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 	
 	c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::max::max_jit_mop_assist, "assist", c74::max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
 	
-    for (auto& a_method : dummy.methods) {
+    for (auto& a_method : dummy.methods()) {
 		if (a_method.first == "patchlineupdate")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_method_patchlineupdate<cpp_classname>, "patchlineupdate", c74::max::A_CANT, 0);
 		else if (a_method.first == "notify")
