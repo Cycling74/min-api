@@ -14,7 +14,7 @@ namespace min {
 		friend class buffer_lock;
 		
 		buffer_reference(object_base* an_owner)
-		: owner(an_owner)
+		: owner(*an_owner)
 		{}
 		
 		
@@ -25,7 +25,7 @@ namespace min {
 		
 		void set(symbol name) {
 			if (!instance)
-				instance = buffer_ref_new(owner->maxobj, name);
+				instance = max::buffer_ref_new(owner, name);
 			else
 				buffer_ref_set(instance, name);
 		}
@@ -33,17 +33,17 @@ namespace min {
 		
 	private:
 		max::t_buffer_ref*	instance = nullptr;
-		object_base*		owner;
+		object_base&		owner;
 		
-		c74::min::method set_meth = { owner, "set", [this](c74::min::atoms& args) {
+		c74::min::method set_meth = { &owner, "set", [this](const c74::min::atoms& args) {
 			this->set(args[0]);
 		}};
 		
-		c74::min::method dblclick_meth = { owner, "dblclick", [this](c74::min::atoms& args) {
+		c74::min::method dblclick_meth = { &owner, "dblclick", [this](const c74::min::atoms& args) {
 			max::buffer_view(max::buffer_ref_getobject(this->instance));
 		}};
 		
-		c74::min::method notify_meth = { owner, "notify", [this](c74::min::atoms& args) {
+		c74::min::method notify_meth = { &owner, "notify", [this](const c74::min::atoms& args) {
 			//max::t_object*	self = args[0];
 			max::t_symbol*	s = args[1];
 			max::t_symbol*	msg = args[2];

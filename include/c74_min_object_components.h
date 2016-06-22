@@ -23,6 +23,10 @@ namespace min {
 	class maxobject_base {
 	public:
 		
+		operator max::t_object*() {
+			return &objstorage.maxobj;
+		}
+
 		operator max::t_pxobject*() {
 			return &objstorage.mspobj;
 		}
@@ -49,38 +53,76 @@ namespace min {
 	};
 	
 	
-	
+	/// An object_base is a generic way to pass around a min::object as a min::object, while sharing common code,
+	/// is actually sepcific to the the user's defined class due to template specialization.
 	class object_base {
 	public:
 		object_base()
-		: state((max::t_dictionary*)k_sym__pound_d) {
-		}
+		: m_state((max::t_dictionary*)k_sym__pound_d)
+		{}
 		
-		~object_base() {
+		virtual ~object_base() {
 		}
 
 		int current_inlet() {
-			return proxy_getinlet((max::t_object*)maxobj);
+			return proxy_getinlet((max::t_object*)m_maxobj);
 		}
         
 		logger post(logger::type target = logger::type::message) {
-            return logger(maxobj, target);
+            return logger(m_maxobj, target);
         }
 		
-		max::t_object*										maxobj;
-		bool												initialized = false;
-		std::vector<min::inlet*>							inlets;
-		std::vector<min::outlet*>							outlets;
-		std::unordered_map<std::string, method*>			methods;
-		std::unordered_map<std::string, attribute_base*>	attributes;
-		dict												state;
-	};
-	
-	
-	class object : public object_base {
-		;
-	};
+		operator max::t_object* () {
+			return m_maxobj;
+		}
+		
+		void assign_instance(max::t_object* instance) {
+			m_maxobj = instance;
+		}
+		
+		auto inlets() -> std::vector<min::inlet*>& {
+			return m_inlets;
+		}
+		
+		auto outlets() -> std::vector<min::outlet*>& {
+			return m_outlets;
+		}
 
+		auto methods() -> std::unordered_map<std::string, method*>& {
+			return m_methods;
+		}
+		
+		auto attributes() -> std::unordered_map<std::string, attribute_base*>& {
+			return m_attributes;
+		}
+		
+		void initialize() {
+			m_initialized = true;
+		}
+		
+		bool initialized() {
+			return m_initialized;
+		}
+		
+		dict state() {
+			return m_state;
+		}
+
+	protected:
+		max::t_object*										m_maxobj;
+		bool												m_initialized = false;
+		std::vector<min::inlet*>							m_inlets;
+		std::vector<min::outlet*>							m_outlets;
+		std::unordered_map<std::string, method*>			m_methods;
+		std::unordered_map<std::string, attribute_base*>	m_attributes;
+		dict												m_state;
+	};
+	
+	
+	
+
+	
+	
 	class sample_operator_base;
 	class perform_operator_base;
 	class matrix_operator_base;
@@ -105,9 +147,10 @@ namespace min {
 		
 		void setup() {
 			auto self = &base;
+			auto inlets = obj.inlets();
 
-			for (auto i=obj.inlets.size()-1; i>0; --i)
-				obj.inlets[i]->instance = max::proxy_new(self, i, nullptr);
+			for (auto i=inlets.size()-1; i>0; --i)
+				inlets[i]->instance = max::proxy_new(self, i, nullptr);
 		}
 		
 		void cleanup() {}
@@ -138,11 +181,9 @@ namespace min {
 	
 	class inlet : public port {
 	public:
-		//		inlet(maxobject* an_owner, std::string a_description)
 		inlet(object_base* an_owner, std::string a_description, std::string a_type = "")
-		: port(an_owner, a_description, a_type)
-		{
-			owner->inlets.push_back(this);
+		: port(an_owner, a_description, a_type) {
+			owner->inlets().push_back(this);
 		}
 
 		void* instance = nullptr;
@@ -152,9 +193,8 @@ namespace min {
 	class outlet  : public port {
 	public:
 		outlet(object_base* an_owner, std::string a_description, std::string a_type = "")
-		: port(an_owner, a_description, a_type)
-		{
-			owner->outlets.push_back(this);
+		: port(an_owner, a_description, a_type) {
+			owner->outlets().push_back(this);
 		}
 		
 		void send(double value) {
@@ -205,7 +245,7 @@ namespace min {
 				a_name = "float";
 			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose" || a_name == "patchlineupdate")
 				type = max::A_CANT;
-			owner->methods[a_name] = this;
+			owner->methods()[a_name] = this;
 		}
 		
 		void operator ()(atoms args) {
@@ -231,7 +271,7 @@ namespace min {
 	
 	class attribute_base {
 	public:
-		attribute_base(object_base* an_owner, std::string a_name, function a_function)
+		attribute_base(object_base& an_owner, std::string a_name, function a_function)
 		: owner(an_owner)
 		, name(max::gensym(a_name.c_str()))
         , label(name)
@@ -241,20 +281,26 @@ namespace min {
 		virtual attribute_base& operator = (atoms args) = 0;
 		virtual operator atoms() const = 0;
 		
-		object_base*	owner;
+		object_base&	owner;
 		max::t_symbol*	name;
         max::t_symbol*	label;
 		symbol			type;
 		function		setter;
 	};
 	
+	
 	template <typename T>
 	class attribute : public attribute_base {
 	public:
+		
+		/// Constructor
+		/// @param an_owner			The instance pointer for the owning C++ class, typically you will pass 'this'
+		/// @param a_name			The name of the attribute
+		/// @param a_default_value	The default value of the attribute, which will be set when the instance is created.
+		/// @param a_function		A callback that will be run **prior** to assigning the value to the attribute.
 		attribute(object_base* an_owner, std::string a_name, T a_default_value, function a_function)
-		: attribute_base(an_owner, a_name, a_function)
-		{
-			owner->attributes[a_name] = this;
+		: attribute_base(*an_owner, a_name, a_function) {
+			owner.attributes()[a_name] = this;
 			*this = a_default_value;
 			
 			if (std::is_same<T, bool>::value)
@@ -267,15 +313,14 @@ namespace min {
 				type = k_sym_float32;
 			else // (std::is_same<T, double>::value)
 				type = k_sym_float64;
-
 		}
 		
 		
 		attribute& operator = (const T arg) {
 			atoms as = { atom(arg) };
 			*this = as;
-			if (owner->initialized)
-				object_attr_touch(owner->maxobj, name);
+			if (owner.initialized())
+				object_attr_touch(owner, name);
 			return *this;
 		}
 		
@@ -315,7 +360,7 @@ namespace min {
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
 		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, ps_getname);
-		auto& attr = self->obj.attributes[attr_name->s_name];
+		auto& attr = self->obj.attributes()[attr_name->s_name];
 		atoms rvals = *attr;
 		
 		*ac = rvals.size();
@@ -331,7 +376,7 @@ namespace min {
 	template<class T>
 	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, atom_reference args) {
 		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, ps_getname);
-		auto& attr = self->obj.attributes[attr_name->s_name];
+		auto& attr = self->obj.attributes()[attr_name->s_name];
 		*attr = atoms(args.begin(), args.end());
 		return 0;
 	}

@@ -23,7 +23,7 @@ namespace min {
 		T				obj;
 		
 		void setup() {
-			max::dsp_setup(base, obj.inlets.size());
+			max::dsp_setup(base, obj.inlets().size());
 		}
 		
 		void cleanup() {
@@ -88,12 +88,12 @@ namespace min {
 	void min_dsp64_io(minwrap<T>* self, short* count) {
 		int i = 0;
 		
-		while (i < self->obj.inlets.size()) {
-			self->obj.inlets[i]->signal_connection = count[i];
+		while (i < self->obj.inlets().size()) {
+			self->obj.inlets()[i]->signal_connection = count[i];
 			++i;
 		}
-		while (i < self->obj.outlets.size()) {
-			self->obj.outlets[i - self->obj.inlets.size()]->signal_connection = count[i];
+		while (i < self->obj.outlets().size()) {
+			self->obj.outlets()[i - self->obj.inlets().size()]->signal_connection = count[i];
 			++i;
 		}
 	}

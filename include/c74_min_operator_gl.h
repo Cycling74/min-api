@@ -170,7 +170,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 	long attrflags = c74::max::ATTR_GET_DEFER_LOW | c74::max::ATTR_SET_USURP_LOW;
 	
 
-	for (auto& an_attribute : dummy.attributes) {
+	for (auto& an_attribute : dummy.attributes()) {
 		std::string		attr_name = an_attribute.first;
 		auto			attr = c74::max::jit_object_new(
 											 c74::max::_jit_sym_jit_attr_offset,

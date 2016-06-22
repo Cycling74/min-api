@@ -15,7 +15,7 @@ namespace min {
 		using textfunction = std::function<void(const char*)>;
 		
 		texteditor(object_base* an_owner, textfunction fn)
-		: owner(an_owner)
+		: owner(*an_owner)
 		, callback(fn)
 		{}
 		
@@ -28,7 +28,7 @@ namespace min {
 		
 		void open(const char* contents) {
 			if (!jed) {
-				jed = c74::max::object_new(c74::max::CLASS_NOBOX, c74::max::gensym("jed"), owner->maxobj, 0);
+				jed = c74::max::object_new(c74::max::CLASS_NOBOX, c74::max::gensym("jed"), (max::t_object*)owner, 0);
 				object_attr_setsym(jed, c74::max::gensym("title"), c74::max::gensym("Code Editor"));
 				object_attr_setchar(jed, c74::max::gensym("scratch"), 1);
 				
@@ -45,17 +45,17 @@ namespace min {
 		
 		
 	private:
-		object_base*		owner;
+		object_base&		owner;
 		textfunction		callback;
 		c74::max::t_object*	jed = nullptr;
 
 		
-		c74::min::method edclose_meth = { owner, "edclose", [this](const c74::min::atoms& args) {
+		c74::min::method edclose_meth = { &owner, "edclose", [this](const c74::min::atoms& args) {
 			jed = nullptr;
 		}};
 
 		
-		c74::min::method okclose_meth = { owner, "okclose", [this](const c74::min::atoms& args) {
+		c74::min::method okclose_meth = { &owner, "okclose", [this](const c74::min::atoms& args) {
 			char* text = nullptr;
 			
 			object_method(jed, c74::max::gensym("gettext"), &text);

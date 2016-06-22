@@ -144,7 +144,7 @@ namespace min {
 		
 		atoms args;
 		new(&self->obj) T(args); // placement new
-		self->obj.maxobj = (max::t_object*)self;
+		self->obj.assign_instance((max::t_object*)self);
 		
 		return (max::t_object*)self;
 	}
@@ -445,7 +445,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 	long attrflags = c74::max::ATTR_GET_DEFER_LOW | c74::max::ATTR_SET_USURP_LOW;
 	
 
-	for (auto& an_attribute : dummy.attributes) {
+	for (auto& an_attribute : dummy.attributes()) {
 		std::string		attr_name = an_attribute.first;
         c74::max::t_symbol* type = an_attribute.second->type;
 		auto			attr = c74::max::jit_object_new(
