@@ -112,7 +112,7 @@ namespace min {
 
 	template<class T>
 	void min_method_patchlineupdate(minwrap<T>* self, max::t_object* patchline, long updatetype, max::t_object *src, long srcout, max::t_object *dst, long dstin) {
-		auto& meth = self->obj.methods["patchlineupdate"];
+		auto& meth = self->obj.methods()["patchlineupdate"];
 		atoms as(7);
 		
 		as[0] = self;
@@ -175,7 +175,8 @@ namespace min {
 		auto d = dictobj_findregistered_retain(s);
 		atoms as = { atom(d) };
 		meth->function(as);
-		dictobj_release(d);
+		if (d)
+			dictobj_release(d);
 	}
 	
 	

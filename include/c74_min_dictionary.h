@@ -43,7 +43,11 @@ namespace min {
 		dict(atom an_atom_containing_a_dict) {
 			auto a = (max::t_atom*)&an_atom_containing_a_dict;
 			instance = (max::t_dictionary*)max::atom_getobj(a);
-			max::object_retain(instance);
+			if (!instance)
+				error("no dictionary in atom");
+			auto err = max::object_retain(instance);
+			if (err)
+				error("failed to retain dictionary instance");
 		}
 		
 	
