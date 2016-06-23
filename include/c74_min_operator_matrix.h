@@ -515,13 +515,14 @@ typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname
 define_min_external(const char* cppname, const char* cmaxname, void *resources) {
 	std::string		maxname = c74::min::deduce_maxclassname(cmaxname);
 
-	
+	// Mark `this_class` as busy.
+	// If it is NULL then it will try to initialize itself leading to an infinite recursion.
+	// We will assign a valid pointer to it below.
+	c74::min::this_class = (c74::max::t_class*)1;
+	cpp_classname dummy;
 	
 	// 1. Boxless Jit Class
 
-	c74::min::atoms	a;
-	cpp_classname	dummy(a);
-	
 	c74::min::this_jit_class = (c74::max::t_class*)c74::max::jit_class_new(
 																		   cppname,
 																		   (c74::max::method)c74::min::jit_new<cpp_classname>,

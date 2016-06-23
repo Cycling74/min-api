@@ -187,12 +187,11 @@ namespace min {
 
 template<class cpp_classname>
 void define_min_external_common(const char* cppname, const char* cmaxname, void *resources) {
-	c74::min::atoms	a;
-	std::string		maxname = c74::min::deduce_maxclassname(cmaxname);
+	std::string maxname = c74::min::deduce_maxclassname(cmaxname);
 	
 	c74::min::this_class = c74::max::class_new( maxname.c_str() ,(c74::max::method)c74::min::min_new<cpp_classname>, (c74::max::method)c74::min::min_free<cpp_classname>, sizeof( c74::min::minwrap<cpp_classname> ), nullptr, c74::max::A_GIMME, 0);
 	
-	cpp_classname dummy(a);
+	cpp_classname dummy;
 	for (auto& a_method : dummy.methods()) {
 		if (a_method.first == "dblclick")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_dblclick<cpp_classname>, "dblclick", c74::max::A_CANT, 0);
