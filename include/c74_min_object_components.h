@@ -109,7 +109,7 @@ namespace min {
 		}
 
 	protected:
-		max::t_object*										m_maxobj;
+		max::t_object*										m_maxobj = nullptr;
 		bool												m_initialized = false;
 		std::vector<min::inlet*>							m_inlets;
 		std::vector<min::outlet*>							m_outlets;
