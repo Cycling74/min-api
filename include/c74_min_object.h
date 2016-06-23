@@ -315,6 +315,10 @@ namespace min {
 					define_min_external<T> ( typeid(T).name(), maxname.c_str(), nullptr );
 					
 				}
+				
+				if (this_class == (max::t_class*)1)
+					return; // this is a dummy instance that is in the middle of initializing.
+				
 				m_maxobj = (max::t_object*)max::object_alloc(this_class);
 				// TODO: assign???
 				initialize();
