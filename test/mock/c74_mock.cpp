@@ -41,5 +41,71 @@ namespace max {
 	MOCK_EXPORT t_max_err object_retain(t_object*) {
 		return 0;
 	}
+	
+	
+	t_object* object_new_imp(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8, void* p9, void* p10) {
+		return nullptr;
+	}
+	
+	
+	using t_jit_object = t_object;
+	using t_jit_err = long;
+	
+	MOCK_EXPORT t_jit_object* jit_object_new_imp(void* classname, void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8, void* dummy) {
+		return object_new_imp(classname, p1, p2, p3, p4, p5, p6, p7, p8, dummy);
+	}
 
+	
+	MOCK_EXPORT t_jit_err jit_class_addadornment(void* c, t_jit_object* o) {
+		return 0;
+	}
+
+	
+	MOCK_EXPORT t_jit_err jit_class_addmethod(void* c, method m, const char* name, ...) {
+		return 0;
+	}
+
+
+	MOCK_EXPORT t_jit_err jit_class_register(void* c) {
+		return 0;
+	}
+
+	
+	MOCK_EXPORT t_jit_err jit_class_addattr(void* c, t_jit_object* attr) {
+		return 0;
+	}
+
+	
+	MOCK_EXPORT t_max_err object_addattr_parse(t_object* x, const char* attrname, t_symbol* type, long flags, const char* parsestr) {
+		return 0;
+	}
+
+	
+	
+	
+	MOCK_EXPORT void *max_jit_object_alloc(t_class *mclass, t_symbol *jitter_classname) {
+		return nullptr;
+	}
+	
+	MOCK_EXPORT void max_jit_object_free(void *x) {}
+	MOCK_EXPORT void max_jit_class_obex_setup(t_class *mclass, long oboffset) {}
+	MOCK_EXPORT t_jit_err max_jit_class_addattr(t_class *mclass, void *attr) {
+		return 0;
+	}
+	MOCK_EXPORT void max_jit_class_wrap_standard(t_class *mclass, t_class *jclass, long flags) {}
+	MOCK_EXPORT void max_jit_class_wrap_addmethods(t_class *mclass, t_class *jclass) {}
+	MOCK_EXPORT void max_jit_class_wrap_addmethods_flags(t_class *mclass, t_class *jclass, long flags) {}
+	MOCK_EXPORT void max_jit_class_wrap_attrlist2methods(t_class *mclass, t_class *jclass) {}
+	MOCK_EXPORT void max_jit_class_addmethod_defer(t_class *mclass, method m, char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_defer_low(t_class *mclass, method m, char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_usurp(t_class *mclass, method m, char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_usurp_low(t_class *mclass, method m, char *s) {}
+	
+	
+	MOCK_EXPORT t_jit_err max_jit_class_mop_wrap(t_class* mclass, t_class* jclass, long flags) {
+		return 0;
+	}
+
+	
+	
 }}

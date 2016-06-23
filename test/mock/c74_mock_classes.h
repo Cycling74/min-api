@@ -98,6 +98,14 @@ MOCK_EXPORT t_class* class_new(const char* name, const method mnew, const method
 	return c;
 }
 
+	
+MOCK_EXPORT void* jit_class_new(const char* name, method mnew, method mfree, long size, ...)
+{
+	// TODO: is this the right thing to do?
+	return class_new(name, mnew, mfree, size, nullptr, 0);
+}
+	
+	
 
 /**	Add a class to the class registry.
 	This should mock the behavior of Max's real class_register() but currently does nothing at all!
