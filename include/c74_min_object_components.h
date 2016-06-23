@@ -96,8 +96,13 @@ namespace min {
 			return m_attributes;
 		}
 		
-		void initialize() {
+		void preinitialize() {
+			m_initializing = true;
+		}
+
+		void postinitialize() {
 			m_initialized = true;
+			m_initializing = false;
 		}
 		
 		bool initialized() {
@@ -110,6 +115,7 @@ namespace min {
 
 	protected:
 		max::t_object*										m_maxobj;
+		bool												m_initializing = false;
 		bool												m_initialized = false;
 		std::vector<min::inlet*>							m_inlets;
 		std::vector<min::outlet*>							m_outlets;

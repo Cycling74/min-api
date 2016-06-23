@@ -16,9 +16,10 @@ namespace min {
 		long		attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
 		minwrap<T>*	self = (minwrap<T>*)max::object_alloc(this_class);
 		
+		self->obj.preinitialize();
 		self->obj.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
 		new(&self->obj) T(atoms(args.begin(), args.begin()+attrstart)); // placement new
-		self->obj.initialize();
+		self->obj.postinitialize();
 		
 		self->setup();
 		
@@ -307,21 +308,23 @@ namespace min {
 			//
 			// This could occur if a class uses another class directly or in the case of unit testing.
 			// In such cases we need to do something reasonable so the our invariants can be held true.
-			if (!m_maxobj || m_maxobj->o_magic != max::OB_MAGIC) {
-				if (!this_class) {
+			
+			if (m_initializing) {							// we are being initialized externally via placement new
+				;
+			}
+			else {											// we need to initialize ourselves
+				if (this_class == (max::t_class*)1)			// this is a dummy instance that is in the middle of initializing.
+					return;
+				else if (this_class == nullptr) {			// the class hasn't been created yet, this is probably a unit test.
 					std::string maxname = typeid(T).name();
 					maxname += "_max";
 					
 					define_min_external<T> ( typeid(T).name(), maxname.c_str(), nullptr );
-					
 				}
-				
-				if (this_class == (max::t_class*)1)
-					return; // this is a dummy instance that is in the middle of initializing.
 				
 				m_maxobj = (max::t_object*)max::object_alloc(this_class);
 				// TODO: assign???
-				initialize();
+				postinitialize();
 				
 				// self->setup();
 				//
