@@ -50,22 +50,25 @@ namespace min {
 		c74::max::t_object*	jed = nullptr;
 
 		
-		c74::min::method edclose_meth = { &owner, "edclose", [this](const c74::min::atoms& args) {
+		c74::min::method edclose_meth = { &owner, "edclose", MIN_FUNCTION {
 			jed = nullptr;
+			return {};
 		}};
 
 		
-		c74::min::method okclose_meth = { &owner, "okclose", [this](const c74::min::atoms& args) {
+		c74::min::method okclose_meth = { &owner, "okclose", MIN_FUNCTION {
 			char* text = nullptr;
 			
 			object_method(jed, c74::max::gensym("gettext"), &text);
 			if (*text == 0)
-				return;	// totally blank text editor
+				return {};	// totally blank text editor
 			
 			callback(text);
 			
 			if (text)
 				c74::max::sysmem_freeptr(text);
+
+			return {};
 		}};
 
 	};
