@@ -55,13 +55,3 @@ namespace min {
 void ext_main (void* r) { \
 	define_min_external< cpp_classname > ( #cpp_classname, __FILE__ , r ); \
 }
-
-
-//#define METHOD( name )								c74::min::method				name = { this, #name , [this](const c74::min::atoms& args) -> atoms
-//#define ATTRIBUTE( name, type, default)				c74::min::attribute< type >		name = { this, #name , default, [this](const c74::min::atoms& args) -> atoms
-//#define ATTRIBUTE_READONLY( name, type, default)	c74::min::attribute< type >		name = { this, #name , default, [this](const c74::min::atoms& args) -> atoms
-//#define INLET(  name, desc )						c74::min::inlet					name = { this, desc };
-//#define OUTLET( name, ... )						c74::min::outlet				name = { this, __VA_ARGS__ };
-//#define CLOCK( name )								c74::min::clock					name = { this, [this](const c74::min::atoms& args)
-//#define END };
-
