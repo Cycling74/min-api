@@ -342,6 +342,11 @@ namespace min {
 		
 		virtual ~object() {
 		}
+
+		
+	protected:
+		logger	cout = { this, logger::type::message};
+		logger	cerr = { this, logger::type::error};
 		
 		
 	private:
