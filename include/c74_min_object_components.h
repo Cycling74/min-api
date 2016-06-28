@@ -237,8 +237,9 @@ namespace min {
 # pragma mark methods
 #endif
 
-	using function = std::function<void(atoms&)>;
-	
+	using function = std::function<atoms(const atoms&)>;
+	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> atoms
+
 	class method {
 	public:
 		method(object_base* an_owner, std::string a_name, function a_function)
@@ -304,7 +305,7 @@ namespace min {
 		/// @param a_name			The name of the attribute
 		/// @param a_default_value	The default value of the attribute, which will be set when the instance is created.
 		/// @param a_function		A callback that will be run **prior** to assigning the value to the attribute.
-		attribute(object_base* an_owner, std::string a_name, T a_default_value, function a_function)
+		attribute(object_base* an_owner, std::string a_name, T a_default_value, function a_function = nullptr)
 		: attribute_base(*an_owner, a_name, a_function) {
 			owner.attributes()[a_name] = this;
 			*this = a_default_value;
@@ -333,8 +334,9 @@ namespace min {
 		
 		attribute& operator = (atoms args) {
 			if (setter)
-				setter(args);
-			value = args[0];
+				value = setter(args)[0];
+			else
+				value = args[0];
 			return *this;
 		}
 		

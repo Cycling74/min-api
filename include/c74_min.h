@@ -43,7 +43,7 @@ namespace min {
 #include "c74_min_operator_gl.h"		// Jitter GL
 #include "c74_min_object.h"				// Max objects
 
-#include "c74_min_clock.h"				// Wrapper for clocks
+#include "c74_min_timer.h"				// Wrapper for clocks
 #include "c74_min_buffer.h"				// Wrapper for MSP buffers
 #include "c74_min_path.h"				// Wrapper class for accessing the Max path system
 #include "c74_min_texteditor.h"			// Wrapper for text editor window
@@ -55,18 +55,3 @@ namespace min {
 void ext_main (void* r) { \
 	define_min_external< cpp_classname > ( #cpp_classname, __FILE__ , r ); \
 }
-
-
-#define METHOD( name )								c74::min::method				name = { this, #name , [this](c74::min::atoms& args)
-#define ATTRIBUTE( name, type, default)				c74::min::attribute< type >		name = { this, #name , default, [this](c74::min::atoms& args)
-#define ATTRIBUTE_READONLY( name, type, default)	c74::min::attribute< type >		name = { this, #name , default, [this](c74::min::atoms& args)
-//#define INLET(  name, desc )						c74::min::inlet					name = { this, desc };
-//#define OUTLET( name, ... )						c74::min::outlet				name = { this, __VA_ARGS__ };
-#define CLOCK( name )								c74::min::clock					name = { this, [this](c74::min::atoms& args)
-#define END };
-
-#ifdef WIN_VERSION
-#define MIN_CLAMP( in, lo, hi )				c74::max::clamp<std::remove_reference<decltype(in)>::type>(in, lo, hi)
-#else
-#define MIN_CLAMP( in, lo, hi )				c74::max::clamp<typeof(in)>(in, lo, hi)
-#endif

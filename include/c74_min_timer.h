@@ -9,23 +9,26 @@ namespace c74 {
 namespace min {
 	
 	
-	class clock;
-	extern "C" void clock_tick_callback(clock* an_owner);
+	class timer;
+	extern "C" void timer_tick_callback(timer* an_owner);
 	
 	
+	/// The #timer class allows you to schedule a function to be called in the future using Max's scheduler.
+	/// Note: the name `timer` was chosen instead of `clock` because of the use of the type is `clock` is ambiguous on the Mac OS
+	/// unless you explicitly specify the `c74::min` namespace.
 	
-	class clock {
+	class timer {
 	public:
 
-		clock(object_base* an_owner, function a_function)
+		timer(object_base* an_owner, function a_function)
 		: owner(an_owner)
 		, function(a_function)
 		{
-			instance = max::clock_new(this, (max::method)clock_tick_callback);
+			instance = max::clock_new(this, (max::method)timer_tick_callback);
 		}
 
 		
-		~clock() {
+		~timer() {
 			object_free(instance);
 		}
 		
@@ -64,7 +67,7 @@ namespace min {
 	};
 	
 	
-	void clock_tick_callback(clock* an_owner) {
+	void timer_tick_callback(timer* an_owner) {
 		an_owner->tick();
 	}
 

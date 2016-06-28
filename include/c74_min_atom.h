@@ -82,6 +82,7 @@ namespace min {
 			atom_setlong(this, value);
 			return *this;
 		}
+
 		atom& operator = (const double value) {
 			atom_setfloat(this, value);
 			return *this;
@@ -177,7 +178,7 @@ namespace min {
 		
 		
 		inline friend bool operator == (const max::t_atom& a, bool value) {
-			return atom_getlong(&a) == value;
+			return (bool)atom_getlong(&a) == value;
 		}
 		
 		
