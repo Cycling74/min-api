@@ -106,6 +106,39 @@ namespace max {
 		return 0;
 	}
 
+	MOCK_EXPORT t_jit_err max_jit_mop_setup_simple(t_object*, t_object* o, long argc, t_atom* argv) {
+		return 0;
+	}
+
+	MOCK_EXPORT void max_jit_mop_assist(t_object*) {} // note: prototype wrong
+	MOCK_EXPORT int max_jit_mop_getoutputmode(t_object*) { return 0; }
+	MOCK_EXPORT void max_jit_mop_outputmatrix(t_object*) {}
+	MOCK_EXPORT void max_jit_mop_free(t_object*) {}
+	MOCK_EXPORT void* max_jit_obex_jitob_get(t_object*) { return nullptr; }
+	MOCK_EXPORT void* max_jit_obex_adornment_get(t_object* self, t_symbol* name) { return nullptr; }
+	MOCK_EXPORT void max_jit_attr_args(t_object*, long argc, t_atom* argv) {}
+	MOCK_EXPORT void* jit_object_alloc(t_class* c) { return object_alloc(c); }
+	MOCK_EXPORT void jit_object_free(t_object* x) { object_free(x); }
 	
-	
+
+
+	static const int JIT_MATRIX_MAX_DIMCOUNT = 32; 			///< maximum dimension count @ingroup jitter
+	static const int JIT_MATRIX_MAX_PLANECOUNT = 32; 			///< maximum plane count @ingroup jitter
+
+	struct t_jit_matrix_info {
+		long		size = 0;			///< in bytes (0xFFFFFFFF=UNKNOWN)
+		t_symbol*	type = nullptr;			///< primitifve type (char, long, float32, or float64)
+		long		flags = 0;			///< flags to specify data reference, handle, or tightly packed
+		long		dimcount = 0;		///< number of dimensions
+		long		dim[JIT_MATRIX_MAX_DIMCOUNT];		///< dimension sizes
+		long		dimstride[JIT_MATRIX_MAX_DIMCOUNT]; ///< stride across dimensions in bytes
+		long		planecount = 0;		///< number of planes
+	};
+
+	MOCK_EXPORT void jit_parallel_ndim_simplecalc1(method fn, void *data, long dimcount, long *dim, long planecount, t_jit_matrix_info *minfo1, char *bp1, long flags1)
+	{}
+	MOCK_EXPORT void jit_parallel_ndim_simplecalc2(method fn, void *data, long dimcount, long *dim, long planecount, t_jit_matrix_info *minfo1, char *bp1,
+		t_jit_matrix_info *minfo2, char *bp2, long flags1, long flags2)
+	{}
+
 }}
