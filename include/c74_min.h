@@ -18,6 +18,7 @@
 #include <functional>
 #include <unordered_map>
 
+
 namespace c74 {
 namespace min {
 	using uchar = unsigned char;
@@ -25,18 +26,31 @@ namespace min {
 	using samples = std::vector<sample>;
 }}
 
+
+/// A standard interface for flagging serious runtime snafus.
+/// At the moment this is hardwired to throw an exception but offers us the ability to
+/// change that behavior later or specialize it for certain contexts.
+///
+/// Because this throws an exception you should **not** call this function in an audio perform routine.
+void error(std::string description) {
+	throw std::runtime_error(description);
+}
+
+
 #include "c74_min_symbol.h"
 #include "c74_min_atom.h"
 #include "c74_min_map.h"
-#include "c74_min_logger.h"
 #include "c74_min_dictionary.h"
+
 
 namespace c74 { 
 namespace min {
 	static max::t_class* this_class = nullptr;
 }}
 
+
 #include "c74_min_object_components.h"	// Shared components of Max objects
+#include "c74_min_logger.h"
 #include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"	// Jitter MOP

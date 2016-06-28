@@ -67,10 +67,6 @@ namespace min {
 		int current_inlet() {
 			return proxy_getinlet((max::t_object*)m_maxobj);
 		}
-        
-		logger post(logger::type target = logger::type::message) {
-            return logger(m_maxobj, target);
-        }
 		
 		operator max::t_object* () {
 			return m_maxobj;
