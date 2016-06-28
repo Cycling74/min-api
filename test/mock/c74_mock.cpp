@@ -141,4 +141,8 @@ namespace max {
 		t_jit_matrix_info *minfo2, char *bp2, long flags1, long flags2)
 	{}
 
+	#ifndef C74_X64
+	MOCK_EXPORT void* jit_object_new(t_symbol* name) { return jit_object_new_imp(name, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr); }
+	#endif
+
 }}
