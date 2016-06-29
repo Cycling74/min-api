@@ -69,3 +69,9 @@ namespace min {
 void ext_main (void* r) { \
 	define_min_external< cpp_classname > ( #cpp_classname, __FILE__ , r ); \
 }
+
+#define MIN_EXTERNAL_CUSTOM(cpp_classname, max_name) \
+void ext_main (void* r) { \
+	define_min_external< cpp_classname > ( #max_name, __FILE__ , r ); \
+}
+
