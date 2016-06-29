@@ -412,7 +412,10 @@ namespace min {
 			const char* end = strrchr(start, '.');
 			if (!end)
 				end = start + strlen(start);
-			smaxname.assign(start, end-start);
+			if (!strcmp(end, ".cpp"))
+				smaxname.assign(start, end-start);
+			else
+				smaxname = start;
 		}
 		return smaxname;
 	}
