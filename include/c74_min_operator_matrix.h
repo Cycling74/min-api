@@ -146,6 +146,8 @@ namespace min {
 		new(&self->obj) T(args); // placement new
 		self->obj.assign_instance((max::t_object*)self);
 		
+        object_method((max::t_object*)self, max::gensym("setup"));
+        
 		return (max::t_object*)self;
 	}
 	
