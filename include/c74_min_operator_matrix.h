@@ -196,8 +196,9 @@ namespace min {
 		auto is = (in ? in->stride : 0);
 		auto os = out->stride;
 		const auto step = os / info.planecount();
-		
-		if (info.planecount() == 1) {
+		const bool planematch = (info.in_info->planecount == info.out_info->planecount);
+        
+		if (planematch && info.planecount() == 1) {
 			for (auto j=0; j<n; ++j) {
 				matrix_coord position(j, i);
                 U val = (ip ? *(ip) : 0);
@@ -209,7 +210,7 @@ namespace min {
 				op += os;
 			}
 		}
-		else if (info.planecount() == 4) {
+		else if (planematch && info.planecount() == 4) {
 			for (auto j=0; j<n; ++j) {
 				matrix_coord position(j, i);
                 U v1=(ip?*(ip):0), v2=(ip?*(ip+step):0), v3=(ip?*(ip+step*2):0), v4=(ip?*(ip+step*3):0);
@@ -227,18 +228,20 @@ namespace min {
 		}
 		else {
 			for (auto j=0; j<n; ++j) {
+                const auto instep = is / info.in_info->planecount;
+                const auto outstep = os / info.out_info->planecount;
 				std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> tmp;// = { *(ip), *(ip+step), *(ip+step*2), *(ip+step*3) };
 				
                 if(ip) {
-                    for (auto k=0; k<info.planecount(); ++k)
-                        tmp[k] = *(ip+step*k);
+                    for (auto k=0; k<info.in_info->planecount; ++k)
+                        tmp[k] = *(ip+instep*k);
                 }
 				
 				matrix_coord position(j, i);
 				const std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> out = self->obj.calc_cell(tmp, info, position);
 				
-				for (auto k=0; k<info.planecount(); ++k)
-					*(op+step*k) = out[k];
+				for (auto k=0; k<info.out_info->planecount; ++k)
+					*(op+outstep*k) = out[k];
 				
 				if(ip) ip += is;
 				op += os;
