@@ -137,7 +137,8 @@ namespace min {
 	// NOTE: For Jitter, minwrap is the nobox Jitter Object
 	// we then generate another wrapper (max_jit_wrapper) around that...
 
-	
+	/// @param s	The name of the object is passed as an argument to support object-mappings.
+	///		In such cases we might not know what the object name is at compile time.
 	template<class T>
 	max::t_object* jit_new(max::t_symbol* s){
 		minwrap<T>*	self = (minwrap<T>*)max::jit_object_alloc(this_jit_class);
