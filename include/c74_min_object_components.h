@@ -108,6 +108,23 @@ namespace min {
 		dict state() {
 			return m_state;
 		}
+		
+		/// Try to call a named method.
+		/// @param	name	The name of the method to attempt to call.
+		/// @param	args	Any args you wish to pass to the method call.
+		/// @return			If the method doesn't exist an empty set of atoms.
+		///					Otherwise the results of the method.
+		atoms try_call(const std::string& name, const atoms& args = {});
+
+		/// Try to call a named method.
+		/// @param	name	The name of the method to attempt to call.
+		/// @param	arg		A single atom arg you wish to pass to the method call.
+		/// @return			If the method doesn't exist an empty set of atoms.
+		///					Otherwise the results of the method.
+		atoms try_call(const std::string& name, const atom& arg) {
+			atoms as = {arg};
+			return try_call(name, as);
+		}
 
 	protected:
 		max::t_object*										m_maxobj;
@@ -354,6 +371,15 @@ namespace min {
 	};
 	
 	
+	
+	
+	atoms object_base::try_call(const std::string& name, const atoms& args) {
+		auto meth = m_methods.find(name);
+		if (meth != m_methods.end())
+			return (*meth->second)(args);
+		return {};
+	}
+
 	
 	
 	

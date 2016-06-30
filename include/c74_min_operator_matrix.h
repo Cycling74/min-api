@@ -145,9 +145,8 @@ namespace min {
 		atoms args;
 		new(&self->obj) T(args); // placement new
 		self->obj.assign_instance((max::t_object*)self);
+		self->obj.try_call("setup");
 		
-        object_method((max::t_object*)self, max::gensym("setup"));
-        
 		return (max::t_object*)self;
 	}
 	
@@ -573,9 +572,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
         c74::max::object_addattr_parse(attr,"label",c74::max::gensym("symbol"),0,an_attribute.second->label->s_name);
 	}
 	
-	auto jit_setup_meth = dummy.methods().find("jitclass_setup");
-	if (jit_setup_meth != dummy.methods().end())
-		(*jit_setup_meth->second)(c74::min::this_jit_class);
+	dummy.try_call("jitclass_setup", c74::min::this_jit_class);
 
 	jit_class_register(c74::min::this_jit_class);
 
@@ -614,9 +611,8 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 			; // for min class construction only, do not add for exposure to max
 	}
 
-	auto setup_meth = dummy.methods().find("maxclass_setup");
-	if (setup_meth != dummy.methods().end())
-		(*setup_meth->second)(c74::min::this_class);
+	dummy.try_call("maxclass_setup", c74::min::this_class);
+	
 
 	// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
 	c74::min::this_class->c_menufun = (c74::max::method)c74::max::gensym(cppname);
