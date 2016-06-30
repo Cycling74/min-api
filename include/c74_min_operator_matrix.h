@@ -256,21 +256,11 @@ namespace min {
 	template<class cpp_classname, typename U>
 	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
 	jit_calculate_ndim_loop(minwrap<cpp_classname>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, char* bip, char* bop, long* dim, long planecount, long datasize) {
-		matrix_info info(in_minfo, bip, out_minfo, bop);
+		matrix_info info((in_minfo ? in_minfo : out_minfo), (bip ? bip : bop), out_minfo, bop);
 		for (auto i=0; i<dim[1]; i++) {
-			in_opinfo->p  = bip + i * in_minfo->dimstride[1];
+			if(in_opinfo) in_opinfo->p  = bip + i * in_minfo->dimstride[1];
 			out_opinfo->p = bop + i * out_minfo->dimstride[1];
 			jit_calculate_vector<cpp_classname,U>(self, info, n, i, in_opinfo, out_opinfo);
-		}
-	}
-
-	template<class cpp_classname, typename U>
-	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
-	jit_calculate_ndim_loop_single(minwrap<cpp_classname>* self, long n, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* out_minfo, char* bop, long* dim, long planecount, long datasize) {
-		matrix_info info(out_minfo, bop, out_minfo, bop);
-		for (auto i=0; i<dim[1]; i++) {
-			out_opinfo->p = bop + i * out_minfo->dimstride[1];
-			jit_calculate_vector<cpp_classname,U>(self, info, n, i, NULL, out_opinfo);
 		}
 	}
 
@@ -337,13 +327,13 @@ namespace min {
 					out_opinfo.stride = out_minfo->dim[0]>1 ? out_minfo->planecount : 0;
 					
 					if (out_minfo->type == max::_jit_sym_char)
-						jit_calculate_ndim_loop_single<cpp_classname, uchar>(self, n, &out_opinfo, out_minfo, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<cpp_classname, uchar>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
 					else if (out_minfo->type == max::_jit_sym_long)
-						jit_calculate_ndim_loop_single<cpp_classname, int>(self, n, &out_opinfo, out_minfo, bop, dim, planecount, 4);
+						jit_calculate_ndim_loop<cpp_classname, int>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
 					else if (out_minfo->type == max::_jit_sym_float32)
-						jit_calculate_ndim_loop_single<cpp_classname, float>(self, n, &out_opinfo, out_minfo, bop, dim, planecount, 4);
+						jit_calculate_ndim_loop<cpp_classname, float>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
 					else if (out_minfo->type == max::_jit_sym_float64)
-						jit_calculate_ndim_loop_single<cpp_classname, double>(self, n, &out_opinfo, out_minfo, bop, dim, planecount, 8);
+						jit_calculate_ndim_loop<cpp_classname, double>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
 				}
 				break;
 			default:
@@ -544,7 +534,8 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
         if(i->type == "matrix")
             outletct++;
     
-    bool ownsoutput = (inletct==0);
+    // If no matrix inputs are declared, the mop is a generator
+    bool ownsinput = (inletct==0);
     
 	//add mop
 	auto mop = c74::max::jit_object_new(c74::max::_jit_sym_jit_mop, inletct, outletct); // #inputs, #outputs
@@ -590,13 +581,15 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 
 	c74::max::max_jit_class_obex_setup(c74::min::this_class, calcoffset(c74::min::max_jit_wrapper, obex));
 	
-    long flags = (ownsoutput ? c74::max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX|c74::max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
+    // for generator mops, override jit_matrix and outputmatrix
+    long flags = (ownsinput ? c74::max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX|c74::max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
+    
 	c74::max::max_jit_class_mop_wrap(c74::min::this_class, c74::min::this_jit_class, flags);	// attrs & methods for name, type, dim, planecount, bang, outputmatrix, etc
 	c74::max::max_jit_class_wrap_standard(c74::min::this_class, c74::min::this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
 	
 	c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::max::max_jit_mop_assist, "assist", c74::max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
 
-    if(ownsoutput)
+    if(ownsinput)
         c74::max::max_jit_class_addmethod_usurp_low(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_outputmatrix<cpp_classname>, (char*)"outputmatrix");
 
     for (auto& a_method : dummy.methods()) {
