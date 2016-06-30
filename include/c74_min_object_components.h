@@ -251,7 +251,7 @@ namespace min {
 #endif
 
 	using function = std::function<atoms(const atoms&)>;
-	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> atoms
+	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms
 
 	class method {
 	public:
@@ -268,18 +268,12 @@ namespace min {
 			owner->methods()[a_name] = this;
 		}
 		
-		void operator ()(atoms args) {
-			function(args);
+		atoms operator ()(atoms args = {}) {
+			return function(args);
 		}
 		
-		void operator ()(atom arg) {
-			atoms as = { arg };
-			function(as);
-		}
-		
-		void operator ()() {
-			atoms as;
-			function(as);
+		atoms operator ()(atom arg) {
+			return function({arg});
 		}
 		
 		//private:
