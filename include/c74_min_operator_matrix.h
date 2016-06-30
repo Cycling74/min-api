@@ -145,6 +145,7 @@ namespace min {
 		atoms args;
 		new(&self->obj) T(args); // placement new
 		self->obj.assign_instance((max::t_object*)self);
+		self->obj.try_call("setup");
 		
 		return (max::t_object*)self;
 	}
@@ -194,8 +195,9 @@ namespace min {
 		auto is = (in ? in->stride : 0);
 		auto os = out->stride;
 		const auto step = os / info.planecount();
-		
-		if (info.planecount() == 1) {
+		const bool planematch = (info.in_info->planecount == info.out_info->planecount);
+        
+		if (planematch && info.planecount() == 1) {
 			for (auto j=0; j<n; ++j) {
 				matrix_coord position(j, i);
                 U val = (ip ? *(ip) : 0);
@@ -207,7 +209,7 @@ namespace min {
 				op += os;
 			}
 		}
-		else if (info.planecount() == 4) {
+		else if (planematch && info.planecount() == 4) {
 			for (auto j=0; j<n; ++j) {
 				matrix_coord position(j, i);
                 U v1=(ip?*(ip):0), v2=(ip?*(ip+step):0), v3=(ip?*(ip+step*2):0), v4=(ip?*(ip+step*3):0);
@@ -225,18 +227,20 @@ namespace min {
 		}
 		else {
 			for (auto j=0; j<n; ++j) {
+                const auto instep = is / info.in_info->planecount;
+                const auto outstep = os / info.out_info->planecount;
 				std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> tmp;// = { *(ip), *(ip+step), *(ip+step*2), *(ip+step*3) };
 				
                 if(ip) {
-                    for (auto k=0; k<info.planecount(); ++k)
-                        tmp[k] = *(ip+step*k);
+                    for (auto k=0; k<info.in_info->planecount; ++k)
+                        tmp[k] = *(ip+instep*k);
                 }
 				
 				matrix_coord position(j, i);
 				const std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> out = self->obj.calc_cell(tmp, info, position);
 				
-				for (auto k=0; k<info.planecount(); ++k)
-					*(op+step*k) = out[k];
+				for (auto k=0; k<info.out_info->planecount; ++k)
+					*(op+outstep*k) = out[k];
 				
 				if(ip) ip += is;
 				op += os;
@@ -568,9 +572,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
         c74::max::object_addattr_parse(attr,"label",c74::max::gensym("symbol"),0,an_attribute.second->label->s_name);
 	}
 	
-	auto jit_setup_meth = dummy.methods().find("jitclass_setup");
-	if (jit_setup_meth != dummy.methods().end())
-		(*jit_setup_meth->second)(c74::min::this_jit_class);
+	dummy.try_call("jitclass_setup", c74::min::this_jit_class);
 
 	jit_class_register(c74::min::this_jit_class);
 
@@ -609,9 +611,8 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 			; // for min class construction only, do not add for exposure to max
 	}
 
-	auto setup_meth = dummy.methods().find("maxclass_setup");
-	if (setup_meth != dummy.methods().end())
-		(*setup_meth->second)(c74::min::this_class);
+	dummy.try_call("maxclass_setup", c74::min::this_class);
+	
 
 	// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
 	c74::min::this_class->c_menufun = (c74::max::method)c74::max::gensym(cppname);

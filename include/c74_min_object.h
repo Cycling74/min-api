@@ -247,10 +247,8 @@ void define_min_external_common(const char* cppname, const char* cmaxname, void 
 														  )
 								);
 	}
-	
-	auto setup_meth = dummy.methods().find("maxclass_setup");
-	if (setup_meth != dummy.methods().end())
-		(*setup_meth->second)(c74::min::this_class);
+
+	dummy.try_call("maxclass_setup", c74::min::this_class);
 }
 
 
