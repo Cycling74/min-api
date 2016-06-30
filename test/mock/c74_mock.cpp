@@ -131,8 +131,15 @@ namespace max {
 	
 
 
+#ifdef __APPLE__
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
 	static const int JIT_MATRIX_MAX_DIMCOUNT = 32; 			///< maximum dimension count @ingroup jitter
 	static const int JIT_MATRIX_MAX_PLANECOUNT = 32; 			///< maximum plane count @ingroup jitter
+#ifdef __APPLE__
+	#pragma clang diagnostic pop
+#endif
 
 	struct t_jit_matrix_info {
 		long		size = 0;			///< in bytes (0xFFFFFFFF=UNKNOWN)
