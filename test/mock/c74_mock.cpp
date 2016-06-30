@@ -81,6 +81,15 @@ namespace max {
 	}
 
 	
+	MOCK_EXPORT t_max_err class_attr_addattr_parse(t_class* c, const char* attrname, const char* attrname2, t_symbol* type, long flags, const char* parsestr) {
+		return 0;
+	}
+
+	MOCK_EXPORT t_max_err class_attr_addattr_format(t_class* c, const char* attrname, const char* attrname2, const t_symbol* type, long flags, const char* fmt, ...) {
+		return 0;
+	}
+
+	
 	
 	
 	MOCK_EXPORT void *max_jit_object_alloc(t_class *mclass, t_symbol *jitter_classname) {
