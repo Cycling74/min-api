@@ -226,6 +226,8 @@ void define_min_external_common(const char* cppname, const char* cmaxname, void 
 			if ( got == dummy.methods().end() )
 				c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_int_converted_to_float<cpp_classname>, "int", c74::max::A_LONG, 0);
 		}
+		else if (a_method.first == "maxclass_setup")
+			; // for min class construction only, do not add for exposure to max
 		else
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type, 0);
 	}
@@ -245,6 +247,10 @@ void define_min_external_common(const char* cppname, const char* cmaxname, void 
 														  )
 								);
 	}
+	
+	auto setup_meth = dummy.methods().find("maxclass_setup");
+	if (setup_meth != dummy.methods().end())
+		(*setup_meth->second)(c74::min::this_class);
 }
 
 

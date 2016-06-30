@@ -48,7 +48,7 @@ namespace min {
 		atom(const max::t_symbol* value) {
 			max::atom_setsym(this, value);
 		}
-
+		
 		atom(const char* value) {
 			max::atom_setsym(this, max::gensym(value));
 		}
@@ -61,6 +61,9 @@ namespace min {
 			max::atom_setobj(this, (void*)value);
 		}
 		
+		atom(max::t_class* value) {
+			max::atom_setobj(this, (void*)value);
+		}
 		
 		atom& operator = (max::t_atom value) {
 			this->a_type = value.a_type;
@@ -98,6 +101,11 @@ namespace min {
 			return *this;
 		}
 		
+		atom& operator = (const max::t_class* value) {
+			atom_setobj(this, (void*)value);
+			return *this;
+		}
+
 		atom& operator = (void* value) {
 			atom_setobj(this, value);
 			return *this;
@@ -132,6 +140,10 @@ namespace min {
 			return (max::t_object*)atom_getobj(this);
 		}
 
+		operator max::t_class*() const {
+			return (max::t_class*)atom_getobj(this);
+		}
+		
 		operator void*() const {
 			return atom_getobj(this);
 		}

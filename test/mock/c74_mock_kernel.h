@@ -57,4 +57,10 @@ MOCK_EXPORT t_symbol* gensym(const char* string)
 	}
 }
 
+	
+MOCK_EXPORT t_symbol* gensym_tr(const char* string) {
+	return gensym(string);
+}
+
+
 }} // namespace c74::max

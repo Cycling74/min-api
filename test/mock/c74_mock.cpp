@@ -81,6 +81,15 @@ namespace max {
 	}
 
 	
+	MOCK_EXPORT t_max_err class_attr_addattr_parse(t_class* c, const char* attrname, const char* attrname2, t_symbol* type, long flags, const char* parsestr) {
+		return 0;
+	}
+
+	MOCK_EXPORT t_max_err class_attr_addattr_format(t_class* c, const char* attrname, const char* attrname2, const t_symbol* type, long flags, const char* fmt, ...) {
+		return 0;
+	}
+
+	
 	
 	
 	MOCK_EXPORT void *max_jit_object_alloc(t_class *mclass, t_symbol *jitter_classname) {
@@ -122,8 +131,15 @@ namespace max {
 	
 
 
+#ifdef __APPLE__
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
 	static const int JIT_MATRIX_MAX_DIMCOUNT = 32; 			///< maximum dimension count @ingroup jitter
 	static const int JIT_MATRIX_MAX_PLANECOUNT = 32; 			///< maximum plane count @ingroup jitter
+#ifdef __APPLE__
+	#pragma clang diagnostic pop
+#endif
 
 	struct t_jit_matrix_info {
 		long		size = 0;			///< in bytes (0xFFFFFFFF=UNKNOWN)
