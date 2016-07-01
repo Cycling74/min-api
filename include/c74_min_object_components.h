@@ -253,6 +253,7 @@ namespace min {
 	using function = std::function<atoms(const atoms&)>;
 	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms
 
+	
 	class method {
 	public:
 		method(object_base* an_owner, std::string a_name, function a_function)
@@ -283,85 +284,162 @@ namespace min {
 	};
 
 	
+	using setter = function;
+	using getter = std::function<atoms()>;;
+
+	
 	class attribute_base {
 	public:
-		attribute_base(object_base& an_owner, std::string a_name, function a_function)
-		: owner(an_owner)
-		, name(max::gensym(a_name.c_str()))
-        , label(name)
-		, setter(a_function)
+		attribute_base(object_base& an_owner, std::string a_name)//, function a_function)
+		: m_owner(an_owner)
+		, m_name(a_name)
+        , m_title(a_name)
 		{}
 		
 		virtual attribute_base& operator = (atoms args) = 0;
 		virtual operator atoms() const = 0;
+
+		symbol datatype() {
+			return m_datatype;
+		}
 		
-		object_base&	owner;
-		max::t_symbol*	name;
-        max::t_symbol*	label;
-		symbol			type;
-		function		setter;
+		const char* label_string() {
+			return m_title;
+		}
+		
+		virtual const char* range_string() = 0;
+		
+	protected:
+		object_base&	m_owner;
+		symbol			m_name;
+        symbol			m_title;
+		symbol			m_datatype;
+		function		m_setter;
+		function		m_getter;
 	};
 	
 	
+	using title = std::string;
+	using range = atoms;
+
+	
 	template <typename T>
 	class attribute : public attribute_base {
-	public:
 		
+		
+		
+		
+	private:
+		
+		
+		/// constructor utility: handle an argument defining an attribute's digest / label
+		template <typename U>
+		constexpr typename std::enable_if<std::is_same<U, title>::value>::type
+		assign_from_argument(const U& arg) noexcept {
+			m_title = arg;
+		}
+		
+		/// constructor utility: handle an argument defining a parameter's range
+		template <typename U>
+		constexpr typename std::enable_if<std::is_same<U, range>::value>::type
+		assign_from_argument(const U& arg) noexcept {
+			for (const auto& a : arg)
+				m_range.push_back(a);
+		}
+		
+		/// constructor utility: handle an argument defining a parameter's setter function
+		template <typename U>
+		constexpr typename std::enable_if<std::is_same<U, setter>::value>::type
+		assign_from_argument(const U& arg) noexcept {
+			m_setter = arg;
+		}
+
+		/// constructor utility: handle an argument defining a parameter's setter function
+		template <typename U>
+		constexpr typename std::enable_if<std::is_same<U, getter>::value>::type
+		assign_from_argument(const U& arg) noexcept {
+			m_getter = arg;
+		}
+
+		/// constructor utility: empty argument handling (required for recursive variadic templates)
+		constexpr void handle_arguments() noexcept {
+			;
+		}
+		
+		/// constructor utility: handle N arguments of any type by recursively working through them
+		///	and matching them to the type-matched routine above.
+		template <typename FIRST_ARG, typename ...REMAINING_ARGS>
+		constexpr void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
+			assign_from_argument(first);
+			if (sizeof...(args))
+				handle_arguments(args...);		// recurse
+		}
+		
+		
+	public:
 		/// Constructor
 		/// @param an_owner			The instance pointer for the owning C++ class, typically you will pass 'this'
-		/// @param a_name			The name of the attribute
+		/// @param a_name			A string specifying the name of the attribute when dynamically addressed or inspected.
 		/// @param a_default_value	The default value of the attribute, which will be set when the instance is created.
-		/// @param a_function		A callback that will be run **prior** to assigning the value to the attribute.
-		attribute(object_base* an_owner, std::string a_name, T a_default_value, function a_function = nullptr)
-		: attribute_base(*an_owner, a_name, a_function) {
-			owner.attributes()[a_name] = this;
-			*this = a_default_value;
+		/// @param ...args			N arguments specifying optional properties of an attribute such as setter, label, style, etc.
+		template <typename...ARGS>
+		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS...args)
+		: attribute_base(*an_owner, a_name) {
+			m_owner.attributes()[a_name] = this;
+
+			if (std::is_same<T, bool>::value)				m_datatype = k_sym_long;
+			else if (std::is_same<T, int>::value)			m_datatype = k_sym_long;
+			else if (std::is_same<T, symbol>::value)		m_datatype = k_sym_symbol;
+			else if (std::is_same<T, float>::value)			m_datatype = k_sym_float32;
+			else /* (std::is_same<T, double>::value) */		m_datatype = k_sym_float64;
+
+			handle_arguments(args...);
 			
-			if (std::is_same<T, bool>::value)
-				type = k_sym_long;
-			else if (std::is_same<T, int>::value)
-				type = k_sym_long;
-			else if (std::is_same<T, symbol>::value)
-				type = k_sym_symbol;
-			else if (std::is_same<T, float>::value)
-				type = k_sym_float32;
-			else // (std::is_same<T, double>::value)
-				type = k_sym_float64;
+			*this = a_default_value;
 		}
 		
 		
 		attribute& operator = (const T arg) {
 			atoms as = { atom(arg) };
 			*this = as;
-			if (owner.initialized())
-				object_attr_touch(owner, name);
+			if (m_owner.initialized())
+				object_attr_touch(m_owner, (max::t_symbol*)m_name);
 			return *this;
 		}
 		
 		
 		attribute& operator = (atoms args) {
-			if (setter)
-				value = setter(args)[0];
+			if (m_setter)
+				m_value = m_setter(args)[0];
 			else
-				value = args[0];
+				m_value = args[0];
 			return *this;
 		}
 		
 		
 		operator atoms() const {
-			atom a = value;
+			atom a = m_value;
 			atoms as = { a };
 			return as;
 		}
 		
 		
 		operator T() const {
-			return value;
+			return m_value;
 		}
 		
 		
+		const char* range_string() {
+			std::stringstream ss;
+			for (const auto& val : m_range)
+				ss << val << " ";
+			return ss.str().c_str();
+		};
+
+		
 	private:
-		T				value;
+		T				m_value;
+		std::vector<T>	m_range;
 	};
 	
 	

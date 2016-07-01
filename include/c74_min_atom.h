@@ -339,5 +339,5 @@ namespace std {
 		
 		return to_string(as);
 	}
-	
+
 }

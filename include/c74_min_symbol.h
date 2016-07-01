@@ -31,6 +31,9 @@ namespace min {
 			s = max::gensym(value);
 		}
 		
+		symbol(const std::string& value) {
+			s = max::gensym(value.c_str());
+		}
 		
 
 		symbol& operator = (max::t_symbol* value) {
@@ -40,6 +43,11 @@ namespace min {
 
 		symbol& operator = (const char* value) {
 			s = max::gensym(value);
+			return *this;
+		}
+
+		symbol& operator = (const std::string& value) {
+			s = max::gensym(value.c_str());
 			return *this;
 		}
 

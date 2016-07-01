@@ -548,19 +548,24 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 	
 
 	for (auto& an_attribute : dummy.attributes()) {
-		std::string		attr_name = an_attribute.first;
-        c74::max::t_symbol* type = an_attribute.second->type;
-		auto			attr = c74::max::jit_object_new(
-											 c74::max::_jit_sym_jit_attr_offset,
-											 attr_name.c_str(),
-											 type,
-											 attrflags,
-											 (c74::max::method)c74::min::min_attr_getter<cpp_classname>,
-											 (c74::max::method)c74::min::min_attr_setter<cpp_classname>,
-											 0
-											 );
-		c74::max::jit_class_addattr(c74::min::this_jit_class, attr);
-        c74::max::object_addattr_parse(attr,"label",c74::max::gensym("symbol"),0,an_attribute.second->label->s_name);
+		std::string					attr_name = an_attribute.first;
+		c74::min::attribute_base&	attr = *an_attribute.second;
+		auto						jit_attr = c74::max::jit_object_new(
+																		c74::max::_jit_sym_jit_attr_offset,
+																		attr_name.c_str(),
+																		(c74::max::t_symbol*)attr.datatype(),
+																		attrflags,
+																		(c74::max::method)c74::min::min_attr_getter<cpp_classname>,
+																		(c74::max::method)c74::min::min_attr_setter<cpp_classname>,
+																		0
+																		);
+		c74::max::jit_class_addattr(c74::min::this_jit_class, jit_attr);
+        c74::max::object_addattr_parse(jit_attr,"label",c74::max::gensym("symbol"),0, attr.label_string());
+		
+		if (attr.range_string()) {
+			if (attr.datatype() == "symbol")
+				CLASS_ATTR_ENUM(c74::min::this_class,	attr_name.c_str(), 0, attr.range_string());
+		}
 	}
 	
 	dummy.try_call("jitclass_setup", c74::min::this_jit_class);
