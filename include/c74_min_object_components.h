@@ -290,7 +290,7 @@ namespace min {
 	
 	class attribute_base {
 	public:
-		attribute_base(object_base& an_owner, std::string a_name)
+		attribute_base(const object_base& an_owner, const std::string& a_name)
 		: m_owner(an_owner)
 		, m_name(a_name)
         , m_title(a_name)
