@@ -290,23 +290,29 @@ namespace min {
 	
 	class attribute_base {
 	public:
-		attribute_base(object_base& an_owner, std::string a_name)//, function a_function)
+		attribute_base(object_base& an_owner, std::string a_name)
 		: m_owner(an_owner)
 		, m_name(a_name)
         , m_title(a_name)
 		{}
 		
+		/// set the value of the attribute
 		virtual attribute_base& operator = (atoms args) = 0;
+		
+		/// get the value of the attribute
 		virtual operator atoms() const = 0;
 
+		/// fetch the name of the datatype
 		symbol datatype() {
 			return m_datatype;
 		}
 		
+		/// fetch the title/label as a string
 		const char* label_string() {
 			return m_title;
 		}
 		
+		/// fetch the range in string format, values separated by spaces
 		virtual const char* range_string() = 0;
 		
 	protected:
@@ -325,12 +331,7 @@ namespace min {
 	
 	template <typename T>
 	class attribute : public attribute_base {
-		
-		
-		
-		
 	private:
-		
 		
 		/// constructor utility: handle an argument defining an attribute's digest / label
 		template <typename U>
