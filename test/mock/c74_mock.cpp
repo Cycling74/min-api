@@ -18,7 +18,13 @@ namespace max {
 	MOCK_EXPORT t_max_err object_attr_touch(t_object* x, t_symbol* attrname) {
 		return 0;
 	}
+	
+	
+	MOCK_EXPORT t_max_err object_attr_setvalueof(t_object* x, t_symbol* s, long argc, t_atom* argv) {
+		return 0;
+	}
 
+	
 	MOCK_EXPORT t_object* attr_offset_new(const char* name, const t_symbol* type, long flags, const method mget, const method mset, long offset) {
 		return nullptr;
 	}

@@ -43,6 +43,9 @@ namespace min {
 		/// set the value of the attribute
 		virtual attribute_base& operator = (atoms args) = 0;
 		
+		/// set the value of the attribute
+		virtual void set(const atoms& args, bool notify = true) = 0;
+		
 		/// get the value of the attribute
 		virtual operator atoms() const = 0;
 
@@ -140,26 +143,36 @@ namespace min {
 
 			handle_arguments(args...);
 			
-			*this = a_default_value;
+			atoms a { a_default_value };
+			set(a, false);
 		}
 		
 		
+		/// Set the attribute value using the native type of the attribute.
 		attribute& operator = (const T arg) {
 			atoms as = { atom(arg) };
 			*this = as;
-			if (m_owner.initialized())
-				object_attr_touch(m_owner, (max::t_symbol*)m_name);
 			return *this;
 		}
 		
-		
+		/// Set the attribute value using atoms.
 		attribute& operator = (atoms args) {
-			if (m_setter)
-				m_value = m_setter(args)[0];
-			else
-				m_value = args[0];
+			set(args);
 			return *this;
 		}
+		
+		/// Set the attribute value
+		void set(const atoms& args, bool notify = true) {
+			if (notify && this_class)
+				max::object_attr_setvalueof(m_owner, m_name, args.size(), (max::t_atom*)&args[0]);
+			else {
+				if (m_setter)
+					m_value = m_setter(args)[0];
+				else
+					m_value = args[0];
+			}
+		}
+		
 		
 		
 		operator atoms() const {
@@ -211,8 +224,8 @@ namespace min {
 	template<class T>
 	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, atom_reference args) {
 		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, ps_getname);
-		auto& attr = self->obj.attributes()[attr_name->s_name];
-		*attr = atoms(args.begin(), args.end());
+		auto attr = self->obj.attributes()[attr_name->s_name];
+		attr->set( atoms(args.begin(), args.end()), false );
 		return 0;
 	}
 
