@@ -45,7 +45,8 @@ void error(std::string description) {
 
 namespace c74 { 
 namespace min {
-	static max::t_class* this_class = nullptr;
+	static max::t_class*	this_class = nullptr;
+	static bool				this_class_init = false;
 }}
 
 

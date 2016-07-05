@@ -134,7 +134,7 @@ namespace min {
 		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS...args)
 		: attribute_base(*an_owner, a_name) {
 			m_owner.attributes()[a_name] = this;
-
+			
 			if (std::is_same<T, bool>::value)				m_datatype = k_sym_long;
 			else if (std::is_same<T, int>::value)			m_datatype = k_sym_long;
 			else if (std::is_same<T, symbol>::value)		m_datatype = k_sym_symbol;

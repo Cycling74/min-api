@@ -505,15 +505,20 @@ namespace min {
 
 
 template<class cpp_classname>
-typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
-define_min_external(const char* cppname, const char* cmaxname, void *resources) {
-	std::string		maxname = c74::min::deduce_maxclassname(cmaxname);
+typename std::enable_if<
+	std::is_base_of<c74::min::matrix_operator, cpp_classname>::value
+>::type
+define_min_external(const char* cppname, const char* cmaxname, void *resources, cpp_classname* instance = nullptr) {
+	c74::min::this_class_init = true;
 
-	// Mark `this_class` as busy.
-	// If it is NULL then it will try to initialize itself leading to an infinite recursion.
-	// We will assign a valid pointer to it below.
-	c74::min::this_class = (c74::max::t_class*)1;
-	cpp_classname dummy;
+	std::string						maxname = c74::min::deduce_maxclassname(cmaxname);
+	std::unique_ptr<cpp_classname>	dummy_instance = nullptr;
+	
+	if (!instance) {
+		dummy_instance = std::make_unique<cpp_classname>();
+		instance = dummy_instance.get();
+	}
+
 	
 	// 1. Boxless Jit Class
 
@@ -525,11 +530,11 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 																		   0);
 	
     long inletct=0, outletct=0;
-    for (auto i: dummy.inlets())
+    for (auto i: instance->inlets())
         if(i->type == "matrix")
             inletct++;
     
-    for (auto i: dummy.outlets())
+    for (auto i: instance->outlets())
         if(i->type == "matrix")
             outletct++;
     
@@ -547,7 +552,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 	long attrflags = c74::max::ATTR_GET_DEFER_LOW | c74::max::ATTR_SET_USURP_LOW;
 	
 
-	for (auto& an_attribute : dummy.attributes()) {
+	for (auto& an_attribute : instance->attributes()) {
 		std::string					attr_name = an_attribute.first;
 		c74::min::attribute_base&	attr = *an_attribute.second;
 		auto						jit_attr = c74::max::jit_object_new(
@@ -568,7 +573,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 		}
 	}
 	
-	dummy.try_call("jitclass_setup", c74::min::this_jit_class);
+	instance->try_call("jitclass_setup", c74::min::this_jit_class);
 
 	jit_class_register(c74::min::this_jit_class);
 
@@ -598,7 +603,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
     if(ownsinput)
         c74::max::max_jit_class_addmethod_usurp_low(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_outputmatrix<cpp_classname>, (char*)"outputmatrix");
 
-    for (auto& a_method : dummy.methods()) {
+    for (auto& a_method : instance->methods()) {
 		if (a_method.first == "patchlineupdate")
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_method_patchlineupdate<cpp_classname>, "patchlineupdate", c74::max::A_CANT, 0);
 		else if (a_method.first == "notify")
@@ -609,7 +614,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 			; // for min class construction only, do not add for exposure to max
 	}
 
-	dummy.try_call("maxclass_setup", c74::min::this_class);
+	instance->try_call("maxclass_setup", c74::min::this_class);
 	
 
 	// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap

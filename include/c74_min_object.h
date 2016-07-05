@@ -16,7 +16,6 @@ namespace min {
 		long		attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
 		minwrap<T>*	self = (minwrap<T>*)max::object_alloc(this_class);
 		
-		self->obj.preinitialize();
 		self->obj.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
 		new(&self->obj) T(atoms(args.begin(), args.begin()+attrstart)); // placement new
 		self->obj.postinitialize();
@@ -187,57 +186,56 @@ namespace min {
 
 
 template<class cpp_classname>
-void define_min_external_common(const char* cppname, const char* cmaxname, void *resources) {
+c74::max::t_class* define_min_external_common(cpp_classname& instance, const char* cppname, const char* cmaxname, void *resources) {
 	std::string maxname = c74::min::deduce_maxclassname(cmaxname);
 	
-	c74::min::this_class = c74::max::class_new( maxname.c_str() ,(c74::max::method)c74::min::min_new<cpp_classname>, (c74::max::method)c74::min::min_free<cpp_classname>, sizeof( c74::min::minwrap<cpp_classname> ), nullptr, c74::max::A_GIMME, 0);
+	c74::max::t_class* c = c74::max::class_new( maxname.c_str() ,(c74::max::method)c74::min::min_new<cpp_classname>, (c74::max::method)c74::min::min_free<cpp_classname>, sizeof( c74::min::minwrap<cpp_classname> ), nullptr, c74::max::A_GIMME, 0);
 	
-	cpp_classname dummy;
-	for (auto& a_method : dummy.methods()) {
+	for (auto& a_method : instance.methods()) {
 		if (a_method.first == "dblclick")
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_dblclick<cpp_classname>, "dblclick", c74::max::A_CANT, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_dblclick<cpp_classname>, "dblclick", c74::max::A_CANT, 0);
 		else if (a_method.first == "patchlineupdate")
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_patchlineupdate<cpp_classname>, "patchlineupdate", c74::max::A_CANT, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_patchlineupdate<cpp_classname>, "patchlineupdate", c74::max::A_CANT, 0);
 		else if (a_method.first == "dspsetup")
 			; // skip -- handle it in operator classes
 		else if (a_method.first == "notify")
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_notify<cpp_classname>, "notify", c74::max::A_CANT, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_notify<cpp_classname>, "notify", c74::max::A_CANT, 0);
 		else if (a_method.first == "savestate")
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_appendtodictionary<cpp_classname>, "appendtodictionary", c74::max::A_CANT, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_appendtodictionary<cpp_classname>, "appendtodictionary", c74::max::A_CANT, 0);
 		else if (a_method.first == "okclose")
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_okclose<cpp_classname>, "okclose", c74::max::A_CANT, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_okclose<cpp_classname>, "okclose", c74::max::A_CANT, 0);
 		else if (a_method.first == "edclose")
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method_edclose<cpp_classname>, "edclose", c74::max::A_CANT, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_edclose<cpp_classname>, "edclose", c74::max::A_CANT, 0);
 		else if (a_method.first == "dictionary")
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_dictionary<cpp_classname>, "dictionary", c74::max::A_SYM, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_dictionary<cpp_classname>, "dictionary", c74::max::A_SYM, 0);
 		else if (a_method.first == "anything")
-			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_anything<cpp_classname>, "anything", c74::max::A_GIMME, 0);
+			class_addmethod(c, (c74::max::method)c74::min::min_anything<cpp_classname>, "anything", c74::max::A_GIMME, 0);
 		else if (a_method.first == "bang")
-			class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_bang<cpp_classname>, "bang", c74::max::A_NOTHING, 0);
+			class_addmethod(c, (c74::max::method)c74::min::min_bang<cpp_classname>, "bang", c74::max::A_NOTHING, 0);
 		else if (a_method.first == "toggle")
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_toggle<cpp_classname>, "int", c74::max::A_LONG, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_toggle<cpp_classname>, "int", c74::max::A_LONG, 0);
 		else if (a_method.first == "int")
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_int<cpp_classname>, "int", c74::max::A_LONG, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_int<cpp_classname>, "int", c74::max::A_LONG, 0);
 		else if (a_method.first == "float") {
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_float<cpp_classname>, "float", c74::max::A_FLOAT, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_float<cpp_classname>, "float", c74::max::A_FLOAT, 0);
 			
 			// if there is a 'float' method but no 'int' method, generate a wrapper for it
-			auto got = dummy.methods().find("int");
-			if ( got == dummy.methods().end() )
-				c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_int_converted_to_float<cpp_classname>, "int", c74::max::A_LONG, 0);
+			auto got = instance.methods().find("int");
+			if ( got == instance.methods().end() )
+				c74::max::class_addmethod(c, (c74::max::method)c74::min::min_int_converted_to_float<cpp_classname>, "int", c74::max::A_LONG, 0);
 		}
 		else if (a_method.first == "maxclass_setup")
 			; // for min class construction only, do not add for exposure to max
 		else
-			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type, 0);
 	}
 	
 	
-	for (auto& an_attribute : dummy.attributes()) {
+	for (auto& an_attribute : instance.attributes()) {
 		std::string					attr_name = an_attribute.first;
 		c74::min::attribute_base&	attr = *an_attribute.second;
 		
-		c74::max::class_addattr(c74::min::this_class,
+		c74::max::class_addattr(c,
 								c74::max::attr_offset_new(attr_name.c_str(),
 														  attr.datatype(),
 														  0,
@@ -248,15 +246,16 @@ void define_min_external_common(const char* cppname, const char* cmaxname, void 
 								);
 		
 		// Attribute Metadata
-		CLASS_ATTR_LABEL(c74::min::this_class,	attr_name.c_str(), 0, attr.label_string());
+		CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());
 		if (attr.range_string()) {
 			if (attr.datatype() == "symbol")
-				CLASS_ATTR_ENUM(c74::min::this_class,	attr_name.c_str(), 0, attr.range_string());
+				CLASS_ATTR_ENUM(c,	attr_name.c_str(), 0, attr.range_string());
 		}
 		
 	}
 
-	dummy.try_call("maxclass_setup", c74::min::this_class);
+	instance.try_call("maxclass_setup", c);
+	return c;
 }
 
 
@@ -264,14 +263,14 @@ template<class cpp_classname>
 typename std::enable_if<
 	!std::is_base_of<c74::min::sample_operator_base, cpp_classname>::value
 && 	!std::is_base_of<c74::min::perform_operator_base, cpp_classname>::value
-	>::type
-define_min_external_audio() {}
+>::type
+define_min_external_audio(c74::max::t_class*) {}
 
 
 template<class cpp_classname>
-void define_min_external_finish() {
-	c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_assist<cpp_classname>, "assist", c74::max::A_CANT, 0);
-	c74::max::class_register(c74::max::CLASS_BOX, c74::min::this_class);
+void define_min_external_finish(c74::max::t_class* c) {
+	c74::max::class_addmethod(c, (c74::max::method)c74::min::min_assist<cpp_classname>, "assist", c74::max::A_CANT, 0);
+	c74::max::class_register(c74::max::CLASS_BOX, c);
 }
 
 
@@ -283,11 +282,21 @@ typename std::enable_if<
 	!std::is_base_of<c74::min::matrix_operator, cpp_classname>::value
 	&& !std::is_base_of<c74::min::gl_operator, cpp_classname>::value
 >::type
-define_min_external(const char* cppname, const char* maxname, void *resources) {
-	define_min_external_common<cpp_classname>(cppname, maxname, resources);
+define_min_external(const char* cppname, const char* maxname, void *resources, cpp_classname* instance = nullptr) {
+	c74::min::this_class_init = true;
+
+	std::unique_ptr<cpp_classname> dummy_instance = nullptr;
+
+	if (!instance) {
+		dummy_instance = std::make_unique<cpp_classname>();
+		instance = dummy_instance.get();
+	}	
+	
+	auto c = define_min_external_common<cpp_classname>(*instance, cppname, maxname, resources);
 	//if (std::is_base_of<c74::min::audio_object, cpp_classname>())
-	define_min_external_audio<cpp_classname>();
-	define_min_external_finish<cpp_classname>();
+	define_min_external_audio<cpp_classname>(c);
+	define_min_external_finish<cpp_classname>(c);
+	c74::min::this_class = c;
 }
 
 
@@ -325,45 +334,38 @@ namespace min {
 				;
 			}
 			else {											// we need to initialize ourselves
-				if (this_class == (max::t_class*)1)			// this is a dummy instance that is in the middle of initializing.
-					return;
-				else if (this_class == nullptr) {			// the class hasn't been created yet, this is probably a unit test.
+				if (!this_class_init) {						// if we aren't already in the process of initializing...
 					std::string maxname = typeid(T).name();
 					maxname += "_max";
-					
-					define_min_external<T> ( typeid(T).name(), maxname.c_str(), nullptr );
+					define_min_external<T> ( typeid(T).name(), maxname.c_str(), nullptr, (T*)this );
 				}
-				
-				m_maxobj = (max::t_object*)max::object_alloc(this_class);
-				// TODO: assign???
-				postinitialize();
-				
-				// self->setup();
-				//
-				// auto outlets = self->obj.outlets();
-				// for (auto outlet = outlets.rbegin(); outlet != outlets.rend(); ++outlet) {
-				//	if ((*outlet)->type == "")
-				//		(*outlet)->instance = max::outlet_new(self, nullptr);
-				//	else
-				//		(*outlet)->instance = max::outlet_new(self, (*outlet)->type.c_str());
-				//}
-				//
-				//max::attr_args_process(self, args.size(), args.begin());
+				if (this_class) {
+					m_maxobj = (max::t_object*)max::object_alloc(this_class);
+					
+					// TODO: assign???
+					postinitialize();
+					
+					// self->setup();
+					//
+					// auto outlets = self->obj.outlets();
+					// for (auto outlet = outlets.rbegin(); outlet != outlets.rend(); ++outlet) {
+					//	if ((*outlet)->type == "")
+					//		(*outlet)->instance = max::outlet_new(self, nullptr);
+					//	else
+					//		(*outlet)->instance = max::outlet_new(self, (*outlet)->type.c_str());
+					//}
+					//
+					//max::attr_args_process(self, args.size(), args.begin());
+				}
 			}
 		}
 		
-		virtual ~object() {
-		}
+		virtual ~object() {}
 
 		
 	protected:
 		logger	cout = { this, logger::type::message};
 		logger	cerr = { this, logger::type::error};
-		
-		
-	private:
-		
-		
 	};
 
 }} // namespace c74::min
