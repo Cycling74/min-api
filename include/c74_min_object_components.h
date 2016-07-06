@@ -236,6 +236,13 @@ namespace min {
 			c74::max::outlet_anything(instance, s1, 1, &a);
 		}
 		
+		void send(const atoms& as) {
+			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
+				max::outlet_anything(instance, k_sym_list, as.size(), (max::t_atom*)&as[0]);
+			else
+				max::outlet_anything(instance, as[0], as.size()-1, (max::t_atom*)&as[1]);
+		}
+		
 		void* instance = nullptr;
 	};
 	

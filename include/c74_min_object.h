@@ -235,15 +235,7 @@ c74::max::t_class* define_min_external_common(cpp_classname& instance, const cha
 		std::string					attr_name = an_attribute.first;
 		c74::min::attribute_base&	attr = *an_attribute.second;
 		
-		c74::max::class_addattr(c,
-								c74::max::attr_offset_new(attr_name.c_str(),
-														  attr.datatype(),
-														  0,
-														  (c74::max::method)c74::min::min_attr_getter<cpp_classname>,
-														  (c74::max::method)c74::min::min_attr_setter<cpp_classname>,
-														  0
-														  )
-								);
+		attr.create(c, (c74::max::method)c74::min::min_attr_getter<cpp_classname>, (c74::max::method)c74::min::min_attr_setter<cpp_classname>);
 		
 		// Attribute Metadata
 		CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());

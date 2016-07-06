@@ -62,6 +62,14 @@ namespace min {
 		/// fetch the range in string format, values separated by spaces
 		virtual const char* range_string() = 0;
 		
+		/// Create the Max attribute and add it to the Max class
+		virtual void create(max::t_class* c, max::method getter, max::method setter) = 0;
+		
+		/// calculate the offset of the size member as required for array/vector attributes
+		size_t size_offset() {
+			return (&m_size) - ((size_t*)&m_owner);
+		}
+		
 	protected:
 		object_base&	m_owner;
 		symbol			m_name;
@@ -69,6 +77,7 @@ namespace min {
 		symbol			m_datatype;
 		function		m_setter;
 		function		m_getter;
+		size_t			m_size;		/// size of array/vector if attr is array/vector
 	};
 	
 	
@@ -143,8 +152,7 @@ namespace min {
 
 			handle_arguments(args...);
 			
-			atoms a { a_default_value };
-			set(a, false);
+			set(to_atoms(a_default_value), false);
 		}
 		
 		
@@ -167,18 +175,19 @@ namespace min {
 				max::object_attr_setvalueof(m_owner, m_name, args.size(), (max::t_atom*)&args[0]);
 			else {
 				if (m_setter)
-					m_value = m_setter(args)[0];
+					m_value = from_atoms<T>(m_setter(args));
 				else
-					m_value = args[0];
+					m_value = from_atoms<T>(args);
 			}
 		}
 		
 		
+		/// Create the Max attribute and add it to the Max class
+		void create(max::t_class* c, max::method getter, max::method setter);
+		
 		
 		operator atoms() const {
-			atom a = m_value;
-			atoms as = { a };
-			return as;
+			return to_atoms(m_value);
 		}
 		
 		
@@ -186,13 +195,8 @@ namespace min {
 			return m_value;
 		}
 		
-		
-		const char* range_string() {
-			std::stringstream ss;
-			for (const auto& val : m_range)
-				ss << val << " ";
-			return ss.str().c_str();
-		};
+
+		const char* range_string();
 
 		
 	private:
@@ -201,13 +205,50 @@ namespace min {
 	};
 	
 	
-	static max::t_symbol* ps_getname = max::gensym("getname");
+	
+	template<class T>
+	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter) {
+		auto max_attr = c74::max::attr_offset_new(m_name, datatype(), 0, getter, setter, 0);
+		c74::max::class_addattr(c, max_attr);
+	};
+	
+	
+	template<>
+	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter) {
+		auto max_attr = c74::max::attr_offset_array_new(m_name, datatype(), 0xFFFF, 0, getter, setter, size_offset(), 0);
+		c74::max::class_addattr(c, max_attr);
+	};
+	
+	
+	template<class T>
+	const char* attribute<T>::range_string() {
+		std::stringstream ss;
+		for (const auto& val : m_range)
+			ss << val << " ";
+		return ss.str().c_str();
+	};
+	
+	template<>
+	const char* attribute<std::vector<double>>::range_string() {
+		if (m_range.empty())
+			return "";
+		
+		// the range for this type is a low-bound and high-bound applied to all elements in the vector
+		assert( m_range.size() == 2);
+	
+		std::stringstream ss;
+		ss << m_range[0][0] << " " << m_range[1][0];
+		return ss.str().c_str();
+	};
+	
+	
+	
 	
 
 	
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
-		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, ps_getname);
+		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
 		auto& attr = self->obj.attributes()[attr_name->s_name];
 		atoms rvals = *attr;
 		
@@ -223,7 +264,7 @@ namespace min {
 	
 	template<class T>
 	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, atom_reference args) {
-		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, ps_getname);
+		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
 		auto attr = self->obj.attributes()[attr_name->s_name];
 		attr->set( atoms(args.begin(), args.end()), false );
 		return 0;
