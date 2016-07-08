@@ -110,14 +110,14 @@ namespace min {
 		template <typename U>
 		constexpr typename std::enable_if<std::is_same<U, setter>::value>::type
 		assign_from_argument(const U& arg) noexcept {
-			m_setter = arg;
+			const_cast<U&>(m_setter) = arg;
 		}
 
 		/// constructor utility: handle an argument defining a attribute's setter function
 		template <typename U>
 		constexpr typename std::enable_if<std::is_same<U, getter>::value>::type
 		assign_from_argument(const U& arg) noexcept {
-			m_getter = arg;
+			const_cast<U&>(m_getter) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's setter function
