@@ -159,9 +159,7 @@ namespace min {
 			else /* (std::is_same<T, double>::value) */		m_datatype = k_sym_float64;
 
 			handle_arguments(args...);
-
-			for (const auto& a : m_range_args)
-				m_range.push_back(a);
+			copy_range();
 
 			set(to_atoms(a_default_value), false);
 		}
@@ -208,12 +206,15 @@ namespace min {
 		
 
 		const char* range_string();
+		
 
 		
 	private:
 		T				m_value;
 		atoms			m_range_args;	// the range/enum as provided by the subclass
 		std::vector<T>	m_range;		// the range/enum translated into the native datatype
+		
+		void copy_range();				// copy m_range_args to m_range
 	};
 	
 	
@@ -254,8 +255,23 @@ namespace min {
 	};
 	
 	
+	template<class T>
+	void attribute<T>::copy_range() {
+		for (const auto& a : m_range_args)
+			m_range.push_back(a);
+	};
 	
-	
+	template<>
+	void attribute<std::vector<double>>::copy_range() {
+		if (!m_range.empty()) {
+			// the range for this type is a low-bound and high-bound applied to all elements in the vector
+			assert( m_range_args.size() == 2);
+			
+			m_range.resize(2);
+			m_range[0][0] = m_range_args[0];
+			m_range[1][0] = m_range_args[1];
+		}
+	};
 
 	
 	template<class T>
