@@ -142,11 +142,11 @@ namespace min {
 	template<class T>
 	max::t_object* jit_new(max::t_symbol* s){
 		minwrap<T>*	self = (minwrap<T>*)max::jit_object_alloc(this_jit_class);
-		
+        
+        self->obj.assign_instance((max::t_object*)self);
 		atoms args;
-        args.push_back(s);
 		new(&self->obj) T(args); // placement new
-		self->obj.assign_instance((max::t_object*)self);
+		self->obj.set_classname(s);
 		self->obj.try_call("setup");
 		
 		return (max::t_object*)self;

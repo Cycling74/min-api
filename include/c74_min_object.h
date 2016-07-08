@@ -19,7 +19,8 @@ namespace min {
 		self->obj.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
 		new(&self->obj) T(atoms(args.begin(), args.begin()+attrstart)); // placement new
 		self->obj.postinitialize();
-		
+		self->obj.set_classname(name);
+        
 		self->setup();
 		
 		auto outlets = self->obj.outlets();
