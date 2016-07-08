@@ -168,12 +168,17 @@ namespace min {
 	
 	template<class cpp_classname>
 	void*
-	max_jit_mop_new(max::t_symbol* s, long argc, max::t_atom* argv) {
+	max_jit_mop_new(max::t_symbol* s, atom_reference args) {
+        long attrstart = attr_args_offset(args.size(), args.begin());
 		auto cppname = (max::t_symbol*)c74::min::this_class->c_menufun;
 		max_jit_wrapper* self = (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
 		void* o = max::jit_object_new(cppname, s);
-		max_jit_mop_setup_simple(self, o, argc, argv);
-		max_jit_attr_args(self, argc, argv);
+		max_jit_mop_setup_simple(self, o, args.size(), args.begin());
+		max_jit_attr_args(self, args.size(), args.begin());
+        
+        minwrap<cpp_classname>*	job = (minwrap<cpp_classname>*)o;
+        job->obj.try_call("maxob_setup", atoms(args.begin(), args.begin()+attrstart));
+        
 		return self;
 	}
 	
