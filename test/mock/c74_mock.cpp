@@ -28,6 +28,12 @@ namespace max {
 	MOCK_EXPORT t_object* attr_offset_new(const char* name, const t_symbol* type, long flags, const method mget, const method mset, long offset) {
 		return nullptr;
 	}
+	
+	MOCK_EXPORT t_object* attr_offset_array_new(const char* name, t_symbol* type, long size, long flags, method mget, method mset, long offsetcount, long offset) {
+		return nullptr;
+	}
+
+	
 
 	MOCK_EXPORT void attr_args_process(void* x, short ac, t_atom* av) {}
 
