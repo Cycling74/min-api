@@ -29,12 +29,16 @@ namespace min {
 		}
 		
 		/// Create an unregistered dictionary
-		/// optionally getting a handle to an old-school t_dictionary
-		dict(max::t_dictionary* d = nullptr) {
+		/// @param d				optionally getting a handle to an old-school t_dictionary
+		/// @param take_ownership	defaults to true, change to false only in exceptional cases
+		dict(max::t_dictionary* d = nullptr, bool take_ownership = true) {
 			if (d == nullptr)
 				instance = max::dictionary_new();
 			else {
-				max::object_retain(d);
+				if (take_ownership)
+					max::object_retain(d);
+				else
+					has_ownership = false;
 				instance = d;
 			}
 		}
@@ -52,7 +56,8 @@ namespace min {
 		
 	
 		~dict() {
-			object_free(instance);
+			if (has_ownership)
+				object_free(instance);
 		}
 		
 		
@@ -128,6 +133,7 @@ namespace min {
 		
 	private:
 		max::t_dictionary*	instance = nullptr;
+		bool				has_ownership = true;
 	};
 	
 }} // namespace c74::min

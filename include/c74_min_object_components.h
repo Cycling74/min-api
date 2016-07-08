@@ -56,7 +56,7 @@ namespace min {
 	class object_base {
 	public:
 		object_base()
-		: m_state((max::t_dictionary*)k_sym__pound_d)
+		: m_state((max::t_dictionary*)k_sym__pound_d, false)
 		{}
 		
 		virtual ~object_base() {
