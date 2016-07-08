@@ -103,6 +103,14 @@ namespace min {
 			return m_state;
 		}
 		
+        void set_classname(max::t_symbol *s) {
+            m_classname = s;
+        }
+        
+        symbol classname() {
+            return m_classname;
+        }
+        
 		/// Try to call a named method.
 		/// @param	name	The name of the method to attempt to call.
 		/// @param	args	Any args you wish to pass to the method call.
@@ -129,6 +137,7 @@ namespace min {
 		std::unordered_map<std::string, method*>			m_methods;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
 		dict												m_state;
+        symbol                                              m_classname; // what's typed in the max box
 	};
 	
 	

@@ -116,7 +116,7 @@ namespace min {
 	max_jit_gl_new(max::t_symbol* s, long argc, max::t_atom* argv) {
 		auto cppname = (max::t_symbol*)c74::min::this_class->c_menufun;
 		max_jit_wrapper* self = (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
-		void* o = max::jit_object_new(cppname);
+		void* o = max::jit_object_new(cppname, s);
 		max_jit_mop_setup_simple(self, o, argc, argv);
 		max_jit_attr_args(self, argc, argv);
 		return self;
