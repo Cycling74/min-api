@@ -127,10 +127,6 @@ namespace min {
 		operator bool() const {
 			return atom_getlong(this);
 		}
-
-		operator symbol() const {
-			return symbol(atom_getsym(this));
-		}
 		
 		operator max::t_symbol*() const {
 			return atom_getsym(this);
@@ -197,6 +193,12 @@ namespace min {
 		
 	};
 	
+	
+	// part of the symbol class but must be defined after atom is defined
+	symbol::symbol(const atom& value) {
+		s = value;
+	}
+
 
 	// part of the symbol class but must be defined after atom is defined
 	symbol& symbol::operator = (const atom& value) {
@@ -339,5 +341,39 @@ namespace std {
 		
 		return to_string(as);
 	}
-	
+
 }
+
+
+namespace c74 {
+namespace min {
+
+	template<class T>
+	atoms to_atoms(const T& v) {
+		atoms as {v};
+		return as;
+	}
+	
+	atoms to_atoms(const std::vector<double>& v) {
+		atoms as(v.size());
+		for (auto i=0; i<v.size(); ++i)
+			as[i] = v[i];
+		return as;
+	}
+	
+	
+	template<class T>
+	T from_atoms(const atoms& as) {
+		return (T)as[0];
+	}
+
+	
+	template<>
+	std::vector<double> from_atoms<std::vector<double>>(const atoms& as) {
+		std::vector<double> v(as.size());
+		for (auto i=0; i<as.size(); ++i)
+			v[i] = as[i];
+		return v;
+	}
+	
+}}

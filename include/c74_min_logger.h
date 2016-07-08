@@ -55,11 +55,13 @@ namespace min {
 			switch(target) {
 				case message:
 					std::cout << s << std::endl;
-					max::object_post(owner, s.c_str());
+					if (owner.initialized())
+						max::object_post(owner, s.c_str());
 					break;
 				case error:
 					std::cerr << s << std::endl;
-					max::object_error(owner, s.c_str());
+					if (owner.initialized())
+						max::object_error(owner, s.c_str());
 					break;
 			}
 
