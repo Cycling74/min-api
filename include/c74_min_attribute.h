@@ -77,12 +77,14 @@ namespace min {
 		symbol			m_datatype;
 		function		m_setter;
 		function		m_getter;
+		bool			m_readonly = false;
 		size_t			m_size;		/// size of array/vector if attr is array/vector
 	};
 	
 	
 	using title = std::string;
 	using range = atoms;
+	using readonly = bool;
 
 	
 	template <typename T>
@@ -96,7 +98,7 @@ namespace min {
 			m_title = arg;
 		}
 		
-		/// constructor utility: handle an argument defining a parameter's range
+		/// constructor utility: handle an argument defining a attribute's range
 		template <typename U>
 		constexpr typename std::enable_if<std::is_same<U, range>::value>::type
 		assign_from_argument(const U& arg) noexcept {
@@ -104,18 +106,25 @@ namespace min {
 				m_range.push_back(a);
 		}
 		
-		/// constructor utility: handle an argument defining a parameter's setter function
+		/// constructor utility: handle an argument defining a attribute's setter function
 		template <typename U>
 		constexpr typename std::enable_if<std::is_same<U, setter>::value>::type
 		assign_from_argument(const U& arg) noexcept {
 			m_setter = arg;
 		}
 
-		/// constructor utility: handle an argument defining a parameter's setter function
+		/// constructor utility: handle an argument defining a attribute's setter function
 		template <typename U>
 		constexpr typename std::enable_if<std::is_same<U, getter>::value>::type
 		assign_from_argument(const U& arg) noexcept {
 			m_getter = arg;
+		}
+		
+		/// constructor utility: handle an argument defining a attribute's setter function
+		template <typename U>
+		constexpr typename std::enable_if<std::is_same<U, readonly>::value>::type
+		assign_from_argument(const U& arg) noexcept {
+			m_readonly = arg;
 		}
 
 		/// constructor utility: empty argument handling (required for recursive variadic templates)
