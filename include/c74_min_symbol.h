@@ -31,6 +31,11 @@ namespace min {
 			s = max::gensym(value);
 		}
 		
+		symbol(const std::string& value) {
+			s = max::gensym(value.c_str());
+		}
+		
+		symbol(const atom& value); // defined in c74_min_atom.h
 		
 
 		symbol& operator = (max::t_symbol* value) {
@@ -40,6 +45,11 @@ namespace min {
 
 		symbol& operator = (const char* value) {
 			s = max::gensym(value);
+			return *this;
+		}
+
+		symbol& operator = (const std::string& value) {
+			s = max::gensym(value.c_str());
 			return *this;
 		}
 
@@ -97,7 +107,8 @@ namespace min {
 	static const symbol k_sym_long("long");				/// The symbol "long".
 	static const symbol k_sym_modified("modified");		/// The symbol "modified".
 	static const symbol k_sym_symbol("symbol");			/// The symbol "symbol".
-	
+	static const symbol k_sym_list("list");				/// The symbol "list".
+	static const symbol k_sym_getname("getname");		/// The symbol "getname".
 
 	
 }} // namespace c74::min

@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <sstream>
-
 namespace c74 {
 namespace min {
 	
@@ -58,7 +56,7 @@ namespace min {
 	class object_base {
 	public:
 		object_base()
-		: m_state((max::t_dictionary*)k_sym__pound_d)
+		: m_state((max::t_dictionary*)k_sym__pound_d, false)
 		{}
 		
 		virtual ~object_base() {
@@ -92,10 +90,6 @@ namespace min {
 			return m_attributes;
 		}
 		
-		void preinitialize() {
-			m_initializing = true;
-		}
-
 		void postinitialize() {
 			m_initialized = true;
 			m_initializing = false;
@@ -127,8 +121,8 @@ namespace min {
 		}
 
 	protected:
-		max::t_object*										m_maxobj;
-		bool												m_initializing = false;
+		max::t_object*										m_maxobj; // initialized prior to placement new
+		bool												m_initializing = true;
 		bool												m_initialized = false;
 		std::vector<min::inlet*>							m_inlets;
 		std::vector<min::outlet*>							m_outlets;
@@ -242,170 +236,15 @@ namespace min {
 			c74::max::outlet_anything(instance, s1, 1, &a);
 		}
 		
+		void send(const atoms& as) {
+			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
+				max::outlet_anything(instance, k_sym_list, as.size(), (max::t_atom*)&as[0]);
+			else
+				max::outlet_anything(instance, as[0], as.size()-1, (max::t_atom*)&as[1]);
+		}
+		
 		void* instance = nullptr;
 	};
-	
-#ifdef __APPLE__
-# pragma mark -
-# pragma mark methods
-#endif
-
-	using function = std::function<atoms(const atoms&)>;
-	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms
-
-	class method {
-	public:
-		method(object_base* an_owner, std::string a_name, function a_function)
-		: owner(an_owner)
-		, function(a_function)
-		{
-			if (a_name == "integer")
-				a_name = "int";
-			else if (a_name == "number")
-				a_name = "float";
-			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose" || a_name == "patchlineupdate")
-				type = max::A_CANT;
-			owner->methods()[a_name] = this;
-		}
-		
-		atoms operator ()(atoms args = {}) {
-			return function(args);
-		}
-		
-		atoms operator ()(atom arg) {
-			return function({arg});
-		}
-		
-		//private:
-		object_base*	owner;
-		long			type = max::A_GIMME;
-		function		function;
-	};
-
-	
-	class attribute_base {
-	public:
-		attribute_base(object_base& an_owner, std::string a_name, function a_function)
-		: owner(an_owner)
-		, name(max::gensym(a_name.c_str()))
-        , label(name)
-		, setter(a_function)
-		{}
-		
-		virtual attribute_base& operator = (atoms args) = 0;
-		virtual operator atoms() const = 0;
-		
-		object_base&	owner;
-		max::t_symbol*	name;
-        max::t_symbol*	label;
-		symbol			type;
-		function		setter;
-	};
-	
-	
-	template <typename T>
-	class attribute : public attribute_base {
-	public:
-		
-		/// Constructor
-		/// @param an_owner			The instance pointer for the owning C++ class, typically you will pass 'this'
-		/// @param a_name			The name of the attribute
-		/// @param a_default_value	The default value of the attribute, which will be set when the instance is created.
-		/// @param a_function		A callback that will be run **prior** to assigning the value to the attribute.
-		attribute(object_base* an_owner, std::string a_name, T a_default_value, function a_function = nullptr)
-		: attribute_base(*an_owner, a_name, a_function) {
-			owner.attributes()[a_name] = this;
-			*this = a_default_value;
-			
-			if (std::is_same<T, bool>::value)
-				type = k_sym_long;
-			else if (std::is_same<T, int>::value)
-				type = k_sym_long;
-			else if (std::is_same<T, symbol>::value)
-				type = k_sym_symbol;
-			else if (std::is_same<T, float>::value)
-				type = k_sym_float32;
-			else // (std::is_same<T, double>::value)
-				type = k_sym_float64;
-		}
-		
-		
-		attribute& operator = (const T arg) {
-			atoms as = { atom(arg) };
-			*this = as;
-			if (owner.initialized())
-				object_attr_touch(owner, name);
-			return *this;
-		}
-		
-		
-		attribute& operator = (atoms args) {
-			if (setter)
-				value = setter(args)[0];
-			else
-				value = args[0];
-			return *this;
-		}
-		
-		
-		operator atoms() const {
-			atom a = value;
-			atoms as = { a };
-			return as;
-		}
-		
-		
-		operator T() const {
-			return value;
-		}
-		
-		
-	private:
-		T				value;
-	};
-	
-	
-	
-	
-	atoms object_base::try_call(const std::string& name, const atoms& args) {
-		auto meth = m_methods.find(name);
-		if (meth != m_methods.end())
-			return (*meth->second)(args);
-		return {};
-	}
-
-	
-	
-	
-	static max::t_symbol* ps_getname = max::gensym("getname");
-	
-
-	
-	template<class T>
-	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
-		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, ps_getname);
-		auto& attr = self->obj.attributes()[attr_name->s_name];
-		atoms rvals = *attr;
-		
-		*ac = rvals.size();
-		if (!(*av)) // otherwise use memory passed in
-			*av = (max::t_atom*)max::sysmem_newptr(sizeof(max::t_atom) * *ac);
-		for (auto i=0; i<*ac; ++i)
-			(*av)[i] = rvals[i];
-		
-		return 0;
-	}
-	
-	
-	template<class T>
-	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, atom_reference args) {
-		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, ps_getname);
-		auto& attr = self->obj.attributes()[attr_name->s_name];
-		*attr = atoms(args.begin(), args.end());
-		return 0;
-	}
-
-	
 	
 	
 	// maxname may come in as an entire path because of use of the __FILE__ macro

@@ -143,7 +143,7 @@ namespace min {
 
 template<class cpp_classname>
 typename std::enable_if<std::is_base_of<c74::min::perform_operator_base, cpp_classname>::value>::type
-define_min_external_audio() {
-	c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_dsp64<cpp_classname>, "dsp64", c74::max::A_CANT, 0);
-	c74::max::class_dspinit(c74::min::this_class);
+define_min_external_audio(c74::max::t_class* c) {
+	c74::max::class_addmethod(c, (c74::max::method)c74::min::min_dsp64<cpp_classname>, "dsp64", c74::max::A_CANT, 0);
+	c74::max::class_dspinit(c);
 }

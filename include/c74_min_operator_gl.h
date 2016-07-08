@@ -141,15 +141,20 @@ namespace min {
 
 
 template<class cpp_classname>
-typename std::enable_if<std::is_base_of<c74::min::gl_operator_base, cpp_classname>::value>::type
-define_min_external(const char* cppname, const char* cmaxname, void *resources) {
-	std::string		maxname = c74::min::deduce_maxclassname(cmaxname);
+typename std::enable_if<
+	std::is_base_of<c74::min::gl_operator_base, cpp_classname>::value
+>::type
+define_min_external(const char* cppname, const char* cmaxname, void *resources, cpp_classname* instance = nullptr) {
+	c74::min::this_class_init = true;
+	
+	std::string						maxname = c74::min::deduce_maxclassname(cmaxname);
+	std::unique_ptr<cpp_classname>	dummy_instance = nullptr;
 
-	// Mark `this_class` as busy.
-	// If it is NULL then it will try to initialize itself leading to an infinite recursion.
-	// We will assign a valid pointer to it below.
-	c74::min::this_class = (c74::max::t_class*)1;
-	cpp_classname dummy;
+	if (!instance) {
+		dummy_instance = std::make_unique<cpp_classname>();
+		instance = dummy_instance.get();
+	}
+
 	
 	// 1. Boxless Jit Class
 	
@@ -170,7 +175,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources) 
 	//add attributes
 	long attrflags = c74::max::ATTR_GET_DEFER_LOW | c74::max::ATTR_SET_USURP_LOW;
 	
-	for (auto& an_attribute : dummy.attributes()) {
+	for (auto& an_attribute : instance->attributes()) {
 		std::string		attr_name = an_attribute.first;
 		auto			attr = c74::max::jit_object_new(
 											 c74::max::_jit_sym_jit_attr_offset,
