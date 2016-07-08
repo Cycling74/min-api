@@ -91,19 +91,18 @@ namespace min {
 	class attribute : public attribute_base {
 	private:
 		
-		/// constructor utility: handle an argument defining an attribute's digest / label
+		/// constructor utility: handle an argument defining an attribute's title / label
 		template <typename U>
 		constexpr typename std::enable_if<std::is_same<U, title>::value>::type
 		assign_from_argument(const U& arg) noexcept {
-			m_title = arg;
+			const_cast<symbol&>(m_title) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's range
 		template <typename U>
 		constexpr typename std::enable_if<std::is_same<U, range>::value>::type
 		assign_from_argument(const U& arg) noexcept {
-			for (const auto& a : arg)
-				m_range.push_back(a);
+			const_cast<U&>(m_range_args) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's setter function
@@ -113,18 +112,18 @@ namespace min {
 			const_cast<U&>(m_setter) = arg;
 		}
 
-		/// constructor utility: handle an argument defining a attribute's setter function
+		/// constructor utility: handle an argument defining a attribute's getter function
 		template <typename U>
 		constexpr typename std::enable_if<std::is_same<U, getter>::value>::type
 		assign_from_argument(const U& arg) noexcept {
 			const_cast<U&>(m_getter) = arg;
 		}
 		
-		/// constructor utility: handle an argument defining a attribute's setter function
+		/// constructor utility: handle an argument defining a attribute's readonly property
 		template <typename U>
 		constexpr typename std::enable_if<std::is_same<U, readonly>::value>::type
 		assign_from_argument(const U& arg) noexcept {
-			m_readonly = arg;
+			const_cast<U&>(m_readonly) = arg;
 		}
 
 		/// constructor utility: empty argument handling (required for recursive variadic templates)
@@ -160,7 +159,10 @@ namespace min {
 			else /* (std::is_same<T, double>::value) */		m_datatype = k_sym_float64;
 
 			handle_arguments(args...);
-			
+
+			for (const auto& a : m_range_args)
+				m_range.push_back(a);
+
 			set(to_atoms(a_default_value), false);
 		}
 		
@@ -210,7 +212,8 @@ namespace min {
 		
 	private:
 		T				m_value;
-		std::vector<T>	m_range;
+		atoms			m_range_args;	// the range/enum as provided by the subclass
+		std::vector<T>	m_range;		// the range/enum translated into the native datatype
 	};
 	
 	
