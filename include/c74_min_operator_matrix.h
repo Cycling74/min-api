@@ -274,7 +274,6 @@ namespace min {
 	using enable_if_matrix_operator = typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type;
 	
 	template<class cpp_classname>
-//	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
 	enable_if_matrix_operator<cpp_classname>
 	jit_calculate_ndim(minwrap<cpp_classname>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info *in_minfo, char* bip, max::t_jit_matrix_info* out_minfo, char* bop) {
 		if (dimcount < 1)
@@ -314,7 +313,6 @@ namespace min {
 	}
 	
 	template<class cpp_classname>
-//	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
 	enable_if_matrix_operator<cpp_classname>
 	jit_calculate_ndim_single(minwrap<cpp_classname>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info* out_minfo, char* bop) {
 		if (dimcount < 1)
@@ -351,16 +349,9 @@ namespace min {
 	}
     
 	
-//	template <typename Type, typename std::enable_if<condition<Type>::value, int>::type = 0>
-//	return_type foo(const Type&);
-
-//	template <typename cpp_classname, enable_if_matrix_operator<cpp_classname> = 0>
-//	return_type foo(const Type&);
-//
 	template<class cpp_classname>
-//	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
 	enable_if_matrix_operator<cpp_classname>
-	/*max::t_jit_err*/ jit_matrix_calc(minwrap<cpp_classname>* self, max::t_object* inputs, max::t_object* outputs) {
+	jit_matrix_docalc(minwrap<cpp_classname>* self, max::t_object* inputs, max::t_object* outputs) {
 		max::t_jit_err			err = max::JIT_ERR_NONE;
 		auto					in_mop_io = (max::t_object*)max::object_method(inputs, max::_jit_sym_getindex, 0);
 		auto					out_mop_io = (max::t_object*)max::object_method(outputs, max::_jit_sym_getindex, 0);
@@ -416,10 +407,22 @@ namespace min {
 			max::object_method(out_matrix, max::_jit_sym_lock, out_savelock);
 			max::object_method(in_matrix, max::_jit_sym_lock, in_savelock);
 		}
-		// TODO: can't return an error
-		// return err;
+		throw err;
 	}
 
+	
+	template<class cpp_classname>
+	max::t_jit_err jit_matrix_calc(minwrap<cpp_classname>* self, max::t_object* inputs, max::t_object* outputs) {
+		try {
+			jit_matrix_docalc(self, inputs, outputs);
+			return 0;
+		}
+		catch (max::t_jit_err& err) {
+			return err;
+		}
+	}
+	
+	
 	template<class cpp_classname>
 	enable_if_matrix_operator<cpp_classname>
 	min_jit_mop_outputmatrix(max_jit_wrapper* self) {
