@@ -90,10 +90,12 @@ namespace min {
 	namespace filters {
 	
 		/// Utility: generate an impulse response from a set of coefficients
-		/// param	a	feedforward coefficients (numerator)
-		/// param	b	feedback coefficients (denominator)
-		/// param	N	optional size of the generated response, default 64
-		auto generate_impulse_response(const samples& a, const samples& b, int N = 64) {
+		/// param	a		feedforward coefficients (numerator)
+		/// param	b		feedback coefficients (denominator)
+		/// param	count	optional size of the generated response, default 64
+		template <size_t count=64>
+		auto generate_impulse_response(const samples<count>& a, const samples<count>& b) {
+			auto N = count;
 			std::vector<double>	x(N);				// input -- feedforward history
 			std::vector<double>	y(N);				// output -- feedback history
 			

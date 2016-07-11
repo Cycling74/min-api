@@ -56,28 +56,69 @@ namespace min {
 				out_samps[i] = out;
 			}
 		}
-	}; // specialization for floating point types
+	};
 	
-	/*
-//	template<class T>
-//	typename std::enable_if< has_dspsetup<T>::value && std::is_base_of<c74::min::sample_operator_base, T>::value>::type
-	min_dsp64_sel(minwrap<T>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
-		min_dsp64_io(self, count);
+	
+	
+	
+	// for more information, see:
+	// http://stackoverflow.com/questions/16834851/passing-stdarray-as-arguments-of-template-variadic-function
+	namespace detail
+	{
+		template<int... Is>
+		struct seq { };
 		
-		atoms args;
-		args.push_back(atom(samplerate));
-		args.push_back(atom(maxvectorsize));
-		self->obj.dspsetup(args);
+		template<int N, int... Is>
+		struct gen_seq : gen_seq<N - 1, N - 1, Is...> { };
 		
-		min_dsp64_add_perform(self, dsp64);
+		template<int... Is>
+		struct gen_seq<0, Is...> : seq<Is...> { };
 	}
-	*/
+
 	
-//	template<class T>
-//	typename std::enable_if<std::is_base_of<c74::min::sample_operator_base, T>::value>::type
-//	min_dsp64(minwrap<T>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
-//		min_dsp64_sel<T>(self, dsp64, count, samplerate, maxvectorsize, flags);
-//	}
+	template<class T>
+	class min_performer<T, typename std::enable_if< std::is_base_of<c74::min::sample_operator<2,2>, T >::value>::type> {
+		
+		template<int N, typename U>
+		struct Container {
+			template<typename... Us>
+			Container(Us&&... vs) : data{{std::forward<Us>(vs)...}} {
+				static_assert(sizeof...(Us)==N,"Not enough args supplied!");
+			}
+			
+			template<typename F>
+			auto doOperation(minwrap<T>* self, F&& func) {
+				return doOperation(self, std::forward<F>(func), detail::gen_seq<N>());
+			}
+			
+			template<typename F, int... Is>
+			auto doOperation(minwrap<T>* self, F&& func, detail::seq<Is...>) {
+				return self->obj.calculate(data[Is]...);
+			}
+			
+			std::array<U,N> data;
+		};
+
+
+	public:
+		static void perform(minwrap<T>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+			auto in_samps1 = in_chans[0];
+			auto in_samps2 = in_chans[1];
+			auto out_samps1 = out_chans[0];
+			auto out_samps2 = out_chans[1];
+			
+			for (auto i=0; i<sampleframes; ++i) {
+				Container<2, sample> ins( in_samps1[i], in_samps2[i] );
+				
+				//auto out = self->obj.calculate(in1, in2);
+//				auto out = ins.doOperation(std::bind(&T::calculate, &self->obj, std::placeholders::_1, std::placeholders::_2));
+				auto out = ins.doOperation(self, &T::calculate);
+
+				out_samps1[i] = out[0];
+				out_samps2[i] = out[1];
+			}
+		}
+	}; // specialization for floating point types
 
 }} // namespace c74::min
 

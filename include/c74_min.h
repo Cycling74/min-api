@@ -23,7 +23,9 @@ namespace c74 {
 namespace min {
 	using uchar = unsigned char;
 	using sample = double;
-	using samples = std::vector<sample>;
+//	using samples = std::vector<sample>;
+	template <size_t count>
+	using samples = std::array<sample, count>;
 }}
 
 
