@@ -15,17 +15,17 @@ namespace min {
 	template<int input_count, int output_count>
 	class sample_operator : public sample_operator_base {
 	public:
-		static constexpr int inputcount() {
+		static constexpr size_t inputcount() {
 			return m_inputcount;
 		}
 		
-		static constexpr int outputcount() {
+		static constexpr size_t outputcount() {
 			return m_outputcount;
 		}
-		
+				
 	private:
-		static constexpr int m_inputcount = input_count;
-		static constexpr int m_outputcount = output_count;
+		static constexpr size_t m_inputcount = input_count;
+		static constexpr size_t m_outputcount = output_count;
 	};
 
 	
