@@ -15,17 +15,17 @@ namespace min {
 	template<int input_count, int output_count>
 	class sample_operator : public sample_operator_base {
 	public:
-		int inputcount() {
+		static constexpr int inputcount() {
 			return m_inputcount;
 		}
 		
-		int outputcount() {
+		static constexpr int outputcount() {
 			return m_outputcount;
 		}
 		
 	private:
-		int m_inputcount = input_count;
-		int m_outputcount = output_count;
+		static constexpr int m_inputcount = input_count;
+		static constexpr int m_outputcount = output_count;
 	};
 
 	
@@ -114,7 +114,7 @@ namespace min {
 	public:
 		static void perform(minwrap<T>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			for (auto i=0; i<sampleframes; ++i) {
-				callable_samples<T, 2> ins(self);
+				callable_samples<T, T::inputcount()> ins(self);
 
 				for (auto chan=0; chan < self->obj.inputcount(); ++chan)
 					ins.set(chan, in_chans[chan][i]);

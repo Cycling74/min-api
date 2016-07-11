@@ -144,7 +144,7 @@ namespace min {
 	
 
 	
-	
+
 	class sample_operator_base;
 	class perform_operator_base;
 	class matrix_operator_base;
