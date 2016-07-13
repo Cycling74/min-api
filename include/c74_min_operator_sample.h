@@ -113,7 +113,22 @@ namespace min {
 		minwrap<T>*		self;
 	};
 
+	
+	// perform_copy_output() copies the output sample(s) from a sample_operator's #calculate() function.
+	// it does so in a way that the returned type can either be a single #sample or an array of #samples<N>
+	
+	template<class T, typename type_returned_from_calculate>
+	void perform_copy_output(minwrap<T>* self, size_t index, double** out_chans, type_returned_from_calculate vals) {
+		for (auto chan=0; chan < self->obj.outputcount(); ++chan)
+			out_chans[chan][index] = vals[chan];
+	}
 
+	template<class T>
+	void perform_copy_output(minwrap<T>* self, size_t index, double** out_chans, sample val) {
+		out_chans[0][index] = val;
+	}
+	
+	
 	// The generic version of the min_performer class, for N inputs and N outputs.
 	// See above for the 1x1 optimized version.
 
@@ -132,8 +147,7 @@ namespace min {
 
 				auto out = ins.call();
 
-				for (auto chan=0; chan < self->obj.outputcount(); ++chan)
-					out_chans[chan][i] = out[chan];
+				perform_copy_output(self, i, out_chans, out);
 			}
 		}
 	};
