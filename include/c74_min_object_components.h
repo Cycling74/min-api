@@ -171,6 +171,7 @@ namespace min {
 			auto self = &base;
 			auto inlets = obj.inlets();
 
+			if (!inlets.empty())
 			for (auto i=inlets.size()-1; i>0; --i)
 				inlets[i]->instance = max::proxy_new(self, i, nullptr);
 		}

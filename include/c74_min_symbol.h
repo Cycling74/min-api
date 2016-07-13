@@ -108,6 +108,7 @@ namespace min {
 	static const symbol k_sym_modified("modified");		/// The symbol "modified".
 	static const symbol k_sym_symbol("symbol");			/// The symbol "symbol".
 	static const symbol k_sym_list("list");				/// The symbol "list".
+	static const symbol k_sym_bang("bang");				/// The symbol "bang".
 	static const symbol k_sym_getname("getname");		/// The symbol "getname".
 
 	

@@ -248,7 +248,6 @@ c74::max::t_class* define_min_external_common(cpp_classname& instance, const cha
 		}
 	}
 
-	instance.try_call("maxclass_setup", c);
 	return c;
 }
 
@@ -291,6 +290,7 @@ define_min_external(const char* cppname, const char* maxname, void *resources, c
 	define_min_external_audio<cpp_classname>(c);
 	define_min_external_finish<cpp_classname>(c);
 	c74::min::this_class = c;
+	instance->try_call("maxclass_setup", c);
 }
 
 
