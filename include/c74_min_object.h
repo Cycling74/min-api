@@ -240,11 +240,12 @@ c74::max::t_class* define_min_external_common(cpp_classname& instance, const cha
 		
 		// Attribute Metadata
 		CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());
-		if (attr.range_string()) {
+
+		auto range_string = attr.range_string();
+		if (!range_string.empty()) {
 			if (attr.datatype() == "symbol")
-				CLASS_ATTR_ENUM(c,	attr_name.c_str(), 0, attr.range_string());
+				CLASS_ATTR_ENUM(c, attr_name.c_str(), 0, range_string.c_str());
 		}
-		
 	}
 
 	return c;

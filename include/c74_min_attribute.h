@@ -19,7 +19,7 @@ namespace min {
 	template <typename T>
 	class attribute;
 
-	class sample_operator_base;
+	class sample_operator_base;	
 	class perform_operator_base;
 	class matrix_operator_base;
 	class gl_operator_base;
@@ -60,7 +60,7 @@ namespace min {
 		}
 		
 		/// fetch the range in string format, values separated by spaces
-		virtual const char* range_string() = 0;
+		virtual std::string range_string() = 0;
 		
 		/// Create the Max attribute and add it to the Max class
 		virtual void create(max::t_class* c, max::method getter, max::method setter) = 0;
@@ -205,7 +205,7 @@ namespace min {
 		}
 		
 
-		const char* range_string();
+		std::string range_string();
 		
 
 		
@@ -234,15 +234,15 @@ namespace min {
 	
 	
 	template<class T>
-	const char* attribute<T>::range_string() {
+	std::string attribute<T>::range_string() {
 		std::stringstream ss;
 		for (const auto& val : m_range)
 			ss << val << " ";
-		return ss.str().c_str();
+		return ss.str();
 	};
 	
 	template<>
-	const char* attribute<std::vector<double>>::range_string() {
+	std::string attribute<std::vector<double>>::range_string() {
 		if (m_range.empty())
 			return "";
 		
@@ -251,7 +251,7 @@ namespace min {
 	
 		std::stringstream ss;
 		ss << m_range[0][0] << " " << m_range[1][0];
-		return ss.str().c_str();
+		return ss.str();
 	};
 	
 	

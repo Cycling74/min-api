@@ -93,9 +93,9 @@ namespace min {
 		/// param	a	feedforward coefficients (numerator)
 		/// param	b	feedback coefficients (denominator)
 		/// param	N	optional size of the generated response, default 64
-		auto generate_impulse_response(const samples& a, const samples& b, int N = 64) {
-			std::vector<double>	x(N);				// input -- feedforward history
-			std::vector<double>	y(N);				// output -- feedback history
+		auto generate_impulse_response(const sample_vector& a, const sample_vector& b, int N = 64) {
+			sample_vector	x(N);				// input -- feedforward history
+			sample_vector	y(N);				// output -- feedback history
 			
 			std::fill_n(x.begin(), N, 0.0);
 			std::fill_n(y.begin(), N, 0.0);
