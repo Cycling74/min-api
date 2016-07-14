@@ -117,7 +117,14 @@ namespace max {
 
 	MOCK_EXPORT long atom_gettype(const t_atom *a)			{ return a->a_type; }
 
-	MOCK_EXPORT t_atom_float atom_getfloat(const t_atom *a)	{ return a->a_w.w_float; }
+	MOCK_EXPORT t_atom_float atom_getfloat(const t_atom *a)	{
+		if (a->a_type == A_FLOAT)
+			return a->a_w.w_float;
+		else if (a->a_type == A_LONG)
+			return a->a_w.w_long;
+		else
+			throw std::runtime_error("not a number");
+	}
 	MOCK_EXPORT t_atom_long atom_getlong(const t_atom *a)	{ return a->a_w.w_long; }
 	MOCK_EXPORT t_symbol* atom_getsym(const t_atom *a)		{ return a->a_w.w_sym; }
 	MOCK_EXPORT t_object* atom_getobj(const t_atom *a)		{ return a->a_w.w_obj; }

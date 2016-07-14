@@ -189,6 +189,9 @@ namespace min {
 			return (bool)atom_getlong(&a) == value;
 		}
 		
+		inline friend bool operator == (const max::t_atom& a, double value) {
+			return (bool)atom_getfloat(&a) == value;
+		}
 		
 		
 	};
