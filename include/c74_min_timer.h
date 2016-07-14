@@ -21,48 +21,39 @@ namespace min {
 	public:
 
 		timer(object_base* an_owner, function a_function)
-		: owner(an_owner)
-		, function(a_function)
+		: m_owner(an_owner)
+		, m_function(a_function)
 		{
-			instance = max::clock_new(this, (max::method)timer_tick_callback);
+			m_instance = max::clock_new(this, (max::method)timer_tick_callback);
 		}
 
 		
 		~timer() {
-			object_free(instance);
+			object_free(m_instance);
 		}
 		
 		
 		void delay(double duration_in_ms) {
-			clock_fdelay(instance, duration_in_ms);
+			clock_fdelay(m_instance, duration_in_ms);
 		}
 		
 		
 		void stop() {
-			if (instance)
-				clock_unset(instance);
+			if (m_instance)
+				clock_unset(m_instance);
 		}
 		
 		
 		void tick() {
 			atoms a;
-			function(a);
+			m_function(a);
 		}
 		
 		
-//		void operator ()(atoms args) {
-//			function(args);
-//		}
-//
-//		void operator ()() {
-//			atoms a;
-//			function(a);
-//		}
-		
-		//private:
-		object_base*	owner;
-		function		function;
-		max::t_clock*	instance = nullptr;
+	private:
+		object_base*	m_owner;
+		function		m_function;
+		max::t_clock*	m_instance = nullptr;
 		
 	};
 	

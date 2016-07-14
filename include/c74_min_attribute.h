@@ -291,7 +291,8 @@ namespace min {
 	
 	
 	template<class T>
-	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, atom_reference args) {
+	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, long ac, max::t_atom* av) {
+		atom_reference args(ac,av);
 		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
 		auto attr = self->obj.attributes()[attr_name->s_name];
 		attr->set( atoms(args.begin(), args.end()), false );

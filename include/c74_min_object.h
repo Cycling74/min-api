@@ -7,15 +7,16 @@
 
 namespace c74 {
 namespace min {
-	
-	
+
+
 	// All objects use A_GIMME signature for construction
-	
+
 	template<class T>
-	max::t_object* min_new(max::t_symbol *name, atom_reference args) {
-		long		attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
-		minwrap<T>*	self = (minwrap<T>*)max::object_alloc(this_class);
-		
+	max::t_object* min_new(max::t_symbol* name, long ac, max::t_atom* av) {
+		atom_reference	args(ac, av);
+		long			attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
+		minwrap<T>*		self = (minwrap<T>*)max::object_alloc(this_class);
+
 		self->obj.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
 		new(&self->obj) T(atoms(args.begin(), args.begin()+attrstart)); // placement new
 		self->obj.postinitialize();
