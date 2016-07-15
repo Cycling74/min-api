@@ -10,7 +10,9 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <deque>
 #include <iostream>
+#include <list>
 #include <string>
 #include <sstream>
 #include <thread>
