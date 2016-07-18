@@ -42,7 +42,7 @@ TEST_CASE( "Atom Class", "[atoms]" ) {
 		REQUIRE(( as.size() == 4 ));
 		REQUIRE(( as[0] == 1.0 ));
 		REQUIRE(( as[1] == 2.0 ));
-		REQUIRE(( as[2] == -3.14 ));
+		REQUIRE(( as[2] == Approx(-3.14) ));
 		REQUIRE(( as[3] == 4.5 ));
 	}
 
@@ -53,7 +53,7 @@ TEST_CASE( "Atom Class", "[atoms]" ) {
 		REQUIRE(( as.size() == 4 ));
 		REQUIRE(( as[0] == 1.0 ));
 		REQUIRE(( as[1] == 2.0 ));
-		REQUIRE(( as[2] == -3.14 ));
+		REQUIRE(( as[2] == Approx(-3.14) ));
 		REQUIRE(( as[3] == 4.5 ));
 	}
 
@@ -64,7 +64,7 @@ TEST_CASE( "Atom Class", "[atoms]" ) {
 		REQUIRE(( as.size() == 4 ));
 		REQUIRE(( as[0] == 1.0 ));
 		REQUIRE(( as[1] == 2.0 ));
-		REQUIRE(( as[2] == -3.14 ));
+		REQUIRE(( as[2] == Approx(-3.14) ));
 		REQUIRE(( as[3] == 4.5 ));
 	}
 	
@@ -75,7 +75,7 @@ TEST_CASE( "Atom Class", "[atoms]" ) {
 		REQUIRE(( as.size() == 4 ));
 		REQUIRE(( as[0] == 1.0 ));
 		REQUIRE(( as[1] == 2.0 ));
-		REQUIRE(( as[2] == -3.14 ));
+		REQUIRE(( as[2] == Approx(-3.14) ));
 		REQUIRE(( as[3] == 4.5 ));
 	}
 
@@ -89,7 +89,7 @@ TEST_CASE( "Atom Class", "[atoms]" ) {
 		REQUIRE( dv.size() == 4 );
 		REQUIRE( dv[0] == 1.0 );
 		REQUIRE( dv[1] == 2.0 );
-		REQUIRE( dv[2] == -3.14 );
+		REQUIRE( dv[2] == Approx(-3.14) );
 		REQUIRE( dv[3] == 4.5 );
 	}
 
