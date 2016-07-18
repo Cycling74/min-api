@@ -236,9 +236,9 @@ namespace min {
 	}
 	
 
-	/// The #atoms container is the standard means by which zero or more values are passed.
-	/// It is implemented as a std::vector of the #atom type, and thus atoms contained in an
-	/// #atoms container are 'owned' copies... not simply a reference to some externally owned atoms.
+	/// The %atoms container is the standard means by which zero or more values are passed.
+	/// It is implemented as a std::vector of the %atom type, and thus atoms contained in an
+	/// %atoms container are 'owned' copies... not simply a reference to some externally owned atoms.
 
 	// TODO: how to document inherited interface, e.g. size(), begin(), etc. ?
 	
@@ -251,11 +251,11 @@ namespace min {
 #endif
 
 
-	/// The #atom_reference type defines a container for atoms by reference, providing an interface
+	/// The %atom_reference type defines a container for atoms by reference, providing an interface
 	/// that is interoperable with any of the classic standard library containers.
 	///
-	/// Typically you *do not use* the #atom_reference type explicitly.
-	/// It is rather intended as an intermediary between the #atoms container type and
+	/// Typically you *do not use* the %atom_reference type explicitly.
+	/// It is rather intended as an intermediary between the %atoms container type and
 	/// old C-style functions in the Max API.
 	/// As such it resembles some of the aims of the gsl::span type but serving a much more specialized purpose.
 	///
@@ -395,7 +395,7 @@ namespace min {
 	using is_symbol = std::is_same<T, symbol>;
 
 	
-	/// Copy values from any STL container to a vector of #atoms
+	/// Copy values from any STL container to a vector of %atoms
 	/// @tparam	T			The type of the container
 	/// @param	container	The container instance whose values will be copied
 	/// @return				A vector of atoms
@@ -413,7 +413,7 @@ namespace min {
 	}
 
 
-	/// Copy values from any simple type to a vector of #atoms of size=1.
+	/// Copy values from any simple type to a vector of %atoms of size=1.
 	/// @tparam	T	The type of the input value.
 	/// @param	v	The value to be copied.
 	/// @return		A vector of atoms

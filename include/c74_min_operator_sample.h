@@ -9,17 +9,17 @@ namespace c74 {
 namespace min {
 
 
-	/// The base class for all template specializations of #sample_operator.
+	/// The base class for all template specializations of %sample_operator.
 
 	class sample_operator_base {};
 
 
-	/// Inheriting from #sample_operator extends your class' functionality to processing audio
-	/// by calculating samples one at a time using a member function named #calculate().
+	/// Inheriting from %sample_operator extends your class' functionality to processing audio
+	/// by calculating samples one at a time using a member function named %calculate().
 	///
-	/// Your #calculate function must take the same number of parameters as the #input_count template arg.
-	/// Your #calculate function must return an array of samples of the same size as the #output_count template arg.
-	/// For example, if your object inherits from sample_operator<3,2> then your #calculate() will be prototypes as:
+	/// Your %calculate function must take the same number of parameters as the %input_count template arg.
+	/// Your %calculate function must return an array of samples of the same size as the %output_count template arg.
+	/// For example, if your object inherits from sample_operator<3,2> then your %calculate() will be prototypes as:
 	/// @code
 	/// samples<2> calculate(sample input1, sample input2, sample input3);
 	/// @endcode
@@ -68,7 +68,7 @@ namespace min {
 
 
 	// To implement the min_performer class generically we use std::array<sample> for both input and output.
-	// However, we wish to define the #calculate() member function in the Min class with each sample as a
+	// However, we wish to define the %calculate() member function in the Min class with each sample as a
 	// separate argument.
 	// To make this translation efficiently and without out lots of duplicated code we use a pattern whereby
 	// the sequence of indices for std::array are generated at compile time and then used to make the call
@@ -114,8 +114,8 @@ namespace min {
 	};
 
 	
-	// perform_copy_output() copies the output sample(s) from a sample_operator's #calculate() function.
-	// it does so in a way that the returned type can either be a single #sample or an array of #samples<N>
+	// perform_copy_output() copies the output sample(s) from a sample_operator's %calculate() function.
+	// it does so in a way that the returned type can either be a single %sample or an array of %samples<N>
 	
 	template<class T, typename type_returned_from_calculate>
 	void perform_copy_output(minwrap<T>* self, size_t index, double** out_chans, type_returned_from_calculate vals) {
@@ -157,7 +157,7 @@ namespace min {
 
 // If you inherit from sample_operator then define this function to
 // add audio support to the Max class.
-// Will be called from #define_min_external()
+// Will be called from %define_min_external()
 
 template<class cpp_classname>
 typename std::enable_if<std::is_base_of<c74::min::sample_operator_base, cpp_classname>::value>::type

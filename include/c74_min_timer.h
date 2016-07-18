@@ -13,7 +13,7 @@ namespace min {
 	extern "C" void timer_tick_callback(timer* an_owner);
 	
 	
-	/// The #timer class allows you to schedule a function to be called in the future using Max's scheduler.
+	/// The %timer class allows you to schedule a function to be called in the future using Max's scheduler.
 	/// Note: the name `timer` was chosen instead of `clock` because of the use of the type is `clock` is ambiguous on the Mac OS
 	/// unless you explicitly specify the `c74::min` namespace.
 	
