@@ -7,15 +7,16 @@
 
 namespace c74 {
 namespace min {
-	
-	
+
+
 	// All objects use A_GIMME signature for construction
-	
+
 	template<class T>
-	max::t_object* min_new(max::t_symbol *name, atom_reference args) {
-		long		attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
-		minwrap<T>*	self = (minwrap<T>*)max::object_alloc(this_class);
-		
+	max::t_object* min_new(max::t_symbol* name, long ac, max::t_atom* av) {
+		atom_reference	args(ac, av);
+		long			attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
+		minwrap<T>*		self = (minwrap<T>*)max::object_alloc(this_class);
+
 		self->obj.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
 		new(&self->obj) T(atoms(args.begin(), args.begin()+attrstart)); // placement new
 		self->obj.postinitialize();
@@ -240,14 +241,14 @@ c74::max::t_class* define_min_external_common(cpp_classname& instance, const cha
 		
 		// Attribute Metadata
 		CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());
-		if (attr.range_string()) {
+
+		auto range_string = attr.range_string();
+		if (!range_string.empty()) {
 			if (attr.datatype() == "symbol")
-				CLASS_ATTR_ENUM(c,	attr_name.c_str(), 0, attr.range_string());
+				CLASS_ATTR_ENUM(c, attr_name.c_str(), 0, range_string.c_str());
 		}
-		
 	}
 
-	instance.try_call("maxclass_setup", c);
 	return c;
 }
 
@@ -290,6 +291,7 @@ define_min_external(const char* cppname, const char* maxname, void *resources, c
 	define_min_external_audio<cpp_classname>(c);
 	define_min_external_finish<cpp_classname>(c);
 	c74::min::this_class = c;
+	instance->try_call("maxclass_setup", c);
 }
 
 

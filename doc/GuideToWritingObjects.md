@@ -4,7 +4,7 @@ Min objects are external objects for Max written in C++ using a high-level decla
 
 Example code is distributed as a part of the [Min-DevKit Package](https://github.com/Cycling74/min-devkit).
 
-See Also: [Where To Look...](./WhereToLook.md)
+See Also: [Where To Look...](WhereToLook.md)
 
 ## Class Definition
 
@@ -295,21 +295,4 @@ method maxclass_setup = { this, "maxclass_setup", MIN_FUNCTION {
 ## Unit Testing
 
 Unit testing is performed using Catch framework. See the ReadMe for more details.
-
-
-## Appendix A: Special MEthods
-
-Special methods:
-
-* number
-* toggle
-* anything
-
-* setup
-* dspsetup
-* maxclass_setup
-* jitclass_setup
-
-* dblclick
-* notify
 

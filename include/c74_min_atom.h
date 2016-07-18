@@ -179,17 +179,46 @@ namespace min {
 		}
 		
 		
-		/** Compare a symbols against a c-string for equality. */
+		/// Compare an atom against a value for equality.
 		inline friend bool operator == (const max::t_atom& a, max::t_symbol* s) {
 			return atom_getsym(&a) == s;
 		}
 		
-		
+		/// Compare an atom against a value for equality.
+		inline friend bool operator == (const max::t_atom& a, symbol s) {
+			return atom_getsym(&a) == (max::t_symbol*)s;
+		}
+
+		/// Compare an atom against a value for equality.
+		inline friend bool operator == (const max::t_atom& a, const char* str) {
+			return atom_getsym(&a) == max::gensym(str);
+		}
+
+		/// Compare an atom against a value for equality.
 		inline friend bool operator == (const max::t_atom& a, bool value) {
 			return (bool)atom_getlong(&a) == value;
 		}
 		
+		/// Compare an atom against a value for equality.
+		inline friend bool operator == (const max::t_atom& a, int value) {
+			return atom_getlong(&a) == value;
+		}
 		
+		/// Compare an atom against a value for equality.
+		inline friend bool operator == (const max::t_atom& a, long value) {
+			return atom_getlong(&a) == value;
+		}
+		
+		/// Compare an atom against a value for equality.
+		inline friend bool operator == (const max::t_atom& a, double value) {
+			return atom_getfloat(&a) == value;
+		}
+
+		/// Compare an atom against a value for equality.
+		inline friend bool operator == (const max::t_atom& a, max::t_object* value) {
+			return atom_getobj(&a) == value;
+		}
+
 		
 	};
 	
@@ -207,9 +236,9 @@ namespace min {
 	}
 	
 
-	/// The #atoms container is the standard means by which zero or more values are passed.
-	/// It is implemented as a std::vector of the #atom type, and thus atoms contained in an
-	/// #atoms container are 'owned' copies... not simply a reference to some externally owned atoms.
+	/// The %atoms container is the standard means by which zero or more values are passed.
+	/// It is implemented as a std::vector of the %atom type, and thus atoms contained in an
+	/// %atoms container are 'owned' copies... not simply a reference to some externally owned atoms.
 
 	// TODO: how to document inherited interface, e.g. size(), begin(), etc. ?
 	
@@ -220,13 +249,13 @@ namespace min {
 #pragma mark -
 #pragma mark AtomRef
 #endif
-	
-	
-	/// The #atom_reference type defines a container for atoms by reference, providing an interface
+
+
+	/// The %atom_reference type defines a container for atoms by reference, providing an interface
 	/// that is interoperable with any of the classic standard library containers.
 	///
-	/// Typically you *do not use* the #atom_reference type explicitly.
-	/// It is rather intended as an intermediary between the #atoms container type and
+	/// Typically you *do not use* the %atom_reference type explicitly.
+	/// It is rather intended as an intermediary between the %atoms container type and
 	/// old C-style functions in the Max API.
 	/// As such it resembles some of the aims of the gsl::span type but serving a much more specialized purpose.
 	///
@@ -310,11 +339,10 @@ namespace min {
 
 namespace std {
 	
-	// overloads of the std::to_string() function for our min::atoms type
+	/// overload of the std::to_string() function for the min::atoms type
 	// it is perfectly legal to make this overload in the std namespace because it is overloaded on our user-defined type
 	// as stated in section 17.6.4.2.1 of working draft version N4296 of the C++ Standard at
 	// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4296.pdf
-	
 	
 	string to_string(const c74::min::atoms& as) {
 		long	textsize = 0;
@@ -334,6 +362,8 @@ namespace std {
 	}
 	
 	
+	/// overload of the std::to_string() function for the min::atom_reference type
+
 	string to_string(const c74::min::atom_reference& ar) {
 		c74::min::atoms as;
 		for (const auto& ref: ar)
@@ -345,35 +375,80 @@ namespace std {
 }
 
 
+/// Expose atom for use in std output streams.
+template <class charT, class traits>
+std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const c74::min::atom& a) {
+	return stream << std::string(a);
+}
+
+
 namespace c74 {
 namespace min {
+	
+	
+	// Helper utilities to clean-up the syntax for the template enabling code that follows...
 
 	template<class T>
+	using is_class = std::is_class<T>;
+	
+	template<class T>
+	using is_symbol = std::is_same<T, symbol>;
+
+	
+	/// Copy values from any STL container to a vector of %atoms
+	/// @tparam	T			The type of the container
+	/// @param	container	The container instance whose values will be copied
+	/// @return				A vector of atoms
+	
+	template<class T, typename std::enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
+	atoms to_atoms(const T& container) {
+		atoms	as(container.size());
+		size_t	index = 0;
+		
+		for (const auto& item : container) {
+			as[index] = item;
+			++index;
+		}
+		return as;
+	}
+
+
+	/// Copy values from any simple type to a vector of %atoms of size=1.
+	/// @tparam	T	The type of the input value.
+	/// @param	v	The value to be copied.
+	/// @return		A vector of atoms
+
+	template<class T, typename std::enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
 	atoms to_atoms(const T& v) {
 		atoms as {v};
 		return as;
 	}
 	
-	atoms to_atoms(const std::vector<double>& v) {
-		atoms as(v.size());
-		for (auto i=0; i<v.size(); ++i)
-			as[i] = v[i];
-		return as;
+	
+	/// Copy values out from a vector of atoms to the desired container class
+	/// @tparam	T	The type of the container
+	/// @param	as	The vector atoms containing the desired data
+	/// @return		The container of the values
+	
+	template<class T, typename std::enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
+	T from_atoms(const atoms& as) {
+		T container;
+		
+		container.reserve(as.size());
+		for (const auto& a : as)
+			container.push_back(a);
+		return container;
 	}
 	
 	
-	template<class T>
+	/// Copy a value out from a vector of atoms to the desired type
+	/// @tparam	T	The type of the destination variable
+	/// @param	as	The vector atoms containing the desired data
+	/// @return		The value
+	
+	template<class T, typename std::enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
 	T from_atoms(const atoms& as) {
 		return (T)as[0];
-	}
-
-	
-	template<>
-	std::vector<double> from_atoms<std::vector<double>>(const atoms& as) {
-		std::vector<double> v(as.size());
-		for (auto i=0; i<as.size(); ++i)
-			v[i] = as[i];
-		return v;
 	}
 	
 }}
