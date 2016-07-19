@@ -35,6 +35,12 @@ namespace min {
 	
 	struct audio_bundle {
 		
+		audio_bundle(double** samples, long channelcount, long framecount)
+		: m_samples			{ samples }
+		, m_channelcount	{ channelcount }
+		, m_framecount		{ framecount }
+		{}
+
 		double** samples() {
 			return m_samples;
 		}
