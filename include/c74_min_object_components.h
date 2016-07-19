@@ -103,7 +103,7 @@ namespace min {
 			return m_state;
 		}
 		
-        void set_classname(max::t_symbol *s) {
+        void set_classname(symbol s) {
             m_classname = s;
         }
         

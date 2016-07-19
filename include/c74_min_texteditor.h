@@ -15,8 +15,8 @@ namespace min {
 		using textfunction = std::function<void(const char*)>;
 		
 		texteditor(object_base* an_owner, textfunction fn)
-		: m_owner { an_owner }
-		, m_callback { fn }
+		: m_owner		{ an_owner }
+		, m_callback	{ fn }
 		{}
 		
 		
@@ -29,11 +29,11 @@ namespace min {
 		void open(const char* contents) {
 			if (!m_jed) {
 				m_jed = c74::max::object_new(c74::max::CLASS_NOBOX, c74::max::gensym("jed"), (max::t_object*)m_owner, 0);
-				object_attr_setsym(m_jed, c74::max::gensym("title"), c74::max::gensym("Code Editor"));
-				object_attr_setchar(m_jed, c74::max::gensym("scratch"), 1);
+				object_attr_setsym(m_jed, symbol("title"), symbol("Code Editor"));
+				object_attr_setchar(m_jed, symbol("scratch"), 1);
 				
 				object_method_direct(void, (c74::max::t_object* , const char*, c74::max::t_symbol*),
-									 m_jed, c74::max::gensym("settext"), contents, c74::max::gensym("utf-8"));
+									 m_jed, symbol("settext"), contents, symbol("utf-8"));
 			}
 			else
 				c74::max::object_attr_setchar(m_jed, c74::max::gensym("visible"), 1);

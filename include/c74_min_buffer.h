@@ -50,15 +50,13 @@ namespace min {
 		}};
 		
 		c74::min::method notify_meth = { &owner, "notify", MIN_FUNCTION {
-			//max::t_object*	self = args[0];
-			max::t_symbol*	s = args[1];
-			max::t_symbol*	msg = args[2];
-			void*			sender = args[3];
-			void*			data = args[4];
+			symbol	s = args[1];
+			symbol	msg = args[2];
+			void*	sender = args[3];
+			void*	data = args[4];
 			
 			return { (long)max::buffer_ref_notify(instance, s, msg, sender, data) };
 		}};
-		
 
 	};
 	

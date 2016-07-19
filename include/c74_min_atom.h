@@ -12,62 +12,27 @@ namespace min {
 	class atom : public max::t_atom {
 	public:
 		
+		/// Empty atom constructor
 		atom() {
 			this->a_type = c74::max::A_NOTHING;
 			this->a_w.w_obj = nullptr;
 		}
 		
-		atom(const max::t_atom& init) {
-			*this = init;
-		}
-
-		atom(const max::t_atom* init) {
-			*this = *init;
-		}
-
-		atom(const long value) {
-			atom_setlong(this, value);
+		/// Generic assigning constructor
+		template <class T>
+		atom(T initial_value) {
+			*this = initial_value;
 		}
 		
-		atom(const int value) {
-			atom_setlong(this, value);
-		}
 		
-		atom(const bool value) {
-			atom_setlong(this, value);
-		}
-
-		atom(const double value) {
-			atom_setfloat(this, value);
-		}
-		
-		atom(const symbol value) {
-			max::atom_setsym(this, value);
-		}
-
-		atom(const max::t_symbol* value) {
-			max::atom_setsym(this, value);
-		}
-		
-		atom(const char* value) {
-			max::atom_setsym(this, max::gensym(value));
-		}
-
-		atom(const std::string value) {
-			max::atom_setsym(this, max::gensym(value.c_str()));
-		}
-
-		atom(const max::t_dictionary* value) {
-			max::atom_setobj(this, (void*)value);
-		}
-		
-		atom(max::t_class* value) {
-			max::atom_setobj(this, (void*)value);
-		}
-		
-		atom& operator = (max::t_atom value) {
+		atom& operator = (const max::t_atom& value) {
 			this->a_type = value.a_type;
 			this->a_w = value.a_w;
+			return *this;
+		}
+		
+		atom& operator = (const max::t_atom* init) {
+			*this = *init;
 			return *this;
 		}
 		
@@ -96,6 +61,21 @@ namespace min {
 			return *this;
 		}
 
+		atom& operator = (const symbol value) {
+			atom_setsym(this, value);
+			return *this;
+		}
+		
+		atom& operator = (const char* value) {
+			atom_setsym(this, max::gensym(value));
+			return *this;
+		}
+		
+		atom& operator = (const std::string value) {
+			max::atom_setsym(this, max::gensym(value.c_str()));
+			return *this;
+		}
+
 		atom& operator = (const max::t_object* value) {
 			atom_setobj(this, (void*)value);
 			return *this;
@@ -105,7 +85,7 @@ namespace min {
 			atom_setobj(this, (void*)value);
 			return *this;
 		}
-
+		
 		atom& operator = (void* value) {
 			atom_setobj(this, value);
 			return *this;
@@ -143,7 +123,6 @@ namespace min {
 		operator void*() const {
 			return atom_getobj(this);
 		}
-
 
 		operator std::string() const {
 			std::string s;
@@ -222,12 +201,6 @@ namespace min {
 		
 	};
 	
-	
-	// part of the symbol class but must be defined after atom is defined
-	symbol::symbol(const atom& value) {
-		s = value;
-	}
-
 
 	// part of the symbol class but must be defined after atom is defined
 	symbol& symbol::operator = (const atom& value) {

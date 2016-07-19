@@ -277,9 +277,9 @@ namespace min {
 	
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
-		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
-		auto& attr = self->min_object.attributes()[attr_name->s_name];
-		atoms rvals = *attr;
+		symbol	attr_name	= (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
+		auto&	attr		= self->min_object.attributes()[attr_name.c_str()];
+		atoms	rvals		= *attr;
 		
 		*ac = rvals.size();
 		if (!(*av)) // otherwise use memory passed in
@@ -293,9 +293,10 @@ namespace min {
 	
 	template<class T>
 	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, long ac, max::t_atom* av) {
-		atom_reference args(ac,av);
-		max::t_symbol* attr_name = (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
-		auto attr = self->min_object.attributes()[attr_name->s_name];
+		atom_reference	args(ac,av);
+		symbol			attr_name	= (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
+		auto			attr		= self->min_object.attributes()[attr_name.c_str()];
+		
 		attr->set( atoms(args.begin(), args.end()), false );
 		return 0;
 	}

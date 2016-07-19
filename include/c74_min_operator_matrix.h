@@ -167,10 +167,11 @@ namespace min {
 	template<class cpp_classname>
 	void*
 	max_jit_mop_new(max::t_symbol* s, atom_reference args) {
-        long attrstart = attr_args_offset(args.size(), args.begin());
-		auto cppname = (max::t_symbol*)c74::min::this_class->c_menufun;
-		max_jit_wrapper* self = (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
-		void* o = max::jit_object_new(cppname, s);
+        long				attrstart	= attr_args_offset(args.size(), args.begin());
+		auto				cppname		= (max::t_symbol*)c74::min::this_class->c_menufun;
+		max_jit_wrapper*	self		= (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
+		void*				o			= max::jit_object_new(cppname, s);
+		
 		max_jit_mop_setup_simple(self, o, args.size(), args.begin());
 		max_jit_attr_args(self, args.size(), args.begin());
         
@@ -573,7 +574,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources, 
 																		0
 																		);
 		c74::max::jit_class_addattr(c74::min::this_jit_class, jit_attr);
-        c74::max::object_addattr_parse(jit_attr,"label",c74::max::gensym("symbol"),0, attr.label_string());
+		c74::max::object_addattr_parse(jit_attr, "label", c74::min::symbol("symbol"), 0, attr.label_string());
 		
 		auto range_string = attr.range_string();
 		if (!range_string.empty()) {
