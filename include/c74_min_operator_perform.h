@@ -19,24 +19,47 @@ namespace min {
 		std::is_base_of< min::perform_operator_base, T>::value
 		|| std::is_base_of< min::sample_operator_base, T>::value
 	>::type > {
-		maxobject_base	base;
-		T				obj;
+		maxobject_base	max_base;
+		T				min_object;
 		
 		void setup() {
-			max::dsp_setup(base, obj.inlets().size());
+			max::dsp_setup(max_base, min_object.inlets().size());
 		}
 		
 		void cleanup() {
-			max::dsp_free(base);
+			max::dsp_free(max_base);
 		}
 	};
 	
 	
 	
 	struct audio_bundle {
-		double **samples;
-		long channel_count;
-		long frame_count;
+		
+		audio_bundle(double** samples, long channelcount, long framecount)
+		: m_samples			{ samples }
+		, m_channelcount	{ channelcount }
+		, m_framecount		{ framecount }
+		{}
+
+		double** samples() {
+			return m_samples;
+		}
+		
+		double* samples(size_t channel) {
+			return m_samples[channel];
+		}
+		
+		long channelcount() {
+			return m_channelcount;
+		}
+		
+		long framecount() {
+			return m_framecount;
+		}
+		
+		double**	m_samples = nullptr;
+		long		m_channelcount = 0;
+		long		m_framecount = 0;
 	};
 	
 	
@@ -62,7 +85,7 @@ namespace min {
 		static void perform(minwrap<T>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			audio_bundle input = {in_chans, numins, sampleframes};
 			audio_bundle output = {out_chans, numouts, sampleframes};
-			self->obj.perform(input, output);
+			self->min_object.perform(input, output);
 		}
 	}; // primary template
 	
@@ -88,12 +111,12 @@ namespace min {
 	void min_dsp64_io(minwrap<T>* self, short* count) {
 		int i = 0;
 		
-		while (i < self->obj.inlets().size()) {
-			self->obj.inlets()[i]->signal_connection = count[i];
+		while (i < self->min_object.inlets().size()) {
+			self->min_object.inlets()[i]->update_signal_connection(count[i]);
 			++i;
 		}
-		while (i < self->obj.outlets().size()) {
-			self->obj.outlets()[i - self->obj.inlets().size()]->signal_connection = count[i];
+		while (i < self->min_object.outlets().size()) {
+			self->min_object.outlets()[i - self->min_object.inlets().size()]->update_signal_connection(count[i]);
 			++i;
 		}
 	}

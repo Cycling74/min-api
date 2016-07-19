@@ -103,7 +103,7 @@ namespace min {
 			return m_state;
 		}
 		
-        void set_classname(max::t_symbol *s) {
+        void set_classname(symbol s) {
             m_classname = s;
         }
         
@@ -164,12 +164,12 @@ namespace min {
 		&& !std::is_base_of< min::sample_operator_base, T>::value
 		&& !std::is_base_of< min::gl_operator_base, T>::value
 	>::type > {
-		maxobject_base	base;
-		T				obj;
+		maxobject_base	max_base;
+		T				min_object;
 		
 		void setup() {
-			auto self = &base;
-			auto inlets = obj.inlets();
+			auto self = &max_base;
+			auto inlets = min_object.inlets();
 
 			if (!inlets.empty())
 			for (auto i=inlets.size()-1; i>0; --i)
@@ -185,28 +185,41 @@ namespace min {
 
 	class port {
 	public:
-		port(object_base* an_owner, std::string a_description, std::string a_type)
-		: owner(an_owner)
-		, description(a_description)
-		, type(a_type)
+		port(object_base* an_owner, const std::string& a_description, const std::string& a_type)
+		: m_owner(an_owner)
+		, m_description(a_description)
+		, m_type(a_type)
 		{}
 		
 		bool has_signal_connection() {
-			return signal_connection;
+			return m_signal_connection;
 		}
 		
-		object_base*	owner;
-		std::string		description;
-		std::string		type;
-		bool			signal_connection = false;
+		void update_signal_connection(bool new_signal_connection_status) {
+			m_signal_connection = new_signal_connection_status;
+		}
+		
+		const std::string& type() {
+			return m_type;
+		}
+		
+		const std::string& description() {
+			return m_description;
+		}
+		
+	protected:
+		object_base*	m_owner;
+		std::string		m_description;
+		std::string		m_type;
+		bool			m_signal_connection { false };
 	};
 	
 	
 	class inlet : public port {
 	public:
-		inlet(object_base* an_owner, std::string a_description, std::string a_type = "")
+		inlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
 		: port(an_owner, a_description, a_type) {
-			owner->inlets().push_back(this);
+			m_owner->inlets().push_back(this);
 		}
 
 		void* instance = nullptr;
@@ -215,9 +228,9 @@ namespace min {
 	
 	class outlet  : public port {
 	public:
-		outlet(object_base* an_owner, std::string a_description, std::string a_type = "")
+		outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
 		: port(an_owner, a_description, a_type) {
-			owner->outlets().push_back(this);
+			m_owner->outlets().push_back(this);
 		}
 		
 		void send(double value) {
@@ -253,7 +266,7 @@ namespace min {
 				max::outlet_anything(instance, as[0], as.size()-1, (max::t_atom*)&as[1]);
 		}
 		
-		void* instance = nullptr;
+		void* instance { nullptr };
 	};
 	
 	

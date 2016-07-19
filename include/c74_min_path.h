@@ -22,12 +22,16 @@ namespace min {
 
 		path(system initial) {
 			switch (initial) {
-				case system::application:	pathid = max::path_getapppath(); break;
-				case system::desktop: 		pathid = max::path_desktopfolder(); break;
-				case system::preferences: 	max::preferences_path(nullptr, true, &pathid); break;
-				case system::temp:		 	pathid = max::path_tempfolder(); break;
-				default:					pathid = 0; break;
+				case system::application:	m_path = max::path_getapppath(); break;
+				case system::desktop: 		m_path = max::path_desktopfolder(); break;
+				case system::preferences: 	max::preferences_path(nullptr, true, &m_path); break;
+				case system::temp:		 	m_path = max::path_tempfolder(); break;
+				default:					m_path = 0; break;
 			}
+		}
+		
+		path(short path_id) {
+			m_path = path_id;
 		}
 		
 		~path() {
@@ -38,13 +42,13 @@ namespace min {
 			char pathname[MAX_PATH_CHARS];
 			
 			// assuming folder, not file...
-			max::path_topathname(pathid, nullptr, pathname);
+			max::path_topathname(m_path, nullptr, pathname);
 			std::string s = pathname;
 			return s;
 		}
 				
 	private:
-		short	pathid;
+		short	m_path;
 		
 	};
 	

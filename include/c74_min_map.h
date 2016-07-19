@@ -57,9 +57,7 @@ namespace min {
 		
 		
 	private:
-		max::t_hashtab*	instance = nullptr;
-		
-
+		max::t_hashtab*	instance { nullptr };
 	};
 	
 }} // namespace c74::min

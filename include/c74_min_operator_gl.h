@@ -17,16 +17,16 @@ namespace min {
 	// nobox jitter object
 	template<class T>
 	struct minwrap < T, typename std::enable_if< std::is_base_of< min::gl_operator_base, T>::value >::type > {
-		maxobject_base	base;
-		T				obj;
+		maxobject_base	max_base;
+		T				min_object;
 		
 		void setup(atoms args) {
 			symbol dest_name = args[0];
-			jit_ob3d_new(base, dest_name);	// create and attach ob3d.
+			jit_ob3d_new(max_base, dest_name);	// create and attach ob3d.
 		}
 		
 		void cleanup() {
-			max::jit_ob3d_free(base);
+			max::jit_ob3d_free(max_base);
 		}
 	};
 
@@ -46,7 +46,8 @@ namespace min {
 	class glchunk {
 	public:
 		glchunk(gl_ob* context, gl_drawing_primitive prim, int planecount, int vertexcount, int indexcount)
-		: ob3d(context) {
+		: ob3d { context }
+		{
 			// TODO: need a more elegant map
 			symbol s;
 			if (prim == tri_strip)
@@ -79,7 +80,7 @@ namespace min {
 		//}
 		
 	private:
-		c74::max::t_jit_glchunk*	chunk = nullptr;
+		c74::max::t_jit_glchunk*	chunk { nullptr };
 		gl_ob*						ob3d;
 	};
 	
