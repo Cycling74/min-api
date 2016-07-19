@@ -506,6 +506,15 @@ namespace min {
 		dictobj_release(d);
 	}
 
+	template<class T>
+	void min_jit_mop_min_method(void *mob, max::t_symbol *s, atom_reference ar) {
+        minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
+		auto& meth = self->obj.methods()[s->s_name];
+		atoms as(atoms(ar.begin(), ar.end()));
+		meth->function(as);
+	}
+    
+
 }} // namespace c74::min
 
 
@@ -623,6 +632,8 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources, 
 			c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_method_dictionary<cpp_classname>, "dictionary", c74::max::A_SYM, 0);
 		else if (a_method.first == "maxclass_setup")
 			; // for min class construction only, do not add for exposure to max
+        else
+            c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type, 0);
 	}
 
 	instance->try_call("maxclass_setup", c74::min::this_class);
