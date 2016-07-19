@@ -21,12 +21,13 @@ namespace min {
 		{
 			std::string name = a_name;
 			
-			if (a_name == "integer")
+			if (name == "integer")
 				name = "int";
-			else if (a_name == "number")
+			else if (name == "number")
 				name = "float";
 			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose" || a_name == "patchlineupdate")
 				m_type = max::A_CANT;
+
 			m_owner->methods()[name] = this;
 		}
 		
