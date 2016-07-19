@@ -507,11 +507,12 @@ namespace min {
 
 	template<class T>
     void min_jit_mop_min_method(void *mob, max::t_symbol *s, long ac, max::t_atom* av) {
-        atom_reference args(ac,av);
-        minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
-		auto& meth = self->obj.methods()[s->s_name];
-		atoms as(atoms(args.begin(), args.end()));
-		meth->function(as);
+        atom_reference	args(ac,av);
+        minwrap<T>*		self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
+		auto&			meth = *self->min_object.methods()[s->s_name];
+		atoms			as(atoms(args.begin(), args.end()));
+		
+		meth(as);
 	}
     
 
@@ -633,7 +634,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources, 
 		else if (a_method.first == "maxclass_setup")
 			; // for min class construction only, do not add for exposure to max
         else
-            c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type, 0);
+            c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type(), 0);
 	}
 
 	instance->try_call("maxclass_setup", c74::min::this_class);
