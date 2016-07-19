@@ -12,9 +12,16 @@ namespace min {
 	class atom;
 	
 	
+	/// A Max symbol represents a string that is cached in a lookup table to speed up string comparisons / usage.
+	//	This is a lightweight wrapper for a Max t_symbol instance.
+	//  We do not inherit from that type because we need to be able to compare
+	//  the pointer to the t_symbol instance as returned by calls to gensym()
 	
 	class symbol {
 	public:
+		
+		/// The default constructor produces an empty symbol (no chars) or, optionally, a unique random symbol.
+		/// @param unique	If true then produce a unique/random symbol instead of an empty symbol.
 		
 		symbol(bool unique = false) {
 			if (unique)
@@ -23,19 +30,14 @@ namespace min {
 				s = max::gensym("");
 		}
 		
-		symbol(max::t_symbol* value) {
-			s = value;
-		}
 		
-		symbol(const char* value) {
-			s = max::gensym(value);
+		/// Constructor with an initial value (of any assignable type)
+		/// @param value	Value of an assignable type (e.g. some sort of string or symbol)
+		template <class T>
+		symbol(T value) {
+			*this = value;
 		}
-		
-		symbol(const std::string& value) {
-			s = max::gensym(value.c_str());
-		}
-		
-		symbol(const atom& value); // defined in c74_min_atom.h
+
 		
 
 		symbol& operator = (max::t_symbol* value) {
@@ -60,11 +62,10 @@ namespace min {
 		friend bool operator == (const symbol& lhs, const symbol& rhs) {
 			return lhs.s == rhs.s;
 		}
-
+		
 		friend bool operator == (const symbol& lhs, const char* rhs) {
 			return lhs.s == max::gensym(rhs);
 		}
-
 		
 		
 		operator max::t_symbol*() const {
@@ -78,15 +79,17 @@ namespace min {
 		operator max::t_dictionary*() const {
 			return s->s_thing;
 		}
+		
+		
+		const char* c_str() const {
+			return s->s_name;
+		}
 
-		
-		
-		
 	private:
 		max::t_symbol* s;
 	};
-	
-	
+
+
 	/// Expose symbol for use in std output streams.
 	template <class charT, class traits>
 	std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const min::symbol& s) {

@@ -10,7 +10,7 @@ namespace c74 {
 namespace min {
 
 	
-	class logger_line_ending {};	/// A type to represent line endings for the %logger class.
+	class logger_line_ending {};	/// A type to represent line endings for the logger class.
 	logger_line_ending endl;		/// An instance of a line ending for convenience
 	
 	
@@ -29,12 +29,12 @@ namespace min {
 
 
 		/// Constructor: typically you do not call this directly,
-		/// it used by %min::object to create %cout and %cerr
+		/// it used by min::object to create cout and cerr
 		/// @param an_owner		Your object instance
 		/// @param type			The type of console output to deliver
 		logger(object_base* an_owner, logger::type type)
-		: owner(*an_owner)
-		, target(type)
+		: owner		{ *an_owner }
+		, target	{ type }
 		{}
 		
 
@@ -47,8 +47,8 @@ namespace min {
 		}
 
 
-		/// Pass %endl to the insertion operator to complete the console post and flush it.
-		/// @param x	The %min::endl token
+		/// Pass endl to the insertion operator to complete the console post and flush it.
+		/// @param x	The min::endl token
 		logger& operator<<(const logger_line_ending& x) {
 			const std::string& s = stream.str();
 			

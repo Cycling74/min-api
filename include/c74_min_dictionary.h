@@ -132,8 +132,8 @@ namespace min {
 		
 		
 	private:
-		max::t_dictionary*	instance = nullptr;
-		bool				has_ownership = true;
+		max::t_dictionary*	instance		{ nullptr };
+		bool				has_ownership	{ true };
 	};
 	
 }} // namespace c74::min

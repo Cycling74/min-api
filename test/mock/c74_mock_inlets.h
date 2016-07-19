@@ -105,8 +105,8 @@ public:
 	/** Constructor gives us one inlet by default.
 		@param	x	Pointer to the owning #t_object.
 	 */
-	object_inlets(void *x) :
-	current_inlet(0)
+	explicit object_inlets(void* x)
+	: current_inlet(0)
 	{
 		t_mock_inlet inlet(x, 0, NULL);
 		

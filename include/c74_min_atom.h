@@ -12,62 +12,27 @@ namespace min {
 	class atom : public max::t_atom {
 	public:
 		
+		/// Empty atom constructor
 		atom() {
 			this->a_type = c74::max::A_NOTHING;
 			this->a_w.w_obj = nullptr;
 		}
 		
-		atom(const max::t_atom& init) {
-			*this = init;
-		}
-
-		atom(const max::t_atom* init) {
-			*this = *init;
-		}
-
-		atom(const long value) {
-			atom_setlong(this, value);
+		/// Generic assigning constructor
+		template <class T>
+		atom(T initial_value) {
+			*this = initial_value;
 		}
 		
-		atom(const int value) {
-			atom_setlong(this, value);
-		}
 		
-		atom(const bool value) {
-			atom_setlong(this, value);
-		}
-
-		atom(const double value) {
-			atom_setfloat(this, value);
-		}
-		
-		atom(const symbol value) {
-			max::atom_setsym(this, value);
-		}
-
-		atom(const max::t_symbol* value) {
-			max::atom_setsym(this, value);
-		}
-		
-		atom(const char* value) {
-			max::atom_setsym(this, max::gensym(value));
-		}
-
-		atom(const std::string value) {
-			max::atom_setsym(this, max::gensym(value.c_str()));
-		}
-
-		atom(const max::t_dictionary* value) {
-			max::atom_setobj(this, (void*)value);
-		}
-		
-		atom(max::t_class* value) {
-			max::atom_setobj(this, (void*)value);
-		}
-		
-		atom& operator = (max::t_atom value) {
+		atom& operator = (const max::t_atom& value) {
 			this->a_type = value.a_type;
 			this->a_w = value.a_w;
+			return *this;
+		}
+		
+		atom& operator = (const max::t_atom* init) {
+			*this = *init;
 			return *this;
 		}
 		
@@ -96,6 +61,21 @@ namespace min {
 			return *this;
 		}
 
+		atom& operator = (const symbol value) {
+			atom_setsym(this, value);
+			return *this;
+		}
+		
+		atom& operator = (const char* value) {
+			atom_setsym(this, max::gensym(value));
+			return *this;
+		}
+		
+		atom& operator = (const std::string value) {
+			max::atom_setsym(this, max::gensym(value.c_str()));
+			return *this;
+		}
+
 		atom& operator = (const max::t_object* value) {
 			atom_setobj(this, (void*)value);
 			return *this;
@@ -105,7 +85,7 @@ namespace min {
 			atom_setobj(this, (void*)value);
 			return *this;
 		}
-
+		
 		atom& operator = (void* value) {
 			atom_setobj(this, value);
 			return *this;
@@ -143,7 +123,6 @@ namespace min {
 		operator void*() const {
 			return atom_getobj(this);
 		}
-
 
 		operator std::string() const {
 			std::string s;
@@ -222,12 +201,6 @@ namespace min {
 		
 	};
 	
-	
-	// part of the symbol class but must be defined after atom is defined
-	symbol::symbol(const atom& value) {
-		s = value;
-	}
-
 
 	// part of the symbol class but must be defined after atom is defined
 	symbol& symbol::operator = (const atom& value) {
@@ -236,9 +209,9 @@ namespace min {
 	}
 	
 
-	/// The %atoms container is the standard means by which zero or more values are passed.
-	/// It is implemented as a std::vector of the %atom type, and thus atoms contained in an
-	/// %atoms container are 'owned' copies... not simply a reference to some externally owned atoms.
+	/// The atoms container is the standard means by which zero or more values are passed.
+	/// It is implemented as a std::vector of the atom type, and thus atoms contained in an
+	/// atoms container are 'owned' copies... not simply a reference to some externally owned atoms.
 
 	// TODO: how to document inherited interface, e.g. size(), begin(), etc. ?
 	
@@ -251,11 +224,11 @@ namespace min {
 #endif
 
 
-	/// The %atom_reference type defines a container for atoms by reference, providing an interface
+	/// The atom_reference type defines a container for atoms by reference, providing an interface
 	/// that is interoperable with any of the classic standard library containers.
 	///
-	/// Typically you *do not use* the %atom_reference type explicitly.
-	/// It is rather intended as an intermediary between the %atoms container type and
+	/// Typically you *do not use* the atom_reference type explicitly.
+	/// It is rather intended as an intermediary between the atoms container type and
 	/// old C-style functions in the Max API.
 	/// As such it resembles some of the aims of the gsl::span type but serving a much more specialized purpose.
 	///
@@ -271,12 +244,12 @@ namespace min {
 		using iterator			= max::t_atom*;
 		using const_iterator	= const max::t_atom*;
 		
-		iterator begin()				{ return av; }
-		const_iterator begin() const	{ return av; }
-		iterator end()					{ return av+ac; }
-		const_iterator end() const		{ return av+ac; }
+		iterator begin()				{ return m_av; }
+		const_iterator begin() const	{ return m_av; }
+		iterator end()					{ return m_av+m_ac; }
+		const_iterator end() const		{ return m_av+m_ac; }
 		
-		size_type size() const			{ return ac; }
+		size_type size() const			{ return m_ac; }
 		bool empty() const				{ return size()==0; }
 		
 		// We don't own the array of atoms, so we cannot do these operations:
@@ -296,35 +269,35 @@ namespace min {
 		
 		
 		atom_reference(long argc, max::t_atom* argv)
-		: ac(argc)
-		, av(argv)
+		: m_ac { argc }
+		, m_av { argv }
 		{}
 		
 		atom_reference& operator = (const symbol& value) {
-			ac = 1;
-			atom_setsym(av, value);
+			m_ac = 1;
+			atom_setsym(m_av, value);
 			return *this;
 		}
 		
 		operator atom() const {
 			if (empty())
 				throw std::out_of_range("atomref is empty");
-			return atom(av);
+			return atom(m_av);
 		}
 		
 		operator atoms() const {
 			c74::min::atoms as;
 			
-			for (auto i=0; i<ac; ++i)
-				as.push_back(av+i);
+			for (auto i=0; i < m_ac; ++i)
+				as.push_back(m_av + i);
 			
 			return as;
 		}
 		
 		
 	private:
-		long			ac;
-		max::t_atom*	av;
+		long			m_ac;
+		max::t_atom*	m_av;
 	};
 	
 }} // namespace c74::min
@@ -395,7 +368,7 @@ namespace min {
 	using is_symbol = std::is_same<T, symbol>;
 
 	
-	/// Copy values from any STL container to a vector of %atoms
+	/// Copy values from any STL container to a vector of atoms
 	/// @tparam	T			The type of the container
 	/// @param	container	The container instance whose values will be copied
 	/// @return				A vector of atoms
@@ -413,7 +386,7 @@ namespace min {
 	}
 
 
-	/// Copy values from any simple type to a vector of %atoms of size=1.
+	/// Copy values from any simple type to a vector of atoms of size=1.
 	/// @tparam	T	The type of the input value.
 	/// @param	v	The value to be copied.
 	/// @return		A vector of atoms

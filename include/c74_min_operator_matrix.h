@@ -48,12 +48,11 @@ namespace min {
 	class matrix_info {
 	public:
 		matrix_info(max::t_jit_matrix_info* a_in_info, char* ip, max::t_jit_matrix_info* a_out_info, char* op)
-		: in_info(a_in_info)
-		, bip(ip)
-		, out_info(a_out_info)
-		, bop(op)
-		{
-		}
+		: in_info	{ a_in_info }
+		, bip		{ ip }
+		, out_info	{ a_out_info }
+		, bop		{ op }
+		{}
 
 		
 		long planecount() const {
@@ -143,11 +142,10 @@ namespace min {
 	max::t_object* jit_new(max::t_symbol* s){
 		minwrap<T>*	self = (minwrap<T>*)max::jit_object_alloc(this_jit_class);
         
-        self->obj.assign_instance((max::t_object*)self);
-		atoms args;
-		new(&self->obj) T(args); // placement new
-		self->obj.set_classname(s);
-		self->obj.try_call("setup");
+        self->min_object.assign_instance((max::t_object*)self);
+		min_ctor(self, {});
+		self->min_object.set_classname(s);
+		self->min_object.try_call("setup");
 		
 		return (max::t_object*)self;
 	}
@@ -155,7 +153,7 @@ namespace min {
 	template<class T>
 	void jit_free(minwrap<T>* self){
 		self->cleanup();
-		self->obj.~T(); // placement delete
+		self->min_object.~T(); // placement delete
 	}
 	
 	
@@ -169,15 +167,16 @@ namespace min {
 	template<class cpp_classname>
 	void*
 	max_jit_mop_new(max::t_symbol* s, atom_reference args) {
-        long attrstart = attr_args_offset(args.size(), args.begin());
-		auto cppname = (max::t_symbol*)c74::min::this_class->c_menufun;
-		max_jit_wrapper* self = (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
-		void* o = max::jit_object_new(cppname, s);
+        long				attrstart	= attr_args_offset(args.size(), args.begin());
+		auto				cppname		= (max::t_symbol*)c74::min::this_class->c_menufun;
+		max_jit_wrapper*	self		= (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
+		void*				o			= max::jit_object_new(cppname, s);
+		
 		max_jit_mop_setup_simple(self, o, args.size(), args.begin());
 		max_jit_attr_args(self, args.size(), args.begin());
         
         minwrap<cpp_classname>*	job = (minwrap<cpp_classname>*)o;
-        job->obj.try_call("maxob_setup", atoms(args.begin(), args.begin()+attrstart));
+        job->min_object.try_call("maxob_setup", atoms(args.begin(), args.begin()+attrstart));
         
 		return self;
 	}
@@ -209,7 +208,7 @@ namespace min {
 				matrix_coord position(j, i);
                 U val = (ip ? *(ip) : 0);
                 const std::array<U,1> tmp = {{ val }};
-                const std::array<U,1> out = self->obj.calc_cell(tmp, info, position);
+                const std::array<U,1> out = self->min_object.calc_cell(tmp, info, position);
                 
 				*(op) = out[0];
 				if(ip) ip += is;
@@ -221,7 +220,7 @@ namespace min {
 				matrix_coord position(j, i);
                 U v1=(ip?*(ip):0), v2=(ip?*(ip+step):0), v3=(ip?*(ip+step*2):0), v4=(ip?*(ip+step*3):0);
                 const std::array<U,4> tmp = {{ v1,v2,v3,v4 }};
-                const std::array<U,4> out = self->obj.calc_cell(tmp, info, position);
+                const std::array<U,4> out = self->min_object.calc_cell(tmp, info, position);
                 
 				*(op) = out[0];
 				*(op+step) = out[1];
@@ -244,7 +243,7 @@ namespace min {
                 }
 				
 				matrix_coord position(j, i);
-				const std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> out = self->obj.calc_cell(tmp, info, position);
+				const std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> out = self->min_object.calc_cell(tmp, info, position);
 				
 				for (auto k=0; k<info.out_info->planecount; ++k)
 					*(op+outstep*k) = out[k];
@@ -469,7 +468,7 @@ namespace min {
 	template<class T>
 	void min_jit_mop_method_patchlineupdate(void* mob, max::t_object* patchline, long updatetype, max::t_object *src, long srcout, max::t_object *dst, long dstin) {
         minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
-		auto& meth = self->obj.methods()["patchlineupdate"];
+		auto& meth = *self->min_object.methods()["patchlineupdate"];
 		atoms as(7);
 		
 		as[0] = mob;
@@ -479,13 +478,13 @@ namespace min {
         as[4] = srcout;
         as[5] = dst;
         as[6] = dstin;
-		meth->function(as);
+		meth(as);
 	}
     
 	template<class T>
 	void min_jit_mop_method_notify(void* mob, max::t_symbol*s, max::t_symbol* msg, void* sender, void* data) {
         minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
-		auto& meth = self->obj.methods()["notify"];
+		auto& meth = *self->min_object.methods()["notify"];
 		atoms as(5);
 		
 		as[0] = self;
@@ -493,26 +492,27 @@ namespace min {
 		as[2] = msg;
 		as[3] = sender;
 		as[4] = data;
-		meth->function(as);
+		meth(as);
 	}
 	
 	template<class T>
 	void min_jit_mop_method_dictionary(void* mob, max::t_symbol *s) {
         minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
-		auto& meth = self->obj.methods()["dictionary"];
+		auto& meth = *self->min_object.methods()["dictionary"];
 		auto d = dictobj_findregistered_retain(s);
 		atoms as = { atom(d) };
-		meth->function(as);
+		meth(as);
 		dictobj_release(d);
 	}
 
 	template<class T>
     void min_jit_mop_min_method(void *mob, max::t_symbol *s, long ac, max::t_atom* av) {
-        atom_reference args(ac,av);
-        minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
-		auto& meth = self->obj.methods()[s->s_name];
-		atoms as(atoms(args.begin(), args.end()));
-		meth->function(as);
+        atom_reference	args(ac,av);
+        minwrap<T>*		self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
+		auto&			meth = *self->min_object.methods()[s->s_name];
+		atoms			as(atoms(args.begin(), args.end()));
+		
+		meth(as);
 	}
     
 
@@ -551,11 +551,11 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources, 
 	
     long inletct=0, outletct=0;
     for (auto i: instance->inlets())
-        if(i->type == "matrix")
+        if (i->type() == "matrix")
             inletct++;
     
     for (auto i: instance->outlets())
-        if(i->type == "matrix")
+        if (i->type() == "matrix")
             outletct++;
     
     // If no matrix inputs are declared, the mop is a generator
@@ -634,7 +634,7 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources, 
 		else if (a_method.first == "maxclass_setup")
 			; // for min class construction only, do not add for exposure to max
         else
-            c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type, 0);
+            c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::min::min_jit_mop_min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type(), 0);
 	}
 
 	instance->try_call("maxclass_setup", c74::min::this_class);
