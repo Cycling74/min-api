@@ -507,10 +507,11 @@ namespace min {
 	}
 
 	template<class T>
-	void min_jit_mop_min_method(void *mob, max::t_symbol *s, atom_reference ar) {
+    void min_jit_mop_min_method(void *mob, max::t_symbol *s, long ac, max::t_atom* av) {
+        atom_reference args(ac,av);
         minwrap<T>* self = (minwrap<T>*)max::max_jit_obex_jitob_get(mob);
 		auto& meth = self->obj.methods()[s->s_name];
-		atoms as(atoms(ar.begin(), ar.end()));
+		atoms as(atoms(args.begin(), args.end()));
 		meth->function(as);
 	}
     
