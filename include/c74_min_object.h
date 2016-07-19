@@ -10,7 +10,34 @@ namespace min {
 
 
 	// All objects use A_GIMME signature for construction
+	// However, all <in classes may not define a constructor to handle those arguments.
 
+	template <typename T>
+	struct has_ctor {
+		template <class, class> class checker;
+		
+		template <typename C>
+		static std::true_type test(checker<C, decltype(&C::C)> *);
+		
+		template <typename C>
+		static std::false_type test(...);
+		
+		typedef decltype(test<T>(nullptr)) type;
+		static const bool value = std::is_same<std::true_type, decltype(test<T>(nullptr))>::value;
+	};
+
+	template<class T>
+	typename std::enable_if< has_ctor<T>::value>::type
+	min_ctor(minwrap<T>* self, const atoms& args) {
+		new(&self->min_object) T(args); // placement new
+	}
+	
+	template<class T>
+	typename std::enable_if< !has_ctor<T>::value>::type
+	min_ctor(minwrap<T>* self, const atoms& args) {
+		new(&self->min_object) T(); // placement new
+	}
+	
 	template<class T>
 	max::t_object* min_new(max::t_symbol* name, long ac, max::t_atom* av) {
 		atom_reference	args(ac, av);
@@ -18,7 +45,7 @@ namespace min {
 		minwrap<T>*		self = (minwrap<T>*)max::object_alloc(this_class);
 
 		self->min_object.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
-		new(&self->min_object) T(atoms(args.begin(), args.begin()+attrstart)); // placement new
+		min_ctor<T>(self, atoms(args.begin(), args.begin()+attrstart));
 		self->min_object.postinitialize();
 		self->min_object.set_classname(name);
         

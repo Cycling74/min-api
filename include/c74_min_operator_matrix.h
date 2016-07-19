@@ -144,8 +144,7 @@ namespace min {
 		minwrap<T>*	self = (minwrap<T>*)max::jit_object_alloc(this_jit_class);
         
         self->min_object.assign_instance((max::t_object*)self);
-		atoms args;
-		new(&self->min_object) T(args); // placement new
+		min_ctor(self, {});
 		self->min_object.set_classname(s);
 		self->min_object.try_call("setup");
 		
