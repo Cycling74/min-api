@@ -50,15 +50,7 @@ namespace min {
 		self->min_object.set_classname(name);
         
 		self->setup();
-		
-		auto outlets = self->min_object.outlets();
-		for (auto outlet = outlets.rbegin(); outlet != outlets.rend(); ++outlet) {
-			if ((*outlet)->type() == "")
-				(*outlet)->instance = max::outlet_new(self, nullptr);
-			else
-				(*outlet)->instance = max::outlet_new(self, (*outlet)->type().c_str());
-		}
-		
+				
 		max::attr_args_process(self, args.size(), args.begin());
 		return (max::t_object*)self;
 	}
@@ -361,23 +353,9 @@ namespace min {
 				}
 				if (this_class) {
 					m_maxobj = (max::t_object*)max::object_alloc(this_class);
-					
-					// TODO: assign???
 					postinitialize();
-					
-					// self->setup();
-					//
-					// auto outlets = self->obj.outlets();
-					// for (auto outlet = outlets.rbegin(); outlet != outlets.rend(); ++outlet) {
-					//	if ((*outlet)->type == "")
-					//		(*outlet)->instance = max::outlet_new(self, nullptr);
-					//	else
-					//		(*outlet)->instance = max::outlet_new(self, (*outlet)->type.c_str());
-					//}
-					//
-					//max::attr_args_process(self, args.size(), args.begin());
 				}
-			}
+			}			
 		}
 		
 		virtual ~object() {}

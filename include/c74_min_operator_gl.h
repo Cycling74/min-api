@@ -23,6 +23,7 @@ namespace min {
 		void setup(atoms args) {
 			symbol dest_name = args[0];
 			jit_ob3d_new(max_base, dest_name);	// create and attach ob3d.
+			min_object.create_outlets();
 		}
 		
 		void cleanup() {

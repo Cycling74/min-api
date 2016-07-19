@@ -22,15 +22,15 @@ namespace min {
 	public:
 		
 		operator max::t_object*() {
-			return &objstorage.maxobj;
+			return &m_objstorage.maxobj;
 		}
 
 		operator max::t_pxobject*() {
-			return &objstorage.mspobj;
+			return &m_objstorage.mspobj;
 		}
 
 		operator void*() {
-			return &objstorage.maxobj;
+			return &m_objstorage.maxobj;
 		}
 
 		
@@ -40,14 +40,7 @@ namespace min {
 			max::t_pxobject	mspobj;
 		};
 		
-		//enum class type {
-		//	max = 0,
-		//	msp,
-		//};
-		//
-		//type objtype = type::max;
-		storage objstorage;
-		
+		storage m_objstorage;
 	};
 	
 	
@@ -56,12 +49,18 @@ namespace min {
 	class object_base {
 	public:
 		object_base()
-		: m_state((max::t_dictionary*)k_sym__pound_d, false)
-		{}
+		: m_state { (max::t_dictionary*)k_sym__pound_d, false }
+		{
+			create_inlets();
+			create_outlets();
+		}
+		
 		
 		virtual ~object_base() {
+			// TODO: free proxy inlets!
 		}
 
+		
 		int current_inlet() {
 			return proxy_getinlet((max::t_object*)m_maxobj);
 		}
@@ -74,6 +73,7 @@ namespace min {
 			m_maxobj = instance;
 		}
 		
+		
 		auto inlets() -> std::vector<min::inlet*>& {
 			return m_inlets;
 		}
@@ -81,6 +81,10 @@ namespace min {
 		auto outlets() -> std::vector<min::outlet*>& {
 			return m_outlets;
 		}
+		
+		void create_inlets();
+		void create_outlets();
+
 
 		auto methods() -> std::unordered_map<std::string, method*>& {
 			return m_methods;
@@ -168,105 +172,11 @@ namespace min {
 		T				min_object;
 		
 		void setup() {
-			auto self = &max_base;
-			auto inlets = min_object.inlets();
-
-			if (!inlets.empty())
-			for (auto i=inlets.size()-1; i>0; --i)
-				inlets[i]->instance = max::proxy_new(self, i, nullptr);
+			min_object.create_inlets();
+			min_object.create_outlets();
 		}
 		
 		void cleanup() {}
-	};
-	
-	
-#pragma mark -
-#pragma mark inlets / outlets
-
-	class port {
-	public:
-		port(object_base* an_owner, const std::string& a_description, const std::string& a_type)
-		: m_owner(an_owner)
-		, m_description(a_description)
-		, m_type(a_type)
-		{}
-		
-		bool has_signal_connection() {
-			return m_signal_connection;
-		}
-		
-		void update_signal_connection(bool new_signal_connection_status) {
-			m_signal_connection = new_signal_connection_status;
-		}
-		
-		const std::string& type() {
-			return m_type;
-		}
-		
-		const std::string& description() {
-			return m_description;
-		}
-		
-	protected:
-		object_base*	m_owner;
-		std::string		m_description;
-		std::string		m_type;
-		bool			m_signal_connection { false };
-	};
-	
-	
-	class inlet : public port {
-	public:
-		inlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-		: port(an_owner, a_description, a_type) {
-			m_owner->inlets().push_back(this);
-		}
-
-		void* instance = nullptr;
-	};
-	
-	
-	class outlet  : public port {
-	public:
-		outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-		: port(an_owner, a_description, a_type) {
-			m_owner->outlets().push_back(this);
-		}
-		
-		void send(double value) {
-			c74::max::outlet_float(instance, value);
-		}
-
-		void send(symbol s1) {
-			c74::max::outlet_anything(instance, s1, 0, nullptr);
-		}
-
-		void send(std::string s1) {
-			c74::max::outlet_anything(instance, c74::max::gensym(s1.c_str()), 0, nullptr);
-		}
-
-		void send(const char* s1) {
-			c74::max::outlet_anything(instance, c74::max::gensym(s1), 0, nullptr);
-		}
-
-		void send(symbol s1, symbol s2) {
-			atom a(s2);
-			c74::max::outlet_anything(instance, s1, 1, &a);
-		}
-
-		void send(symbol s1, double f2) {
-			atom a(f2);
-			c74::max::outlet_anything(instance, s1, 1, &a);
-		}
-		
-		void send(const atoms& as) {
-			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
-				max::outlet_anything(instance, k_sym_list, as.size(), (max::t_atom*)&as[0]);
-			else
-				max::outlet_anything(instance, as[0], as.size()-1, (max::t_atom*)&as[1]);
-		}
-		
-		void* instance { nullptr };
 	};
 	
 	

@@ -10,7 +10,7 @@ namespace min {
 		
 	class perform_operator_base {};
 	
-	//template<int input_count, int output_count>
+
 	class perform_operator : public perform_operator_base {};
 	
 	
@@ -24,6 +24,7 @@ namespace min {
 		
 		void setup() {
 			max::dsp_setup(max_base, min_object.inlets().size());
+			min_object.create_outlets();
 		}
 		
 		void cleanup() {
