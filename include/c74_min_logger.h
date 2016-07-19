@@ -33,8 +33,8 @@ namespace min {
 		/// @param an_owner		Your object instance
 		/// @param type			The type of console output to deliver
 		logger(object_base* an_owner, logger::type type)
-		: owner(*an_owner)
-		, target(type)
+		: owner		{ *an_owner }
+		, target	{ type }
 		{}
 		
 

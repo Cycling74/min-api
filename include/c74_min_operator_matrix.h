@@ -48,12 +48,11 @@ namespace min {
 	class matrix_info {
 	public:
 		matrix_info(max::t_jit_matrix_info* a_in_info, char* ip, max::t_jit_matrix_info* a_out_info, char* op)
-		: in_info(a_in_info)
-		, bip(ip)
-		, out_info(a_out_info)
-		, bop(op)
-		{
-		}
+		: in_info	{ a_in_info }
+		, bip		{ ip }
+		, out_info	{ a_out_info }
+		, bop		{ op }
+		{}
 
 		
 		long planecount() const {

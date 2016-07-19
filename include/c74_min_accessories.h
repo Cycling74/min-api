@@ -45,9 +45,9 @@ namespace min {
 		template <typename T>
 		class cosine {
 		public:
-			explicit cosine (int size, double count = 1.0)
-			: mCycleSize(size)
-			, mCycleCount(count)
+			explicit cosine (size_t size, double count = 1.0)
+			: mCycleSize	{ static_cast<double>(size) }
+			, mCycleCount	{ count }
 			{
 				//TODO: we need way to protect against zero. static_assert did not work.
 			}
@@ -59,9 +59,9 @@ namespace min {
 			}
 			
 		private:
-			int mCurrent = -1;
-			double mCycleSize; // required by constructor
-			double mCycleCount;
+			int		mCurrent { -1 };
+			double	mCycleSize;
+			double	mCycleCount;
 		};
 		
 		

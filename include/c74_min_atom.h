@@ -296,8 +296,8 @@ namespace min {
 		
 		
 		atom_reference(long argc, max::t_atom* argv)
-		: m_ac(argc)
-		, m_av(argv)
+		: m_ac { argc }
+		, m_av { argv }
 		{}
 		
 		atom_reference& operator = (const symbol& value) {

@@ -39,8 +39,8 @@ namespace min {
 		}
 
 	private:
-		static constexpr size_t m_inputcount = input_count;
-		static constexpr size_t m_outputcount = output_count;
+		static constexpr size_t m_inputcount	{ input_count };
+		static constexpr size_t m_outputcount	{ output_count };
 	};
 
 

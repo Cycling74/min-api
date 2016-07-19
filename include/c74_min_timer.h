@@ -21,8 +21,8 @@ namespace min {
 	public:
 
 		timer(object_base* an_owner, function a_function)
-		: m_owner(an_owner)
-		, m_function(a_function)
+		: m_owner		{ an_owner }
+		, m_function	{ a_function }
 		{
 			m_instance = max::clock_new(this, (max::method)timer_tick_callback);
 		}
@@ -60,8 +60,7 @@ namespace min {
 	private:
 		object_base*	m_owner;
 		function		m_function;
-		max::t_clock*	m_instance = nullptr;
-		
+		max::t_clock*	m_instance { nullptr };
 	};
 	
 	

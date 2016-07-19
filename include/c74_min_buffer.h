@@ -18,7 +18,7 @@ namespace min {
 		// thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
 
 		buffer_reference(object_base* an_owner)
-		: owner(*an_owner)
+		: owner { *an_owner }
 		{}
 		
 		
@@ -36,7 +36,7 @@ namespace min {
 		
 		
 	private:
-		max::t_buffer_ref*	instance = nullptr;
+		max::t_buffer_ref*	instance { nullptr };
 		object_base&		owner;
 		
 		c74::min::method set_meth = { &owner, "set", MIN_FUNCTION {
@@ -67,7 +67,7 @@ namespace min {
 	public:
 		
 		buffer_lock(buffer_reference& a_buffer_ref)
-		: buffer_ref(a_buffer_ref)
+		: buffer_ref { a_buffer_ref }
 		{
 			buffer_obj = buffer_ref_getobject(buffer_ref.instance);
 			tab = buffer_locksamples(buffer_obj);
@@ -118,8 +118,8 @@ namespace min {
 		
 	private:
 		buffer_reference&	buffer_ref;
-		max::t_buffer_obj*	buffer_obj = nullptr;
-		float*				tab = nullptr;
+		max::t_buffer_obj*	buffer_obj	{ nullptr };
+		float*				tab			{ nullptr };
 	};
 	
 }} // namespace c74::min

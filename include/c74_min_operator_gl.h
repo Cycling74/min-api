@@ -46,7 +46,8 @@ namespace min {
 	class glchunk {
 	public:
 		glchunk(gl_ob* context, gl_drawing_primitive prim, int planecount, int vertexcount, int indexcount)
-		: ob3d(context) {
+		: ob3d { context }
+		{
 			// TODO: need a more elegant map
 			symbol s;
 			if (prim == tri_strip)
@@ -79,7 +80,7 @@ namespace min {
 		//}
 		
 	private:
-		c74::max::t_jit_glchunk*	chunk = nullptr;
+		c74::max::t_jit_glchunk*	chunk { nullptr };
 		gl_ob*						ob3d;
 	};
 	

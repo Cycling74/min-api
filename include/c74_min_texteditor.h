@@ -15,8 +15,8 @@ namespace min {
 		using textfunction = std::function<void(const char*)>;
 		
 		texteditor(object_base* an_owner, textfunction fn)
-		: m_owner(an_owner)
-		, m_callback(fn)
+		: m_owner { an_owner }
+		, m_callback { fn }
 		{}
 		
 		
@@ -45,9 +45,9 @@ namespace min {
 		
 		
 	private:
-		object_base*		m_owner = nullptr;
+		object_base*		m_owner		{ nullptr };
 		textfunction		m_callback;
-		c74::max::t_object*	m_jed = nullptr;
+		c74::max::t_object*	m_jed		{ nullptr };
 
 		
 		c74::min::method edclose_meth = { m_owner, "edclose", MIN_FUNCTION {

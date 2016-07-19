@@ -35,9 +35,9 @@ namespace min {
 	class attribute_base {
 	public:
 		attribute_base(object_base& an_owner, std::string a_name)
-		: m_owner(an_owner)
-		, m_name(a_name)
-        , m_title(a_name)
+		: m_owner	{ an_owner }
+		, m_name	{ a_name }
+		, m_title	{ a_name }
 		{}
 		
 		/// set the value of the attribute
@@ -77,7 +77,7 @@ namespace min {
 		symbol			m_datatype;
 		function		m_setter;
 		function		m_getter;
-		bool			m_readonly = false;
+		bool			m_readonly { false };
 		size_t			m_size;		/// size of array/vector if attr is array/vector
 	};
 	
@@ -149,7 +149,8 @@ namespace min {
 		/// @param ...args			N arguments specifying optional properties of an attribute such as setter, label, style, etc.
 		template <typename...ARGS>
 		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS...args)
-		: attribute_base(*an_owner, a_name) {
+		: attribute_base { *an_owner, a_name }
+		{
 			m_owner.attributes()[a_name] = this;
 			
 			if (std::is_same<T, bool>::value)				m_datatype = k_sym_long;

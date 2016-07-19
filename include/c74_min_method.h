@@ -16,8 +16,8 @@ namespace min {
 	class method {
 	public:
 		method(object_base* an_owner, const std::string& a_name, const function& a_function)
-		: m_owner(an_owner)
-		, m_function(a_function)
+		: m_owner		{ an_owner }
+		, m_function	{ a_function }
 		{
 			std::string name;
 			
@@ -42,11 +42,10 @@ namespace min {
 			return m_type;
 		}
 		
+	private:
 		object_base*	m_owner;
 		function		m_function;
-	private:
-		long			m_type = max::A_GIMME;
-		
+		long			m_type { max::A_GIMME };
 	};
 	
 	

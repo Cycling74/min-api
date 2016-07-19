@@ -211,7 +211,7 @@ namespace min {
 		object_base*	m_owner;
 		std::string		m_description;
 		std::string		m_type;
-		bool			m_signal_connection = false;
+		bool			m_signal_connection { false };
 	};
 	
 	
@@ -266,7 +266,7 @@ namespace min {
 				max::outlet_anything(instance, as[0], as.size()-1, (max::t_atom*)&as[1]);
 		}
 		
-		void* instance = nullptr;
+		void* instance { nullptr };
 	};
 	
 	
