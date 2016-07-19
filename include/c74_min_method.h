@@ -19,7 +19,7 @@ namespace min {
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		{
-			std::string name;
+			std::string name = a_name;
 			
 			if (a_name == "integer")
 				name = "int";
