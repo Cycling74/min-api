@@ -585,12 +585,12 @@ define_min_external(const char* cppname, const char* cmaxname, void *resources, 
 																		0
 																		);
 		c74::max::jit_class_addattr(c74::min::this_jit_class, jit_attr);
-        c74::max::object_addattr_parse(jit_attr,"label",c74::max::gensym("symbol"),0, attr.label_string());
-		
+		CLASS_ATTR_LABEL(c74::min::this_jit_class, attr_name.c_str(), 0, attr.label_string());
+        
 		auto range_string = attr.range_string();
 		if (!range_string.empty()) {
 			if (attr.datatype() == "symbol")
-				CLASS_ATTR_ENUM(c74::min::this_class, attr_name.c_str(), 0, range_string.c_str());
+				CLASS_ATTR_ENUM(c74::min::this_jit_class, attr_name.c_str(), 0, range_string.c_str());
 		}
 	}
 	
