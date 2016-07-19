@@ -271,12 +271,12 @@ namespace min {
 		using iterator			= max::t_atom*;
 		using const_iterator	= const max::t_atom*;
 		
-		iterator begin()				{ return av; }
-		const_iterator begin() const	{ return av; }
-		iterator end()					{ return av+ac; }
-		const_iterator end() const		{ return av+ac; }
+		iterator begin()				{ return m_av; }
+		const_iterator begin() const	{ return m_av; }
+		iterator end()					{ return m_av+m_ac; }
+		const_iterator end() const		{ return m_av+m_ac; }
 		
-		size_type size() const			{ return ac; }
+		size_type size() const			{ return m_ac; }
 		bool empty() const				{ return size()==0; }
 		
 		// We don't own the array of atoms, so we cannot do these operations:
@@ -296,35 +296,35 @@ namespace min {
 		
 		
 		atom_reference(long argc, max::t_atom* argv)
-		: ac(argc)
-		, av(argv)
+		: m_ac(argc)
+		, m_av(argv)
 		{}
 		
 		atom_reference& operator = (const symbol& value) {
-			ac = 1;
-			atom_setsym(av, value);
+			m_ac = 1;
+			atom_setsym(m_av, value);
 			return *this;
 		}
 		
 		operator atom() const {
 			if (empty())
 				throw std::out_of_range("atomref is empty");
-			return atom(av);
+			return atom(m_av);
 		}
 		
 		operator atoms() const {
 			c74::min::atoms as;
 			
-			for (auto i=0; i<ac; ++i)
-				as.push_back(av+i);
+			for (auto i=0; i < m_ac; ++i)
+				as.push_back(m_av + i);
 			
 			return as;
 		}
 		
 		
 	private:
-		long			ac;
-		max::t_atom*	av;
+		long			m_ac;
+		max::t_atom*	m_av;
 	};
 	
 }} // namespace c74::min

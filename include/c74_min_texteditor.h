@@ -15,8 +15,8 @@ namespace min {
 		using textfunction = std::function<void(const char*)>;
 		
 		texteditor(object_base* an_owner, textfunction fn)
-		: owner(*an_owner)
-		, callback(fn)
+		: m_owner(an_owner)
+		, m_callback(fn)
 		{}
 		
 		
@@ -27,16 +27,16 @@ namespace min {
 		
 		
 		void open(const char* contents) {
-			if (!jed) {
-				jed = c74::max::object_new(c74::max::CLASS_NOBOX, c74::max::gensym("jed"), (max::t_object*)owner, 0);
-				object_attr_setsym(jed, c74::max::gensym("title"), c74::max::gensym("Code Editor"));
-				object_attr_setchar(jed, c74::max::gensym("scratch"), 1);
+			if (!m_jed) {
+				m_jed = c74::max::object_new(c74::max::CLASS_NOBOX, c74::max::gensym("jed"), (max::t_object*)m_owner, 0);
+				object_attr_setsym(m_jed, c74::max::gensym("title"), c74::max::gensym("Code Editor"));
+				object_attr_setchar(m_jed, c74::max::gensym("scratch"), 1);
 				
 				object_method_direct(void, (c74::max::t_object* , const char*, c74::max::t_symbol*),
-									 jed, c74::max::gensym("settext"), contents, c74::max::gensym("utf-8"));
+									 m_jed, c74::max::gensym("settext"), contents, c74::max::gensym("utf-8"));
 			}
 			else
-				c74::max::object_attr_setchar(jed, c74::max::gensym("visible"), 1);
+				c74::max::object_attr_setchar(m_jed, c74::max::gensym("visible"), 1);
 		}
 		
 		void open(std::string& contents) {
@@ -45,29 +45,25 @@ namespace min {
 		
 		
 	private:
-		object_base&		owner;
-		textfunction		callback;
-		c74::max::t_object*	jed = nullptr;
+		object_base*		m_owner = nullptr;
+		textfunction		m_callback;
+		c74::max::t_object*	m_jed = nullptr;
 
 		
-		c74::min::method edclose_meth = { &owner, "edclose", MIN_FUNCTION {
-			jed = nullptr;
+		c74::min::method edclose_meth = { m_owner, "edclose", MIN_FUNCTION {
+			m_jed = nullptr;
 			return {};
 		}};
 
 		
-		c74::min::method okclose_meth = { &owner, "okclose", MIN_FUNCTION {
+		c74::min::method okclose_meth = { m_owner, "okclose", MIN_FUNCTION {
 			char* text = nullptr;
 			
-			object_method(jed, c74::max::gensym("gettext"), &text);
-			if (*text == 0)
-				return {};	// totally blank text editor
-			
-			callback(text);
-			
-			if (text)
+			object_method(m_jed, c74::max::gensym("gettext"), &text);
+			if (text != nullptr) {
+				m_callback(text);
 				c74::max::sysmem_freeptr(text);
-
+			}
 			return {};
 		}};
 

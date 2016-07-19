@@ -17,16 +17,16 @@ namespace min {
 	// nobox jitter object
 	template<class T>
 	struct minwrap < T, typename std::enable_if< std::is_base_of< min::gl_operator_base, T>::value >::type > {
-		maxobject_base	base;
-		T				obj;
+		maxobject_base	max_base;
+		T				min_object;
 		
 		void setup(atoms args) {
 			symbol dest_name = args[0];
-			jit_ob3d_new(base, dest_name);	// create and attach ob3d.
+			jit_ob3d_new(max_base, dest_name);	// create and attach ob3d.
 		}
 		
 		void cleanup() {
-			max::jit_ob3d_free(base);
+			max::jit_ob3d_free(max_base);
 		}
 	};
 

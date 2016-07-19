@@ -60,7 +60,7 @@ namespace min {
 			
 			for (auto i=0; i<sampleframes; ++i) {
 				auto in = in_samps[i];
-				auto out = self->obj.calculate(in);
+				auto out = self->min_object.calculate(in);
 				out_samps[i] = out;
 			}
 		}
@@ -92,7 +92,7 @@ namespace min {
 	template<class T, int count>
 	struct callable_samples {
 
-		callable_samples(minwrap<T>* a_self)
+		explicit callable_samples(minwrap<T>* a_self)
 		: self (a_self)
 		{}
 
@@ -106,7 +106,7 @@ namespace min {
 
 		template<int... Is>
 		auto call(detail::seq<Is...>) {
-			return self->obj.calculate(data[Is]...);
+			return self->min_object.calculate(data[Is]...);
 		}
 
 		samples<count>	data;
@@ -119,7 +119,7 @@ namespace min {
 	
 	template<class T, typename type_returned_from_calculate>
 	void perform_copy_output(minwrap<T>* self, size_t index, double** out_chans, type_returned_from_calculate vals) {
-		for (auto chan=0; chan < self->obj.outputcount(); ++chan)
+		for (auto chan=0; chan < self->min_object.outputcount(); ++chan)
 			out_chans[chan][index] = vals[chan];
 	}
 
@@ -142,7 +142,7 @@ namespace min {
 			for (auto i=0; i<sampleframes; ++i) {
 				callable_samples<T, T::inputcount()> ins(self);
 
-				for (auto chan=0; chan < self->obj.inputcount(); ++chan)
+				for (auto chan=0; chan < self->min_object.inputcount(); ++chan)
 					ins.set(chan, in_chans[chan][i]);
 
 				auto out = ins.call();

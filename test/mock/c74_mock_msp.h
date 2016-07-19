@@ -140,17 +140,9 @@ typedef std::vector<t_mock_dspchain_item>	t_mock_dspchain_items;
  */
 class t_mock_dspchain {
 	t_mock_dspchain_items	m_chainitems;	///< all items in the dspchain
-	t_mock_dspchain_item	*m_current;		///< object currently being added to the dspchain
+	t_mock_dspchain_item*	m_current = nullptr;		///< object currently being added to the dspchain
 	
 public:
-	
-	/**	Constructor.  Nothing special. */
-	t_mock_dspchain()
-	: m_current(NULL)
-	{
-		;
-	}
-	
 	
 	/** Add an object to the dspchain.  Calls an object's DSP method 
 		@param	x				The object to add.

@@ -13,6 +13,10 @@ namespace min {
 	public:
 		friend class buffer_lock;
 		
+		
+		// takes a single arg, but cannot be marked explicit unless we are willing to decorate all using code with a cast to this type
+		// thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
+
 		buffer_reference(object_base* an_owner)
 		: owner(*an_owner)
 		{}

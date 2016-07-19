@@ -17,19 +17,19 @@ namespace min {
 		long			attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
 		minwrap<T>*		self = (minwrap<T>*)max::object_alloc(this_class);
 
-		self->obj.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
-		new(&self->obj) T(atoms(args.begin(), args.begin()+attrstart)); // placement new
-		self->obj.postinitialize();
-		self->obj.set_classname(name);
+		self->min_object.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
+		new(&self->min_object) T(atoms(args.begin(), args.begin()+attrstart)); // placement new
+		self->min_object.postinitialize();
+		self->min_object.set_classname(name);
         
 		self->setup();
 		
-		auto outlets = self->obj.outlets();
+		auto outlets = self->min_object.outlets();
 		for (auto outlet = outlets.rbegin(); outlet != outlets.rend(); ++outlet) {
-			if ((*outlet)->type == "")
+			if ((*outlet)->type() == "")
 				(*outlet)->instance = max::outlet_new(self, nullptr);
 			else
-				(*outlet)->instance = max::outlet_new(self, (*outlet)->type.c_str());
+				(*outlet)->instance = max::outlet_new(self, (*outlet)->type().c_str());
 		}
 		
 		max::attr_args_process(self, args.size(), args.begin());
@@ -40,81 +40,81 @@ namespace min {
 	template<class T>
 	void min_free(minwrap<T>* self) {
 		self->cleanup();
-		self->obj.~T(); // placement delete
+		self->min_object.~T(); // placement delete
 	}
 	
 	
 	template<class T>
 	void min_assist(minwrap<T>* self, void *b, long m, long a, char *s) {
 		if (m == 2) {
-			const auto& outlet = self->obj.outlets()[a];
-			strcpy(s, outlet->description.c_str());
+			const auto& outlet = self->min_object.outlets()[a];
+			strcpy(s, outlet->description().c_str());
 		}
 		else {
-			const auto& inlet = self->obj.inlets()[a];
-			strcpy(s, inlet->description.c_str());
+			const auto& inlet = self->min_object.inlets()[a];
+			strcpy(s, inlet->description().c_str());
 		}
 	}
 	
 
    	template<class T>
     void min_bang(minwrap<T>* self) {
-    	auto& meth = self->obj.methods()["bang"];
+    	auto& meth = *self->min_object.methods()["bang"];
     	atoms as;
-    	meth->function(as);
+    	meth(as);
     }
     
 	
 	template<class T>
 	void min_int(minwrap<T>* self, long v) {
-		auto& meth = self->obj.methods()["int"];
+		auto& meth = *self->min_object.methods()["int"];
 		atoms as = {v};
-		meth->function(as);
+		meth(as);
 	}
 
 	
 	template<class T>
 	void min_toggle(minwrap<T>* self, long v) {
-		auto& meth = self->obj.methods()["toggle"];
+		auto& meth = *self->min_object.methods()["toggle"];
 		atoms as = {v};
-		meth->function(as);
+		meth(as);
 	}
 	
 	
 	template<class T>
 	void min_int_converted_to_float(minwrap<T>* self, long v) {
-		auto& meth = self->obj.methods()["float"];
+		auto& meth = *self->min_object.methods()["float"];
 		atoms as = {v};
-		meth->function(as);
+		meth(as);
 	}
 	
 	
 	template<class T>
 	void min_float(minwrap<T>* self, double v) {
-		auto& meth = self->obj.methods()["float"];
+		auto& meth = *self->min_object.methods()["float"];
 		atoms as = {v};
-		meth->function(as);
+		meth(as);
 	}
 
 	
 	template<class T>
 	void min_method(minwrap<T>* self, max::t_symbol *s, atom_reference ar) {
-		auto& meth = self->obj.methods()[s->s_name];
+		auto& meth = *self->min_object.methods()[s->s_name];
 		atoms as(atoms(ar.begin(), ar.end()));
-		meth->function(as);
+		meth(as);
 	}
 
 	
 	template<class T>
 	void min_method_dblclick(minwrap<T>* self) {
-		auto& meth = self->obj.methods()["dblclick"];
+		auto& meth = *self->min_object.methods()["dblclick"];
 		atoms as;
-		meth->function(as);
+		meth(as);
 	}
 
 	template<class T>
 	void min_method_patchlineupdate(minwrap<T>* self, max::t_object* patchline, long updatetype, max::t_object *src, long srcout, max::t_object *dst, long dstin) {
-		auto& meth = self->obj.methods()["patchlineupdate"];
+		auto& meth = *self->min_object.methods()["patchlineupdate"];
 		atoms as(7);
 		
 		as[0] = self;
@@ -124,12 +124,12 @@ namespace min {
         as[4] = srcout;
         as[5] = dst;
         as[6] = dstin;
-		meth->function(as);
+		meth(as);
 	}
     
 	template<class T>
 	void min_method_notify(minwrap<T>* self, max::t_symbol*s, max::t_symbol* msg, void* sender, void* data) {
-		auto& meth = self->obj.methods()["notify"];
+		auto& meth = *self->min_object.methods()["notify"];
 		atoms as(5);
 		
 		as[0] = self;
@@ -137,46 +137,44 @@ namespace min {
 		as[2] = msg;
 		as[3] = sender;
 		as[4] = data;
-		meth->function(as);
+		meth(as);
 	}
 
 	template<class T>
 	void min_method_appendtodictionary(minwrap<T>* self, max::t_dictionary* d) {
-		auto& meth = self->obj.methods()["savestate"];
+		auto& meth = *self->min_object.methods()["savestate"];
 		atoms as = {d};
-		meth->function(as);
+		meth(as);
 	}
 
 	template<class T>
 	void min_method_edclose(minwrap<T>* self) {
-		auto& meth = self->obj.methods()["edclose"];
-		atoms as;// = atoms_from_acav(ac, av);
-		meth->function(as);
+		auto& meth = *self->min_object.methods()["edclose"];
+		meth();
 	}
 	
 	template<class T>
 	void min_method_okclose(minwrap<T>* self) {
-		auto& meth = self->obj.methods()["okclose"];
-		atoms as;// = atoms_from_acav(ac, av);
-		meth->function(as);
+		auto& meth = *self->min_object.methods()["okclose"];
+		meth();
 	}
 
 	
 	template<class T>
 	void min_anything(minwrap<T>* self, max::t_symbol *s, atom_reference ar) {
-		auto& meth = self->obj.methods()["anything"];
+		auto& meth = *self->min_object.methods()["anything"];
 		atoms as(ar.begin(), ar.end());
 		as.insert(as.begin(), atom(s));
-		meth->function(as);
+		meth(as);
 	}
 
 	
 	template<class T>
 	void min_dictionary(minwrap<T>* self, max::t_symbol *s) {
-		auto& meth = self->obj.methods()["dictionary"];
+		auto& meth = *self->min_object.methods()["dictionary"];
 		auto d = dictobj_findregistered_retain(s);
 		atoms as = { atom(d) };
-		meth->function(as);
+		meth(as);
 		if (d)
 			dictobj_release(d);
 	}
@@ -229,7 +227,7 @@ c74::max::t_class* define_min_external_common(cpp_classname& instance, const cha
 		else if (a_method.first == "maxclass_setup")
 			; // for min class construction only, do not add for exposure to max
 		else
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type(), 0);
 	}
 	
 	
@@ -359,8 +357,8 @@ namespace min {
 
 		
 	protected:
-		logger	cout = { this, logger::type::message};
-		logger	cerr = { this, logger::type::error};
+		logger	cout { this, logger::type::message };
+		logger	cerr { this, logger::type::error };
 	};
 
 }} // namespace c74::min

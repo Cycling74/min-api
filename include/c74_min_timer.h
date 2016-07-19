@@ -50,6 +50,13 @@ namespace min {
 		}
 		
 		
+		/// post information about the timer to the console
+		// also serves the purpose of eliminating warnings about m_owner being unused
+		void post() {
+			std::cout << m_instance << &m_function << m_owner << std::endl;
+		}
+		
+		
 	private:
 		object_base*	m_owner;
 		function		m_function;
@@ -58,8 +65,8 @@ namespace min {
 	};
 	
 	
-	void timer_tick_callback(timer* an_owner) {
-		an_owner->tick();
+	void timer_tick_callback(timer* a_timer) {
+		a_timer->tick();
 	}
 
 	

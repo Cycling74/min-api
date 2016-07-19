@@ -15,31 +15,38 @@ namespace min {
 	
 	class method {
 	public:
-		method(object_base* an_owner, std::string a_name, function a_function)
-		: owner(an_owner)
-		, function(a_function)
+		method(object_base* an_owner, const std::string& a_name, const function& a_function)
+		: m_owner(an_owner)
+		, m_function(a_function)
 		{
+			std::string name;
+			
 			if (a_name == "integer")
-				a_name = "int";
+				name = "int";
 			else if (a_name == "number")
-				a_name = "float";
+				name = "float";
 			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose" || a_name == "patchlineupdate")
-				type = max::A_CANT;
-			owner->methods()[a_name] = this;
+				m_type = max::A_CANT;
+			m_owner->methods()[name] = this;
 		}
 		
 		atoms operator ()(atoms args = {}) {
-			return function(args);
+			return m_function(args);
 		}
 		
 		atoms operator ()(atom arg) {
-			return function({arg});
+			return m_function({arg});
 		}
 		
-		//private:
-		object_base*	owner;
-		long			type = max::A_GIMME;
-		function		function;
+		long type() {
+			return m_type;
+		}
+		
+		object_base*	m_owner;
+		function		m_function;
+	private:
+		long			m_type = max::A_GIMME;
+		
 	};
 	
 	

@@ -45,7 +45,7 @@ namespace min {
 		template <typename T>
 		class cosine {
 		public:
-			cosine (int size, double count = 1.0)
+			explicit cosine (int size, double count = 1.0)
 			: mCycleSize(size)
 			, mCycleCount(count)
 			{
