@@ -35,7 +35,7 @@ namespace min {
 	template<class T>
 	typename std::enable_if< !has_ctor<T>::value>::type
 	min_ctor(minwrap<T>* self, const atoms& args) {
-		new(&self->min_object) T(); // placement new
+		new(&self->min_object) T; // placement new
 	}
 	
 	template<class T>
