@@ -28,6 +28,7 @@ namespace min {
 			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose" || a_name == "patchlineupdate")
 				m_type = max::A_CANT;
 
+			m_name = name;
 			m_owner->methods()[name] = this;
 		}
 		
@@ -47,6 +48,7 @@ namespace min {
 		object_base*	m_owner;
 		function		m_function;
 		long			m_type { max::A_GIMME };
+		symbol			m_name;
 	};
 	
 	
