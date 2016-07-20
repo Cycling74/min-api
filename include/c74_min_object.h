@@ -12,27 +12,27 @@ namespace min {
 	// All objects use A_GIMME signature for construction
 	// However, all <in classes may not define a constructor to handle those arguments.
 
-	template<class T>
-	typename std::enable_if< std::is_constructible<T,atoms>::value >::type
-	min_ctor(minwrap<T>* self, const atoms& args) {
-		new(&self->min_object) T(args); // placement new
+	template<class min_class_type>
+	typename std::enable_if< std::is_constructible<min_class_type,atoms>::value >::type
+	min_ctor(minwrap<min_class_type>* self, const atoms& args) {
+		new(&self->min_object) min_class_type(args); // placement new
 	}
 	
-	template<class T>
-	typename std::enable_if< !std::is_constructible<T,atoms>::value >::type
-	min_ctor(minwrap<T>* self, const atoms& args) {
-		new(&self->min_object) T; // placement new
+	template<class min_class_type>
+	typename std::enable_if< !std::is_constructible<min_class_type,atoms>::value >::type
+	min_ctor(minwrap<min_class_type>* self, const atoms& args) {
+		new(&self->min_object) min_class_type; // placement new
 	}
 	
 	
-	template<class T>
-	max::t_object* min_new(max::t_symbol* name, long ac, max::t_atom* av) {
+	template<class min_class_type>
+	max::t_object* wrapper_new(max::t_symbol* name, long ac, max::t_atom* av) {
 		atom_reference	args(ac, av);
-		long			attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
-		minwrap<T>*		self = (minwrap<T>*)max::object_alloc(this_class);
+		long	attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
+		auto	self = (minwrap<min_class_type>*)max::object_alloc(this_class);
 
 		self->min_object.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
-		min_ctor<T>(self, atoms(args.begin(), args.begin()+attrstart));
+		min_ctor<min_class_type>(self, atoms(args.begin(), args.begin()+attrstart));
 		self->min_object.postinitialize();
 		self->min_object.set_classname(name);
         
@@ -43,15 +43,15 @@ namespace min {
 	}
 
 
-	template<class T>
-	void min_free(minwrap<T>* self) {
+	template<class min_class_type>
+	void wrapper_free(minwrap<min_class_type>* self) {
 		self->cleanup();		// cleanup routine specific to each type of object (e.g. to call dsp_free() for audio objects)
-		self->min_object.~T();	// placement delete
+		self->min_object.~min_class_type();	// placement delete
 	}
 
 
-	template<class T>
-	void min_assist(minwrap<T>* self, void *b, long m, long a, char *s) {
+	template<class min_class_type>
+	void wrapper_method_assist(minwrap<min_class_type>* self, void *b, long m, long a, char *s) {
 		if (m == 2) {
 			const auto& outlet = self->min_object.outlets()[a];
 			strcpy(s, outlet->description().c_str());
@@ -61,11 +61,6 @@ namespace min {
 			strcpy(s, inlet->description().c_str());
 		}
 	}
-	
-	
-	
-	
-	
 	
 	template<class min_class_type, const char* method_name>
 	void wrapper_method_zero(minwrap<min_class_type>* self) {
@@ -137,8 +132,8 @@ namespace min {
 	}
 	
 	// this version is called for most min::method instances defined in the min class
-	template<class T>
-	void wrapper_method_generic(minwrap<T>* self, max::t_symbol *s, long ac, max::t_atom* av) {
+	template<class min_class_type>
+	void wrapper_method_generic(minwrap<min_class_type>* self, max::t_symbol *s, long ac, max::t_atom* av) {
 		auto& meth = *self->min_object.methods()[s->s_name];
 		atoms as(ac);
 		for (auto i=0; i<ac; ++i)
@@ -165,14 +160,14 @@ static const char wrapper_method_name_patchlineupdate[]		= "patchlineupdate";
 
 #define MIN_WRAPPER_ADDMETHOD(c,methname,wrappermethod,methtype) \
 if (a_method.first == #methname) \
-	c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_##wrappermethod<cpp_classname,wrapper_method_name_##methname>, wrapper_method_name_##methname, c74::max::methtype, 0);
+	c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_##wrappermethod<min_class_type,wrapper_method_name_##methname>, wrapper_method_name_##methname, c74::max::methtype, 0);
 
 
-template<class cpp_classname>
-c74::max::t_class* define_min_external_common(cpp_classname& instance, const char* cppname, const char* cmaxname, void *resources) {
+template<class min_class_type>
+c74::max::t_class* define_min_external_common(min_class_type& instance, const char* cppname, const char* cmaxname, void *resources) {
 	std::string maxname = c74::min::deduce_maxclassname(cmaxname);
 	
-	c74::max::t_class* c = c74::max::class_new( maxname.c_str() ,(c74::max::method)c74::min::min_new<cpp_classname>, (c74::max::method)c74::min::min_free<cpp_classname>, sizeof( c74::min::minwrap<cpp_classname> ), nullptr, c74::max::A_GIMME, 0);
+	auto* c = c74::max::class_new( maxname.c_str() ,(c74::max::method)c74::min::wrapper_new<min_class_type>, (c74::max::method)c74::min::wrapper_free<min_class_type>, sizeof( c74::min::minwrap<min_class_type> ), nullptr, c74::max::A_GIMME, 0);
 	
 	for (auto& a_method : instance.methods()) {
 		     MIN_WRAPPER_ADDMETHOD(c, bang,					zero,								A_NOTHING)
@@ -189,11 +184,11 @@ c74::max::t_class* define_min_external_common(cpp_classname& instance, const cha
 		else if (a_method.first == "dspsetup")				; // skip -- handle it in operator classes
 		else if (a_method.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
 		else
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_generic<cpp_classname>, a_method.first.c_str(), a_method.second->type(), 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_generic<min_class_type>, a_method.first.c_str(), a_method.second->type(), 0);
 		
 		// if there is a 'float' method but no 'int' method, generate a wrapper for it
 		if (a_method.first == "float" && (instance.methods().find("int") == instance.methods().end()))
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_int<cpp_classname,wrapper_method_name_float>, "int", c74::max::A_LONG, 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_int<min_class_type,wrapper_method_name_float>, "int", c74::max::A_LONG, 0);
 	}
 	
 	
@@ -201,7 +196,7 @@ c74::max::t_class* define_min_external_common(cpp_classname& instance, const cha
 		std::string					attr_name = an_attribute.first;
 		c74::min::attribute_base&	attr = *an_attribute.second;
 		
-		attr.create(c, (c74::max::method)c74::min::min_attr_getter<cpp_classname>, (c74::max::method)c74::min::min_attr_setter<cpp_classname>);
+		attr.create(c, (c74::max::method)c74::min::min_attr_getter<min_class_type>, (c74::max::method)c74::min::min_attr_setter<min_class_type>);
 		
 		// Attribute Metadata
 		CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());
@@ -217,17 +212,17 @@ c74::max::t_class* define_min_external_common(cpp_classname& instance, const cha
 }
 
 
-template<class cpp_classname>
+template<class min_class_type>
 typename std::enable_if<
-	!std::is_base_of<c74::min::sample_operator_base, cpp_classname>::value
-&& 	!std::is_base_of<c74::min::perform_operator_base, cpp_classname>::value
+	!std::is_base_of<c74::min::sample_operator_base, min_class_type>::value
+&& 	!std::is_base_of<c74::min::perform_operator_base, min_class_type>::value
 >::type
 define_min_external_audio(c74::max::t_class*) {}
 
 
-template<class cpp_classname>
+template<class min_class_type>
 void define_min_external_finish(c74::max::t_class* c) {
-	c74::max::class_addmethod(c, (c74::max::method)c74::min::min_assist<cpp_classname>, "assist", c74::max::A_CANT, 0);
+	c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_assist<min_class_type>, "assist", c74::max::A_CANT, 0);
 	c74::max::class_register(c74::max::CLASS_BOX, c);
 }
 
@@ -235,25 +230,25 @@ void define_min_external_finish(c74::max::t_class* c) {
 // Note: Jitter Matrix Operators are significantly different enough that they overload define_min_external()
 // in c74_min_operator_matrix.h
 
-template<class cpp_classname>
+template<class min_class_type>
 typename std::enable_if<
-	!std::is_base_of<c74::min::matrix_operator, cpp_classname>::value
-	&& !std::is_base_of<c74::min::gl_operator, cpp_classname>::value
+	!std::is_base_of<c74::min::matrix_operator, min_class_type>::value
+	&& !std::is_base_of<c74::min::gl_operator, min_class_type>::value
 >::type
-define_min_external(const char* cppname, const char* maxname, void *resources, cpp_classname* instance = nullptr) {
+define_min_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr) {
 	c74::min::this_class_init = true;
 
-	std::unique_ptr<cpp_classname> dummy_instance = nullptr;
+	std::unique_ptr<min_class_type> dummy_instance = nullptr;
 
 	if (!instance) {
-		dummy_instance = std::make_unique<cpp_classname>();
+		dummy_instance = std::make_unique<min_class_type>();
 		instance = dummy_instance.get();
 	}	
 	
-	auto c = define_min_external_common<cpp_classname>(*instance, cppname, maxname, resources);
+	auto c = define_min_external_common<min_class_type>(*instance, cppname, maxname, resources);
 	//if (std::is_base_of<c74::min::audio_object, cpp_classname>())
-	define_min_external_audio<cpp_classname>(c);
-	define_min_external_finish<cpp_classname>(c);
+	define_min_external_audio<min_class_type>(c);
+	define_min_external_finish<min_class_type>(c);
 	c74::min::this_class = c;
 	instance->try_call("maxclass_setup", c);
 }
@@ -277,7 +272,7 @@ namespace min {
 	/// One benefits of this are leveraged when instantiating class instances directly instead of through the Max interface,
 	/// such as when unit testing or embedding an object inside of another object.
 
-	template <class T>
+	template <class min_class_type>
 	class object : public object_base {
 	public:
 		object() {
@@ -294,9 +289,9 @@ namespace min {
 			}
 			else {											// we need to initialize ourselves
 				if (!this_class_init) {						// if we aren't already in the process of initializing...
-					std::string maxname = typeid(T).name();
+					std::string maxname = typeid(min_class_type).name();
 					maxname += "_max";
-					define_min_external<T> ( typeid(T).name(), maxname.c_str(), nullptr, (T*)this );
+					define_min_external<min_class_type> ( typeid(min_class_type).name(), maxname.c_str(), nullptr, (min_class_type*)this );
 				}
 				if (this_class) {
 					m_maxobj = (max::t_object*)max::object_alloc(this_class);
