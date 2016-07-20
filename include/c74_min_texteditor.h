@@ -28,7 +28,7 @@ namespace min {
 		
 		void open(const char* contents) {
 			if (!m_jed) {
-				m_jed = c74::max::object_new(c74::max::CLASS_NOBOX, c74::max::gensym("jed"), (max::t_object*)m_owner, 0);
+				m_jed = c74::max::object_new(c74::max::CLASS_NOBOX, c74::max::gensym("jed"), (max::t_object*)*m_owner, 0);
 				object_attr_setsym(m_jed, symbol("title"), symbol("Code Editor"));
 				object_attr_setchar(m_jed, symbol("scratch"), 1);
 				
