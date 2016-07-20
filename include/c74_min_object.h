@@ -24,6 +24,7 @@ namespace min {
 		new(&self->min_object) T; // placement new
 	}
 	
+	
 	template<class T>
 	max::t_object* min_new(max::t_symbol* name, long ac, max::t_atom* av) {
 		atom_reference	args(ac, av);
@@ -40,15 +41,15 @@ namespace min {
 		max::attr_args_process(self, args.size(), args.begin());
 		return (max::t_object*)self;
 	}
-	
-	
+
+
 	template<class T>
 	void min_free(minwrap<T>* self) {
-		self->cleanup();
-		self->min_object.~T(); // placement delete
+		self->cleanup();		// cleanup routine specific to each type of object (e.g. to call dsp_free() for audio objects)
+		self->min_object.~T();	// placement delete
 	}
-	
-	
+
+
 	template<class T>
 	void min_assist(minwrap<T>* self, void *b, long m, long a, char *s) {
 		if (m == 2) {
@@ -61,133 +62,110 @@ namespace min {
 		}
 	}
 	
-
-   	template<class T>
-    void min_bang(minwrap<T>* self) {
-    	auto& meth = *self->min_object.methods()["bang"];
-    	atoms as;
-    	meth(as);
-    }
-    
 	
-	template<class T>
-	void min_int(minwrap<T>* self, long v) {
-		auto& meth = *self->min_object.methods()["int"];
+	
+	
+	
+	
+	template<class min_class_type, const char* method_name>
+	void wrapper_method_zero(minwrap<min_class_type>* self) {
+		auto& meth = *self->min_object.methods()[method_name];
+		meth();
+	}
+	
+	template<class min_class_type, const char* method_name>
+	void wrapper_method_int(minwrap<min_class_type>* self, long v) {
+		auto& meth = *self->min_object.methods()[method_name];
 		atoms as = {v};
 		meth(as);
 	}
 
-	
-	template<class T>
-	void min_toggle(minwrap<T>* self, long v) {
-		auto& meth = *self->min_object.methods()["toggle"];
+	template<class min_class_type, const char* method_name>
+	void wrapper_method_float(minwrap<min_class_type>* self, double v) {
+		auto& meth = *self->min_object.methods()[method_name];
 		atoms as = {v};
 		meth(as);
 	}
 	
+	template<class min_class_type, const char* method_name>
+	void wrapper_method_symbol(minwrap<min_class_type>* self, max::t_symbol* v) {
+		auto& meth = *self->min_object.methods()[method_name];
+		atoms as = {symbol(v)};
+		meth(as);
+	}
+
+	template<class min_class_type, const char* method_name>
+	void wrapper_method_anything(minwrap<min_class_type>* self, max::t_symbol *s, long ac, max::t_atom* av) {
+		auto& meth = *self->min_object.methods()[method_name];
+		atoms as(ac+1);
+		as[0] = s;
+		for (auto i=0; i<ac; ++i)
+			as[i+1] = av[i];
+		meth(as);
+	}
 	
-	template<class T>
-	void min_int_converted_to_float(minwrap<T>* self, long v) {
-		auto& meth = *self->min_object.methods()["float"];
+	template<class min_class_type, const char* method_name>
+	void wrapper_method_ptr(minwrap<min_class_type>* self, void* v) {
+		auto& meth = *self->min_object.methods()[method_name];
 		atoms as = {v};
 		meth(as);
 	}
 	
-	
-	template<class T>
-	void min_float(minwrap<T>* self, double v) {
-		auto& meth = *self->min_object.methods()["float"];
-		atoms as = {v};
-		meth(as);
+	template<class min_class_type, const char* method_name>
+	max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(minwrap<min_class_type>* self, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
+		auto& meth = *self->min_object.methods()[method_name];
+		atoms as { self, s1, s2, p1, p2 };
+		return (long)meth(as).at(0);
 	}
-
 	
-	template<class T>
-	void min_method(minwrap<T>* self, max::t_symbol *s, atom_reference ar) {
-		auto& meth = *self->min_object.methods()[s->s_name];
-		atoms as(atoms(ar.begin(), ar.end()));
-		meth(as);
-	}
-
-	
-	template<class T>
-	void min_method_dblclick(minwrap<T>* self) {
-		auto& meth = *self->min_object.methods()["dblclick"];
-		atoms as;
-		meth(as);
-	}
-
-	template<class T>
-	void min_method_patchlineupdate(minwrap<T>* self, max::t_object* patchline, long updatetype, max::t_object *src, long srcout, max::t_object *dst, long dstin) {
+	template<class min_class_type, const char* method_name>
+	void wrapper_method_self_ptr_long_ptr_long_ptr_long(minwrap<min_class_type>* self, void* arg1, long arg2, void* arg3, long arg4, void* arg5, long arg6) {
 		auto& meth = *self->min_object.methods()["patchlineupdate"];
-		atoms as(7);
-		
-		as[0] = self;
-		as[1] = patchline;
-		as[2] = updatetype;
-		as[3] = src;
-        as[4] = srcout;
-        as[5] = dst;
-        as[6] = dstin;
+		atoms as { self, arg1, arg2, arg3, arg4, arg5, arg6 };
 		meth(as);
-	}
-    
-	template<class T>
-	void min_method_notify(minwrap<T>* self, max::t_symbol*s, max::t_symbol* msg, void* sender, void* data) {
-		auto& meth = *self->min_object.methods()["notify"];
-		atoms as(5);
-		
-		as[0] = self;
-		as[1] = s;
-		as[2] = msg;
-		as[3] = sender;
-		as[4] = data;
-		meth(as);
-	}
-
-	template<class T>
-	void min_method_appendtodictionary(minwrap<T>* self, max::t_dictionary* d) {
-		auto& meth = *self->min_object.methods()["savestate"];
-		atoms as = {d};
-		meth(as);
-	}
-
-	template<class T>
-	void min_method_edclose(minwrap<T>* self) {
-		auto& meth = *self->min_object.methods()["edclose"];
-		meth();
 	}
 	
-	template<class T>
-	void min_method_okclose(minwrap<T>* self) {
-		auto& meth = *self->min_object.methods()["okclose"];
-		meth();
-	}
-
-	
-	template<class T>
-	void min_anything(minwrap<T>* self, max::t_symbol *s, atom_reference ar) {
-		auto& meth = *self->min_object.methods()["anything"];
-		atoms as(ar.begin(), ar.end());
-		as.insert(as.begin(), atom(s));
-		meth(as);
-	}
-
-	
-	template<class T>
-	void min_dictionary(minwrap<T>* self, max::t_symbol *s) {
-		auto& meth = *self->min_object.methods()["dictionary"];
-		auto d = dictobj_findregistered_retain(s);
-		atoms as = { atom(d) };
+	// dictionary is a very special case because of the reference counting
+	template<class min_class_type, const char* method_name>
+	void wrapper_method_dictionary(minwrap<min_class_type>* self, max::t_symbol *s) {
+		auto&	meth = *self->min_object.methods()[method_name];
+		auto	d = dictobj_findregistered_retain(s);
+		atoms	as = { atom(d) };
 		meth(as);
 		if (d)
 			dictobj_release(d);
 	}
 	
+	// this version is called for most min::method instances defined in the min class
+	template<class T>
+	void wrapper_method_generic(minwrap<T>* self, max::t_symbol *s, long ac, max::t_atom* av) {
+		auto& meth = *self->min_object.methods()[s->s_name];
+		atoms as(ac);
+		for (auto i=0; i<ac; ++i)
+			as[i] = av[i];
+		meth(as);
+	}
 	
 }} // namespace c74::min
 
 
+
+static const char wrapper_method_name_anything[]			= "anything";
+static const char wrapper_method_name_appendtodictionary[]	= "appendtodictionary";
+static const char wrapper_method_name_bang[]				= "bang";
+static const char wrapper_method_name_dblclick[]			= "dblclick";
+static const char wrapper_method_name_dictionary[]			= "dictionary";
+static const char wrapper_method_name_edclose[]				= "edclose";
+static const char wrapper_method_name_float[]				= "float";
+static const char wrapper_method_name_int[]					= "int";
+static const char wrapper_method_name_notify[]				= "notify";
+static const char wrapper_method_name_okclose[]				= "okclose";
+static const char wrapper_method_name_patchlineupdate[]		= "patchlineupdate";
+
+
+#define MIN_WRAPPER_ADDMETHOD(c,methname,wrappermethod,methtype) \
+if (a_method.first == #methname) \
+	c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_##wrappermethod<cpp_classname,wrapper_method_name_##methname>, wrapper_method_name_##methname, c74::max::methtype, 0);
 
 
 template<class cpp_classname>
@@ -197,42 +175,25 @@ c74::max::t_class* define_min_external_common(cpp_classname& instance, const cha
 	c74::max::t_class* c = c74::max::class_new( maxname.c_str() ,(c74::max::method)c74::min::min_new<cpp_classname>, (c74::max::method)c74::min::min_free<cpp_classname>, sizeof( c74::min::minwrap<cpp_classname> ), nullptr, c74::max::A_GIMME, 0);
 	
 	for (auto& a_method : instance.methods()) {
-		if (a_method.first == "dblclick")
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_dblclick<cpp_classname>, "dblclick", c74::max::A_CANT, 0);
-		else if (a_method.first == "patchlineupdate")
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_patchlineupdate<cpp_classname>, "patchlineupdate", c74::max::A_CANT, 0);
-		else if (a_method.first == "dspsetup")
-			; // skip -- handle it in operator classes
-		else if (a_method.first == "notify")
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_notify<cpp_classname>, "notify", c74::max::A_CANT, 0);
-		else if (a_method.first == "savestate")
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_appendtodictionary<cpp_classname>, "appendtodictionary", c74::max::A_CANT, 0);
-		else if (a_method.first == "okclose")
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_okclose<cpp_classname>, "okclose", c74::max::A_CANT, 0);
-		else if (a_method.first == "edclose")
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method_edclose<cpp_classname>, "edclose", c74::max::A_CANT, 0);
-		else if (a_method.first == "dictionary")
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_dictionary<cpp_classname>, "dictionary", c74::max::A_SYM, 0);
-		else if (a_method.first == "anything")
-			class_addmethod(c, (c74::max::method)c74::min::min_anything<cpp_classname>, "anything", c74::max::A_GIMME, 0);
-		else if (a_method.first == "bang")
-			class_addmethod(c, (c74::max::method)c74::min::min_bang<cpp_classname>, "bang", c74::max::A_NOTHING, 0);
-		else if (a_method.first == "toggle")
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_toggle<cpp_classname>, "int", c74::max::A_LONG, 0);
-		else if (a_method.first == "int")
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_int<cpp_classname>, "int", c74::max::A_LONG, 0);
-		else if (a_method.first == "float") {
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_float<cpp_classname>, "float", c74::max::A_FLOAT, 0);
-			
-			// if there is a 'float' method but no 'int' method, generate a wrapper for it
-			auto got = instance.methods().find("int");
-			if ( got == instance.methods().end() )
-				c74::max::class_addmethod(c, (c74::max::method)c74::min::min_int_converted_to_float<cpp_classname>, "int", c74::max::A_LONG, 0);
-		}
-		else if (a_method.first == "maxclass_setup")
-			; // for min class construction only, do not add for exposure to max
+		     MIN_WRAPPER_ADDMETHOD(c, bang,					zero,								A_NOTHING)
+		else MIN_WRAPPER_ADDMETHOD(c, dblclick,				zero,								A_CANT)
+		else MIN_WRAPPER_ADDMETHOD(c, okclose,				zero,								A_CANT)
+		else MIN_WRAPPER_ADDMETHOD(c, edclose,				zero,								A_CANT)
+		else MIN_WRAPPER_ADDMETHOD(c, anything,				anything,							A_GIMME)
+		else MIN_WRAPPER_ADDMETHOD(c, int,					int,								A_LONG)
+		else MIN_WRAPPER_ADDMETHOD(c, float,				float,								A_FLOAT)
+		else MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
+		else MIN_WRAPPER_ADDMETHOD(c, appendtodictionary,	ptr,								A_CANT)
+		else MIN_WRAPPER_ADDMETHOD(c, notify,				self_sym_sym_ptr_ptr___err,			A_CANT)
+		else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,		self_ptr_long_ptr_long_ptr_long,	A_CANT)
+		else if (a_method.first == "dspsetup")				; // skip -- handle it in operator classes
+		else if (a_method.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
 		else
-			c74::max::class_addmethod(c, (c74::max::method)c74::min::min_method<cpp_classname>, a_method.first.c_str(), a_method.second->type(), 0);
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_generic<cpp_classname>, a_method.first.c_str(), a_method.second->type(), 0);
+		
+		// if there is a 'float' method but no 'int' method, generate a wrapper for it
+		if (a_method.first == "float" && (instance.methods().find("int") == instance.methods().end()))
+			c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_int<cpp_classname,wrapper_method_name_float>, "int", c74::max::A_LONG, 0);
 	}
 	
 	
