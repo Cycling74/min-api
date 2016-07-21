@@ -137,7 +137,7 @@ namespace min {
 	max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
 		auto	self = wrapper_find_self<min_class_type>(o);
 		auto&	meth = *self->min_object.methods()[method_name];
-		atoms	as { self, s1, s2, p1, p2 };
+		atoms	as { o, s1, s2, p1, p2 };	// NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is always the correct `self` for box operations
 		
 		return (long)meth(as).at(0);
 	}
@@ -146,7 +146,7 @@ namespace min {
 	void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, void* arg1, long arg2, void* arg3, long arg4, void* arg5, long arg6) {
 		auto	self = wrapper_find_self<min_class_type>(o);
 		auto&	meth = *self->min_object.methods()["patchlineupdate"];
-		atoms	as { self, arg1, arg2, arg3, arg4, arg5, arg6 };
+		atoms	as { o, arg1, arg2, arg3, arg4, arg5, arg6 };	// NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is always the correct `self` for box operations
 		
 		meth(as);
 	}
