@@ -128,7 +128,7 @@ public:
 						Proxies are freed with object_free().
 						That's okay though -- in our implementation, proxy_new() always returns NULL and object_free() checks for NULL.
 */
-void *proxy_new(void *x, long id, long *stuffloc)
+MOCK_EXPORT void *proxy_new(void *x, long id, long *stuffloc)
 {
 	t_object		*o = (t_object*)x;
 	object_inlets	*inlets = (object_inlets*)o->o_inlet;
@@ -150,7 +150,7 @@ void *proxy_new(void *x, long id, long *stuffloc)
 	@param	x	The object instance receiving the message.
 	@return		The zero-based index of the inlet that received the message.
  */
-long proxy_getinlet(t_object *x)
+MOCK_EXPORT long proxy_getinlet(t_object *x)
 {
 	object_inlets *inlets = (object_inlets*)x->o_inlet;
 	
