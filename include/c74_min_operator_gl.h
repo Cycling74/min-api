@@ -15,10 +15,10 @@ namespace min {
 	class gl_operator : public gl_operator_base {};
 
 	// nobox jitter object
-	template<class T>
-	struct minwrap < T, typename std::enable_if< std::is_base_of< min::gl_operator_base, T>::value >::type > {
+	template<class min_class_type>
+	struct minwrap <min_class_type, typename std::enable_if< std::is_base_of< min::gl_operator_base, min_class_type>::value >::type > {
 		maxobject_base	max_base;
-		T				min_object;
+		min_class_type	min_object;
 		
 		void setup(atoms args) {
 			symbol dest_name = args[0];
@@ -95,25 +95,7 @@ namespace min {
 	// we then generate another wrapper (max_jit_wrapper) around that...
 
 	
-//	template<class T>
-//	max::t_object* jit_new(){
-//		minwrap<T>*	self = (minwrap<T>*)max::jit_object_alloc(this_jit_class);
-//
-//		atoms args;
-//		new(&self->obj) T(args); // placement new
-//		self->obj.maxobj = (max::t_object*)self;
-//
-//		return (max::t_object*)self;
-//	}
-//
-//	template<class T>
-//	void jit_free(minwrap<T>* self){
-//		self->cleanup();
-//		self->obj.~T(); // placement delete
-//	}
-	
-	
-	template<class cpp_classname>
+	template<class min_class_type>
 	void*
 	max_jit_gl_new(max::t_symbol* s, long argc, max::t_atom* argv) {
 		auto cppname = (max::t_symbol*)c74::min::this_class->c_menufun;
@@ -125,7 +107,7 @@ namespace min {
 	}
 	
 	
-	template<class cpp_classname>
+	template<class min_class_type>
 	void
 	max_jit_gl_free(max_jit_wrapper* self) {
 		max::max_jit_mop_free(self);
@@ -133,18 +115,18 @@ namespace min {
 		max::max_jit_object_free(self);
 	}
 	
-	template<class cpp_classname>
+	template<class min_class_type>
 	typename std::enable_if<
-		std::is_base_of<c74::min::gl_operator_base, cpp_classname>::value
+		std::is_base_of<c74::min::gl_operator_base, min_class_type>::value
 	>::type
-	wrap_as_max_external(const char* cppname, const char* cmaxname, void *resources, cpp_classname* instance = nullptr) {
+	wrap_as_max_external(const char* cppname, const char* cmaxname, void *resources, min_class_type* instance = nullptr) {
 		c74::min::this_class_init = true;
 		
 		std::string						maxname = c74::min::deduce_maxclassname(cmaxname);
-		std::unique_ptr<cpp_classname>	dummy_instance = nullptr;
+		std::unique_ptr<min_class_type>	dummy_instance = nullptr;
 
 		if (!instance) {
-			dummy_instance = std::make_unique<cpp_classname>();
+			dummy_instance = std::make_unique<min_class_type>();
 			instance = dummy_instance.get();
 		}
 
@@ -153,9 +135,9 @@ namespace min {
 		
 		c74::min::this_jit_class = (c74::max::t_class*)c74::max::jit_class_new(
 																			   cppname,
-																			   (c74::max::method)c74::min::jit_new<cpp_classname>,
-																			   (c74::max::method)c74::min::jit_free<cpp_classname>,
-																			   sizeof( c74::min::minwrap<cpp_classname> ),
+																			   (c74::max::method)c74::min::jit_new<min_class_type>,
+																			   (c74::max::method)c74::min::jit_free<min_class_type>,
+																			   sizeof( c74::min::minwrap<min_class_type> ),
 																			   0);
 		
 		//add mop
@@ -175,8 +157,8 @@ namespace min {
 												 attr_name.c_str(),
 												 c74::max::_jit_sym_float64,
 												 attrflags,
-												 (c74::max::method)c74::min::min_attr_getter<cpp_classname>,
-												 (c74::max::method)c74::min::min_attr_setter<cpp_classname>,
+												 (c74::max::method)c74::min::min_attr_getter<min_class_type>,
+												 (c74::max::method)c74::min::min_attr_setter<min_class_type>,
 												 0
 												 );
 			c74::max::jit_class_addattr(c74::min::this_jit_class, attr);
@@ -189,8 +171,8 @@ namespace min {
 		
 		c74::min::this_class = c74::max::class_new(
 												   maxname.c_str(),
-												   (c74::max::method)c74::min::max_jit_gl_new<cpp_classname>,
-												   (c74::max::method)c74::min::max_jit_gl_free<cpp_classname>,
+												   (c74::max::method)c74::min::max_jit_gl_new<min_class_type>,
+												   (c74::max::method)c74::min::max_jit_gl_free<min_class_type>,
 												   sizeof( c74::min::max_jit_wrapper ),
 												   nullptr,
 												   c74::max::A_GIMME,

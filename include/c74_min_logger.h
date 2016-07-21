@@ -40,7 +40,7 @@ namespace min {
 
 		/// Use the insertion operator as for any other stream to build the output message
 		/// @param	x	A token to be added to the output stream. d
-		template <typename T>
+		template<typename T>
 		logger& operator<<(const T& x) {
 			stream << x;
 			return *this;

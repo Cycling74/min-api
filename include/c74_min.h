@@ -28,7 +28,7 @@ namespace min {
 
 	using sample = double;
 
-	template <size_t count>
+	template<size_t count>
 	using samples = std::array<sample, count>;
 
 	using sample_vector = std::vector<sample>;

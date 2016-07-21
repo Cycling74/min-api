@@ -51,10 +51,10 @@ namespace min {
 	// This one is optimized for the most common case: a single input and a single output.
 	// The other version is generic for N inputs and N outputs.
 
-	template<class T>
-	class min_performer<T, typename std::enable_if< std::is_base_of<c74::min::sample_operator<1,1>, T >::value>::type> {
+	template<class min_class_type>
+	class min_performer<min_class_type, typename std::enable_if< std::is_base_of<c74::min::sample_operator<1,1>, min_class_type >::value>::type> {
 	public:
-		static void perform(minwrap<T>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			auto in_samps = in_chans[0];
 			auto out_samps = out_chans[0];
 			
@@ -89,10 +89,10 @@ namespace min {
 	}
 
 
-	template<class T, int count>
+	template<class min_class_type, int count>
 	struct callable_samples {
 
-		explicit callable_samples(minwrap<T>* a_self)
+		explicit callable_samples(minwrap<min_class_type>* a_self)
 		: self (a_self)
 		{}
 
@@ -109,22 +109,22 @@ namespace min {
 			return self->min_object(data[Is]...);
 		}
 
-		samples<count>	data;
-		minwrap<T>*		self;
+		samples<count>				data;
+		minwrap<min_class_type>*	self;
 	};
 
 
 	// perform_copy_output() copies the output sample(s) from a sample_operator's call operator.
 	// it does so in a way that the returned type can either be a single sample or an array of samples<N>
 
-	template<class T, typename type_returned_from_call_operator>
-	void perform_copy_output(minwrap<T>* self, size_t index, double** out_chans, type_returned_from_call_operator vals) {
+	template<class min_class_type, typename type_returned_from_call_operator>
+	void perform_copy_output(minwrap<min_class_type>* self, size_t index, double** out_chans, type_returned_from_call_operator vals) {
 		for (auto chan=0; chan < self->min_object.outputcount(); ++chan)
 			out_chans[chan][index] = vals[chan];
 	}
 
-	template<class T>
-	void perform_copy_output(minwrap<T>* self, size_t index, double** out_chans, sample val) {
+	template<class min_class_type>
+	void perform_copy_output(minwrap<min_class_type>* self, size_t index, double** out_chans, sample val) {
 		out_chans[0][index] = val;
 	}
 	
@@ -132,15 +132,15 @@ namespace min {
 	// The generic version of the min_performer class, for N inputs and N outputs.
 	// See above for the 1x1 optimized version.
 
-	template<class T>
-	class min_performer<T, typename std::enable_if<
-		std::is_base_of<c74::min::sample_operator_base, T >::value
-		&& !std::is_base_of<c74::min::sample_operator<1,1>, T >::value
+	template<class min_class_type>
+	class min_performer<min_class_type, typename std::enable_if<
+		std::is_base_of<c74::min::sample_operator_base, min_class_type >::value
+		&& !std::is_base_of<c74::min::sample_operator<1,1>, min_class_type >::value
 	>::type> {
 	public:
-		static void perform(minwrap<T>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			for (auto i=0; i<sampleframes; ++i) {
-				callable_samples<T, T::inputcount()> ins(self);
+				callable_samples<min_class_type, min_class_type::inputcount()> ins(self);
 
 				for (auto chan=0; chan < self->min_object.inputcount(); ++chan)
 					ins.set(chan, in_chans[chan][i]);
@@ -156,10 +156,10 @@ namespace min {
 	// add audio support to the Max class.
 	// Will be called from define_min_external()
 
-	template<class cpp_classname>
-	typename std::enable_if<std::is_base_of<c74::min::sample_operator_base, cpp_classname>::value>::type
+	template<class min_class_type>
+	typename std::enable_if<std::is_base_of<c74::min::sample_operator_base, min_class_type>::value>::type
 	wrap_as_max_external_audio(c74::max::t_class* c) {
-		c74::max::class_addmethod(c, (c74::max::method)c74::min::min_dsp64<cpp_classname>, "dsp64", c74::max::A_CANT, 0);
+		c74::max::class_addmethod(c, (c74::max::method)c74::min::min_dsp64<min_class_type>, "dsp64", c74::max::A_CANT, 0);
 		c74::max::class_dspinit(c);
 	}
 }} // namespace c74::min

@@ -42,7 +42,7 @@ namespace min {
 		///	@param size		size of the target vector
 		///	@param count	number of cycles of the wave to generate across the vector
 		
-		template <typename T>
+		template<typename T>
 		class cosine {
 		public:
 			explicit cosine (size_t size, double count = 1.0)

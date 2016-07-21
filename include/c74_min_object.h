@@ -17,7 +17,7 @@ namespace min {
 	/// One benefits of this are leveraged when instantiating class instances directly instead of through the Max interface,
 	/// such as when unit testing or embedding an object inside of another object.
 
-	template <class min_class_type>
+	template<class min_class_type>
 	class object : public object_base {
 	public:
 		object() {

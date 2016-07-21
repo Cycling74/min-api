@@ -138,9 +138,9 @@ namespace min {
 
 	/// @param s	The name of the object is passed as an argument to support object-mappings.
 	///		In such cases we might not know what the object name is at compile time.
-	template<class T>
+	template<class min_class_type>
 	max::t_object* jit_new(max::t_symbol* s){
-		minwrap<T>*	self = (minwrap<T>*)max::jit_object_alloc(this_jit_class);
+		minwrap<min_class_type>*	self = (minwrap<min_class_type>*)max::jit_object_alloc(this_jit_class);
         
         self->min_object.assign_instance((max::t_object*)self);
 		min_ctor(self, {});
@@ -150,10 +150,10 @@ namespace min {
 		return (max::t_object*)self;
 	}
 	
-	template<class T>
-	void jit_free(minwrap<T>* self){
+	template<class min_class_type>
+	void jit_free(minwrap<min_class_type>* self){
 		self->cleanup();
-		self->min_object.~T(); // placement delete
+		self->min_object.~min_class_type(); // placement delete
 	}
 	
 	
@@ -164,9 +164,8 @@ namespace min {
 	};
 	
 	
-	template<class cpp_classname>
-	void*
-	max_jit_mop_new(max::t_symbol* s, atom_reference args) {
+	template<class min_class_type>
+	void* max_jit_mop_new(max::t_symbol* s, atom_reference args) {
         long				attrstart	= attr_args_offset(args.size(), args.begin());
 		auto				cppname		= (max::t_symbol*)c74::min::this_class->c_menufun;
 		max_jit_wrapper*	self		= (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
@@ -175,16 +174,15 @@ namespace min {
 		max_jit_mop_setup_simple(self, o, args.size(), args.begin());
 		max_jit_attr_args(self, args.size(), args.begin());
         
-        minwrap<cpp_classname>*	job = (minwrap<cpp_classname>*)o;
+        auto	job = (minwrap<min_class_type>*)o;
         job->min_object.try_call("maxob_setup", atoms(args.begin(), args.begin()+attrstart));
         
 		return self;
 	}
 	
 	
-	template<class cpp_classname>
-	void
-	max_jit_mop_free(max_jit_wrapper* self) {
+	template<class min_class_type>
+	void max_jit_mop_free(max_jit_wrapper* self) {
 		max::max_jit_mop_free(self);
 		max::jit_object_free(max::max_jit_obex_jitob_get(self));
 		max::max_jit_object_free(self);
@@ -193,9 +191,9 @@ namespace min {
 	
 	// We are using a C++ template to process a vector of the matrix for any of the given types.
 	// Thus, we don't need to duplicate the code for each datatype.
-	template<class cpp_classname, typename U>
-	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
-	jit_calculate_vector(minwrap<cpp_classname>* self, const matrix_info& info, long n, long i, max::t_jit_op_info* in, max::t_jit_op_info* out) {
+	template<class min_class_type, typename U>
+	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, min_class_type>::value>::type
+	jit_calculate_vector(minwrap<min_class_type>* self, const matrix_info& info, long n, long i, max::t_jit_op_info* in, max::t_jit_op_info* out) {
 		auto ip = (in ? ((U*)in->p) : nullptr);
 		auto op = ((U*)out->p);
 		auto is = (in ? in->stride : 0);
@@ -258,23 +256,23 @@ namespace min {
 	// We also use a C+ template for the loop that wraps the call to jit_simple_vector(),
 	// further reducing code duplication in jit_simple_calculate_ndim().
 	// The calls into these templates should be inlined by the compiler, eliminating concern about any added function call overhead.
-	template<class cpp_classname, typename U>
-	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type
-	jit_calculate_ndim_loop(minwrap<cpp_classname>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, char* bip, char* bop, long* dim, long planecount, long datasize) {
+	template<class min_class_type, typename U>
+	typename std::enable_if<std::is_base_of<c74::min::matrix_operator, min_class_type>::value>::type
+	jit_calculate_ndim_loop(minwrap<min_class_type>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, char* bip, char* bop, long* dim, long planecount, long datasize) {
 		matrix_info info((in_minfo ? in_minfo : out_minfo), (bip ? bip : bop), out_minfo, bop);
 		for (auto i=0; i<dim[1]; i++) {
 			if(in_opinfo) in_opinfo->p  = bip + i * in_minfo->dimstride[1];
 			out_opinfo->p = bop + i * out_minfo->dimstride[1];
-			jit_calculate_vector<cpp_classname,U>(self, info, n, i, in_opinfo, out_opinfo);
+			jit_calculate_vector<min_class_type,U>(self, info, n, i, in_opinfo, out_opinfo);
 		}
 	}
 
-	template<class cpp_classname>
-	using enable_if_matrix_operator = typename std::enable_if<std::is_base_of<c74::min::matrix_operator, cpp_classname>::value>::type;
+	template<class min_class_type>
+	using enable_if_matrix_operator = typename std::enable_if<std::is_base_of<c74::min::matrix_operator, min_class_type>::value>::type;
 	
-	template<class cpp_classname>
-	enable_if_matrix_operator<cpp_classname>
-	jit_calculate_ndim(minwrap<cpp_classname>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info *in_minfo, char* bip, max::t_jit_matrix_info* out_minfo, char* bop) {
+	template<class min_class_type>
+	enable_if_matrix_operator<min_class_type>
+	jit_calculate_ndim(minwrap<min_class_type>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info *in_minfo, char* bip, max::t_jit_matrix_info* out_minfo, char* bop) {
 		if (dimcount < 1)
 			return; // safety
 
@@ -293,13 +291,13 @@ namespace min {
 					out_opinfo.stride = out_minfo->dim[0]>1 ? out_minfo->planecount : 0;
 					
 					if (in_minfo->type == max::_jit_sym_char)
-						jit_calculate_ndim_loop<cpp_classname, uchar>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, uchar>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 1);
 					else if (in_minfo->type == max::_jit_sym_long)
-						jit_calculate_ndim_loop<cpp_classname, int>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 4);
+						jit_calculate_ndim_loop<min_class_type, int>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 4);
 					else if (in_minfo->type == max::_jit_sym_float32)
-						jit_calculate_ndim_loop<cpp_classname, float>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 4);
+						jit_calculate_ndim_loop<min_class_type, float>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 4);
 					else if (in_minfo->type == max::_jit_sym_float64)
-						jit_calculate_ndim_loop<cpp_classname, double>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 8);
+						jit_calculate_ndim_loop<min_class_type, double>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 8);
 				}
 				break;
 			default:
@@ -311,9 +309,9 @@ namespace min {
 		}
 	}
 	
-	template<class cpp_classname>
-	enable_if_matrix_operator<cpp_classname>
-	jit_calculate_ndim_single(minwrap<cpp_classname>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info* out_minfo, char* bop) {
+	template<class min_class_type>
+	enable_if_matrix_operator<min_class_type>
+	jit_calculate_ndim_single(minwrap<min_class_type>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info* out_minfo, char* bop) {
 		if (dimcount < 1)
 			return; // safety
         
@@ -330,13 +328,13 @@ namespace min {
 					out_opinfo.stride = out_minfo->dim[0]>1 ? out_minfo->planecount : 0;
 					
 					if (out_minfo->type == max::_jit_sym_char)
-						jit_calculate_ndim_loop<cpp_classname, uchar>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, uchar>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
 					else if (out_minfo->type == max::_jit_sym_long)
-						jit_calculate_ndim_loop<cpp_classname, int>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, int>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
 					else if (out_minfo->type == max::_jit_sym_float32)
-						jit_calculate_ndim_loop<cpp_classname, float>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, float>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
 					else if (out_minfo->type == max::_jit_sym_float64)
-						jit_calculate_ndim_loop<cpp_classname, double>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, double>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
 				}
 				break;
 			default:
@@ -348,9 +346,9 @@ namespace min {
 	}
     
 	
-	template<class cpp_classname>
-	enable_if_matrix_operator<cpp_classname>
-	jit_matrix_docalc(minwrap<cpp_classname>* self, max::t_object* inputs, max::t_object* outputs) {
+	template<class min_class_type>
+	enable_if_matrix_operator<min_class_type>
+	jit_matrix_docalc(minwrap<min_class_type>* self, max::t_object* inputs, max::t_object* outputs) {
 		max::t_jit_err			err = max::JIT_ERR_NONE;
 		auto					in_mop_io = (max::t_object*)max::object_method(inputs, max::_jit_sym_getindex, 0);
 		auto					out_mop_io = (max::t_object*)max::object_method(outputs, max::_jit_sym_getindex, 0);
@@ -396,7 +394,7 @@ namespace min {
 				}
 				
 				max::jit_parallel_ndim_simplecalc2(
-												   (c74::max::method)jit_calculate_ndim<cpp_classname>,
+												   (c74::max::method)jit_calculate_ndim<min_class_type>,
 												   self,
 												   dimcount, dim, planecount, &in_minfo, in_bp, &out_minfo, out_bp,
 												   0, 0
@@ -410,8 +408,8 @@ namespace min {
 	}
 
 	
-	template<class cpp_classname>
-	max::t_jit_err jit_matrix_calc(minwrap<cpp_classname>* self, max::t_object* inputs, max::t_object* outputs) {
+	template<class min_class_type>
+	max::t_jit_err jit_matrix_calc(minwrap<min_class_type>* self, max::t_object* inputs, max::t_object* outputs) {
 		try {
 			jit_matrix_docalc(self, inputs, outputs);
 			return 0;
@@ -422,10 +420,10 @@ namespace min {
 	}
 	
 	
-	template<class cpp_classname>
-	enable_if_matrix_operator<cpp_classname>
+	template<class min_class_type>
+	enable_if_matrix_operator<min_class_type>
 	min_jit_mop_outputmatrix(max_jit_wrapper* self) {
-        minwrap<cpp_classname>* jitob = (minwrap<cpp_classname>*)max::max_jit_obex_jitob_get(self);
+        auto jitob = (minwrap<min_class_type>*)max::max_jit_obex_jitob_get(self);
         long outputmode=max::max_jit_mop_getoutputmode(self);
         void *mop=max::max_jit_obex_adornment_get(self,max::_jit_sym_jit_mop);
         //max::t_jit_err err;
@@ -451,7 +449,7 @@ namespace min {
                     err = max::JIT_ERR_INVALID_OUTPUT;
                 else {
                     max::jit_parallel_ndim_simplecalc1(
-                                                       (c74::max::method)jit_calculate_ndim_single<cpp_classname>, jitob,
+                                                       (c74::max::method)jit_calculate_ndim_single<min_class_type>, jitob,
                                                        out_minfo.dimcount, out_minfo.dim, out_minfo.planecount, &out_minfo, out_bp, 0
                     );
                 }

@@ -33,7 +33,7 @@ namespace min {
 		
 		/// Constructor with an initial value (of any assignable type)
 		/// @param value	Value of an assignable type (e.g. some sort of string or symbol)
-		template <class T>
+		template<class T>
 		symbol(T value) {
 			*this = value;
 		}
@@ -91,7 +91,7 @@ namespace min {
 
 
 	/// Expose symbol for use in std output streams.
-	template <class charT, class traits>
+	template<class charT, class traits>
 	std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const min::symbol& s) {
 		return stream << (const char*)s;
 	}
