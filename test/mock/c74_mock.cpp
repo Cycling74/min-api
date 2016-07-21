@@ -13,8 +13,6 @@ namespace c74 {
 namespace max {
 
 
-	
-
 	MOCK_EXPORT t_max_err object_attr_touch(t_object* x, t_symbol* attrname) {
 		return 0;
 	}
