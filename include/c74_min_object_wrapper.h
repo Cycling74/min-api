@@ -77,45 +77,45 @@ namespace min {
 
 	
 	
-	template<class min_class_type, const char* method_name>
+	template<class min_class_type, class method_name_type>
 	void wrapper_method_zero(max::t_object* o) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name];
+		auto&	meth = *self->min_object.methods()[method_name_type::name];
 		
 		meth();
 	}
 	
-	template<class min_class_type, const char* method_name>
+	template<class min_class_type, class method_name_type>
 	void wrapper_method_int(max::t_object* o, long v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name];
+		auto&	meth = *self->min_object.methods()[method_name_type::name];
 		atoms	as = {v};
 		
 		meth(as);
 	}
 
-	template<class min_class_type, const char* method_name>
+	template<class min_class_type, class method_name_type>
 	void wrapper_method_float(max::t_object* o, double v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name];
+		auto&	meth = *self->min_object.methods()[method_name_type::name];
 		atoms	as = {v};
 		
 		meth(as);
 	}
 	
-	template<class min_class_type, const char* method_name>
+	template<class min_class_type, class method_name_type>
 	void wrapper_method_symbol(max::t_object* o, max::t_symbol* v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name];
+		auto&	meth = *self->min_object.methods()[method_name_type::name];
 		atoms	as = {symbol(v)};
 		
 		meth(as);
 	}
 
-	template<class min_class_type, const char* method_name>
+	template<class min_class_type, class method_name_type>
 	void wrapper_method_anything(max::t_object* o, max::t_symbol *s, long ac, max::t_atom* av) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name];
+		auto&	meth = *self->min_object.methods()[method_name_type::name];
 		atoms	as(ac+1);
 		
 		as[0] = s;
@@ -124,38 +124,38 @@ namespace min {
 		meth(as);
 	}
 	
-	template<class min_class_type, const char* method_name>
+	template<class min_class_type, class method_name_type>
 	void wrapper_method_ptr(max::t_object* o, void* v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name];
+		auto&	meth = *self->min_object.methods()[method_name_type::name];
 		atoms	as = {v};
 		
 		meth(as);
 	}
 	
-	template<class min_class_type, const char* method_name>
+	template<class min_class_type, class method_name_type>
 	max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name];
+		auto&	meth = *self->min_object.methods()[method_name_type::name];
 		atoms	as { o, s1, s2, p1, p2 };	// NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is always the correct `self` for box operations
 		
 		return (long)meth(as).at(0);
 	}
 	
-	template<class min_class_type, const char* method_name>
+	template<class min_class_type, class method_name_type>
 	void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, void* arg1, long arg2, void* arg3, long arg4, void* arg5, long arg6) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()["patchlineupdate"];
+		auto&	meth = *self->min_object.methods()[method_name_type::name];
 		atoms	as { o, arg1, arg2, arg3, arg4, arg5, arg6 };	// NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is always the correct `self` for box operations
 		
 		meth(as);
 	}
 	
 	// dictionary is a very special case because of the reference counting
-	template<class min_class_type, const char* method_name>
+	template<class min_class_type, class method_name_type>
 	void wrapper_method_dictionary(max::t_object* o, max::t_symbol *s) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name];
+		auto&	meth = *self->min_object.methods()[method_name_type::name];
 		auto	d = dictobj_findregistered_retain(s);
 		atoms	as = { atom(d) };
 		
@@ -177,31 +177,47 @@ namespace min {
 	}
 	
 
+	
+	
+	// In the above wrapper methods we need access to the Max method name,
+	// either to pass it on or to perform a lookup.
+	// However, we can't change the method function prototype so we instead
+	// pass the name as a template parameter...
+	// Except that you can pass non-integral data as a template parameter.
+	// Thus we create types for each string that we would like to pass and then
+	// specialize the template calls with the type.
+	
+	#define MIN_WRAPPER_CREATE_TYPE_FROM_STRING(str)\
+	struct wrapper_method_name_##str { static const char name[]; };\
+	const char wrapper_method_name_##str::name[] = #str;
+	
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(anything)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(appendtodictionary)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(bang)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(dblclick)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(dictionary)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(edclose)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(float)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(int)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(notify)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(okclose)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(patchlineupdate)
 
-
-	static const char wrapper_method_name_anything[]			= "anything";
-	static const char wrapper_method_name_appendtodictionary[]	= "appendtodictionary";
-	static const char wrapper_method_name_bang[]				= "bang";
-	static const char wrapper_method_name_dblclick[]			= "dblclick";
-	static const char wrapper_method_name_dictionary[]			= "dictionary";
-	static const char wrapper_method_name_edclose[]				= "edclose";
-	static const char wrapper_method_name_float[]				= "float";
-	static const char wrapper_method_name_int[]					= "int";
-	static const char wrapper_method_name_notify[]				= "notify";
-	static const char wrapper_method_name_okclose[]				= "okclose";
-	static const char wrapper_method_name_patchlineupdate[]		= "patchlineupdate";
-
+	
+	// Simplify the meth switches in the following code to reduce excessive and tedious code duplication
 
 	#define MIN_WRAPPER_ADDMETHOD(c,methname,wrappermethod,methtype) \
 	if (a_method.first == #methname) \
-		c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_##wrappermethod<min_class_type,wrapper_method_name_##methname>, wrapper_method_name_##methname, c74::max::methtype, 0);
+		c74::max::class_addmethod(c, (c74::max::method)wrapper_method_##wrappermethod<min_class_type,wrapper_method_name_##methname>, #methname, c74::max::methtype, 0);
 
+	
+	// Shared class definition code for wrapping a Min class as a Max class
 
 	template<class min_class_type>
 	c74::max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* cppname, const char* cmaxname, void *resources) {
-		std::string maxname = c74::min::deduce_maxclassname(cmaxname);
+		std::string maxname = deduce_maxclassname(cmaxname);
 		
-		auto* c = c74::max::class_new( maxname.c_str() ,(c74::max::method)c74::min::wrapper_new<min_class_type>, (c74::max::method)c74::min::wrapper_free<min_class_type>, sizeof( c74::min::minwrap<min_class_type> ), nullptr, c74::max::A_GIMME, 0);
+		auto* c = c74::max::class_new(maxname.c_str() ,(c74::max::method)wrapper_new<min_class_type>, (c74::max::method)wrapper_free<min_class_type>, sizeof(minwrap<min_class_type>), nullptr, c74::max::A_GIMME, 0);
 		
 		for (auto& a_method : instance.methods()) {
 				 MIN_WRAPPER_ADDMETHOD(c, bang,					zero,								A_NOTHING)
@@ -218,19 +234,18 @@ namespace min {
 			else if (a_method.first == "dspsetup")				; // skip -- handle it in operator classes
 			else if (a_method.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
 			else
-				c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_generic<min_class_type>, a_method.first.c_str(), a_method.second->type(), 0);
+				c74::max::class_addmethod(c, (c74::max::method)wrapper_method_generic<min_class_type>, a_method.first.c_str(), a_method.second->type(), 0);
 			
 			// if there is a 'float' method but no 'int' method, generate a wrapper for it
 			if (a_method.first == "float" && (instance.methods().find("int") == instance.methods().end()))
-				c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_int<min_class_type,wrapper_method_name_float>, "int", c74::max::A_LONG, 0);
+				c74::max::class_addmethod(c, (c74::max::method)wrapper_method_int<min_class_type,wrapper_method_name_float>, "int", c74::max::A_LONG, 0);
 		}
 		
-		
 		for (auto& an_attribute : instance.attributes()) {
-			std::string					attr_name = an_attribute.first;
-			c74::min::attribute_base&	attr = *an_attribute.second;
+			std::string		attr_name = an_attribute.first;
+			attribute_base&	attr = *an_attribute.second;
 			
-			attr.create(c, (c74::max::method)c74::min::min_attr_getter<min_class_type>, (c74::max::method)c74::min::min_attr_setter<min_class_type>);
+			attr.create(c, (c74::max::method)min_attr_getter<min_class_type>, (c74::max::method)min_attr_setter<min_class_type>);
 			
 			// Attribute Metadata
 			CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());
@@ -241,7 +256,6 @@ namespace min {
 					CLASS_ATTR_ENUM(c, attr_name.c_str(), 0, range_string.c_str());
 			}
 		}
-
 		return c;
 	}
 
@@ -256,7 +270,7 @@ namespace min {
 
 	template<class min_class_type>
 	void wrap_as_max_external_finish(c74::max::t_class* c) {
-		c74::max::class_addmethod(c, (c74::max::method)c74::min::wrapper_method_assist<min_class_type>, "assist", c74::max::A_CANT, 0);
+		c74::max::class_addmethod(c, (c74::max::method)wrapper_method_assist<min_class_type>, "assist", c74::max::A_CANT, 0);
 		c74::max::class_register(c74::max::CLASS_BOX, c);
 	}
 
@@ -396,5 +410,8 @@ namespace min {
 		c74::min::this_class = c;
 		instance->try_call("maxclass_setup", c);
 	}
+	
+	#undef MIN_WRAPPER_ADDMETHOD
+	#undef MIN_WRAPPER_CREATE_TYPE_FROM_STRING
 	
 }} // namespace c74::min
