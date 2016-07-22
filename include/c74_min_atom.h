@@ -19,7 +19,7 @@ namespace min {
 		}
 		
 		/// Generic assigning constructor
-		template <class T>
+		template<class T>
 		atom(T initial_value) {
 			*this = initial_value;
 		}
@@ -349,7 +349,7 @@ namespace std {
 
 
 /// Expose atom for use in std output streams.
-template <class charT, class traits>
+template<class charT, class traits>
 std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const c74::min::atom& a) {
 	return stream << std::string(a);
 }

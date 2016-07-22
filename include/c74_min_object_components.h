@@ -14,7 +14,7 @@ namespace min {
 	class method;
 	class attribute_base;
 	
-	template <typename T>
+	template<typename T>
 	class attribute;
 	
 	
@@ -158,18 +158,18 @@ namespace min {
 	// Wrap the C++ class together with the appropriate Max object header
 	// Max object header is selected automatically using the type of the base class.
 	
-	template<class T, class=void>
+	template<class min_class_type, class=void>
 	struct minwrap;
 	
 	
-	template<class T>
-	struct minwrap < T, typename std::enable_if<
-		!std::is_base_of< min::perform_operator_base, T>::value
-		&& !std::is_base_of< min::sample_operator_base, T>::value
-		&& !std::is_base_of< min::gl_operator_base, T>::value
+	template<class min_class_type>
+	struct minwrap <min_class_type, typename std::enable_if<
+		   !std::is_base_of< min::perform_operator_base, min_class_type>::value
+		&& !std::is_base_of< min::sample_operator_base, min_class_type>::value
+		&& !std::is_base_of< min::gl_operator_base, min_class_type>::value
 	>::type > {
 		maxobject_base	max_base;
-		T				min_object;
+		min_class_type	min_object;
 		
 		void setup() {
 			min_object.create_inlets();

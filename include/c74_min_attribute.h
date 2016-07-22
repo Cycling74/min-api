@@ -16,7 +16,7 @@ namespace min {
 	class method;
 	class attribute_base;
 	
-	template <typename T>
+	template<typename T>
 	class attribute;
 
 	class sample_operator_base;	
@@ -87,43 +87,43 @@ namespace min {
 	using readonly = bool;
 
 	
-	template <typename T>
+	template<typename T>
 	class attribute : public attribute_base {
 	private:
 		
 		/// constructor utility: handle an argument defining an attribute's title / label
-		template <typename U>
-		constexpr typename std::enable_if<std::is_same<U, title>::value>::type
-		assign_from_argument(const U& arg) noexcept {
+		template<typename argument_type>
+		constexpr typename std::enable_if<std::is_same<argument_type, title>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<symbol&>(m_title) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's range
-		template <typename U>
-		constexpr typename std::enable_if<std::is_same<U, range>::value>::type
-		assign_from_argument(const U& arg) noexcept {
-			const_cast<U&>(m_range_args) = arg;
+		template<typename argument_type>
+		constexpr typename std::enable_if<std::is_same<argument_type, range>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_range_args) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's setter function
-		template <typename U>
-		constexpr typename std::enable_if<std::is_same<U, setter>::value>::type
-		assign_from_argument(const U& arg) noexcept {
-			const_cast<U&>(m_setter) = arg;
+		template<typename argument_type>
+		constexpr typename std::enable_if<std::is_same<argument_type, setter>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_setter) = arg;
 		}
 
 		/// constructor utility: handle an argument defining a attribute's getter function
-		template <typename U>
-		constexpr typename std::enable_if<std::is_same<U, getter>::value>::type
-		assign_from_argument(const U& arg) noexcept {
-			const_cast<U&>(m_getter) = arg;
+		template<typename argument_type>
+		constexpr typename std::enable_if<std::is_same<argument_type, getter>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_getter) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's readonly property
-		template <typename U>
-		constexpr typename std::enable_if<std::is_same<U, readonly>::value>::type
-		assign_from_argument(const U& arg) noexcept {
-			const_cast<U&>(m_readonly) = arg;
+		template<typename argument_type>
+		constexpr typename std::enable_if<std::is_same<argument_type, readonly>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_readonly) = arg;
 		}
 
 		/// constructor utility: empty argument handling (required for recursive variadic templates)
@@ -137,7 +137,7 @@ namespace min {
 		constexpr void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
 			assign_from_argument(first);
 			if (sizeof...(args))
-				handle_arguments(args...);		// recurse
+				handle_arguments(args...); // recurse
 		}
 		
 		
@@ -147,8 +147,8 @@ namespace min {
 		/// @param a_name			A string specifying the name of the attribute when dynamically addressed or inspected.
 		/// @param a_default_value	The default value of the attribute, which will be set when the instance is created.
 		/// @param ...args			N arguments specifying optional properties of an attribute such as setter, label, style, etc.
-		template <typename...ARGS>
-		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS...args)
+		template<typename ...ARGS>
+		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
 		: attribute_base { *an_owner, a_name }
 		{
 			m_owner.attributes()[a_name] = this;

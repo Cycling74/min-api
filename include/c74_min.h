@@ -28,7 +28,7 @@ namespace min {
 
 	using sample = double;
 
-	template <size_t count>
+	template<size_t count>
 	using samples = std::array<sample, count>;
 
 	using sample_vector = std::vector<sample>;
@@ -67,7 +67,8 @@ namespace min {
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"	// Jitter MOP
 #include "c74_min_operator_gl.h"		// Jitter GL
-#include "c74_min_object.h"				// Max objects
+#include "c74_min_object_wrapper.h"		// Max wrapper for Min objects
+#include "c74_min_object.h"				// The Min object class that glues it all together
 
 #include "c74_min_timer.h"				// Wrapper for clocks
 #include "c74_min_buffer.h"				// Wrapper for MSP buffers
@@ -79,11 +80,11 @@ namespace min {
 
 #define MIN_EXTERNAL(cpp_classname) \
 void ext_main (void* r) { \
-	define_min_external< cpp_classname > ( #cpp_classname, __FILE__ , r ); \
+	c74::min::wrap_as_max_external< cpp_classname > ( #cpp_classname, __FILE__ , r ); \
 }
 
 #define MIN_EXTERNAL_CUSTOM(cpp_classname, max_name) \
 void ext_main (void* r) { \
-	define_min_external< cpp_classname > ( #max_name, __FILE__ , r ); \
+	c74::min::wrap_as_max_external< cpp_classname > ( #max_name, __FILE__ , r ); \
 }
 
