@@ -222,15 +222,15 @@ namespace min {
 	
 	template<class T>
 	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter) {
-		auto max_attr = c74::max::attr_offset_new(m_name, datatype(), 0, getter, setter, 0);
-		c74::max::class_addattr(c, max_attr);
+		auto max_attr = max::attr_offset_new(m_name, datatype(), 0, getter, setter, 0);
+		max::class_addattr(c, max_attr);
 	};
 	
 	
 	template<>
 	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter) {
-		auto max_attr = c74::max::attr_offset_array_new(m_name, datatype(), 0xFFFF, 0, getter, setter, size_offset(), 0);
-		c74::max::class_addattr(c, max_attr);
+		auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, 0, getter, setter, size_offset(), 0);
+		max::class_addattr(c, max_attr);
 	};
 	
 	

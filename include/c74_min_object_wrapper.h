@@ -212,10 +212,10 @@ namespace min {
 	// Shared class definition code for wrapping a Min class as a Max class
 
 	template<class min_class_type>
-	c74::max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* cppname, const char* cmaxname, void *resources) {
+	max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* cppname, const char* cmaxname, void *resources) {
 		std::string maxname = deduce_maxclassname(cmaxname);
 		
-		auto* c = c74::max::class_new(maxname.c_str() ,(c74::max::method)wrapper_new<min_class_type>, (c74::max::method)wrapper_free<min_class_type>, sizeof(minwrap<min_class_type>), nullptr, c74::max::A_GIMME, 0);
+		auto* c = max::class_new(maxname.c_str() ,(max::method)wrapper_new<min_class_type>, (max::method)wrapper_free<min_class_type>, sizeof(minwrap<min_class_type>), nullptr, max::A_GIMME, 0);
 		
 		for (auto& a_method : instance.methods()) {
 				 MIN_WRAPPER_ADDMETHOD(c, bang,					zero,								A_NOTHING)
@@ -232,18 +232,18 @@ namespace min {
 			else if (a_method.first == "dspsetup")				; // skip -- handle it in operator classes
 			else if (a_method.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
 			else
-				c74::max::class_addmethod(c, (c74::max::method)wrapper_method_generic<min_class_type>, a_method.first.c_str(), a_method.second->type(), 0);
+				max::class_addmethod(c, (max::method)wrapper_method_generic<min_class_type>, a_method.first.c_str(), a_method.second->type(), 0);
 			
 			// if there is a 'float' method but no 'int' method, generate a wrapper for it
 			if (a_method.first == "float" && (instance.methods().find("int") == instance.methods().end()))
-				c74::max::class_addmethod(c, (c74::max::method)wrapper_method_int<min_class_type,wrapper_method_name_float>, "int", c74::max::A_LONG, 0);
+				max::class_addmethod(c, (max::method)wrapper_method_int<min_class_type,wrapper_method_name_float>, "int", max::A_LONG, 0);
 		}
 		
 		for (auto& an_attribute : instance.attributes()) {
 			std::string		attr_name = an_attribute.first;
 			attribute_base&	attr = *an_attribute.second;
 			
-			attr.create(c, (c74::max::method)min_attr_getter<min_class_type>, (c74::max::method)min_attr_setter<min_class_type>);
+			attr.create(c, (max::method)min_attr_getter<min_class_type>, (max::method)min_attr_setter<min_class_type>);
 			
 			// Attribute Metadata
 			CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());
@@ -259,13 +259,13 @@ namespace min {
 
 
 	template<class min_class_type>
-	type_enable_if_not_audio_class<min_class_type> wrap_as_max_external_audio(c74::max::t_class*) {}
+	type_enable_if_not_audio_class<min_class_type> wrap_as_max_external_audio(max::t_class*) {}
 
 
 	template<class min_class_type>
 	void wrap_as_max_external_finish(max::t_class* c) {
-		c74::max::class_addmethod(c, (c74::max::method)wrapper_method_assist<min_class_type>, "assist", c74::max::A_CANT, 0);
-		c74::max::class_register(c74::max::CLASS_BOX, c);
+		max::class_addmethod(c, (max::method)wrapper_method_assist<min_class_type>, "assist", max::A_CANT, 0);
+		max::class_register(max::CLASS_BOX, c);
 	}
 
 
@@ -274,7 +274,7 @@ namespace min {
 
 	template<class min_class_type>
 	type_enable_if_not_jitter_class<min_class_type> wrap_as_max_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr) {
-		c74::min::this_class_init = true;
+		this_class_init = true;
 
 		std::unique_ptr<min_class_type> dummy_instance = nullptr;
 
@@ -287,7 +287,7 @@ namespace min {
 
 		wrap_as_max_external_audio<min_class_type>(c);
 		wrap_as_max_external_finish<min_class_type>(c);
-		c74::min::this_class = c;
+		this_class = c;
 		instance->try_call("maxclass_setup", c);
 	}
 	
@@ -309,7 +309,7 @@ namespace min {
 		
 		// 1. Boxless Jit Class
 		
-		this_jit_class = (c74::max::t_class*)c74::max::jit_class_new(cppname, (method)jit_new<min_class_type>, (method)jit_free<min_class_type>, sizeof(minwrap<min_class_type>), 0);
+		this_jit_class = (max::t_class*)max::jit_class_new(cppname, (method)jit_new<min_class_type>, (method)jit_free<min_class_type>, sizeof(minwrap<min_class_type>), 0);
 		
 		size_t inletcount = 0;
 		for (auto i: instance->inlets()) {
@@ -327,21 +327,21 @@ namespace min {
 		bool ownsinput = (inletcount==0);
 		
 		//add mop
-		auto mop = c74::max::jit_object_new(c74::max::_jit_sym_jit_mop, inletcount, outletcount);
-		c74::max::jit_class_addadornment(this_jit_class, mop);
+		auto mop = max::jit_object_new(max::_jit_sym_jit_mop, inletcount, outletcount);
+		max::jit_class_addadornment(this_jit_class, mop);
 		
 		//add methods
-		c74::max::jit_class_addmethod(this_jit_class, (method)jit_matrix_calc<min_class_type>, "matrix_calc", c74::max::A_CANT, 0);
+		max::jit_class_addmethod(this_jit_class, (method)jit_matrix_calc<min_class_type>, "matrix_calc", max::A_CANT, 0);
 		
 		//add attributes
-		long attrflags = c74::max::ATTR_GET_DEFER_LOW | c74::max::ATTR_SET_USURP_LOW;
+		long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
 		
 		for (auto& an_attribute : instance->attributes()) {
 			std::string		attr_name = an_attribute.first;
 			attribute_base&	attr = *an_attribute.second;
-			auto			jit_attr = c74::max::jit_object_new(c74::max::_jit_sym_jit_attr_offset, attr_name.c_str(), (c74::max::t_symbol*)attr.datatype(), attrflags, (method)min_attr_getter<min_class_type>, (method)min_attr_setter<min_class_type>, 0);
+			auto			jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, attr_name.c_str(), (max::t_symbol*)attr.datatype(), attrflags, (method)min_attr_getter<min_class_type>, (method)min_attr_setter<min_class_type>, 0);
 
-			c74::max::jit_class_addattr(this_jit_class, jit_attr);
+			max::jit_class_addattr(this_jit_class, jit_attr);
 			CLASS_ATTR_LABEL(this_jit_class, attr_name.c_str(), 0, attr.label_string());
 			
 			auto range_string = attr.range_string();
@@ -357,28 +357,27 @@ namespace min {
 		
 		// 2. Max Wrapper Class
 
-		c74::max::t_class* c = c74::max::class_new(
-												   maxname.c_str(),
-												   (method)max_jit_mop_new<min_class_type>,
-												   (method)max_jit_mop_free<min_class_type>,
-												   sizeof(max_jit_wrapper),
-												   nullptr,
-												   c74::max::A_GIMME,
-												   0
-												   );
+		max::t_class* c = max::class_new(
+										maxname.c_str(),
+										(method)max_jit_mop_new<min_class_type>,
+										(method)max_jit_mop_free<min_class_type>,
+										sizeof(max_jit_wrapper),
+										nullptr,
+										max::A_GIMME,
+										0);
 		
-		c74::max::max_jit_class_obex_setup(c, calcoffset(max_jit_wrapper, obex));
+		max::max_jit_class_obex_setup(c, calcoffset(max_jit_wrapper, obex));
 		
 		// for generator mops, override jit_matrix and outputmatrix
-		long flags = (ownsinput ? c74::max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX|c74::max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
+		long flags = (ownsinput ? max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX | max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
 		
-		c74::max::max_jit_class_mop_wrap(c, c74::min::this_jit_class, flags);	// attrs & methods for name, type, dim, planecount, bang, outputmatrix, etc
-		c74::max::max_jit_class_wrap_standard(c, c74::min::this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
+		max::max_jit_class_mop_wrap(c, this_jit_class, flags);	// attrs & methods for name, type, dim, planecount, bang, outputmatrix, etc
+		max::max_jit_class_wrap_standard(c, this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
 		
-		c74::max::class_addmethod(c, (method)c74::max::max_jit_mop_assist, "assist", c74::max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
+		max::class_addmethod(c, (method)max::max_jit_mop_assist, "assist", max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
 		
 		if(ownsinput)
-			c74::max::max_jit_class_addmethod_usurp_low(c, (method)c74::min::min_jit_mop_outputmatrix<min_class_type>, (char*)"outputmatrix");
+			max::max_jit_class_addmethod_usurp_low(c, (method)min_jit_mop_outputmatrix<min_class_type>, (char*)"outputmatrix");
 		
 		for (auto& a_method : instance->methods()) {
 			MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
@@ -390,9 +389,9 @@ namespace min {
 		}
 		
 		// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
-		c->c_menufun = (c74::max::method)c74::max::gensym(cppname);
+		c->c_menufun = (max::method)max::gensym(cppname);
 		
-		max::class_register(c74::max::CLASS_BOX, c);
+		max::class_register(max::CLASS_BOX, c);
 		
 		min::this_class = c;
 		instance->try_call("maxclass_setup", c);

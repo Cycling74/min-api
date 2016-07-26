@@ -78,29 +78,29 @@ namespace min {
 		}
 		
 		void send(double value) {
-			c74::max::outlet_float(m_instance, value);
+			max::outlet_float(m_instance, value);
 		}
 
 		void send(symbol s1) {
-			c74::max::outlet_anything(m_instance, s1, 0, nullptr);
+			max::outlet_anything(m_instance, s1, 0, nullptr);
 		}
 
 		void send(std::string s1) {
-			c74::max::outlet_anything(m_instance, c74::max::gensym(s1.c_str()), 0, nullptr);
+			max::outlet_anything(m_instance, max::gensym(s1.c_str()), 0, nullptr);
 		}
 
 		void send(const char* s1) {
-			c74::max::outlet_anything(m_instance, c74::max::gensym(s1), 0, nullptr);
+			max::outlet_anything(m_instance, max::gensym(s1), 0, nullptr);
 		}
 
 		void send(symbol s1, symbol s2) {
 			atom a(s2);
-			c74::max::outlet_anything(m_instance, s1, 1, &a);
+			max::outlet_anything(m_instance, s1, 1, &a);
 		}
 
 		void send(symbol s1, double f2) {
 			atom a(f2);
-			c74::max::outlet_anything(m_instance, s1, 1, &a);
+			max::outlet_anything(m_instance, s1, 1, &a);
 		}
 		
 		void send(const atoms& as) {

@@ -167,7 +167,7 @@ namespace min {
 	template<class min_class_type>
 	void* max_jit_mop_new(max::t_symbol* s, atom_reference args) {
         long				attrstart	= attr_args_offset(args.size(), args.begin());
-		auto				cppname		= (max::t_symbol*)c74::min::this_class->c_menufun;
+		auto				cppname		= (max::t_symbol*)this_class->c_menufun;
 		max_jit_wrapper*	self		= (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
 		void*				o			= max::jit_object_new(cppname, s);
 		
@@ -232,7 +232,7 @@ namespace min {
 			for (auto j=0; j<n; ++j) {
                 const auto instep = is / info.in_info->planecount;
                 const auto outstep = os / info.out_info->planecount;
-				std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> tmp;// = { *(ip), *(ip+step), *(ip+step*2), *(ip+step*3) };
+				std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT> tmp;// = { *(ip), *(ip+step), *(ip+step*2), *(ip+step*3) };
 				
                 if(ip) {
                     for (auto k=0; k<info.in_info->planecount; ++k)
@@ -240,7 +240,7 @@ namespace min {
                 }
 				
 				matrix_coord position(j, i);
-				const std::array<U,c74::max::JIT_MATRIX_MAX_PLANECOUNT> out = self->min_object.calc_cell(tmp, info, position);
+				const std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT> out = self->min_object.calc_cell(tmp, info, position);
 				
 				for (auto k=0; k<info.out_info->planecount; ++k)
 					*(op+outstep*k) = out[k];
@@ -388,7 +388,7 @@ namespace min {
 				}
 				
 				max::jit_parallel_ndim_simplecalc2(
-												   (c74::max::method)jit_calculate_ndim<min_class_type>,
+												   (max::method)jit_calculate_ndim<min_class_type>,
 												   self,
 												   dimcount, dim, planecount, &in_minfo, in_bp, &out_minfo, out_bp,
 												   0, 0

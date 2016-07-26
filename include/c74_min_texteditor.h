@@ -28,15 +28,15 @@ namespace min {
 		
 		void open(const char* contents) {
 			if (!m_jed) {
-				m_jed = c74::max::object_new(c74::max::CLASS_NOBOX, c74::max::gensym("jed"), (max::t_object*)*m_owner, 0);
+				m_jed = max::object_new(max::CLASS_NOBOX, max::gensym("jed"), (max::t_object*)*m_owner, 0);
 				object_attr_setsym(m_jed, symbol("title"), symbol("Code Editor"));
 				object_attr_setchar(m_jed, symbol("scratch"), 1);
 				
-				object_method_direct(void, (c74::max::t_object* , const char*, c74::max::t_symbol*),
+				object_method_direct(void, (max::t_object* , const char*, max::t_symbol*),
 									 m_jed, symbol("settext"), contents, symbol("utf-8"));
 			}
 			else
-				c74::max::object_attr_setchar(m_jed, c74::max::gensym("visible"), 1);
+				max::object_attr_setchar(m_jed, max::gensym("visible"), 1);
 		}
 		
 		void open(std::string& contents) {
@@ -45,24 +45,24 @@ namespace min {
 		
 		
 	private:
-		object_base*		m_owner		{ nullptr };
-		textfunction		m_callback;
-		c74::max::t_object*	m_jed		{ nullptr };
+		object_base*	m_owner		{ nullptr };
+		max::t_object*	m_jed		{ nullptr };
+		textfunction	m_callback;
 
 		
-		c74::min::method edclose_meth = { m_owner, "edclose", MIN_FUNCTION {
+		method edclose_meth = { m_owner, "edclose", MIN_FUNCTION {
 			m_jed = nullptr;
 			return {};
 		}};
 
 		
-		c74::min::method okclose_meth = { m_owner, "okclose", MIN_FUNCTION {
+		method okclose_meth = { m_owner, "okclose", MIN_FUNCTION {
 			char* text = nullptr;
 			
-			object_method(m_jed, c74::max::gensym("gettext"), &text);
+			object_method(m_jed, max::gensym("gettext"), &text);
 			if (text != nullptr) {
 				m_callback(text);
-				c74::max::sysmem_freeptr(text);
+				max::sysmem_freeptr(text);
 			}
 			return {};
 		}};
