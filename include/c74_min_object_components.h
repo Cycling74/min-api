@@ -74,11 +74,11 @@ namespace min {
 		}
 		
 		
-		auto inlets() -> std::vector<min::inlet*>& {
+		auto inlets() -> std::vector<inlet*>& {
 			return m_inlets;
 		}
 		
-		auto outlets() -> std::vector<min::outlet*>& {
+		auto outlets() -> std::vector<outlet*>& {
 			return m_outlets;
 		}
 		
@@ -136,8 +136,8 @@ namespace min {
 		max::t_object*										m_maxobj; // initialized prior to placement new
 		bool												m_initializing = true;
 		bool												m_initialized = false;
-		std::vector<min::inlet*>							m_inlets;
-		std::vector<min::outlet*>							m_outlets;
+		std::vector<inlet*>									m_inlets;
+		std::vector<outlet*>								m_outlets;
 		std::unordered_map<std::string, message*>			m_messages;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
 		dict												m_state;

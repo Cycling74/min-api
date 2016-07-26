@@ -286,14 +286,12 @@ namespace min {
 		}
 		
 		operator atoms() const {
-			c74::min::atoms as;
+			atoms as(m_ac);
 			
 			for (auto i=0; i < m_ac; ++i)
-				as.push_back(m_av + i);
-			
+				as[i] = m_av+i;
 			return as;
 		}
-		
 		
 	private:
 		long			m_ac;
@@ -301,7 +299,6 @@ namespace min {
 	};
 	
 }} // namespace c74::min
-
 
 
 #ifdef __APPLE__
@@ -341,7 +338,6 @@ namespace std {
 		c74::min::atoms as;
 		for (const auto& ref: ar)
 			as.push_back(ref);
-		
 		return to_string(as);
 	}
 

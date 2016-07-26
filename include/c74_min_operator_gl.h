@@ -137,12 +137,12 @@ namespace min {
 														   sizeof( minwrap<min_class_type> ),
 														   0);
 		
-		//add mop
+		// add mop
 		auto mop = max::jit_object_new(max::_jit_sym_jit_mop, 1, 1); // #inputs, #outputs
-		max::jit_class_addadornment(min::this_jit_class, mop);
+		max::jit_class_addadornment(this_jit_class, mop);
 
-		//add methods
-	//	max::jit_class_addmethod(this_jit_class, (max::method)jit_matrix_calc<cpp_classname>, "matrix_calc", max::A_CANT, 0);
+		// add methods
+		// max::jit_class_addmethod(this_jit_class, (max::method)jit_matrix_calc<cpp_classname>, "matrix_calc", max::A_CANT, 0);
 
 		//add attributes
 		long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
@@ -183,7 +183,7 @@ namespace min {
 		max::class_addmethod(this_class, (max::method)max::max_jit_mop_assist, "assist", max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
 		
 		// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
-		min::this_class->c_menufun = (max::method)max::gensym(cppname);
+		this_class->c_menufun = (max::method)max::gensym(cppname);
 		
 		max::class_register(max::CLASS_BOX, this_class);
 	}

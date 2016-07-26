@@ -393,7 +393,7 @@ namespace min {
 		
 		max::class_register(max::CLASS_BOX, c);
 		
-		min::this_class = c;
+		this_class = c;
 		instance->try_call("maxclass_setup", c);
 	}
 	
