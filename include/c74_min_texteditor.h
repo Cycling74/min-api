@@ -50,13 +50,13 @@ namespace min {
 		textfunction	m_callback;
 
 		
-		method edclose_meth = { m_owner, "edclose", MIN_FUNCTION {
+		message edclose_meth = { m_owner, "edclose", MIN_FUNCTION {
 			m_jed = nullptr;
 			return {};
 		}};
 
 		
-		method okclose_meth = { m_owner, "okclose", MIN_FUNCTION {
+		message okclose_meth = { m_owner, "okclose", MIN_FUNCTION {
 			char* text = nullptr;
 			
 			object_method(m_jed, max::gensym("gettext"), &text);

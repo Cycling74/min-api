@@ -13,7 +13,7 @@ namespace min {
 	
 	class inlet;
 	class outlet;
-	class method;
+	class message;
 	class attribute_base;
 	
 	template<typename T>

@@ -11,7 +11,7 @@ namespace min {
 	
 	class inlet;
 	class outlet;
-	class method;
+	class message;
 	class attribute_base;
 	
 	template<typename T>
@@ -86,8 +86,8 @@ namespace min {
 		void create_outlets();
 
 
-		auto methods() -> std::unordered_map<std::string, method*>& {
-			return m_methods;
+		auto messages() -> std::unordered_map<std::string, message*>& {
+			return m_messages;
 		}
 		
 		auto attributes() -> std::unordered_map<std::string, attribute_base*>& {
@@ -115,18 +115,18 @@ namespace min {
             return m_classname;
         }
         
-		/// Try to call a named method.
-		/// @param	name	The name of the method to attempt to call.
-		/// @param	args	Any args you wish to pass to the method call.
-		/// @return			If the method doesn't exist an empty set of atoms.
-		///					Otherwise the results of the method.
+		/// Try to call a named message.
+		/// @param	name	The name of the message to attempt to call.
+		/// @param	args	Any args you wish to pass to the message call.
+		/// @return			If the message doesn't exist an empty set of atoms.
+		///					Otherwise the results of the message.
 		atoms try_call(const std::string& name, const atoms& args = {});
 
-		/// Try to call a named method.
-		/// @param	name	The name of the method to attempt to call.
-		/// @param	arg		A single atom arg you wish to pass to the method call.
-		/// @return			If the method doesn't exist an empty set of atoms.
-		///					Otherwise the results of the method.
+		/// Try to call a named message.
+		/// @param	name	The name of the message to attempt to call.
+		/// @param	arg		A single atom arg you wish to pass to the message call.
+		/// @return			If the message doesn't exist an empty set of atoms.
+		///					Otherwise the results of the message.
 		atoms try_call(const std::string& name, const atom& arg) {
 			atoms as = {arg};
 			return try_call(name, as);
@@ -138,7 +138,7 @@ namespace min {
 		bool												m_initialized = false;
 		std::vector<min::inlet*>							m_inlets;
 		std::vector<min::outlet*>							m_outlets;
-		std::unordered_map<std::string, method*>			m_methods;
+		std::unordered_map<std::string, message*>			m_messages;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
 		dict												m_state;
         symbol                                              m_classname; // what's typed in the max box

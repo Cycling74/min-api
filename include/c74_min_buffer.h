@@ -39,17 +39,17 @@ namespace min {
 		max::t_buffer_ref*	instance { nullptr };
 		object_base&		owner;
 		
-		method set_meth = { &owner, "set", MIN_FUNCTION {
+		message set_meth = { &owner, "set", MIN_FUNCTION {
 			set(args[0]);
 			return {};
 		}};
 		
-		method dblclick_meth = { &owner, "dblclick", MIN_FUNCTION {
+		message dblclick_meth = { &owner, "dblclick", MIN_FUNCTION {
 			max::buffer_view(max::buffer_ref_getobject(instance));
 			return {};
 		}};
 		
-		method notify_meth = { &owner, "notify", MIN_FUNCTION {
+		message notify_meth = { &owner, "notify", MIN_FUNCTION {
 			symbol	s = args[1];
 			symbol	msg = args[2];
 			void*	sender = args[3];

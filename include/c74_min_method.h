@@ -13,9 +13,9 @@ namespace min {
 	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms
 	
 	
-	class method {
+	class message {
 	public:
-		method(object_base* an_owner, const std::string& a_name, const function& a_function)
+		message(object_base* an_owner, const std::string& a_name, const function& a_function)
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		{
@@ -29,7 +29,7 @@ namespace min {
 				m_type = max::A_CANT;
 
 			m_name = name;
-			m_owner->methods()[name] = this;
+			m_owner->messages()[name] = this;
 		}
 		
 		atoms operator ()(atoms args = {}) {
@@ -53,9 +53,9 @@ namespace min {
 	
 	
 	atoms object_base::try_call(const std::string& name, const atoms& args) {
-		auto meth = m_methods.find(name);
-		if (meth != m_methods.end())
-			return (*meth->second)(args);
+		auto found_message = m_messages.find(name);
+		if (found_message != m_messages.end())
+			return (*found_message->second)(args);
 		return {};
 	}
 
