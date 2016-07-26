@@ -70,6 +70,27 @@ namespace min {
 	
 	class outlet  : public port {
 		friend void object_base::create_outlets();
+		
+		/// utility: queue an argument of any type for output
+		template<typename argument_type>
+		void queue_argument(const argument_type& arg) noexcept {
+			m_queued_output.push_back(arg);
+		}
+		
+		/// utility: empty argument handling (required for all recursive variadic templates)
+		constexpr void handle_arguments() noexcept {
+			;
+		}
+		
+		/// utility: handle N arguments of any type by recursively working through them
+		///	and matching them to the type-matched routine above.
+		template <typename FIRST_ARG, typename ...REMAINING_ARGS>
+		constexpr void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
+			queue_argument(first);
+			if (sizeof...(args))
+				handle_arguments(args...); // recurse
+		}
+		
 	public:
 		outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
 		: port { an_owner, a_description, a_type}
@@ -77,46 +98,35 @@ namespace min {
 			m_owner->outlets().push_back(this);
 		}
 		
+		void send(long value) {
+			max::outlet_int(m_instance, value);
+		}
+
 		void send(double value) {
 			max::outlet_float(m_instance, value);
 		}
-
-		void send(symbol s1) {
-			max::outlet_anything(m_instance, s1, 0, nullptr);
-		}
-
-		void send(std::string s1) {
-			max::outlet_anything(m_instance, max::gensym(s1.c_str()), 0, nullptr);
-		}
-
-		void send(const char* s1) {
-			max::outlet_anything(m_instance, max::gensym(s1), 0, nullptr);
-		}
-
-		void send(symbol s1, symbol s2) {
-			atom a(s2);
-			max::outlet_anything(m_instance, s1, 1, &a);
-		}
-
-		void send(symbol s1, double f2) {
-			atom a(f2);
-			max::outlet_anything(m_instance, s1, 1, &a);
-		}
-		
-		void send(double f1, double f2) {
-			atoms as {f1, f2};
-			max::outlet_anything(m_instance, k_sym_list, 2, &as[0]);
-		}
 		
 		void send(const atoms& as) {
+			if (as.empty())
+				return;
+			
 			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
 				max::outlet_anything(m_instance, k_sym_list, as.size(), (max::t_atom*)&as[0]);
 			else
 				max::outlet_anything(m_instance, as[0], as.size()-1, (max::t_atom*)&as[1]);
 		}
 		
+		/// Send values out through the outlet
+		template<typename ...ARGS>
+		void send(ARGS... args) {
+			handle_arguments(args...);
+			send(m_queued_output);
+			m_queued_output.clear();
+		}
+		
 	private:
 		void* m_instance { nullptr };
+		atoms m_queued_output;
 	};
 	
 	
