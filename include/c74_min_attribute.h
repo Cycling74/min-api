@@ -84,6 +84,7 @@ namespace min {
 	
 	using title = std::string;
 	using range = atoms;
+	using enum_map = std::vector<std::string>;
 	using readonly = bool;
 
 	
@@ -103,6 +104,14 @@ namespace min {
 		constexpr typename enable_if<is_same<argument_type, range>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_range_args) = arg;
+		}
+
+		/// constructor utility: handle an argument defining an enum mapping to associate strings with enum constants
+		/// this is used in place of the range for index enum attributes.
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, enum_map>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_enum_map) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's setter function
@@ -210,11 +219,23 @@ namespace min {
 		std::string range_string();
 		
 
+		enum_map get_enum_map() {
+			return m_enum_map;
+		}
+
+		atoms get_range_args() {
+			return m_range_args;
+		}
+
+		std::vector<T>& range_ref() {
+			return m_range;
+		}
 		
 	private:
 		T				m_value;
 		atoms			m_range_args;	// the range/enum as provided by the subclass
 		std::vector<T>	m_range;		// the range/enum translated into the native datatype
+		enum_map		m_enum_map;		// the range/enum mapping for indexed enums (as opposed to symbol enums)
 		
 		void copy_range();				// copy m_range_args to m_range
 	};
@@ -237,13 +258,16 @@ namespace min {
 	
 	// enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
 	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
-	int range_string_item(const T& item) {
-		return (int)item;
+	std::string range_string_item(attribute<T>* attr, const T& item) {
+		if (attr->get_enum_map().empty())
+			return std::to_string((int)item);
+		else
+			return attr->get_enum_map()[(int)item];
 	}
 	
 	// all non-enum values can just pass through
 	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
-	T range_string_item(const T& item) {
+	T range_string_item(attribute<T>* attr, const T& item) {
 		return item;
 	}
 	
@@ -251,7 +275,7 @@ namespace min {
 	std::string attribute<T>::range_string() {
 		std::stringstream ss;
 		for (const auto& val : m_range)
-			ss << range_string_item(val) << " ";
+			ss << range_string_item<T>(this, val) << " ";
 		return ss.str();
 	};
 
@@ -268,12 +292,26 @@ namespace min {
 		ss << m_range[0][0] << " " << m_range[1][0];
 		return ss.str();
 	};
-	
-	
+
+
+
+	// enum attrs use the special enum map for range
+	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+	void range_copy_helper(attribute<T>* attr) {
+		for (auto i=0; i < attr->get_enum_map().size(); ++i)
+			attr->range_ref().push_back((T)i);
+	}
+
+	// all non-enum attrs can just copy range normally
+	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+	void range_copy_helper(attribute<T>* attr) {
+		for (const auto& a : attr->get_range_args())
+			attr->range_ref().push_back(a);
+	}
+
 	template<class T>
 	void attribute<T>::copy_range() {
-		for (const auto& a : m_range_args)
-			m_range.push_back(a);
+		range_copy_helper<T>(this);
 	};
 		
 	template<>
