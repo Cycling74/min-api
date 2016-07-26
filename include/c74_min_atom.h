@@ -71,7 +71,7 @@ namespace min {
 			return *this;
 		}
 		
-		atom& operator = (const std::string value) {
+		atom& operator = (const std::string& value) {
 			max::atom_setsym(this, max::gensym(value.c_str()));
 			return *this;
 		}
@@ -357,23 +357,13 @@ std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, trait
 
 namespace c74 {
 namespace min {
-	
-	
-	// Helper utilities to clean-up the syntax for the template enabling code that follows...
-
-	template<class T>
-	using is_class = std::is_class<T>;
-	
-	template<class T>
-	using is_symbol = std::is_same<T, symbol>;
-
-	
+		
 	/// Copy values from any STL container to a vector of atoms
 	/// @tparam	T			The type of the container
 	/// @param	container	The container instance whose values will be copied
 	/// @return				A vector of atoms
 	
-	template<class T, typename std::enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
 	atoms to_atoms(const T& container) {
 		atoms	as(container.size());
 		size_t	index = 0;
@@ -391,7 +381,7 @@ namespace min {
 	/// @param	v	The value to be copied.
 	/// @return		A vector of atoms
 
-	template<class T, typename std::enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
 	atoms to_atoms(const T& v) {
 		atoms as {v};
 		return as;
@@ -403,7 +393,7 @@ namespace min {
 	/// @param	as	The vector atoms containing the desired data
 	/// @return		The container of the values
 	
-	template<class T, typename std::enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
 	T from_atoms(const atoms& as) {
 		T container;
 		
@@ -419,7 +409,7 @@ namespace min {
 	/// @param	as	The vector atoms containing the desired data
 	/// @return		The value
 	
-	template<class T, typename std::enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
 	T from_atoms(const atoms& as) {
 		return (T)as[0];
 	}

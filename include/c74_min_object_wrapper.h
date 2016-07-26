@@ -12,15 +12,13 @@ namespace min {
 	// All objects use A_GIMME signature for construction
 	// However, all <in classes may not define a constructor to handle those arguments.
 
-	template<class min_class_type>
-	typename std::enable_if< std::is_constructible<min_class_type,atoms>::value >::type
-	min_ctor(minwrap<min_class_type>* self, const atoms& args) {
+	template<class min_class_type, typename enable_if< std::is_constructible<min_class_type,atoms>::value, int>::type = 0>
+	void min_ctor(minwrap<min_class_type>* self, const atoms& args) {
 		new(&self->min_object) min_class_type(args); // placement new
 	}
 	
-	template<class min_class_type>
-	typename std::enable_if< !std::is_constructible<min_class_type,atoms>::value >::type
-	min_ctor(minwrap<min_class_type>* self, const atoms& args) {
+	template<class min_class_type, typename enable_if< !std::is_constructible<min_class_type,atoms>::value, int>::type = 0>
+	void min_ctor(minwrap<min_class_type>* self, const atoms& args) {
 		new(&self->min_object) min_class_type; // placement new
 	}
 	
@@ -65,12 +63,12 @@ namespace min {
 	
 	// Return the pointer to 'self' ... that is to say the pointer to the instance of our Max class
 	// In the Jitter case there is a version of this function that returns instead the instance of the Jitter class
-	template<class min_class_type, typename std::enable_if< !std::is_base_of<c74::min::matrix_operator, min_class_type>::value, int>::type = 0>
+	template<class min_class_type, enable_if_not_matrix_operator<min_class_type> = 0>
 	minwrap<min_class_type>* wrapper_find_self(max::t_object* obj) {
 		return (minwrap<min_class_type>*)obj;
 	}
 	
-	template<class min_class_type, typename std::enable_if< std::is_base_of<c74::min::matrix_operator, min_class_type>::value, int>::type = 0>
+	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
 	minwrap<min_class_type>* wrapper_find_self(max::t_object* mob) {
 		return (minwrap<min_class_type>*)max::max_jit_obex_jitob_get(mob);
 	}
@@ -261,15 +259,11 @@ namespace min {
 
 
 	template<class min_class_type>
-	typename std::enable_if<
-		!std::is_base_of<c74::min::sample_operator_base, min_class_type>::value
-	&& 	!std::is_base_of<c74::min::perform_operator_base, min_class_type>::value
-	>::type
-	wrap_as_max_external_audio(c74::max::t_class*) {}
+	type_enable_if_not_audio_class<min_class_type> wrap_as_max_external_audio(c74::max::t_class*) {}
 
 
 	template<class min_class_type>
-	void wrap_as_max_external_finish(c74::max::t_class* c) {
+	void wrap_as_max_external_finish(max::t_class* c) {
 		c74::max::class_addmethod(c, (c74::max::method)wrapper_method_assist<min_class_type>, "assist", c74::max::A_CANT, 0);
 		c74::max::class_register(c74::max::CLASS_BOX, c);
 	}
@@ -279,11 +273,7 @@ namespace min {
 	// in c74_min_operator_matrix.h
 
 	template<class min_class_type>
-	typename std::enable_if<
-		!std::is_base_of<c74::min::matrix_operator, min_class_type>::value
-		&& !std::is_base_of<c74::min::gl_operator, min_class_type>::value
-	>::type
-	wrap_as_max_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr) {
+	type_enable_if_not_jitter_class<min_class_type> wrap_as_max_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr) {
 		c74::min::this_class_init = true;
 
 		std::unique_ptr<min_class_type> dummy_instance = nullptr;
@@ -294,7 +284,7 @@ namespace min {
 		}	
 		
 		auto c = wrap_as_max_external_common<min_class_type>(*instance, cppname, maxname, resources);
-		//if (std::is_base_of<c74::min::audio_object, cpp_classname>())
+
 		wrap_as_max_external_audio<min_class_type>(c);
 		wrap_as_max_external_finish<min_class_type>(c);
 		c74::min::this_class = c;
@@ -302,11 +292,8 @@ namespace min {
 	}
 	
 	
-	template<class min_class_type>
-	typename std::enable_if<
-	std::is_base_of<c74::min::matrix_operator, min_class_type>::value
-	>::type
-	wrap_as_max_external(const char* cppname, const char* cmaxname, void *resources, min_class_type* instance = nullptr) {
+	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
+	void wrap_as_max_external(const char* cppname, const char* cmaxname, void *resources, min_class_type* instance = nullptr) {
 		using c74::max::method;
 		using c74::max::class_addmethod;
 		
@@ -405,9 +392,9 @@ namespace min {
 		// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
 		c->c_menufun = (c74::max::method)c74::max::gensym(cppname);
 		
-		c74::max::class_register(c74::max::CLASS_BOX, c);
+		max::class_register(c74::max::CLASS_BOX, c);
 		
-		c74::min::this_class = c;
+		min::this_class = c;
 		instance->try_call("maxclass_setup", c);
 	}
 	

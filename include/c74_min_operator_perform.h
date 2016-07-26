@@ -15,10 +15,7 @@ namespace min {
 	
 	
 	template<class min_class_type>
-	struct minwrap <min_class_type, typename std::enable_if<
-		std::is_base_of< min::perform_operator_base, min_class_type>::value
-		|| std::is_base_of< min::sample_operator_base, min_class_type>::value
-	>::type > {
+	struct minwrap <min_class_type, type_enable_if_audio_class<min_class_type> > {
 		maxobject_base	max_base;
 		min_class_type	min_object;
 		
@@ -75,7 +72,7 @@ namespace min {
 		static std::false_type test(...);
 		
 		typedef decltype(test<min_class_type>(nullptr)) type;
-		static const bool value = std::is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+		static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
 	};
 	
 	
@@ -102,7 +99,7 @@ namespace min {
 		static std::false_type test(...);
 		
 		typedef decltype(test<min_class_type>(nullptr)) type;
-		static const bool value = std::is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+		static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
 	};
 	
 	//	static_assert(has_dspsetup<slide>::value, "error");
@@ -134,7 +131,7 @@ namespace min {
 	}
 	
 	template<class min_class_type>
-	typename std::enable_if< has_dspsetup<min_class_type>::value && std::is_base_of<c74::min::perform_operator_base, min_class_type>::value>::type
+	typename enable_if< has_dspsetup<min_class_type>::value && is_base_of<perform_operator_base, min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
 		min_dsp64_io(self, count);
 		
@@ -147,25 +144,20 @@ namespace min {
 	}
 	
 	template<class min_class_type>
-	typename std::enable_if< !has_dspsetup<min_class_type>::value>::type
+	typename enable_if< !has_dspsetup<min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
 		min_dsp64_io(self, count);
 		min_dsp64_add_perform(self, dsp64);
 	}
 	
 	template<class min_class_type>
-	typename std::enable_if<
-		std::is_base_of<c74::min::perform_operator_base, min_class_type>::value
-		|| std::is_base_of<c74::min::sample_operator_base, min_class_type>::value
-	>::type
-	min_dsp64(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
+	type_enable_if_audio_class<min_class_type> min_dsp64(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
 		min_dsp64_sel<min_class_type>(self, dsp64, count, samplerate, maxvectorsize, flags);
 	}
 
 
-	template<class min_class_type>
-	typename std::enable_if<std::is_base_of<c74::min::perform_operator_base, min_class_type>::value>::type
-	wrap_as_max_external_audio(c74::max::t_class* c) {
+	template<class min_class_type, enable_if_perform_operator<min_class_type> = 0>
+	void wrap_as_max_external_audio(c74::max::t_class* c) {
 		c74::max::class_addmethod(c, (c74::max::method)c74::min::min_dsp64<min_class_type>, "dsp64", c74::max::A_CANT, 0);
 		c74::max::class_dspinit(c);
 	}

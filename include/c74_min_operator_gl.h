@@ -16,7 +16,7 @@ namespace min {
 
 	// nobox jitter object
 	template<class min_class_type>
-	struct minwrap <min_class_type, typename std::enable_if< std::is_base_of< min::gl_operator_base, min_class_type>::value >::type > {
+	struct minwrap <min_class_type, typename enable_if< is_base_of<gl_operator_base,min_class_type>::value >::type > {
 		maxobject_base	max_base;
 		min_class_type	min_object;
 		
@@ -115,12 +115,9 @@ namespace min {
 		max::max_jit_object_free(self);
 	}
 	
-	template<class min_class_type>
-	typename std::enable_if<
-		std::is_base_of<c74::min::gl_operator_base, min_class_type>::value
-	>::type
-	wrap_as_max_external(const char* cppname, const char* cmaxname, void *resources, min_class_type* instance = nullptr) {
-		c74::min::this_class_init = true;
+	template<class min_class_type, enable_if_gl_operator<min_class_type> = 0>
+	void wrap_as_max_external(const char* cppname, const char* cmaxname, void *resources, min_class_type* instance = nullptr) {
+		this_class_init = true;
 		
 		std::string						maxname = c74::min::deduce_maxclassname(cmaxname);
 		std::unique_ptr<min_class_type>	dummy_instance = nullptr;
@@ -187,9 +184,9 @@ namespace min {
 		c74::max::class_addmethod(c74::min::this_class, (c74::max::method)c74::max::max_jit_mop_assist, "assist", c74::max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
 		
 		// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
-		c74::min::this_class->c_menufun = (c74::max::method)c74::max::gensym(cppname);
+		min::this_class->c_menufun = (max::method)c74::max::gensym(cppname);
 		
-		c74::max::class_register(c74::max::CLASS_BOX, c74::min::this_class);
+		max::class_register(max::CLASS_BOX, this_class);
 	}
 
 

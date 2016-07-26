@@ -93,35 +93,35 @@ namespace min {
 		
 		/// constructor utility: handle an argument defining an attribute's title / label
 		template<typename argument_type>
-		constexpr typename std::enable_if<std::is_same<argument_type, title>::value>::type
+		constexpr typename enable_if<is_same<argument_type, title>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<symbol&>(m_title) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's range
 		template<typename argument_type>
-		constexpr typename std::enable_if<std::is_same<argument_type, range>::value>::type
+		constexpr typename enable_if<is_same<argument_type, range>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_range_args) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's setter function
 		template<typename argument_type>
-		constexpr typename std::enable_if<std::is_same<argument_type, setter>::value>::type
+		constexpr typename enable_if<is_same<argument_type, setter>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_setter) = arg;
 		}
 
 		/// constructor utility: handle an argument defining a attribute's getter function
 		template<typename argument_type>
-		constexpr typename std::enable_if<std::is_same<argument_type, getter>::value>::type
+		constexpr typename enable_if<is_same<argument_type, getter>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_getter) = arg;
 		}
 		
 		/// constructor utility: handle an argument defining a attribute's readonly property
 		template<typename argument_type>
-		constexpr typename std::enable_if<std::is_same<argument_type, readonly>::value>::type
+		constexpr typename enable_if<is_same<argument_type, readonly>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_readonly) = arg;
 		}
@@ -153,11 +153,11 @@ namespace min {
 		{
 			m_owner.attributes()[a_name] = this;
 			
-			if (std::is_same<T, bool>::value)				m_datatype = k_sym_long;
-			else if (std::is_same<T, int>::value)			m_datatype = k_sym_long;
-			else if (std::is_same<T, symbol>::value)		m_datatype = k_sym_symbol;
-			else if (std::is_same<T, float>::value)			m_datatype = k_sym_float32;
-			else /* (std::is_same<T, double>::value) */		m_datatype = k_sym_float64;
+			if (is_same<T, bool>::value)			m_datatype = k_sym_long;
+			else if (is_same<T, int>::value)		m_datatype = k_sym_long;
+			else if (is_same<T, symbol>::value)		m_datatype = k_sym_symbol;
+			else if (is_same<T, float>::value)		m_datatype = k_sym_float32;
+			else									m_datatype = k_sym_float64;
 
 			handle_arguments(args...);
 			copy_range();
