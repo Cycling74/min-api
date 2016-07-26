@@ -19,9 +19,15 @@ namespace min {
 		}
 		
 		/// Generic assigning constructor
-		template<class T>
+		template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
 		atom(T initial_value) {
 			*this = initial_value;
+		}
+		
+		/// Enum assigning constructor
+		template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+		atom(T initial_value) {
+			*this = (long)initial_value;
 		}
 		
 		
@@ -92,6 +98,12 @@ namespace min {
 		}
 
 		
+		/// Enum assigning constructor
+		template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+		operator T() const {
+			return (T)atom_getlong(this);
+		}
+
 		operator double() const {
 			return atom_getfloat(this);
 		}
@@ -405,9 +417,15 @@ namespace min {
 	/// @param	as	The vector atoms containing the desired data
 	/// @return		The value
 	
-	template<class T, typename enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !std::is_enum<T>::value && (is_symbol<T>::value || !is_class<T>::value), int>::type = 0>
 	T from_atoms(const atoms& as) {
 		return (T)as[0];
 	}
+	
+	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+	T from_atoms(const atoms& as) {
+		return (T)(long)as[0];
+	}
+
 	
 }}

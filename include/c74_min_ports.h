@@ -103,6 +103,11 @@ namespace min {
 			max::outlet_anything(m_instance, s1, 1, &a);
 		}
 		
+		void send(double f1, double f2) {
+			atoms as {f1, f2};
+			max::outlet_anything(m_instance, k_sym_list, 2, &as[0]);
+		}
+		
 		void send(const atoms& as) {
 			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
 				max::outlet_anything(m_instance, k_sym_list, as.size(), (max::t_atom*)&as[0]);

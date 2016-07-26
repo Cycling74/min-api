@@ -42,6 +42,7 @@ namespace min {
 	using std::enable_if;
 	using std::is_base_of;
 	using std::is_same;
+	using std::is_enum;
 	
 	
 	// Helper code for type/template selection

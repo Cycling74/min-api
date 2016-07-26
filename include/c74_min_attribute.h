@@ -155,6 +155,7 @@ namespace min {
 			
 			if (is_same<T, bool>::value)			m_datatype = k_sym_long;
 			else if (is_same<T, int>::value)		m_datatype = k_sym_long;
+			else if (is_enum<T>::value)				m_datatype = k_sym_long;
 			else if (is_same<T, symbol>::value)		m_datatype = k_sym_symbol;
 			else if (is_same<T, float>::value)		m_datatype = k_sym_float32;
 			else									m_datatype = k_sym_float64;
@@ -234,14 +235,27 @@ namespace min {
 	};
 	
 	
+	// enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
+	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+	int range_string_item(const T& item) {
+		return (int)item;
+	}
+	
+	// all non-enum values can just pass through
+	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+	T range_string_item(const T& item) {
+		return item;
+	}
+	
 	template<class T>
 	std::string attribute<T>::range_string() {
 		std::stringstream ss;
 		for (const auto& val : m_range)
-			ss << val << " ";
+			ss << range_string_item(val) << " ";
 		return ss.str();
 	};
-	
+
+
 	template<>
 	std::string attribute<std::vector<double>>::range_string() {
 		if (m_range.empty())
@@ -261,7 +275,7 @@ namespace min {
 		for (const auto& a : m_range_args)
 			m_range.push_back(a);
 	};
-	
+		
 	template<>
 	void attribute<std::vector<double>>::copy_range() {
 		if (!m_range.empty()) {
