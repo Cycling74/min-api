@@ -109,7 +109,7 @@ namespace min {
 		}
 		
 		operator int() const {
-			return atom_getlong(this);
+			return (int)atom_getlong(this);
 		}
 
 		operator long() const {

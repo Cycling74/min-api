@@ -192,7 +192,7 @@ namespace min {
 		/// Set the attribute value
 		void set(const atoms& args, bool notify = true) {
 			if (notify && this_class)
-				max::object_attr_setvalueof(m_owner, m_name, args.size(), (max::t_atom*)&args[0]);
+				max::object_attr_setvalueof(m_owner, m_name, (long)args.size(), (max::t_atom*)&args[0]);
 			else {
 				if (m_setter)
 					m_value = from_atoms<T>(m_setter(args));
