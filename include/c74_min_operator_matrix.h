@@ -165,7 +165,8 @@ namespace min {
 	
 	
 	template<class min_class_type>
-	void* max_jit_mop_new(max::t_symbol* s, atom_reference args) {
+	void* max_jit_mop_new(max::t_symbol* s, long argc, max::t_atom* argv) {
+		atom_reference		args(argc, argv);
         long				attrstart	= attr_args_offset(args.size(), args.begin());
 		auto				cppname		= (max::t_symbol*)this_class->c_menufun;
 		max_jit_wrapper*	self		= (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
