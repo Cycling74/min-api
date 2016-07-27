@@ -78,14 +78,14 @@ namespace min {
 		}
 		
 		/// utility: empty argument handling (required for all recursive variadic templates)
-		constexpr void handle_arguments() noexcept {
+		void handle_arguments() noexcept {
 			;
 		}
 		
 		/// utility: handle N arguments of any type by recursively working through them
 		///	and matching them to the type-matched routine above.
 		template <typename FIRST_ARG, typename ...REMAINING_ARGS>
-		constexpr void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
+		void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
 			queue_argument(first);
 			if (sizeof...(args))
 				handle_arguments(args...); // recurse
