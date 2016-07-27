@@ -20,7 +20,7 @@ namespace min {
 		min_class_type	min_object;
 		
 		void setup() {
-			max::dsp_setup(max_base, min_object.inlets().size());
+			max::dsp_setup(max_base, (long)min_object.inlets().size());
 			min_object.create_outlets();
 		}
 		
@@ -110,11 +110,11 @@ namespace min {
 		int i = 0;
 		
 		while (i < self->min_object.inlets().size()) {
-			self->min_object.inlets()[i]->update_signal_connection(count[i]);
+			self->min_object.inlets()[i]->update_signal_connection(count[i]!=0);
 			++i;
 		}
 		while (i < self->min_object.outlets().size()) {
-			self->min_object.outlets()[i - self->min_object.inlets().size()]->update_signal_connection(count[i]);
+			self->min_object.outlets()[i - self->min_object.inlets().size()]->update_signal_connection(count[i]!=0);
 			++i;
 		}
 	}

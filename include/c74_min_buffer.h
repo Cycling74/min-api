@@ -93,7 +93,7 @@ namespace min {
 		
 		
 		int channelcount() {
-			return max::buffer_getchannelcount(buffer_obj);
+			return (int)max::buffer_getchannelcount(buffer_obj);
 		}
 		
 		

@@ -251,7 +251,7 @@ namespace min {
 	
 	template<>
 	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter) {
-		auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, 0, getter, setter, size_offset(), 0);
+		auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, 0, getter, setter, (long)size_offset(), 0);
 		max::class_addattr(c, max_attr);
 	};
 	
@@ -333,7 +333,7 @@ namespace min {
 		auto&	attr		= self->min_object.attributes()[attr_name.c_str()];
 		atoms	rvals		= *attr;
 		
-		*ac = rvals.size();
+		*ac = (long)rvals.size();
 		if (!(*av)) // otherwise use memory passed in
 			*av = (max::t_atom*)max::sysmem_newptr(sizeof(max::t_atom) * *ac);
 		for (auto i=0; i<*ac; ++i)

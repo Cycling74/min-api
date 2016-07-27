@@ -26,7 +26,7 @@ namespace min {
 	template<class min_class_type>
 	max::t_object* wrapper_new(max::t_symbol* name, long ac, max::t_atom* av) {
 		atom_reference	args(ac, av);
-		long	attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
+		long	attrstart = attr_args_offset((short)args.size(), args.begin());		// support normal arguments
 		auto	self = (minwrap<min_class_type>*)max::object_alloc(this_class);
 
 		self->min_object.assign_instance((max::t_object*)self); // maxobj needs to be set prior to placement new
@@ -36,7 +36,7 @@ namespace min {
         
 		self->setup();
 				
-		max::attr_args_process(self, args.size(), args.begin());
+		max::attr_args_process(self, (short)args.size(), args.begin());
 		return (max::t_object*)self;
 	}
 
@@ -52,11 +52,11 @@ namespace min {
 	void wrapper_method_assist(minwrap<min_class_type>* self, void *b, long m, long a, char *s) {
 		if (m == 2) {
 			const auto& outlet = self->min_object.outlets()[a];
-			strcpy(s, outlet->description().c_str());
+			strncpy(s, outlet->description().c_str(), 256);
 		}
 		else {
 			const auto& inlet = self->min_object.inlets()[a];
-			strcpy(s, inlet->description().c_str());
+			strncpy(s, inlet->description().c_str(), 256);
 		}
 	}
 	

@@ -64,7 +64,7 @@ namespace min {
 		if (m_inlets.empty())
 			return;
 		for (auto i = m_inlets.size()-1; i>0; --i)
-			m_inlets[i]->m_instance = max::proxy_new(m_maxobj, i, nullptr);
+			m_inlets[i]->m_instance = max::proxy_new(m_maxobj, (long)i, nullptr);
 	}
 	
 	
@@ -111,9 +111,9 @@ namespace min {
 				return;
 			
 			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
-				max::outlet_anything(m_instance, k_sym_list, as.size(), (max::t_atom*)&as[0]);
+				max::outlet_anything(m_instance, k_sym_list, (short)as.size(), (max::t_atom*)&as[0]);
 			else
-				max::outlet_anything(m_instance, as[0], as.size()-1, (max::t_atom*)&as[1]);
+				max::outlet_anything(m_instance, as[0], (short)as.size()-1, (max::t_atom*)&as[1]);
 		}
 		
 		/// Send values out through the outlet

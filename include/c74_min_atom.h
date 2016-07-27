@@ -109,15 +109,15 @@ namespace min {
 		}
 		
 		operator int() const {
-			return (int)atom_getlong(this);
+			return int(atom_getlong(this));
 		}
 
 		operator long() const {
-			return atom_getlong(this);
+			return long(atom_getlong(this));
 		}
 
 		operator bool() const {
-			return atom_getlong(this);
+			return atom_getlong(this) != 0;
 		}
 		
 		operator max::t_symbol*() const {
@@ -187,7 +187,7 @@ namespace min {
 
 		/// Compare an atom against a value for equality.
 		inline friend bool operator == (const max::t_atom& a, bool value) {
-			return (bool)atom_getlong(&a) == value;
+			return (atom_getlong(&a) != 0) == value;
 		}
 		
 		/// Compare an atom against a value for equality.
@@ -331,7 +331,7 @@ namespace std {
 		char*	text = nullptr;
 		string	str;
 		
-		auto err = c74::max::atom_gettext(as.size(), &as[0], &textsize, &text, c74::max::OBEX_UTIL_ATOM_GETTEXT_SYM_NO_QUOTE);
+		auto err = c74::max::atom_gettext((long)as.size(), &as[0], &textsize, &text, c74::max::OBEX_UTIL_ATOM_GETTEXT_SYM_NO_QUOTE);
 		if (!err)
 			str = text;
 		else

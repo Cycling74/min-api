@@ -25,7 +25,7 @@ namespace min {
 		
 		/// Create an unregistered dictionary from dict-syntax
 		dict(atoms content) {
-			max::dictobj_dictionaryfromatoms(&instance, content.size(), &content[0]);
+			max::dictobj_dictionaryfromatoms(&instance, (long)content.size(), &content[0]);
 		}
 		
 		/// Create an unregistered dictionary
@@ -75,31 +75,16 @@ namespace min {
 			return *this;
 		}
 		
-/*
-		atoms operator[](symbol key){
-			long			argc = 0;
-			max::t_atom*	argv = nullptr;
-			auto			err = max::dictionary_getatoms(instance, key, &argc, &argv);
-			auto			as = atoms_from_acav(argc, argv);
-			
-			if (err)
-				; // TODO: handle the error somehow?  throw an exception?
-			
-			return as;
-		};
-*/	
 		
 		// bounds check: if key doesn't exist, throw
 		atom_reference at(symbol key){
 			long			argc = 0;
 			max::t_atom*	argv = nullptr;
 			auto			err = max::dictionary_getatoms(instance, key, &argc, &argv);
-			auto			as = atom_reference(argc, argv);
 			
 			if (err)
-				; // TODO: handle the error somehow?  throw an exception?
-			
-			return as;
+				error("could not get key from dictionary");
+			return atom_reference(argc, argv);
 		}
 		
 		

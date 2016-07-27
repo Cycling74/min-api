@@ -73,7 +73,7 @@ namespace min {
 			// otherwise OpenGL draws the chunk directly.
 			auto result = max::jit_ob3d_draw_chunk(ob3d, chunk);
 			if (result != max::JIT_ERR_NONE)
-				; // TODO: do something!
+				error("failure to draw ob3d chunk");
 		}
 		
 		//operator max::t_jit_glchunk*() const {
