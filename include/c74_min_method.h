@@ -19,6 +19,8 @@ namespace min {
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		{
+			assert(m_function != nullptr); // could happen if a function is passed as the arg but that fn hasn't initialized yet
+
 			std::string name = a_name;
 			
 			if (name == "integer")

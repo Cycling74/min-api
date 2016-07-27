@@ -250,8 +250,12 @@ namespace min {
 
 			auto range_string = attr.range_string();
 			if (!range_string.empty()) {
-				if (attr.datatype() == "symbol")
+				if (attr.datatype() == "symbol") {
 					CLASS_ATTR_ENUM(c, attr_name.c_str(), 0, range_string.c_str());
+				}
+				else if (attr.datatype() == "long") {
+					CLASS_ATTR_ENUMINDEX(c, attr_name.c_str(), 0, range_string.c_str());
+				}
 			}
 		}
 		return c;
