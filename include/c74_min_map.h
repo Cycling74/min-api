@@ -15,8 +15,8 @@ namespace min {
 	public:
 		
 		map() {
-			instance = c74::max::hashtab_new(0);
-			c74::max::hashtab_flags(instance, c74::max::OBJ_FLAG_DATA);
+			instance = max::hashtab_new(0);
+			max::hashtab_flags(instance, max::OBJ_FLAG_DATA);
 		}
 		
 		

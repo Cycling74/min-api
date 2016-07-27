@@ -52,7 +52,7 @@ namespace min {
 	// The other version is generic for N inputs and N outputs.
 
 	template<class min_class_type>
-	class min_performer<min_class_type, typename std::enable_if< std::is_base_of<c74::min::sample_operator<1,1>, min_class_type >::value>::type> {
+	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator<1,1>, min_class_type >::value>::type> {
 	public:
 		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			auto in_samps = in_chans[0];
@@ -133,10 +133,7 @@ namespace min {
 	// See above for the 1x1 optimized version.
 
 	template<class min_class_type>
-	class min_performer<min_class_type, typename std::enable_if<
-		std::is_base_of<c74::min::sample_operator_base, min_class_type >::value
-		&& !std::is_base_of<c74::min::sample_operator<1,1>, min_class_type >::value
-	>::type> {
+	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator_base, min_class_type >::value && !is_base_of<sample_operator<1,1>, min_class_type >::value>::type> {
 	public:
 		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			for (auto i=0; i<sampleframes; ++i) {
@@ -156,11 +153,10 @@ namespace min {
 	// add audio support to the Max class.
 	// Will be called from define_min_external()
 
-	template<class min_class_type>
-	typename std::enable_if<std::is_base_of<c74::min::sample_operator_base, min_class_type>::value>::type
-	wrap_as_max_external_audio(c74::max::t_class* c) {
-		c74::max::class_addmethod(c, (c74::max::method)c74::min::min_dsp64<min_class_type>, "dsp64", c74::max::A_CANT, 0);
-		c74::max::class_dspinit(c);
+	template<class min_class_type, enable_if_sample_operator<min_class_type> = 0>
+	void wrap_as_max_external_audio(max::t_class* c) {
+		max::class_addmethod(c, (max::method)min_dsp64<min_class_type>, "dsp64", max::A_CANT, 0);
+		max::class_dspinit(c);
 	}
 }} // namespace c74::min
 

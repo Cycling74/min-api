@@ -24,6 +24,8 @@
 namespace c74 {
 namespace min {
 
+	// types
+	
 	using uchar = unsigned char;
 
 	using sample = double;
@@ -32,6 +34,54 @@ namespace min {
 	using samples = std::array<sample, count>;
 
 	using sample_vector = std::vector<sample>;
+	
+	
+	// Very selective group from the STL used only for making common
+	// template SFINAE code more readable
+
+	using std::enable_if;
+	using std::is_base_of;
+	using std::is_same;
+	
+	
+	// Helper code for type/template selection
+
+	class symbol;
+	class matrix_operator_base;
+	class gl_operator_base;
+	class sample_operator_base;
+	class perform_operator_base;
+	
+	template<class T>
+	using is_class = std::is_class<T>;
+	
+	template<class T>
+	using is_symbol = is_same<T, symbol>;
+
+	template<class min_class_type>
+	using enable_if_matrix_operator = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
+	
+	template<class min_class_type>
+	using enable_if_not_matrix_operator = typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
+
+	template<class min_class_type>
+	using enable_if_gl_operator = typename enable_if<is_base_of<gl_operator_base, min_class_type>::value, int>::type;
+
+	template<class min_class_type>
+	using enable_if_sample_operator = typename enable_if<is_base_of<sample_operator_base, min_class_type>::value, int>::type;
+
+	template<class min_class_type>
+	using enable_if_perform_operator = typename enable_if<is_base_of<perform_operator_base, min_class_type>::value, int>::type;
+
+	template<class min_class_type>
+	using type_enable_if_audio_class = typename enable_if<is_base_of<perform_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value >::type;
+
+	template<class min_class_type>
+	using type_enable_if_not_audio_class = typename enable_if<!is_base_of<perform_operator_base, min_class_type>::value && !is_base_of<sample_operator_base, min_class_type>::value >::type;
+
+	template<class min_class_type>
+	using type_enable_if_not_jitter_class = typename enable_if< !is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value >::type;
+
 }}
 
 
@@ -40,7 +90,7 @@ namespace min {
 /// change that behavior later or specialize it for certain contexts.
 ///
 /// Because this throws an exception you should **not** call this function in an audio perform routine.
-void error(std::string description) {
+void error(const std::string& description) {
 	throw std::runtime_error(description);
 }
 
@@ -60,7 +110,7 @@ namespace min {
 
 #include "c74_min_object_components.h"	// Shared components of Max objects
 #include "c74_min_ports.h"				// Inlets and Outlets
-#include "c74_min_method.h"				// Methods of objects
+#include "c74_min_method.h"				// Messages to objects
 #include "c74_min_attribute.h"			// Attributes of objects
 #include "c74_min_logger.h"				// Console / Max Window output
 #include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins

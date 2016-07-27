@@ -92,7 +92,7 @@ namespace min {
 
 	/// Expose symbol for use in std output streams.
 	template<class charT, class traits>
-	std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const min::symbol& s) {
+	std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const symbol& s) {
 		return stream << (const char*)s;
 	}
 	

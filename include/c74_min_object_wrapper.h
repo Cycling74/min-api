@@ -12,15 +12,13 @@ namespace min {
 	// All objects use A_GIMME signature for construction
 	// However, all <in classes may not define a constructor to handle those arguments.
 
-	template<class min_class_type>
-	typename std::enable_if< std::is_constructible<min_class_type,atoms>::value >::type
-	min_ctor(minwrap<min_class_type>* self, const atoms& args) {
+	template<class min_class_type, typename enable_if< std::is_constructible<min_class_type,atoms>::value, int>::type = 0>
+	void min_ctor(minwrap<min_class_type>* self, const atoms& args) {
 		new(&self->min_object) min_class_type(args); // placement new
 	}
 	
-	template<class min_class_type>
-	typename std::enable_if< !std::is_constructible<min_class_type,atoms>::value >::type
-	min_ctor(minwrap<min_class_type>* self, const atoms& args) {
+	template<class min_class_type, typename enable_if< !std::is_constructible<min_class_type,atoms>::value, int>::type = 0>
+	void min_ctor(minwrap<min_class_type>* self, const atoms& args) {
 		new(&self->min_object) min_class_type; // placement new
 	}
 	
@@ -65,57 +63,57 @@ namespace min {
 	
 	// Return the pointer to 'self' ... that is to say the pointer to the instance of our Max class
 	// In the Jitter case there is a version of this function that returns instead the instance of the Jitter class
-	template<class min_class_type, typename std::enable_if< !std::is_base_of<c74::min::matrix_operator, min_class_type>::value, int>::type = 0>
+	template<class min_class_type, enable_if_not_matrix_operator<min_class_type> = 0>
 	minwrap<min_class_type>* wrapper_find_self(max::t_object* obj) {
 		return (minwrap<min_class_type>*)obj;
 	}
 	
-	template<class min_class_type, typename std::enable_if< std::is_base_of<c74::min::matrix_operator, min_class_type>::value, int>::type = 0>
+	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
 	minwrap<min_class_type>* wrapper_find_self(max::t_object* mob) {
 		return (minwrap<min_class_type>*)max::max_jit_obex_jitob_get(mob);
 	}
 
 	
 	
-	template<class min_class_type, class method_name_type>
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_zero(max::t_object* o) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name_type::name];
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		
 		meth();
 	}
 	
-	template<class min_class_type, class method_name_type>
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_int(max::t_object* o, long v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name_type::name];
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		atoms	as = {v};
 		
 		meth(as);
 	}
 
-	template<class min_class_type, class method_name_type>
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_float(max::t_object* o, double v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name_type::name];
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		atoms	as = {v};
 		
 		meth(as);
 	}
 	
-	template<class min_class_type, class method_name_type>
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_symbol(max::t_object* o, max::t_symbol* v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name_type::name];
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		atoms	as = {symbol(v)};
 		
 		meth(as);
 	}
 
-	template<class min_class_type, class method_name_type>
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_anything(max::t_object* o, max::t_symbol *s, long ac, max::t_atom* av) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name_type::name];
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		atoms	as(ac+1);
 		
 		as[0] = s;
@@ -124,38 +122,38 @@ namespace min {
 		meth(as);
 	}
 	
-	template<class min_class_type, class method_name_type>
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_ptr(max::t_object* o, void* v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name_type::name];
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		atoms	as = {v};
 		
 		meth(as);
 	}
 	
-	template<class min_class_type, class method_name_type>
+	template<class min_class_type, class message_name_type>
 	max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name_type::name];
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		atoms	as { o, s1, s2, p1, p2 };	// NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is always the correct `self` for box operations
 		
 		return (long)meth(as).at(0);
 	}
 	
-	template<class min_class_type, class method_name_type>
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, void* arg1, long arg2, void* arg3, long arg4, void* arg5, long arg6) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name_type::name];
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		atoms	as { o, arg1, arg2, arg3, arg4, arg5, arg6 };	// NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is always the correct `self` for box operations
 		
 		meth(as);
 	}
 	
 	// dictionary is a very special case because of the reference counting
-	template<class min_class_type, class method_name_type>
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_dictionary(max::t_object* o, max::t_symbol *s) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[method_name_type::name];
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		auto	d = dictobj_findregistered_retain(s);
 		atoms	as = { atom(d) };
 		
@@ -164,11 +162,11 @@ namespace min {
 			dictobj_release(d);
 	}
 	
-	// this version is called for most min::method instances defined in the min class
+	// this version is called for most message instances defined in the min class
 	template<class min_class_type>
 	void wrapper_method_generic(max::t_object* o, max::t_symbol *s, long ac, max::t_atom* av) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.methods()[s->s_name];
+		auto&	meth = *self->min_object.messages()[s->s_name];
 		atoms	as(ac);
 		
 		for (auto i=0; i<ac; ++i)
@@ -179,17 +177,17 @@ namespace min {
 
 	
 	
-	// In the above wrapper methods we need access to the Max method name,
+	// In the above wrapper methods we need access to the Max message name,
 	// either to pass it on or to perform a lookup.
 	// However, we can't change the method function prototype so we instead
 	// pass the name as a template parameter...
-	// Except that you can pass non-integral data as a template parameter.
+	// Except that you cannot pass non-integral data as a template parameter.
 	// Thus we create types for each string that we would like to pass and then
 	// specialize the template calls with the type.
 	
 	#define MIN_WRAPPER_CREATE_TYPE_FROM_STRING(str)\
-	struct wrapper_method_name_##str { static const char name[]; };\
-	const char wrapper_method_name_##str::name[] = #str;
+	struct wrapper_message_name_##str { static const char name[]; };\
+	const char wrapper_message_name_##str::name[] = #str;
 	
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(anything)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(appendtodictionary)
@@ -207,19 +205,19 @@ namespace min {
 	// Simplify the meth switches in the following code to reduce excessive and tedious code duplication
 
 	#define MIN_WRAPPER_ADDMETHOD(c,methname,wrappermethod,methtype) \
-	if (a_method.first == #methname) \
-		c74::max::class_addmethod(c, (c74::max::method)wrapper_method_##wrappermethod<min_class_type,wrapper_method_name_##methname>, #methname, c74::max::methtype, 0);
+	if (a_message.first == #methname) \
+		max::class_addmethod(c, (max::method)wrapper_method_##wrappermethod<min_class_type,wrapper_message_name_##methname>, #methname, max::methtype, 0);
 
 	
 	// Shared class definition code for wrapping a Min class as a Max class
 
 	template<class min_class_type>
-	c74::max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* cppname, const char* cmaxname, void *resources) {
+	max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* cppname, const char* cmaxname, void *resources) {
 		std::string maxname = deduce_maxclassname(cmaxname);
 		
-		auto* c = c74::max::class_new(maxname.c_str() ,(c74::max::method)wrapper_new<min_class_type>, (c74::max::method)wrapper_free<min_class_type>, sizeof(minwrap<min_class_type>), nullptr, c74::max::A_GIMME, 0);
+		auto* c = max::class_new(maxname.c_str() ,(max::method)wrapper_new<min_class_type>, (max::method)wrapper_free<min_class_type>, sizeof(minwrap<min_class_type>), nullptr, max::A_GIMME, 0);
 		
-		for (auto& a_method : instance.methods()) {
+		for (auto& a_message : instance.messages()) {
 				 MIN_WRAPPER_ADDMETHOD(c, bang,					zero,								A_NOTHING)
 			else MIN_WRAPPER_ADDMETHOD(c, dblclick,				zero,								A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, okclose,				zero,								A_CANT)
@@ -231,21 +229,21 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, appendtodictionary,	ptr,								A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, notify,				self_sym_sym_ptr_ptr___err,			A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,		self_ptr_long_ptr_long_ptr_long,	A_CANT)
-			else if (a_method.first == "dspsetup")				; // skip -- handle it in operator classes
-			else if (a_method.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
+			else if (a_message.first == "dspsetup")				; // skip -- handle it in operator classes
+			else if (a_message.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
 			else
-				c74::max::class_addmethod(c, (c74::max::method)wrapper_method_generic<min_class_type>, a_method.first.c_str(), a_method.second->type(), 0);
+				max::class_addmethod(c, (max::method)wrapper_method_generic<min_class_type>, a_message.first.c_str(), a_message.second->type(), 0);
 			
-			// if there is a 'float' method but no 'int' method, generate a wrapper for it
-			if (a_method.first == "float" && (instance.methods().find("int") == instance.methods().end()))
-				c74::max::class_addmethod(c, (c74::max::method)wrapper_method_int<min_class_type,wrapper_method_name_float>, "int", c74::max::A_LONG, 0);
+			// if there is a 'float' message but no 'int' message, generate a wrapper for it
+			if (a_message.first == "float" && (instance.messages().find("int") == instance.messages().end()))
+				max::class_addmethod(c, (max::method)wrapper_method_int<min_class_type,wrapper_message_name_float>, "int", max::A_LONG, 0);
 		}
 		
 		for (auto& an_attribute : instance.attributes()) {
 			std::string		attr_name = an_attribute.first;
 			attribute_base&	attr = *an_attribute.second;
 			
-			attr.create(c, (c74::max::method)min_attr_getter<min_class_type>, (c74::max::method)min_attr_setter<min_class_type>);
+			attr.create(c, (max::method)min_attr_getter<min_class_type>, (max::method)min_attr_setter<min_class_type>);
 			
 			// Attribute Metadata
 			CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());
@@ -261,17 +259,13 @@ namespace min {
 
 
 	template<class min_class_type>
-	typename std::enable_if<
-		!std::is_base_of<c74::min::sample_operator_base, min_class_type>::value
-	&& 	!std::is_base_of<c74::min::perform_operator_base, min_class_type>::value
-	>::type
-	wrap_as_max_external_audio(c74::max::t_class*) {}
+	type_enable_if_not_audio_class<min_class_type> wrap_as_max_external_audio(max::t_class*) {}
 
 
 	template<class min_class_type>
-	void wrap_as_max_external_finish(c74::max::t_class* c) {
-		c74::max::class_addmethod(c, (c74::max::method)wrapper_method_assist<min_class_type>, "assist", c74::max::A_CANT, 0);
-		c74::max::class_register(c74::max::CLASS_BOX, c);
+	void wrap_as_max_external_finish(max::t_class* c) {
+		max::class_addmethod(c, (max::method)wrapper_method_assist<min_class_type>, "assist", max::A_CANT, 0);
+		max::class_register(max::CLASS_BOX, c);
 	}
 
 
@@ -279,12 +273,8 @@ namespace min {
 	// in c74_min_operator_matrix.h
 
 	template<class min_class_type>
-	typename std::enable_if<
-		!std::is_base_of<c74::min::matrix_operator, min_class_type>::value
-		&& !std::is_base_of<c74::min::gl_operator, min_class_type>::value
-	>::type
-	wrap_as_max_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr) {
-		c74::min::this_class_init = true;
+	type_enable_if_not_jitter_class<min_class_type> wrap_as_max_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr) {
+		this_class_init = true;
 
 		std::unique_ptr<min_class_type> dummy_instance = nullptr;
 
@@ -294,19 +284,16 @@ namespace min {
 		}	
 		
 		auto c = wrap_as_max_external_common<min_class_type>(*instance, cppname, maxname, resources);
-		//if (std::is_base_of<c74::min::audio_object, cpp_classname>())
+
 		wrap_as_max_external_audio<min_class_type>(c);
 		wrap_as_max_external_finish<min_class_type>(c);
-		c74::min::this_class = c;
+		this_class = c;
 		instance->try_call("maxclass_setup", c);
 	}
 	
 	
-	template<class min_class_type>
-	typename std::enable_if<
-	std::is_base_of<c74::min::matrix_operator, min_class_type>::value
-	>::type
-	wrap_as_max_external(const char* cppname, const char* cmaxname, void *resources, min_class_type* instance = nullptr) {
+	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
+	void wrap_as_max_external(const char* cppname, const char* cmaxname, void *resources, min_class_type* instance = nullptr) {
 		using c74::max::method;
 		using c74::max::class_addmethod;
 		
@@ -322,7 +309,7 @@ namespace min {
 		
 		// 1. Boxless Jit Class
 		
-		this_jit_class = (c74::max::t_class*)c74::max::jit_class_new(cppname, (method)jit_new<min_class_type>, (method)jit_free<min_class_type>, sizeof(minwrap<min_class_type>), 0);
+		this_jit_class = (max::t_class*)max::jit_class_new(cppname, (method)jit_new<min_class_type>, (method)jit_free<min_class_type>, sizeof(minwrap<min_class_type>), 0);
 		
 		size_t inletcount = 0;
 		for (auto i: instance->inlets()) {
@@ -340,21 +327,21 @@ namespace min {
 		bool ownsinput = (inletcount==0);
 		
 		//add mop
-		auto mop = c74::max::jit_object_new(c74::max::_jit_sym_jit_mop, inletcount, outletcount);
-		c74::max::jit_class_addadornment(this_jit_class, mop);
+		auto mop = max::jit_object_new(max::_jit_sym_jit_mop, inletcount, outletcount);
+		max::jit_class_addadornment(this_jit_class, mop);
 		
 		//add methods
-		c74::max::jit_class_addmethod(this_jit_class, (method)jit_matrix_calc<min_class_type>, "matrix_calc", c74::max::A_CANT, 0);
+		max::jit_class_addmethod(this_jit_class, (method)jit_matrix_calc<min_class_type>, "matrix_calc", max::A_CANT, 0);
 		
 		//add attributes
-		long attrflags = c74::max::ATTR_GET_DEFER_LOW | c74::max::ATTR_SET_USURP_LOW;
+		long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
 		
 		for (auto& an_attribute : instance->attributes()) {
 			std::string		attr_name = an_attribute.first;
 			attribute_base&	attr = *an_attribute.second;
-			auto			jit_attr = c74::max::jit_object_new(c74::max::_jit_sym_jit_attr_offset, attr_name.c_str(), (c74::max::t_symbol*)attr.datatype(), attrflags, (method)min_attr_getter<min_class_type>, (method)min_attr_setter<min_class_type>, 0);
+			auto			jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, attr_name.c_str(), (max::t_symbol*)attr.datatype(), attrflags, (method)min_attr_getter<min_class_type>, (method)min_attr_setter<min_class_type>, 0);
 
-			c74::max::jit_class_addattr(this_jit_class, jit_attr);
+			max::jit_class_addattr(this_jit_class, jit_attr);
 			CLASS_ATTR_LABEL(this_jit_class, attr_name.c_str(), 0, attr.label_string());
 			
 			auto range_string = attr.range_string();
@@ -370,44 +357,43 @@ namespace min {
 		
 		// 2. Max Wrapper Class
 
-		c74::max::t_class* c = c74::max::class_new(
-												   maxname.c_str(),
-												   (method)max_jit_mop_new<min_class_type>,
-												   (method)max_jit_mop_free<min_class_type>,
-												   sizeof(max_jit_wrapper),
-												   nullptr,
-												   c74::max::A_GIMME,
-												   0
-												   );
+		max::t_class* c = max::class_new(
+										maxname.c_str(),
+										(method)max_jit_mop_new<min_class_type>,
+										(method)max_jit_mop_free<min_class_type>,
+										sizeof(max_jit_wrapper),
+										nullptr,
+										max::A_GIMME,
+										0);
 		
-		c74::max::max_jit_class_obex_setup(c, calcoffset(max_jit_wrapper, obex));
+		max::max_jit_class_obex_setup(c, calcoffset(max_jit_wrapper, obex));
 		
 		// for generator mops, override jit_matrix and outputmatrix
-		long flags = (ownsinput ? c74::max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX|c74::max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
+		long flags = (ownsinput ? max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX | max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
 		
-		c74::max::max_jit_class_mop_wrap(c, c74::min::this_jit_class, flags);	// attrs & methods for name, type, dim, planecount, bang, outputmatrix, etc
-		c74::max::max_jit_class_wrap_standard(c, c74::min::this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
+		max::max_jit_class_mop_wrap(c, this_jit_class, flags);	// attrs & methods for name, type, dim, planecount, bang, outputmatrix, etc
+		max::max_jit_class_wrap_standard(c, this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
 		
-		c74::max::class_addmethod(c, (method)c74::max::max_jit_mop_assist, "assist", c74::max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
+		max::class_addmethod(c, (method)max::max_jit_mop_assist, "assist", max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
 		
 		if(ownsinput)
-			c74::max::max_jit_class_addmethod_usurp_low(c, (method)c74::min::min_jit_mop_outputmatrix<min_class_type>, (char*)"outputmatrix");
+			max::max_jit_class_addmethod_usurp_low(c, (method)min_jit_mop_outputmatrix<min_class_type>, (char*)"outputmatrix");
 		
-		for (auto& a_method : instance->methods()) {
+		for (auto& a_message : instance->messages()) {
 			MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
 			else MIN_WRAPPER_ADDMETHOD(c, notify,			self_sym_sym_ptr_ptr___err,			A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,	self_ptr_long_ptr_long_ptr_long,	A_CANT)
-			else if (a_method.first == "maxclass_setup")	; // for min class construction only, do not add for exposure to max
+			else if (a_message.first == "maxclass_setup")	; // for min class construction only, do not add for exposure to max
 			else
-				class_addmethod(c, (method)wrapper_method_generic<min_class_type>, a_method.first.c_str(), a_method.second->type(), 0);
+				class_addmethod(c, (method)wrapper_method_generic<min_class_type>, a_message.first.c_str(), a_message.second->type(), 0);
 		}
 		
 		// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
-		c->c_menufun = (c74::max::method)c74::max::gensym(cppname);
+		c->c_menufun = (max::method)max::gensym(cppname);
 		
-		c74::max::class_register(c74::max::CLASS_BOX, c);
+		max::class_register(max::CLASS_BOX, c);
 		
-		c74::min::this_class = c;
+		this_class = c;
 		instance->try_call("maxclass_setup", c);
 	}
 	

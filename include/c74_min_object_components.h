@@ -11,7 +11,7 @@ namespace min {
 	
 	class inlet;
 	class outlet;
-	class method;
+	class message;
 	class attribute_base;
 	
 	template<typename T>
@@ -74,11 +74,11 @@ namespace min {
 		}
 		
 		
-		auto inlets() -> std::vector<min::inlet*>& {
+		auto inlets() -> std::vector<inlet*>& {
 			return m_inlets;
 		}
 		
-		auto outlets() -> std::vector<min::outlet*>& {
+		auto outlets() -> std::vector<outlet*>& {
 			return m_outlets;
 		}
 		
@@ -86,8 +86,8 @@ namespace min {
 		void create_outlets();
 
 
-		auto methods() -> std::unordered_map<std::string, method*>& {
-			return m_methods;
+		auto messages() -> std::unordered_map<std::string, message*>& {
+			return m_messages;
 		}
 		
 		auto attributes() -> std::unordered_map<std::string, attribute_base*>& {
@@ -115,18 +115,18 @@ namespace min {
             return m_classname;
         }
         
-		/// Try to call a named method.
-		/// @param	name	The name of the method to attempt to call.
-		/// @param	args	Any args you wish to pass to the method call.
-		/// @return			If the method doesn't exist an empty set of atoms.
-		///					Otherwise the results of the method.
+		/// Try to call a named message.
+		/// @param	name	The name of the message to attempt to call.
+		/// @param	args	Any args you wish to pass to the message call.
+		/// @return			If the message doesn't exist an empty set of atoms.
+		///					Otherwise the results of the message.
 		atoms try_call(const std::string& name, const atoms& args = {});
 
-		/// Try to call a named method.
-		/// @param	name	The name of the method to attempt to call.
-		/// @param	arg		A single atom arg you wish to pass to the method call.
-		/// @return			If the method doesn't exist an empty set of atoms.
-		///					Otherwise the results of the method.
+		/// Try to call a named message.
+		/// @param	name	The name of the message to attempt to call.
+		/// @param	arg		A single atom arg you wish to pass to the message call.
+		/// @return			If the message doesn't exist an empty set of atoms.
+		///					Otherwise the results of the message.
 		atoms try_call(const std::string& name, const atom& arg) {
 			atoms as = {arg};
 			return try_call(name, as);
@@ -136,9 +136,9 @@ namespace min {
 		max::t_object*										m_maxobj; // initialized prior to placement new
 		bool												m_initializing = true;
 		bool												m_initialized = false;
-		std::vector<min::inlet*>							m_inlets;
-		std::vector<min::outlet*>							m_outlets;
-		std::unordered_map<std::string, method*>			m_methods;
+		std::vector<inlet*>									m_inlets;
+		std::vector<outlet*>								m_outlets;
+		std::unordered_map<std::string, message*>			m_messages;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
 		dict												m_state;
         symbol                                              m_classname; // what's typed in the max box
@@ -163,10 +163,10 @@ namespace min {
 	
 	
 	template<class min_class_type>
-	struct minwrap <min_class_type, typename std::enable_if<
-		   !std::is_base_of< min::perform_operator_base, min_class_type>::value
-		&& !std::is_base_of< min::sample_operator_base, min_class_type>::value
-		&& !std::is_base_of< min::gl_operator_base, min_class_type>::value
+	struct minwrap <min_class_type, typename enable_if<
+		   !is_base_of< perform_operator_base, min_class_type>::value
+		&& !is_base_of< sample_operator_base, min_class_type>::value
+		&& !is_base_of< gl_operator_base, min_class_type>::value
 	>::type > {
 		maxobject_base	max_base;
 		min_class_type	min_object;
