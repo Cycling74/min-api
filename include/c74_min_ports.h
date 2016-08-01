@@ -98,8 +98,20 @@ namespace min {
 			m_owner->outlets().push_back(this);
 		}
 		
+		void send(bool value) {
+			max::outlet_int(m_instance, value);
+		}
+
+		void send(int value) {
+			max::outlet_int(m_instance, value);
+		}
+
 		void send(long value) {
 			max::outlet_int(m_instance, value);
+		}
+
+		void send(float value) {
+			max::outlet_float(m_instance, value);
 		}
 
 		void send(double value) {
