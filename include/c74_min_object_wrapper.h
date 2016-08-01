@@ -337,21 +337,23 @@ namespace min {
 		//add methods
 		max::jit_class_addmethod(this_jit_class, (method)jit_matrix_calc<min_class_type>, "matrix_calc", max::A_CANT, 0);
 		
-		//add attributes
-		long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
-		
 		for (auto& an_attribute : instance->attributes()) {
 			std::string		attr_name = an_attribute.first;
 			attribute_base&	attr = *an_attribute.second;
-			auto			jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, attr_name.c_str(), (max::t_symbol*)attr.datatype(), attrflags, (method)min_attr_getter<min_class_type>, (method)min_attr_setter<min_class_type>, 0);
-
-			max::jit_class_addattr(this_jit_class, jit_attr);
-			CLASS_ATTR_LABEL(this_jit_class, attr_name.c_str(), 0, attr.label_string());
 			
+			attr.create(this_jit_class, (max::method)min_attr_getter<min_class_type>, (max::method)min_attr_setter<min_class_type>, true);
+			
+			// Attribute Metadata
+			CLASS_ATTR_LABEL(this_jit_class, attr_name.c_str(), 0, attr.label_string());
+
 			auto range_string = attr.range_string();
 			if (!range_string.empty()) {
-				if (attr.datatype() == "symbol")
+				if (attr.datatype() == "symbol") {
 					CLASS_ATTR_ENUM(this_jit_class, attr_name.c_str(), 0, range_string.c_str());
+				}
+				else if (attr.datatype() == "long") {
+					CLASS_ATTR_ENUMINDEX(this_jit_class, attr_name.c_str(), 0, range_string.c_str());
+				}
 			}
 		}
 		

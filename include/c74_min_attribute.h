@@ -63,7 +63,7 @@ namespace min {
 		virtual std::string range_string() = 0;
 		
 		/// Create the Max attribute and add it to the Max class
-		virtual void create(max::t_class* c, max::method getter, max::method setter) = 0;
+		virtual void create(max::t_class* c, max::method getter, max::method setter, bool isjitclass = 0) = 0;
 		
 		/// calculate the offset of the size member as required for array/vector attributes
 		size_t size_offset() {
@@ -203,7 +203,7 @@ namespace min {
 		
 		
 		/// Create the Max attribute and add it to the Max class
-		void create(max::t_class* c, max::method getter, max::method setter);
+		void create(max::t_class* c, max::method getter, max::method setter, bool isjitclass = 0);
 		
 		
 		operator atoms() const {
@@ -243,16 +243,30 @@ namespace min {
 	
 	
 	template<class T>
-	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter) {
-		auto max_attr = max::attr_offset_new(m_name, datatype(), 0, getter, setter, 0);
-		max::class_addattr(c, max_attr);
+	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
+		if(isjitclass) {
+			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
+			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, m_name.c_str(), (max::t_symbol*)datatype(), attrflags, getter, setter, 0);
+			max::jit_class_addattr(c, jit_attr);
+		}
+		else {
+			auto max_attr = max::attr_offset_new(m_name, datatype(), 0, getter, setter, 0);
+			max::class_addattr(c, max_attr);
+		}
 	};
 	
 	
 	template<>
-	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter) {
-		auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, 0, getter, setter, (long)size_offset(), 0);
-		max::class_addattr(c, max_attr);
+	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
+		if(isjitclass) {
+			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
+			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset_array, m_name.c_str(), (max::t_symbol*)datatype(), 0xFFFF, attrflags, getter, setter, (long)size_offset(), 0);
+			max::jit_class_addattr(c, jit_attr);
+		}
+		else {
+			auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, 0, getter, setter, (long)size_offset(), 0);
+			max::class_addattr(c, max_attr);
+		}
 	};
 	
 	
