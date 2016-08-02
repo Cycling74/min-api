@@ -89,11 +89,18 @@ namespace min {
 		auto messages() -> std::unordered_map<std::string, message*>& {
 			return m_messages;
 		}
+		auto messages() const -> const std::unordered_map<std::string, message*>& {
+			return m_messages;
+		}
+
 		
 		auto attributes() -> std::unordered_map<std::string, attribute_base*>& {
 			return m_attributes;
 		}
-		
+		auto attributes() const -> const std::unordered_map<std::string, attribute_base*>& {
+			return m_attributes;
+		}
+
 		void postinitialize() {
 			m_initialized = true;
 			m_initializing = false;

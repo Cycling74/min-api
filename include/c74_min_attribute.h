@@ -50,15 +50,23 @@ namespace min {
 		virtual operator atoms() const = 0;
 
 		/// fetch the name of the datatype
-		symbol datatype() {
+		symbol datatype() const {
 			return m_datatype;
 		}
-		
+
+		symbol name() const {
+			return m_name;
+		}
+
 		/// fetch the title/label as a string
 		const char* label_string() {
 			return m_title;
 		}
-		
+
+		std::string description_string() const {
+			return m_description;
+		}
+
 		/// fetch the range in string format, values separated by spaces
 		virtual std::string range_string() = 0;
 		
@@ -237,7 +245,7 @@ namespace min {
 		std::vector<T>& range_ref() {
 			return m_range;
 		}
-		
+
 	private:
 		T				m_value;
 		atoms			m_range_args;	// the range/enum as provided by the subclass

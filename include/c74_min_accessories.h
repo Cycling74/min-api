@@ -32,10 +32,6 @@ namespace min {
 			std::uniform_real_distribution<> dis(min, max);
 			return dis(gen);
 		}
-
-		
-		
-		
 		
 		/// Generates a cosine wave constrained between -1 to 1
 		///	@param T       render output as this datatype. algorithm was designed to assume the use of floating point.
@@ -122,6 +118,26 @@ namespace min {
 		
 	
 	
+	}
+
+
+	namespace strings {
+
+		/// Split a string into a vector of substrings on a specified delimiter
+		/// @param	s		The string to split
+		/// @param	delim	The delimiter on which to split the string
+		/// @return			A vector of substrings
+
+		std::vector<std::string> split(const std::string &s, char delim) {
+			std::vector<std::string>	substrings;
+			std::string					substring;
+			std::stringstream			ss(s);
+
+			while (getline(ss, substring, delim))
+				substrings.push_back(substring);
+			return substrings;
+		}
+
 	}
 	
 	

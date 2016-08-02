@@ -9,6 +9,11 @@ namespace c74 {
 namespace min {
 
 
+	// defined in c74_min_doc.h -- generates an updated maxref if needed
+	template<class T>
+	void doc_update(const T&, const std::string&, const std::string&);
+
+
 	// All objects use A_GIMME signature for construction
 	// However, all <in classes may not define a constructor to handle those arguments.
 
@@ -216,7 +221,9 @@ namespace min {
 		std::string maxname = deduce_maxclassname(cmaxname);
 		
 		auto* c = max::class_new(maxname.c_str() ,(max::method)wrapper_new<min_class_type>, (max::method)wrapper_free<min_class_type>, sizeof(minwrap<min_class_type>), nullptr, max::A_GIMME, 0);
-		
+
+		// messages
+
 		for (auto& a_message : instance.messages()) {
 				 MIN_WRAPPER_ADDMETHOD(c, bang,					zero,								A_NOTHING)
 			else MIN_WRAPPER_ADDMETHOD(c, dblclick,				zero,								A_CANT)
@@ -238,7 +245,9 @@ namespace min {
 			if (a_message.first == "float" && (instance.messages().find("int") == instance.messages().end()))
 				max::class_addmethod(c, (max::method)wrapper_method_int<min_class_type,wrapper_message_name_float>, "int", max::A_LONG, 0);
 		}
-		
+
+		// attributes
+
 		for (auto& an_attribute : instance.attributes()) {
 			std::string		attr_name = an_attribute.first;
 			attribute_base&	attr = *an_attribute.second;
@@ -258,6 +267,10 @@ namespace min {
 				}
 			}
 		}
+
+		// documentation update (if neccessary)
+		doc_update<min_class_type>(instance, maxname, cppname);
+
 		return c;
 	}
 

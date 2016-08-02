@@ -11,6 +11,7 @@
 #include <atomic>
 #include <chrono>
 #include <deque>
+#include <fstream>
 #include <iostream>
 #include <list>
 #include <string>
@@ -35,7 +36,19 @@ namespace min {
 
 	using sample_vector = std::vector<sample>;
 	
-	
+
+	// The title and description types are just strings.
+	// However, we have to define them unambiguously for the argument parsing in the attribute.
+
+	class title : public std::string {
+		using std::string::string; // inherit constructors
+	};
+
+	class description : public std::string {
+		using std::string::string; // inherit constructors
+	};
+
+
 	// Very selective group from the STL used only for making common
 	// template SFINAE code more readable
 
@@ -109,7 +122,6 @@ namespace min {
 }}
 
 
-#include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 #include "c74_min_object_components.h"	// Shared components of Max objects
 #include "c74_jitter.h"
 #include "c74_min_ports.h"				// Inlets and Outlets
@@ -129,6 +141,7 @@ namespace min {
 #include "c74_min_texteditor.h"			// Wrapper for text editor window
 
 #include "c74_min_accessories.h"		// Library of miscellaneous helper functions and widgets
+#include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 
 
 #define MIN_EXTERNAL(cpp_classname) \

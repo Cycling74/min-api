@@ -51,6 +51,14 @@ namespace min {
 		long type() {
 			return m_type;
 		}
+
+		std::string description_string() const {
+			return m_description;
+		}
+
+		symbol name() const {
+			return m_name;
+		}
 		
 	private:
 		object_base*	m_owner;
