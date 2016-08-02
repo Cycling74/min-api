@@ -20,7 +20,26 @@ namespace min {
 			temp
 		};
 
-		path(system initial) {
+
+		enum class filetype {
+			any = 0,
+			folder,
+			external,
+			patcher,
+		};
+
+
+		using filedate = max::t_ptr_uint;
+
+
+		// uninitialized path
+		path() {}
+
+
+		// path initialized to a system directory
+		path(system initial)
+		: m_directory {true}
+		{
 			switch (initial) {
 				case system::application:	m_path = max::path_getapppath(); break;
 				case system::desktop: 		m_path = max::path_desktopfolder(); break;
@@ -29,27 +48,101 @@ namespace min {
 				default:					m_path = 0; break;
 			}
 		}
-		
-		path(short path_id) {
-			m_path = path_id;
+
+
+		// path initialized to a user-supplied path id (discouraged, but might be provided by legacy Max API)
+		path(short path_id)
+		: m_path		{ path_id }
+		, m_directory	{true}
+		{}
+
+
+		// path initialized by name
+		path(const std::string& name, filetype type = filetype::any, bool create = false) {
+			strncpy(m_filename, name.c_str(), MAX_PATH_CHARS);
+
+			max::t_fourcc	types[max::TYPELIST_SIZE];
+			short			typecount = 0;
+
+			if (type == filetype::external)
+				max::typelist_make(types, max::TYPELIST_EXTERNS, &typecount);
+			else if (type == filetype::folder)
+				m_directory = true;
+
+			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, types, typecount);
+			if (err) {
+				if (create) {
+					if (type == filetype::folder) {
+						char	fullpath[MAX_PATH_CHARS];
+						char	filename[MAX_FILENAME_CHARS];
+						max::path_nameconform(name.c_str(), fullpath, max::PATH_STYLE_MAX, max::PATH_TYPE_ABSOLUTE);
+
+						char*	foldername = strrchr(fullpath, '/');
+						short	parent_folder_path = 0;
+
+						if (foldername) {
+							*foldername = 0;
+							foldername++;
+
+							err = max::path_frompathname(fullpath, &parent_folder_path, filename);
+							if (!err)
+								err = max::path_createfolder(parent_folder_path, foldername, &m_path);
+							if (err)
+								error("error trying to create folder");
+						}
+						else
+							error("no folder name provided");
+
+						strncpy(m_filename, foldername, MAX_PATH_CHARS);
+						m_directory = true;
+					}
+					else {
+						error("can only create folders, not files");
+					}
+				}
+				else {
+					error("file not found");
+				}
+			}
 		}
-		
-		~path() {
-			;
-		}
-		
+
+
 		operator std::string() const {
 			char pathname[MAX_PATH_CHARS];
-			
-			// assuming folder, not file...
-			max::path_topathname(m_path, nullptr, pathname);
+
+			max::path_toabsolutesystempath(m_path, m_filename, pathname);
 			std::string s = pathname;
 			return s;
 		}
+
+
+		// is this a valid path?
+		operator bool() const {
+			return m_path != 0;
+		}
+
+
+		filedate date_modified() const {
+			int			err;
+			filedate	date;
+
+			if (m_directory)
+				err = max::path_getmoddate(m_path, &date);
+			else
+				err = max::path_getfilemoddate(m_filename, m_path, &date);
+
+			if (err) {
+				error("failed to get date modified");
+			}
+			return date;
+		}
+
 				
 	private:
-		short	m_path;
-		
+		short			m_path = 0;
+		char			m_filename[MAX_PATH_CHARS] = {};
+		max::t_fourcc	m_type = 0;
+		bool			m_directory = false;
 	};
 	
 }} // namespace c74::min
