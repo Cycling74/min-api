@@ -79,10 +79,10 @@ namespace min {
 		function		m_getter;
 		bool			m_readonly { false };
 		size_t			m_size;		/// size of array/vector if attr is array/vector
+		description		m_description;
 	};
 	
 	
-	using title = std::string;
 	using range = atoms;
 	using enum_map = std::vector<std::string>;
 	using readonly = bool;
@@ -99,6 +99,13 @@ namespace min {
 			const_cast<symbol&>(m_title) = arg;
 		}
 		
+		/// constructor utility: handle an argument defining an attribute's description
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, description>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			m_description = arg;
+		}
+
 		/// constructor utility: handle an argument defining a attribute's range
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, range>::value>::type
