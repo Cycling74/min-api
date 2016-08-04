@@ -9,12 +9,12 @@ namespace c74 {
 namespace min {
 	
 	
-	using argument_handler = std::function<void(const atom&)>;
-	#define MIN_ARGUMENT_HANDLER [this](const c74::min::atom& arg)
+	using argument_function = std::function<void(const atom&)>;
+	#define MIN_ARGUMENT_FUNCTION [this](const c74::min::atom& arg)
 
 	class argument_base {
 	public:
-		argument_base(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_handler& a_function)
+		argument_base(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_function& a_function)
 		: m_owner		{ an_owner }
 		, m_name		{ a_name }
 		, m_description	{ a_description }
@@ -48,18 +48,18 @@ namespace min {
 		symbol				m_name;
 		description			m_description;
 		bool				m_required;
-		argument_handler	m_function;
+		argument_function	m_function;
 	};
 
 	template<class T>
 	class argument : public argument_base {
 	public:
-		argument(object_base* an_owner, const std::string& a_name, const description& a_description, const argument_handler& a_function = {})
+		argument(object_base* an_owner, const std::string& a_name, const description& a_description, const argument_function& a_function = {})
 		: argument_base(an_owner, a_name, a_description, false, a_function)
 		{}
 
 
-		argument(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_handler& a_function = {})
+		argument(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_function& a_function = {})
 		: argument_base(an_owner, a_name, a_description, required, a_function)
 		{}
 

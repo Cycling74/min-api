@@ -229,17 +229,19 @@ namespace min {
 
 		for (const auto& p: messages) {
 			const auto& message_object	= *p.second;
-			const auto& description		= message_object.description_string();
+			if (message_object.type() != max::A_CANT) {
+				const auto& description		= message_object.description_string();
 
-			strncpy(digest, description.c_str(), digest_length_max);
-			char *c = strchr(digest, '.');
-			if (c)
-				*c = 0;
+				strncpy(digest, description.c_str(), digest_length_max);
+				char *c = strchr(digest, '.');
+				if (c)
+					*c = 0;
 
-			refpage_file << "		<method name='" << message_object.name() << "'>" << endl;
-			refpage_file << "			<digest>" << digest << "</digest>" << endl;
-			refpage_file << "			<description>" << description << "</description>" << endl;
-			refpage_file << "		</method>" << endl << endl;
+				refpage_file << "		<method name='" << message_object.name() << "'>" << endl;
+				refpage_file << "			<digest>" << digest << "</digest>" << endl;
+				refpage_file << "			<description>" << description << "</description>" << endl;
+				refpage_file << "		</method>" << endl << endl;
+			}
 		}
 
 		refpage_file << "	</methodlist>" << endl;

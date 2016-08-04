@@ -28,7 +28,7 @@ namespace min {
 				name = "int";
 			else if (name == "number")
 				name = "float";
-			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose" || a_name == "patchlineupdate")
+			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "notify" || a_name == "okclose" || a_name == "patchlineupdate")
 				m_type = max::A_CANT;
 
 			m_name = name;
@@ -48,7 +48,7 @@ namespace min {
 			return m_function({arg});
 		}
 		
-		long type() {
+		long type() const {
 			return m_type;
 		}
 
