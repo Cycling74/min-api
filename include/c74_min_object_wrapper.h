@@ -419,6 +419,9 @@ namespace min {
 		
 		this_class = c;
 		instance->try_call("maxclass_setup", c);
+
+		// documentation update (if neccessary)
+		doc_update<min_class_type>(*instance, maxname, cppname);
 	}
 	
 	#undef MIN_WRAPPER_ADDMETHOD
