@@ -125,7 +125,7 @@ namespace min {
 #include "c74_min_object_components.h"	// Shared components of Max objects
 #include "c74_jitter.h"
 #include "c74_min_ports.h"				// Inlets and Outlets
-#include "c74_min_method.h"				// Messages to objects
+#include "c74_min_message.h"			// Messages to objects
 #include "c74_min_attribute.h"			// Attributes of objects
 #include "c74_min_logger.h"				// Console / Max Window output
 #include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
