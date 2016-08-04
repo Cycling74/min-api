@@ -59,7 +59,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< has_class_tags<min_class_type>::value>::type
 	doc_get_tags(tags& returned_tags) {
-		returned_tags = strings::split(min_class_type::class_tags, ',');
+		returned_tags = string_utility::split(min_class_type::class_tags, ',');
 	}
 
 	template<class min_class_type>
@@ -69,7 +69,38 @@ namespace min {
 	}
 
 
-	#define MIN_DESCRIPTION static constexpr const char* class_description
+	#define MIN_RELATED		static constexpr const char* class_related
+
+	using strings = std::vector<std::string>;
+
+	template<typename min_class_type>
+	struct has_class_related {
+		template<class, class> class checker;
+
+		template<typename C>
+		static std::true_type test(checker<C, decltype(&C::class_related)> *);
+
+		template<typename C>
+		static std::false_type test(...);
+
+		typedef decltype(test<min_class_type>(nullptr)) type;
+		static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+	};
+
+	template<class min_class_type>
+	typename enable_if< has_class_related<min_class_type>::value>::type
+		doc_get_related(strings& returned_tags) {
+		returned_tags = string_utility::split(min_class_type::class_related, ',');
+	}
+
+	template<class min_class_type>
+	typename enable_if< !has_class_related<min_class_type>::value>::type
+		doc_get_related(strings& returned_tags) {
+		returned_tags = {};
+	}
+
+
+#define MIN_DESCRIPTION static constexpr const char* class_description
 
 	template<typename min_class_type>
 	struct has_class_description {
@@ -117,7 +148,7 @@ namespace min {
 
 		refpage_file << "<c74object name='" << max_class_name << "' category='";
 
-		tags class_tags;
+		strings class_tags;
 		doc_get_tags<min_class_type>(class_tags);
 		for (auto i=0; i<class_tags.size(); ++i) {
 			if (i>0)
@@ -153,7 +184,7 @@ namespace min {
 		for (auto i=0; i<class_tags.size(); ++i)
 			refpage_file << "		<metadata name='tag'>" << class_tags[i] << "</metadata>" << endl;
 		refpage_file << "	</metadatalist>" << endl;
-		refpage_file << endl;
+		refpage_file << endl << endl;
 
 		// messages
 
@@ -178,7 +209,7 @@ namespace min {
 		}
 
 		refpage_file << "	</methodlist>" << endl;
-		refpage_file << endl;
+		refpage_file << endl << endl;
 
 		// attributes
 
@@ -204,7 +235,18 @@ namespace min {
 		}
 
 		refpage_file << "	</attributelist>" << endl;
-		refpage_file << endl;
+		refpage_file << endl << endl;
+
+		// related (see also)
+
+		refpage_file << "	<!--RELATED-->" << endl << endl;
+		refpage_file << "	<seealsolist>" << endl;
+		strings related;
+		doc_get_related<min_class_type>(related);
+		for (auto i = 0; i<related.size(); ++i)
+			refpage_file << "		<seealso name='" << related[i] << "' />" << endl;
+		refpage_file << "	</seealsolist>" << endl;
+		refpage_file << endl << endl;
 
 		// footer
 

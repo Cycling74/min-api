@@ -121,7 +121,7 @@ namespace min {
 	}
 
 
-	namespace strings {
+	namespace string_utility {
 
 		/// Split a string into a vector of substrings on a specified delimiter
 		/// @param	s		The string to split
