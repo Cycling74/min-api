@@ -9,47 +9,24 @@ namespace c74 {
 namespace min {
 	
 	
-//	using function = std::function<atoms(const atoms&)>;
-//	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms
-	
-	
-	class argument {
+	using argument_handler = std::function<void(const atom&)>;
+	#define MIN_ARGUMENT_HANDLER [this](const c74::min::atom& arg)
+
+	class argument_base {
 	public:
-		argument(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {})
+		argument_base(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_handler& a_function)
 		: m_owner		{ an_owner }
-		, m_function	{ a_function }
+		, m_name		{ a_name }
 		, m_description	{ a_description }
+		, m_required	{ required }
+		, m_function	{ a_function }
 		{
-			assert(m_function != nullptr); // could happen if a function is passed as the arg but that fn hasn't initialized yet
-
-			std::string name = a_name;
-			
-			if (name == "integer")
-				name = "int";
-			else if (name == "number")
-				name = "float";
-			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose" || a_name == "patchlineupdate")
-				m_type = max::A_CANT;
-
-			m_name = name;
-			m_owner->messages()[name] = this;
+			m_owner->register_argument(this);
 		}
 
-		argument(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
-		: message(an_owner, a_name, a_function, a_description)
-		{}
-
-		
-		atoms operator ()(atoms args = {}) {
-			return m_function(args);
-		}
-		
-		atoms operator ()(atom arg) {
-			return m_function({arg});
-		}
-		
-		long type() {
-			return m_type;
+		void operator ()(const atom& arg) {
+			if (m_function)
+				m_function(arg);
 		}
 
 		std::string description_string() const {
@@ -59,21 +36,54 @@ namespace min {
 		symbol name() const {
 			return m_name;
 		}
-		
-	private:
-		object_base*	m_owner;
-		function		m_function;
-		long			m_type { max::A_GIMME };
-		symbol			m_name;
-		description		m_description;
+
+		bool required() const {
+			return m_required;
+		}
+
+		virtual std::string type() = 0;
+
+	protected:
+		object_base*		m_owner;
+		symbol				m_name;
+		description			m_description;
+		bool				m_required;
+		argument_handler	m_function;
 	};
-	
-	
-	atoms object_base::try_call(const std::string& name, const atoms& args) {
-		auto found_message = m_messages.find(name);
-		if (found_message != m_messages.end())
-			return (*found_message->second)(args);
-		return {};
+
+	template<class T>
+	class argument : public argument_base {
+	public:
+		argument(object_base* an_owner, const std::string& a_name, const description& a_description, const argument_handler& a_function = {})
+		: argument_base(an_owner, a_name, a_description, false, a_function)
+		{}
+
+
+		argument(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_handler& a_function = {})
+		: argument_base(an_owner, a_name, a_description, required, a_function)
+		{}
+
+
+		std::string type() override {
+			if		(is_same<T, bool>::value)		return "bool";
+			else if (is_same<T, number>::value)		return "number";
+			else if (is_same<T, float>::value)		return "float";
+			else if (is_same<T, double>::value)		return "float";
+			else if (is_same<T, int>::value)		return "int";
+			else if (is_same<T, long>::value)		return "int";
+			else if (is_same<T, symbol>::value)		return "symbol";
+			else									return "";			// includes 'anything' type
+
+		}
+	};
+
+
+	void object_base::process_arguments(const atoms& args) {
+		auto argcount = std::min(args.size(), m_arguments.size());
+
+		for (auto i=0; i<argcount; ++i)
+			(*m_arguments[i])(args[i]);
 	}
+
 
 }} // namespace c74::min

@@ -29,7 +29,9 @@ namespace min {
 	
 	using uchar = unsigned char;
 
+	using number = double;
 	using sample = double;
+	struct anything {};
 
 	template<size_t count>
 	using samples = std::array<sample, count>;

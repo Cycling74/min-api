@@ -17,14 +17,19 @@ namespace min {
 	// All objects use A_GIMME signature for construction
 	// However, all <in classes may not define a constructor to handle those arguments.
 
+	// Class has constructor -- The arguments will be handled manually
+
 	template<class min_class_type, typename enable_if< std::is_constructible<min_class_type,atoms>::value, int>::type = 0>
 	void min_ctor(minwrap<min_class_type>* self, const atoms& args) {
 		new(&self->min_object) min_class_type(args); // placement new
 	}
+
+	// Class has no constructor -- Handle the arguments automatically
 	
 	template<class min_class_type, typename enable_if< !std::is_constructible<min_class_type,atoms>::value, int>::type = 0>
 	void min_ctor(minwrap<min_class_type>* self, const atoms& args) {
 		new(&self->min_object) min_class_type; // placement new
+		self->min_object.process_arguments(args);
 	}
 	
 	

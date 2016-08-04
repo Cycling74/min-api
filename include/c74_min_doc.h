@@ -187,6 +187,39 @@ namespace min {
 		refpage_file << "	</metadatalist>" << endl;
 		refpage_file << endl << endl;
 
+		// arguments
+
+		refpage_file << "	<!--ARGUMENTS-->" << endl << endl;
+		refpage_file << "	<objarglist>" << endl << endl;
+
+		const auto& arguments = instance.arguments();
+
+		for (const auto& arg: arguments) {
+			const auto& description	= arg->description_string();
+			const auto&	type		= arg->type();
+			bool		required	= arg->required();
+
+			strncpy(digest, description.c_str(), digest_length_max);
+			char *c = strchr(digest, '.');
+			if (c)
+				*c = 0;
+
+			refpage_file << "		<objarg name='" << arg->name() << "'";
+			if (required)
+				refpage_file << " optional='0'";
+			else
+				refpage_file << " optional='1'";
+			if (!type.empty())
+				refpage_file << " type='" << type << "'";
+			refpage_file << ">" << endl;
+			refpage_file << "			<digest>" << digest << "</digest>" << endl;
+			refpage_file << "			<description>" << description << "</description>" << endl;
+			refpage_file << "		</objarg>" << endl << endl;
+		}
+
+		refpage_file << "	</objarglist>" << endl;
+		refpage_file << endl << endl;
+		
 		// messages
 
 		refpage_file << "	<!--MESSAGES-->" << endl << endl;

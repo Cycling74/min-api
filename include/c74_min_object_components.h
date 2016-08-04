@@ -11,6 +11,7 @@ namespace min {
 	
 	class inlet;
 	class outlet;
+	class argument_base;
 	class message;
 	class attribute_base;
 	
@@ -86,6 +87,18 @@ namespace min {
 		void create_outlets();
 
 
+		void register_argument(argument_base* arg) {
+			m_arguments.push_back(arg);
+		}
+
+		// defined in c74_min_argument.h
+		void process_arguments(const atoms& args);
+
+		auto arguments() const -> const std::vector<argument_base*>& {
+			return m_arguments;
+		}
+
+
 		auto messages() -> std::unordered_map<std::string, message*>& {
 			return m_messages;
 		}
@@ -145,6 +158,7 @@ namespace min {
 		bool												m_initialized = false;
 		std::vector<inlet*>									m_inlets;
 		std::vector<outlet*>								m_outlets;
+		std::vector<argument_base*>							m_arguments;
 		std::unordered_map<std::string, message*>			m_messages;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
 		dict												m_state;
