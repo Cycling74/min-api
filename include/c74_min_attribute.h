@@ -111,7 +111,7 @@ namespace min {
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, description>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-			m_description = arg;
+			const_cast<argument_type&>(m_description) = arg;
 		}
 
 		/// constructor utility: handle an argument defining a attribute's range
