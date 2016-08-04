@@ -93,8 +93,7 @@ namespace min {
 						else
 							error("no folder name provided");
 
-						strncpy(m_filename, foldername, MAX_PATH_CHARS);
-						m_directory = true;
+						m_filename[0] = 0;
 					}
 					else {
 						error("can only create folders, not files");
