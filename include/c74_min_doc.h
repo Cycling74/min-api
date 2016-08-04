@@ -171,7 +171,8 @@ namespace min {
 			*c = 0;
 
 		refpage_file << "	<digest>" << digest << "</digest>" << endl;
-		refpage_file << "	<description>" << class_description << "</description>" << endl << endl;
+		refpage_file << "	<description>" << class_description << "</description>" << endl;
+		refpage_file << endl << endl;
 
 		// tags
 
@@ -182,7 +183,7 @@ namespace min {
 		refpage_file << "	<metadatalist>" << endl;
 		refpage_file << "		<metadata name='author'>" << author << "</metadata>" << endl;
 		for (auto i=0; i<class_tags.size(); ++i)
-			refpage_file << "		<metadata name='tag'>" << class_tags[i] << "</metadata>" << endl;
+			refpage_file << "		<metadata name='tag'>" << string_utility::trim(class_tags[i]) << "</metadata>" << endl;
 		refpage_file << "	</metadatalist>" << endl;
 		refpage_file << endl << endl;
 
@@ -244,7 +245,7 @@ namespace min {
 		strings related;
 		doc_get_related<min_class_type>(related);
 		for (auto i = 0; i<related.size(); ++i)
-			refpage_file << "		<seealso name='" << related[i] << "' />" << endl;
+			refpage_file << "		<seealso name='" << string_utility::trim(related[i]) << "' />" << endl;
 		refpage_file << "	</seealsolist>" << endl;
 		refpage_file << endl << endl;
 

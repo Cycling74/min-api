@@ -122,16 +122,30 @@ namespace min {
 
 
 	namespace string_utility {
+		using std::string;
+		using std::vector;
+
+
+		/// Trim leading and trailing whitespace from a string
+		/// @param	s	The string to trim
+		/// @return		The trimmed string
+
+		string trim(string& s) {
+			size_t first = s.find_first_not_of(' ');
+			size_t last = s.find_last_not_of(' ');
+			return s.substr(first, (last - first + 1));
+		}
+
 
 		/// Split a string into a vector of substrings on a specified delimiter
 		/// @param	s		The string to split
 		/// @param	delim	The delimiter on which to split the string
 		/// @return			A vector of substrings
 
-		std::vector<std::string> split(const std::string &s, char delim) {
-			std::vector<std::string>	substrings;
-			std::string					substring;
-			std::stringstream			ss(s);
+		vector<string> split(const string &s, char delim) {
+			vector<string>		substrings;
+			string				substring;
+			std::stringstream	ss(s);
 
 			while (getline(ss, substring, delim))
 				substrings.push_back(substring);
