@@ -20,4 +20,9 @@ namespace max {
 		return nullptr;
 	}
 
+	MOCK_EXPORT t_dictionary* dictobj_register(t_dictionary* d, t_symbol** name) {
+		return nullptr;
+	}
+
+
 }} // namespace c74::max
