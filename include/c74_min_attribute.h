@@ -50,15 +50,23 @@ namespace min {
 		virtual operator atoms() const = 0;
 
 		/// fetch the name of the datatype
-		symbol datatype() {
+		symbol datatype() const {
 			return m_datatype;
 		}
-		
+
+		symbol name() const {
+			return m_name;
+		}
+
 		/// fetch the title/label as a string
 		const char* label_string() {
 			return m_title;
 		}
-		
+
+		std::string description_string() const {
+			return m_description;
+		}
+
 		/// fetch the range in string format, values separated by spaces
 		virtual std::string range_string() = 0;
 		
@@ -79,10 +87,10 @@ namespace min {
 		function		m_getter;
 		bool			m_readonly { false };
 		size_t			m_size;		/// size of array/vector if attr is array/vector
+		description		m_description;
 	};
 	
 	
-	using title = std::string;
 	using range = atoms;
 	using enum_map = std::vector<std::string>;
 	using readonly = bool;
@@ -99,6 +107,13 @@ namespace min {
 			const_cast<symbol&>(m_title) = arg;
 		}
 		
+		/// constructor utility: handle an argument defining an attribute's description
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, description>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_description) = arg;
+		}
+
 		/// constructor utility: handle an argument defining a attribute's range
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, range>::value>::type
@@ -230,7 +245,7 @@ namespace min {
 		std::vector<T>& range_ref() {
 			return m_range;
 		}
-		
+
 	private:
 		T				m_value;
 		atoms			m_range_args;	// the range/enum as provided by the subclass

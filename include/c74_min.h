@@ -11,6 +11,7 @@
 #include <atomic>
 #include <chrono>
 #include <deque>
+#include <fstream>
 #include <iostream>
 #include <list>
 #include <string>
@@ -28,14 +29,28 @@ namespace min {
 	
 	using uchar = unsigned char;
 
+	using number = double;
 	using sample = double;
+	struct anything {};
 
 	template<size_t count>
 	using samples = std::array<sample, count>;
 
 	using sample_vector = std::vector<sample>;
 	
-	
+
+	// The title and description types are just strings.
+	// However, we have to define them unambiguously for the argument parsing in the attribute.
+
+	class title : public std::string {
+		using std::string::string; // inherit constructors
+	};
+
+	class description : public std::string {
+		using std::string::string; // inherit constructors
+	};
+
+
 	// Very selective group from the STL used only for making common
 	// template SFINAE code more readable
 
@@ -112,7 +127,8 @@ namespace min {
 #include "c74_min_object_components.h"	// Shared components of Max objects
 #include "c74_jitter.h"
 #include "c74_min_ports.h"				// Inlets and Outlets
-#include "c74_min_method.h"				// Messages to objects
+#include "c74_min_argument.h"			// Arguments to objects
+#include "c74_min_message.h"			// Messages to objects
 #include "c74_min_attribute.h"			// Attributes of objects
 #include "c74_min_logger.h"				// Console / Max Window output
 #include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
@@ -128,6 +144,7 @@ namespace min {
 #include "c74_min_texteditor.h"			// Wrapper for text editor window
 
 #include "c74_min_accessories.h"		// Library of miscellaneous helper functions and widgets
+#include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 
 
 #define MIN_EXTERNAL(cpp_classname) \

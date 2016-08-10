@@ -110,6 +110,10 @@ namespace min {
 			max::outlet_int(m_instance, value);
 		}
 
+		void send(size_t value) {
+			max::outlet_int(m_instance, value);
+		}
+
 		void send(float value) {
 			max::outlet_float(m_instance, value);
 		}

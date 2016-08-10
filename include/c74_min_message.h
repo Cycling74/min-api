@@ -15,9 +15,10 @@ namespace min {
 	
 	class message {
 	public:
-		message(object_base* an_owner, const std::string& a_name, const function& a_function)
+		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {})
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
+		, m_description	{ a_description }
 		{
 			assert(m_function != nullptr); // could happen if a function is passed as the arg but that fn hasn't initialized yet
 
@@ -27,12 +28,25 @@ namespace min {
 				name = "int";
 			else if (name == "number")
 				name = "float";
-			else if (a_name == "dsp64" || a_name == "dblclick" || a_name == "edclose" || a_name == "okclose" || a_name == "patchlineupdate")
+			else if (   a_name == "dsp64"
+					 || a_name == "dblclick"
+					 || a_name == "edclose"
+					 || a_name == "notify"
+					 || a_name == "okclose"
+					 || a_name == "patchlineupdate"
+					 || a_name == "savestate"
+			) {
 				m_type = max::A_CANT;
+			}
 
 			m_name = name;
 			m_owner->messages()[name] = this;
 		}
+
+		message(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
+		: message(an_owner, a_name, a_function, a_description)
+		{}
+
 		
 		atoms operator ()(atoms args = {}) {
 			return m_function(args);
@@ -42,8 +56,16 @@ namespace min {
 			return m_function({arg});
 		}
 		
-		long type() {
+		long type() const {
 			return m_type;
+		}
+
+		std::string description_string() const {
+			return m_description;
+		}
+
+		symbol name() const {
+			return m_name;
 		}
 		
 	private:
@@ -51,6 +73,7 @@ namespace min {
 		function		m_function;
 		long			m_type { max::A_GIMME };
 		symbol			m_name;
+		description		m_description;
 	};
 	
 	
