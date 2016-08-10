@@ -121,6 +121,7 @@ namespace c74 {
 namespace min {
 	static max::t_class*	this_class = nullptr;
 	static bool				this_class_init = false;
+    static max::t_symbol*   this_class_name = nullptr;
 }}
 
 

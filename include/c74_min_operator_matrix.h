@@ -168,7 +168,7 @@ namespace min {
 	void* max_jit_mop_new(max::t_symbol* s, long argc, max::t_atom* argv) {
 		atom_reference		args(argc, argv);
         long				attrstart	= attr_args_offset((short)args.size(), args.begin());
-		auto				cppname		= (max::t_symbol*)this_class->c_menufun;
+        auto				cppname		= this_class_name;
 		max_jit_wrapper*	self		= (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
 		void*				o			= max::jit_object_new(cppname, s);
 		

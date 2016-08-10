@@ -98,7 +98,7 @@ namespace min {
 	template<class min_class_type>
 	void*
 	max_jit_gl_new(max::t_symbol* s, long argc, max::t_atom* argv) {
-		auto cppname = (max::t_symbol*)this_class->c_menufun;
+        auto cppname = this_class_name;
 		max_jit_wrapper* self = (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
 		void* o = max::jit_object_new(cppname, s);
 		max_jit_mop_setup_simple(self, o, argc, argv);
@@ -182,8 +182,7 @@ namespace min {
 		
 		max::class_addmethod(this_class, (max::method)max::max_jit_mop_assist, "assist", max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
 		
-		// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
-		this_class->c_menufun = (max::method)max::gensym(cppname);
+        this_class_name = max::gensym(cppname);
 		
 		max::class_register(max::CLASS_BOX, this_class);
 	}
