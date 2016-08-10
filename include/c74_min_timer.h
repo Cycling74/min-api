@@ -31,8 +31,11 @@ namespace min {
 		~timer() {
 			object_free(m_instance);
 		}
-		
-		
+
+
+		timer(const timer&) = delete;
+
+
 		void delay(double duration_in_ms) {
 			clock_fdelay(m_instance, duration_in_ms);
 		}
