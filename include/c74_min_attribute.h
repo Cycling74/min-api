@@ -289,7 +289,7 @@ namespace min {
 	std::string attribute<T>::range_string() {
 		std::stringstream ss;
 		for (const auto& val : m_range)
-			ss << range_string_item<T>(this, val) << " ";
+			ss << "\"" << range_string_item<T>(this, val) << "\" ";
 		return ss.str();
 	};
 
