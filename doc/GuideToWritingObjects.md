@@ -118,7 +118,7 @@ Following the 3 required arguments, attributes may have any number of optional a
 * `title`: this is a human-friendly label for your attribute shown in the inspector
 * `range`: for numerical attributes this will be two values representing the low and high limits of the number; for symbols this will be a list of possible options available to be specified
 * `setter`: a function to be run prior to assigning the value
-* `getter`: a function to be run after fetching the stored value
+* `getter`: a custom function for fetching the stored value
 * `readonly` : a bool that indicates an attribute is not user-writable
 
 An attribute that uses just the `setter` might look like this:

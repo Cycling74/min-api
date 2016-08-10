@@ -29,8 +29,9 @@ namespace min {
 	
 	
 	using setter = function;
-	using getter = std::function<atoms()>;;
+	using getter = std::function<atoms()>;
 
+	#define MIN_GETTER_FUNCTION [this]()->atoms
 	
 	class attribute_base {
 	public:
@@ -83,8 +84,8 @@ namespace min {
 		symbol			m_name;
         symbol			m_title;
 		symbol			m_datatype;
-		function		m_setter;
-		function		m_getter;
+		setter			m_setter;
+		getter			m_getter;
 		bool			m_readonly { false };
 		size_t			m_size;		/// size of array/vector if attr is array/vector
 		description		m_description;
@@ -222,12 +223,18 @@ namespace min {
 		
 		
 		operator atoms() const {
-			return to_atoms(m_value);
+			if (m_getter)
+				return m_getter();
+			else
+				return to_atoms(m_value);
 		}
 		
 		
 		operator T() const {
-			return m_value;
+			if (m_getter)
+				assert(false); // at the moment there is no easy way to support this
+			else
+				return m_value;
 		}
 		
 
