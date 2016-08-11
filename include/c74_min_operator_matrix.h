@@ -166,6 +166,8 @@ namespace min {
 	
 	template<class min_class_type>
 	void* max_jit_mop_new(max::t_symbol* s, long argc, max::t_atom* argv) {
+		assert(this_class_name != nullptr); // required pre-condition
+
 		atom_reference		args(argc, argv);
         long				attrstart	= attr_args_offset((short)args.size(), args.begin());
         auto				cppname		= this_class_name;
