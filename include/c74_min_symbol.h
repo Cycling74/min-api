@@ -72,12 +72,20 @@ namespace min {
 			return s;
 		}
 		
+		operator std::string() const {
+			return std::string(s->s_name);
+		}
+
 		operator const char*() const {
 			return s->s_name;
 		}
-		
+
 		operator max::t_dictionary*() const {
 			return s->s_thing;
+		}
+
+		operator bool() const {
+			return s->s_thing != nullptr;
 		}
 		
 		
@@ -113,6 +121,7 @@ namespace min {
 	static const symbol k_sym_list("list");				/// The symbol "list".
 	static const symbol k_sym_bang("bang");				/// The symbol "bang".
 	static const symbol k_sym_getname("getname");		/// The symbol "getname".
+	static const symbol k_sym_max("max");				/// The symbol "max" -- the max object
 
 	
 }} // namespace c74::min
