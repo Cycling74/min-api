@@ -278,9 +278,12 @@ namespace min {
 			else
 				return to_atoms(m_value);
 		}
-		
-		
-		operator T() const {
+
+
+		// we need to return by const reference due to cases where the type of the attribute is a class
+		// for example, a time_interval attribute cannot be copy constructed
+
+		operator const T&() const {
 			if (m_getter)
 				assert(false); // at the moment there is no easy way to support this
 			else
@@ -357,7 +360,9 @@ namespace min {
 	
 	template<class T>
 	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
-		if(isjitclass) {
+		if (m_style == style::time)
+			class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
+		else if (isjitclass) {
 			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
 			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, m_name.c_str(), (max::t_symbol*)datatype(), attrflags, getter, setter, 0);
 			max::jit_class_addattr(c, jit_attr);
@@ -371,7 +376,7 @@ namespace min {
 	
 	template<>
 	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
-		if(isjitclass) {
+		if (isjitclass) {
 			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
 			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset_array, m_name.c_str(), (max::t_symbol*)datatype(), 0xFFFF, attrflags, getter, setter, (long)size_offset(), 0);
 			max::jit_class_addattr(c, jit_attr);
