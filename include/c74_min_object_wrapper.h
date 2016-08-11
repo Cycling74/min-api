@@ -424,8 +424,7 @@ namespace min {
 				class_addmethod(c, (method)wrapper_method_generic<min_class_type>, a_message.first.c_str(), a_message.second->type(), 0);
 		}
 		
-		// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
-		c->c_menufun = (max::method)max::gensym(cppname);
+		this_class_name = max::gensym(cppname);
 		
 		max::class_register(max::CLASS_BOX, c);
 		
