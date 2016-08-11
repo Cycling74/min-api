@@ -262,6 +262,18 @@ namespace min {
 			// Attribute Metadata
 			CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());
 
+            if (attr.editor_style() != style::none)
+                CLASS_ATTR_STYLE(c, attr_name.c_str(), 0, style_symbols[attr.editor_style()]);
+
+            if (!(attr.editor_category() == k_sym__empty))
+            {
+                atom category_atom(attr.editor_category());
+                CLASS_ATTR_ATTR_ATOMS(c, attr_name.c_str(), "category", 0, k_sym_symbol, 1, &category_atom);
+            }
+
+            atom order_atom(attr.editor_order());
+            CLASS_ATTR_ATTR_ATOMS(c, attr_name.c_str(), "order", 0, k_sym_long, 1, &order_atom);
+
 			auto range_string = attr.range_string();
 			if (!range_string.empty()) {
 				if (attr.datatype() == "symbol") {
@@ -412,7 +424,8 @@ namespace min {
 				class_addmethod(c, (method)wrapper_method_generic<min_class_type>, a_message.first.c_str(), a_message.second->type(), 0);
 		}
 		
-        this_class_name = max::gensym(cppname);
+		// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
+		c->c_menufun = (max::method)max::gensym(cppname);
 		
 		max::class_register(max::CLASS_BOX, c);
 		
