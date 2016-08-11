@@ -360,13 +360,14 @@ namespace min {
 		// If no matrix inputs are declared, the mop is a generator
 		bool ownsinput = (inletcount==0);
 		
-		//add mop
+		// add mop
 		auto mop = max::jit_object_new(max::_jit_sym_jit_mop, inletcount, outletcount);
 		max::jit_class_addadornment(this_jit_class, mop);
 		
-		//add methods
+		// add methods
 		max::jit_class_addmethod(this_jit_class, (method)jit_matrix_calc<min_class_type>, "matrix_calc", max::A_CANT, 0);
-		
+
+		// add attributes
 		for (auto& an_attribute : instance->attributes()) {
 			std::string		attr_name = an_attribute.first;
 			attribute_base&	attr = *an_attribute.second;

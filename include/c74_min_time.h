@@ -52,7 +52,6 @@ namespace min {
 			return *this;
 		}
 
-
 		operator double() const {
 			return get_milliseconds();
 		}
@@ -81,9 +80,6 @@ namespace min {
 			}
 			m_interval_ms = value;
 		}
-
 	};
 
-
-		
 }} // namespace c74::min

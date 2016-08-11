@@ -239,28 +239,8 @@ namespace min {
 		/// @param a_default_value	The default value of the attribute, which will be set when the instance is created.
 		/// @param ...args			N arguments specifying optional properties of an attribute such as setter, label, style, etc.
 		template<typename ...ARGS>
-		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
-		;
-/*		: attribute_base { *an_owner, a_name }
-		{
-			m_owner.attributes()[a_name] = this;
-			
-			if (is_same<T, bool>::value)			m_datatype = k_sym_long;
-			else if (is_same<T, int>::value)		m_datatype = k_sym_long;
-			else if (is_enum<T>::value)				m_datatype = k_sym_long;
-			else if (is_same<T, symbol>::value)		m_datatype = k_sym_symbol;
-			else if (is_same<T, float>::value)		m_datatype = k_sym_float32;
-			else									m_datatype = k_sym_float64;
+		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args);
 
-			if (is_same<T, bool>::value)			m_style = style::onoff;
-			else									m_style = style::none;
-
-			handle_arguments(args...);
-			copy_range();
-
-			set(to_atoms(a_default_value), false);
-		}
-*/
 		
 		/// Set the attribute value using the native type of the attribute.
 		attribute& operator = (const T arg) {
@@ -449,22 +429,6 @@ namespace min {
 			attr->range_ref().push_back((T)i);
 	}
 
-	// time_interval attrs are also special
-//	template<class T, typename enable_if< is_time_interval<T>::value, int>::type = 0>
-//	void range_copy_helper(attribute<T>* attr) {
-//		const auto& a = attr->get_range_args();
-//
-//		switch (a.size()) {
-//			case 0:
-//				break;
-//			case 2:
-//				attr->range_ref().push_back( a[0] );
-//				attr->range_ref().push_back( a[1] );
-//				break;
-//			default:
-//				assert(false); // not supported
-//		}
-//	}
 
 	// all non-enum attrs can just copy range normally
 	template<class T, typename enable_if< !std::is_enum<T>::value /*&& !is_time_interval<T>::value*/, int>::type = 0>
