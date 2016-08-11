@@ -6,6 +6,7 @@
 #pragma once
 
 #include <sstream>
+#include <unordered_map>
 
 namespace c74 {
 namespace min {
@@ -32,7 +33,33 @@ namespace min {
 	using getter = std::function<atoms()>;
 
 	#define MIN_GETTER_FUNCTION [this]()->atoms
-	
+
+	enum class style {
+		none,
+        text,
+        onoff,
+        rgba,
+		enum_symbol,
+		enum_index,
+		rect,
+		font,
+		file
+	};
+
+	std::unordered_map<style, symbol> style_symbols {
+			{ style::text, "text"},
+			{ style::onoff, "onoff"},
+			{ style::rgba, "rgba"},
+			{ style::enum_symbol, "enum"},
+			{ style::enum_index, "enumindex"},
+			{ style::rect, "rect"},
+			{ style::font, "font"},
+			{ style::file, "file"},
+	};
+
+	using category = symbol;
+	using order = long;
+
 	class attribute_base {
 	public:
 		attribute_base(object_base& an_owner, std::string a_name)
@@ -68,6 +95,18 @@ namespace min {
 			return m_description;
 		}
 
+		style editor_style() const {
+			return m_style;
+		}
+
+		symbol editor_category() const {
+			return m_category;
+		}
+
+		long editor_order() const {
+			return m_order;
+		}
+
 		/// fetch the range in string format, values separated by spaces
 		virtual std::string range_string() = 0;
 		
@@ -89,6 +128,10 @@ namespace min {
 		bool			m_readonly { false };
 		size_t			m_size;		/// size of array/vector if attr is array/vector
 		description		m_description;
+
+		style			m_style;		// display style in Max
+		symbol			m_category;		// Max inspector category
+		long 			m_order { 0 };	// Max inspector ordering
 	};
 	
 	
@@ -151,6 +194,28 @@ namespace min {
 			const_cast<argument_type&>(m_readonly) = arg;
 		}
 
+		/// constructor utility: handle an argument defining a attribute's style property
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, style>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_style) = arg;
+		}
+
+		/// constructor utility: handle an argument defining a attribute's category property
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, category>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_category) = arg;
+		}
+
+		/// constructor utility: handle an argument defining a attribute's order property
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, order>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_order) = arg;
+		}
+
+
 		/// constructor utility: empty argument handling (required for recursive variadic templates)
 		constexpr void handle_arguments() noexcept {
 			;
@@ -184,6 +249,9 @@ namespace min {
 			else if (is_same<T, symbol>::value)		m_datatype = k_sym_symbol;
 			else if (is_same<T, float>::value)		m_datatype = k_sym_float32;
 			else									m_datatype = k_sym_float64;
+
+			if (is_same<T, bool>::value)			m_style = style::onoff;
+			else									m_style = style::none;
 
 			handle_arguments(args...);
 			copy_range();
