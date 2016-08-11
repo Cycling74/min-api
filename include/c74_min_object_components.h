@@ -66,7 +66,11 @@ namespace min {
 			return proxy_getinlet((max::t_object*)m_maxobj);
 		}
 		
-		operator max::t_object* () {
+		operator max::t_object* () const {
+			return m_maxobj;
+		}
+
+		max::t_object* maxobj() const {
 			return m_maxobj;
 		}
 		
