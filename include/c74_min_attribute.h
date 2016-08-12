@@ -43,7 +43,8 @@ namespace min {
 		enum_index,
 		rect,
 		font,
-		file
+		file,
+		time
 	};
 
 	std::unordered_map<style, symbol> style_symbols {
@@ -238,27 +239,8 @@ namespace min {
 		/// @param a_default_value	The default value of the attribute, which will be set when the instance is created.
 		/// @param ...args			N arguments specifying optional properties of an attribute such as setter, label, style, etc.
 		template<typename ...ARGS>
-		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
-		: attribute_base { *an_owner, a_name }
-		{
-			m_owner.attributes()[a_name] = this;
-			
-			if (is_same<T, bool>::value)			m_datatype = k_sym_long;
-			else if (is_same<T, int>::value)		m_datatype = k_sym_long;
-			else if (is_enum<T>::value)				m_datatype = k_sym_long;
-			else if (is_same<T, symbol>::value)		m_datatype = k_sym_symbol;
-			else if (is_same<T, float>::value)		m_datatype = k_sym_float32;
-			else									m_datatype = k_sym_float64;
+		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args);
 
-			if (is_same<T, bool>::value)			m_style = style::onoff;
-			else									m_style = style::none;
-
-			handle_arguments(args...);
-			copy_range();
-
-			set(to_atoms(a_default_value), false);
-		}
-		
 		
 		/// Set the attribute value using the native type of the attribute.
 		attribute& operator = (const T arg) {
@@ -296,9 +278,12 @@ namespace min {
 			else
 				return to_atoms(m_value);
 		}
-		
-		
-		operator T() const {
+
+
+		// we need to return by const reference due to cases where the type of the attribute is a class
+		// for example, a time_interval attribute cannot be copy constructed
+
+		operator const T&() const {
 			if (m_getter)
 				assert(false); // at the moment there is no easy way to support this
 			else
@@ -329,12 +314,55 @@ namespace min {
 		
 		void copy_range();				// copy m_range_args to m_range
 	};
-	
-	
+
+
+
+	template<class T>
+	template<typename ...ARGS>
+	attribute<T>::attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
+	: attribute_base { *an_owner, a_name }
+	{
+		m_owner.attributes()[a_name] = this;
+
+		if (is_same<T, bool>::value)			m_datatype = k_sym_long;
+		else if (is_same<T, int>::value)		m_datatype = k_sym_long;
+		else if (is_enum<T>::value)				m_datatype = k_sym_long;
+		else if (is_same<T, symbol>::value)		m_datatype = k_sym_symbol;
+		else if (is_same<T, float>::value)		m_datatype = k_sym_float32;
+		else									m_datatype = k_sym_float64;
+
+		if (is_same<T, bool>::value)			m_style = style::onoff;
+		else									m_style = style::none;
+
+		handle_arguments(args...);
+		copy_range();
+
+		set(to_atoms(a_default_value), false);
+	}
+
+	template<>
+	template<typename ...ARGS>
+	attribute<time_interval>::attribute(object_base* an_owner, std::string a_name, time_interval a_default_value, ARGS... args)
+	: attribute_base	{ *an_owner, a_name }
+	, m_value			{ an_owner, a_name, double(a_default_value) }
+	{
+		m_owner.attributes()[a_name] = this;
+
+		m_datatype = k_sym_time;
+		m_style = style::time;
+
+		handle_arguments(args...);
+		copy_range();
+										
+		set(to_atoms(a_default_value), false);
+	}
+
 	
 	template<class T>
 	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
-		if(isjitclass) {
+		if (m_style == style::time)
+			class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
+		else if (isjitclass) {
 			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
 			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, m_name.c_str(), (max::t_symbol*)datatype(), attrflags, getter, setter, 0);
 			max::jit_class_addattr(c, jit_attr);
@@ -348,7 +376,7 @@ namespace min {
 	
 	template<>
 	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
-		if(isjitclass) {
+		if (isjitclass) {
 			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
 			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset_array, m_name.c_str(), (max::t_symbol*)datatype(), 0xFFFF, attrflags, getter, setter, (long)size_offset(), 0);
 			max::jit_class_addattr(c, jit_attr);
@@ -406,8 +434,9 @@ namespace min {
 			attr->range_ref().push_back((T)i);
 	}
 
+
 	// all non-enum attrs can just copy range normally
-	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !std::is_enum<T>::value /*&& !is_time_interval<T>::value*/, int>::type = 0>
 	void range_copy_helper(attribute<T>* attr) {
 		for (const auto& a : attr->get_range_args())
 			attr->range_ref().push_back(a);

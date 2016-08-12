@@ -121,7 +121,8 @@ namespace min {
 	static const symbol k_sym_list("list");				/// The symbol "list".
 	static const symbol k_sym_bang("bang");				/// The symbol "bang".
 	static const symbol k_sym_getname("getname");		/// The symbol "getname".
-	static const symbol k_sym_max("max");				/// The symbol "max" -- the max object
+	static const symbol k_sym_max("max");				/// The symbol "max" -- the max object.
+	static const symbol k_sym_time("time");				/// The symbol "time".
 
 	
 }} // namespace c74::min
