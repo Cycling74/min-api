@@ -40,7 +40,7 @@ namespace min {
 
 		/// Use the insertion operator as for any other stream to build the output message
 		/// @param	x	A token to be added to the output stream. d
-		template <typename T>
+		template<typename T>
 		logger& operator<<(const T& x) {
 			stream << x;
 			return *this;
@@ -55,12 +55,16 @@ namespace min {
 			switch(target) {
 				case message:
 					std::cout << s << std::endl;
-					if (owner.initialized())
+
+					 // if the max object is present then it is safe to post even if the owner isn't yet fully initialized
+					if (owner.initialized() || k_sym_max )
 						max::object_post(owner, s.c_str());
 					break;
 				case error:
 					std::cerr << s << std::endl;
-					if (owner.initialized())
+
+					 // if the max object is present then it is safe to post even if the owner isn't yet fully initialized
+					if (owner.initialized() || k_sym_max)
 						max::object_error(owner, s.c_str());
 					break;
 			}

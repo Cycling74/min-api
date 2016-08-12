@@ -33,7 +33,7 @@ namespace min {
 		
 		/// Constructor with an initial value (of any assignable type)
 		/// @param value	Value of an assignable type (e.g. some sort of string or symbol)
-		template <class T>
+		template<class T>
 		symbol(T value) {
 			*this = value;
 		}
@@ -72,12 +72,20 @@ namespace min {
 			return s;
 		}
 		
+		operator std::string() const {
+			return std::string(s->s_name);
+		}
+
 		operator const char*() const {
 			return s->s_name;
 		}
-		
+
 		operator max::t_dictionary*() const {
 			return s->s_thing;
+		}
+
+		operator bool() const {
+			return s->s_thing != nullptr;
 		}
 		
 		
@@ -91,8 +99,8 @@ namespace min {
 
 
 	/// Expose symbol for use in std output streams.
-	template <class charT, class traits>
-	std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const min::symbol& s) {
+	template<class charT, class traits>
+	std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const symbol& s) {
 		return stream << (const char*)s;
 	}
 	
@@ -113,6 +121,7 @@ namespace min {
 	static const symbol k_sym_list("list");				/// The symbol "list".
 	static const symbol k_sym_bang("bang");				/// The symbol "bang".
 	static const symbol k_sym_getname("getname");		/// The symbol "getname".
+	static const symbol k_sym_max("max");				/// The symbol "max" -- the max object
 
 	
 }} // namespace c74::min

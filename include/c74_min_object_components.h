@@ -11,10 +11,11 @@ namespace min {
 	
 	class inlet;
 	class outlet;
-	class method;
+	class argument_base;
+	class message;
 	class attribute_base;
 	
-	template <typename T>
+	template<typename T>
 	class attribute;
 	
 	
@@ -22,15 +23,15 @@ namespace min {
 	public:
 		
 		operator max::t_object*() {
-			return &objstorage.maxobj;
+			return &m_objstorage.maxobj;
 		}
 
 		operator max::t_pxobject*() {
-			return &objstorage.mspobj;
+			return &m_objstorage.mspobj;
 		}
 
 		operator void*() {
-			return &objstorage.maxobj;
+			return &m_objstorage.maxobj;
 		}
 
 		
@@ -40,14 +41,7 @@ namespace min {
 			max::t_pxobject	mspobj;
 		};
 		
-		//enum class type {
-		//	max = 0,
-		//	msp,
-		//};
-		//
-		//type objtype = type::max;
-		storage objstorage;
-		
+		storage m_objstorage;
 	};
 	
 	
@@ -56,12 +50,18 @@ namespace min {
 	class object_base {
 	public:
 		object_base()
-		: m_state((max::t_dictionary*)k_sym__pound_d, false)
-		{}
+		: m_state { (max::t_dictionary*)k_sym__pound_d, false }
+		{
+			create_inlets();
+			create_outlets();
+		}
+		
 		
 		virtual ~object_base() {
+			// TODO: free proxy inlets!
 		}
 
+		
 		int current_inlet() {
 			return proxy_getinlet((max::t_object*)m_maxobj);
 		}
@@ -74,22 +74,46 @@ namespace min {
 			m_maxobj = instance;
 		}
 		
-		auto inlets() -> std::vector<min::inlet*>& {
+		
+		auto inlets() -> std::vector<inlet*>& {
 			return m_inlets;
 		}
 		
-		auto outlets() -> std::vector<min::outlet*>& {
+		auto outlets() -> std::vector<outlet*>& {
 			return m_outlets;
 		}
+		
+		void create_inlets();
+		void create_outlets();
 
-		auto methods() -> std::unordered_map<std::string, method*>& {
-			return m_methods;
+
+		void register_argument(argument_base* arg) {
+			m_arguments.push_back(arg);
 		}
+
+		// defined in c74_min_argument.h
+		void process_arguments(const atoms& args);
+
+		auto arguments() const -> const std::vector<argument_base*>& {
+			return m_arguments;
+		}
+
+
+		auto messages() -> std::unordered_map<std::string, message*>& {
+			return m_messages;
+		}
+		auto messages() const -> const std::unordered_map<std::string, message*>& {
+			return m_messages;
+		}
+
 		
 		auto attributes() -> std::unordered_map<std::string, attribute_base*>& {
 			return m_attributes;
 		}
-		
+		auto attributes() const -> const std::unordered_map<std::string, attribute_base*>& {
+			return m_attributes;
+		}
+
 		void postinitialize() {
 			m_initialized = true;
 			m_initializing = false;
@@ -111,18 +135,18 @@ namespace min {
             return m_classname;
         }
         
-		/// Try to call a named method.
-		/// @param	name	The name of the method to attempt to call.
-		/// @param	args	Any args you wish to pass to the method call.
-		/// @return			If the method doesn't exist an empty set of atoms.
-		///					Otherwise the results of the method.
+		/// Try to call a named message.
+		/// @param	name	The name of the message to attempt to call.
+		/// @param	args	Any args you wish to pass to the message call.
+		/// @return			If the message doesn't exist an empty set of atoms.
+		///					Otherwise the results of the message.
 		atoms try_call(const std::string& name, const atoms& args = {});
 
-		/// Try to call a named method.
-		/// @param	name	The name of the method to attempt to call.
-		/// @param	arg		A single atom arg you wish to pass to the method call.
-		/// @return			If the method doesn't exist an empty set of atoms.
-		///					Otherwise the results of the method.
+		/// Try to call a named message.
+		/// @param	name	The name of the message to attempt to call.
+		/// @param	arg		A single atom arg you wish to pass to the message call.
+		/// @return			If the message doesn't exist an empty set of atoms.
+		///					Otherwise the results of the message.
 		atoms try_call(const std::string& name, const atom& arg) {
 			atoms as = {arg};
 			return try_call(name, as);
@@ -132,9 +156,10 @@ namespace min {
 		max::t_object*										m_maxobj; // initialized prior to placement new
 		bool												m_initializing = true;
 		bool												m_initialized = false;
-		std::vector<min::inlet*>							m_inlets;
-		std::vector<min::outlet*>							m_outlets;
-		std::unordered_map<std::string, method*>			m_methods;
+		std::vector<inlet*>									m_inlets;
+		std::vector<outlet*>								m_outlets;
+		std::vector<argument_base*>							m_arguments;
+		std::unordered_map<std::string, message*>			m_messages;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
 		dict												m_state;
         symbol                                              m_classname; // what's typed in the max box
@@ -154,119 +179,25 @@ namespace min {
 	// Wrap the C++ class together with the appropriate Max object header
 	// Max object header is selected automatically using the type of the base class.
 	
-	template<class T, class=void>
+	template<class min_class_type, class=void>
 	struct minwrap;
 	
 	
-	template<class T>
-	struct minwrap < T, typename std::enable_if<
-		!std::is_base_of< min::perform_operator_base, T>::value
-		&& !std::is_base_of< min::sample_operator_base, T>::value
-		&& !std::is_base_of< min::gl_operator_base, T>::value
+	template<class min_class_type>
+	struct minwrap <min_class_type, typename enable_if<
+		   !is_base_of< perform_operator_base, min_class_type>::value
+		&& !is_base_of< sample_operator_base, min_class_type>::value
+		&& !is_base_of< gl_operator_base, min_class_type>::value
 	>::type > {
 		maxobject_base	max_base;
-		T				min_object;
+		min_class_type	min_object;
 		
 		void setup() {
-			auto self = &max_base;
-			auto inlets = min_object.inlets();
-
-			if (!inlets.empty())
-			for (auto i=inlets.size()-1; i>0; --i)
-				inlets[i]->instance = max::proxy_new(self, i, nullptr);
+			min_object.create_inlets();
+			min_object.create_outlets();
 		}
 		
 		void cleanup() {}
-	};
-	
-	
-#pragma mark -
-#pragma mark inlets / outlets
-
-	class port {
-	public:
-		port(object_base* an_owner, const std::string& a_description, const std::string& a_type)
-		: m_owner(an_owner)
-		, m_description(a_description)
-		, m_type(a_type)
-		{}
-		
-		bool has_signal_connection() {
-			return m_signal_connection;
-		}
-		
-		void update_signal_connection(bool new_signal_connection_status) {
-			m_signal_connection = new_signal_connection_status;
-		}
-		
-		const std::string& type() {
-			return m_type;
-		}
-		
-		const std::string& description() {
-			return m_description;
-		}
-		
-	protected:
-		object_base*	m_owner;
-		std::string		m_description;
-		std::string		m_type;
-		bool			m_signal_connection { false };
-	};
-	
-	
-	class inlet : public port {
-	public:
-		inlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-		: port(an_owner, a_description, a_type) {
-			m_owner->inlets().push_back(this);
-		}
-
-		void* instance = nullptr;
-	};
-	
-	
-	class outlet  : public port {
-	public:
-		outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-		: port(an_owner, a_description, a_type) {
-			m_owner->outlets().push_back(this);
-		}
-		
-		void send(double value) {
-			c74::max::outlet_float(instance, value);
-		}
-
-		void send(symbol s1) {
-			c74::max::outlet_anything(instance, s1, 0, nullptr);
-		}
-
-		void send(std::string s1) {
-			c74::max::outlet_anything(instance, c74::max::gensym(s1.c_str()), 0, nullptr);
-		}
-
-		void send(const char* s1) {
-			c74::max::outlet_anything(instance, c74::max::gensym(s1), 0, nullptr);
-		}
-
-		void send(symbol s1, symbol s2) {
-			atom a(s2);
-			c74::max::outlet_anything(instance, s1, 1, &a);
-		}
-
-		void send(symbol s1, double f2) {
-			atom a(f2);
-			c74::max::outlet_anything(instance, s1, 1, &a);
-		}
-		
-		void send(const atoms& as) {
-			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
-				max::outlet_anything(instance, k_sym_list, as.size(), (max::t_atom*)&as[0]);
-			else
-				max::outlet_anything(instance, as[0], as.size()-1, (max::t_atom*)&as[1]);
-		}
-		
-		void* instance { nullptr };
 	};
 	
 	

@@ -12,13 +12,39 @@
 namespace c74 {
 namespace max {
 
+	MOCK_EXPORT short locatefile_extended(char* name, short* outvol, t_fourcc* outtype, const t_fourcc* filetypelist, short numtypes) {
+		return 0;
+	}
 
-	
+	MOCK_EXPORT void typelist_make(t_fourcc *types, long include, short *numtypes) {}
+
+	MOCK_EXPORT short path_createfolder(const short path, const char* name, short* newpath) {
+		return 0;
+	}
+
+	MOCK_EXPORT short path_getmoddate(short path, t_ptr_uint* date) {
+		return 0;
+	}
+
+	MOCK_EXPORT short path_getfilemoddate(const char* filename, const short path, t_ptr_uint* date) {
+		return 0;
+	}
+
+	MOCK_EXPORT short path_nameconform(const char* src, char* dst, long style, long type) {
+		return 0;
+	}
+
+	MOCK_EXPORT short path_frompathname(const char* name, short* path, char* filename) {
+		return 0;
+	}
+
+	MOCK_EXPORT t_max_err path_toabsolutesystempath(const short in_path, const char* in_filename, char* out_filepath) {
+		return 0;
+	}
 
 	MOCK_EXPORT t_max_err object_attr_touch(t_object* x, t_symbol* attrname) {
 		return 0;
 	}
-	
 	
 	MOCK_EXPORT t_max_err object_attr_setvalueof(t_object* x, t_symbol* s, long argc, t_atom* argv) {
 		return 0;

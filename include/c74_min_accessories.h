@@ -14,7 +14,7 @@ namespace min {
 
 	
 	#ifdef WIN_VERSION
-		#define MIN_CLAMP( in, lo, hi )		c74::max::clamp<std::remove_reference<decltype(in)>::type>(in, lo, hi)
+		#define MIN_CLAMP( in, lo, hi )		c74::max::clamp<std::remove_reference<decltype(in)>::type>(in, (decltype(in))lo, (decltype(in))hi)
 	#else
 		#define MIN_CLAMP( in, lo, hi )		c74::max::clamp<typeof(in)>(in, lo, hi)
 	#endif
@@ -32,17 +32,98 @@ namespace min {
 			std::uniform_real_distribution<> dis(min, max);
 			return dis(gen);
 		}
-
-		
-		
-		
+        
+        
+        // calculates the fold of x between lo and hi.
+        
+        double fold(double x, double lo, double hi) {
+            long di;
+            double m,d,tmp;
+            
+            if (lo > hi) {
+                tmp = lo;
+                lo  = hi;
+                hi  = tmp;
+            }
+            if (lo)
+                x -= lo;
+            m = hi-lo;
+            if (m) {
+                if (x < 0.)
+                    x = -x;
+                if (x>m) {
+                    if (x>(m*2.)) {
+                        d = x / m;
+                        di = (long) d;
+                        d = d - (double) di;
+                        if (di%2) {
+                            if (d < 0) {
+                                d = -1. - d;
+                            } else {
+                                d = 1. - d;
+                            }
+                        }
+                        x = d * m;
+                        if (x < 0.)
+                            x = m+x;
+                    } else {
+                        x = m-(x-m);
+                    }
+                }
+            } else x = 0.; //don't divide by zero
+            
+            return x + lo;
+        }
+        
+        
+        //Calculates the wrap of x between lo and hi.
+        
+        double wrap(double x, double lo, double hi) {
+            double m,d,tmp;
+            long di;
+            
+            if (lo > hi) {
+                tmp = lo;
+                lo  = hi;
+                hi  = tmp;
+            }
+            if (lo)
+                x -= lo;
+            m = hi-lo;
+            if (m) {		
+                if (x>m) {
+                    if (x>(m*2.)) {
+                        d = x / m;
+                        di = (long) d;
+                        d = d - (double) di;
+                        x = d * m;
+                    } else {
+                        x -= m;
+                    }
+                } else if (x<0.) {
+                    if (x<(-m)) {
+                        d = x / m;
+                        di = (long) d;
+                        d = d - (double) di;
+                        x = d * m;
+                        if (x<0.)
+                            x += m;
+                    } else {
+                        x += m;
+                    }
+                }
+            } else x = 0.; //don't divide by zero
+            
+            return x + lo; 
+        }
+        
 		
 		/// Generates a cosine wave constrained between -1 to 1
 		///	@param T       render output as this datatype. algorithm was designed to assume the use of floating point.
 		///	@param size		size of the target vector
 		///	@param count	number of cycles of the wave to generate across the vector
 		
-		template <typename T>
+		template<typename T>
 		class cosine {
 		public:
 			explicit cosine (size_t size, double count = 1.0)
@@ -122,6 +203,40 @@ namespace min {
 		
 	
 	
+	}
+
+
+	namespace string_utility {
+		using std::string;
+		using std::vector;
+
+
+		/// Trim leading and trailing whitespace from a string
+		/// @param	s	The string to trim
+		/// @return		The trimmed string
+
+		string trim(string& s) {
+			size_t first = s.find_first_not_of(' ');
+			size_t last = s.find_last_not_of(' ');
+			return s.substr(first, (last - first + 1));
+		}
+
+
+		/// Split a string into a vector of substrings on a specified delimiter
+		/// @param	s		The string to split
+		/// @param	delim	The delimiter on which to split the string
+		/// @return			A vector of substrings
+
+		vector<string> split(const string &s, char delim) {
+			vector<string>		substrings;
+			string				substring;
+			std::stringstream	ss(s);
+
+			while (getline(ss, substring, delim))
+				substrings.push_back(substring);
+			return substrings;
+		}
+
 	}
 	
 	

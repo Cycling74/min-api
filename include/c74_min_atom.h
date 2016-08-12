@@ -19,9 +19,15 @@ namespace min {
 		}
 		
 		/// Generic assigning constructor
-		template <class T>
+		template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
 		atom(T initial_value) {
 			*this = initial_value;
+		}
+		
+		/// Enum assigning constructor
+		template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+		atom(T initial_value) {
+			*this = (long)initial_value;
 		}
 		
 		
@@ -71,7 +77,7 @@ namespace min {
 			return *this;
 		}
 		
-		atom& operator = (const std::string value) {
+		atom& operator = (const std::string& value) {
 			max::atom_setsym(this, max::gensym(value.c_str()));
 			return *this;
 		}
@@ -92,20 +98,26 @@ namespace min {
 		}
 
 		
+		/// Enum assigning constructor
+		template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+		operator T() const {
+			return (T)atom_getlong(this);
+		}
+
 		operator double() const {
 			return atom_getfloat(this);
 		}
 		
 		operator int() const {
-			return atom_getlong(this);
+			return int(atom_getlong(this));
 		}
 
 		operator long() const {
-			return atom_getlong(this);
+			return long(atom_getlong(this));
 		}
 
 		operator bool() const {
-			return atom_getlong(this);
+			return atom_getlong(this) != 0;
 		}
 		
 		operator max::t_symbol*() const {
@@ -175,7 +187,7 @@ namespace min {
 
 		/// Compare an atom against a value for equality.
 		inline friend bool operator == (const max::t_atom& a, bool value) {
-			return (bool)atom_getlong(&a) == value;
+			return (atom_getlong(&a) != 0) == value;
 		}
 		
 		/// Compare an atom against a value for equality.
@@ -286,14 +298,12 @@ namespace min {
 		}
 		
 		operator atoms() const {
-			c74::min::atoms as;
+			atoms as(m_ac);
 			
 			for (auto i=0; i < m_ac; ++i)
-				as.push_back(m_av + i);
-			
+				as[i] = m_av+i;
 			return as;
 		}
-		
 		
 	private:
 		long			m_ac;
@@ -301,7 +311,6 @@ namespace min {
 	};
 	
 }} // namespace c74::min
-
 
 
 #ifdef __APPLE__
@@ -322,7 +331,7 @@ namespace std {
 		char*	text = nullptr;
 		string	str;
 		
-		auto err = c74::max::atom_gettext(as.size(), &as[0], &textsize, &text, c74::max::OBEX_UTIL_ATOM_GETTEXT_SYM_NO_QUOTE);
+		auto err = c74::max::atom_gettext((long)as.size(), &as[0], &textsize, &text, c74::max::OBEX_UTIL_ATOM_GETTEXT_SYM_NO_QUOTE);
 		if (!err)
 			str = text;
 		else
@@ -341,7 +350,6 @@ namespace std {
 		c74::min::atoms as;
 		for (const auto& ref: ar)
 			as.push_back(ref);
-		
 		return to_string(as);
 	}
 
@@ -349,7 +357,7 @@ namespace std {
 
 
 /// Expose atom for use in std output streams.
-template <class charT, class traits>
+template<class charT, class traits>
 std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const c74::min::atom& a) {
 	return stream << std::string(a);
 }
@@ -357,23 +365,13 @@ std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, trait
 
 namespace c74 {
 namespace min {
-	
-	
-	// Helper utilities to clean-up the syntax for the template enabling code that follows...
-
-	template<class T>
-	using is_class = std::is_class<T>;
-	
-	template<class T>
-	using is_symbol = std::is_same<T, symbol>;
-
-	
+		
 	/// Copy values from any STL container to a vector of atoms
 	/// @tparam	T			The type of the container
 	/// @param	container	The container instance whose values will be copied
 	/// @return				A vector of atoms
 	
-	template<class T, typename std::enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
 	atoms to_atoms(const T& container) {
 		atoms	as(container.size());
 		size_t	index = 0;
@@ -391,7 +389,7 @@ namespace min {
 	/// @param	v	The value to be copied.
 	/// @return		A vector of atoms
 
-	template<class T, typename std::enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
 	atoms to_atoms(const T& v) {
 		atoms as {v};
 		return as;
@@ -403,7 +401,7 @@ namespace min {
 	/// @param	as	The vector atoms containing the desired data
 	/// @return		The container of the values
 	
-	template<class T, typename std::enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !is_symbol<T>::value && is_class<T>::value, int>::type = 0>
 	T from_atoms(const atoms& as) {
 		T container;
 		
@@ -419,9 +417,15 @@ namespace min {
 	/// @param	as	The vector atoms containing the desired data
 	/// @return		The value
 	
-	template<class T, typename std::enable_if< is_symbol<T>::value || !is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !std::is_enum<T>::value && (is_symbol<T>::value || !is_class<T>::value), int>::type = 0>
 	T from_atoms(const atoms& as) {
 		return (T)as[0];
 	}
+	
+	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+	T from_atoms(const atoms& as) {
+		return (T)(long)as[0];
+	}
+
 	
 }}

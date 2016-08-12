@@ -12,7 +12,7 @@ TEST_CASE( "Atom Class", "[atoms]" ) {
 	
 	SECTION("to_atoms() function -- simple values") {
 		int					a = 4;
-		float				b = 6.28;
+		float				b = 6.28f;
 		c74::min::symbol	c = "foo";
 		c74::max::t_object*	d = (c74::max::t_object*)1974;
 		

@@ -39,24 +39,30 @@ namespace min {
 		max::t_buffer_ref*	instance { nullptr };
 		object_base&		owner;
 		
-		c74::min::method set_meth = { &owner, "set", MIN_FUNCTION {
-			set(args[0]);
-			return {};
-		}};
+		message set_meth = { &owner, "set", "Choose a named buffer~ from which to read.",
+			MIN_FUNCTION {
+				set(args[0]);
+				return {};
+			}
+		};
 		
-		c74::min::method dblclick_meth = { &owner, "dblclick", MIN_FUNCTION {
-			max::buffer_view(max::buffer_ref_getobject(instance));
-			return {};
-		}};
+		message dblclick_meth = { &owner, "dblclick",
+			MIN_FUNCTION {
+				max::buffer_view(max::buffer_ref_getobject(instance));
+				return {};
+			}
+		};
 		
-		c74::min::method notify_meth = { &owner, "notify", MIN_FUNCTION {
-			symbol	s = args[1];
-			symbol	msg = args[2];
-			void*	sender = args[3];
-			void*	data = args[4];
+		message notify_meth = { &owner, "notify",
+			MIN_FUNCTION {
+				symbol	s = args[1];
+				symbol	msg = args[2];
+				void*	sender = args[3];
+				void*	data = args[4];
 			
-			return { (long)max::buffer_ref_notify(instance, s, msg, sender, data) };
-		}};
+				return { (long)max::buffer_ref_notify(instance, s, msg, sender, data) };
+			}
+		};
 
 	};
 	
@@ -93,7 +99,7 @@ namespace min {
 		
 		
 		int channelcount() {
-			return max::buffer_getchannelcount(buffer_obj);
+			return (int)max::buffer_getchannelcount(buffer_obj);
 		}
 		
 		
