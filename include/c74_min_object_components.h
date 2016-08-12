@@ -151,6 +151,11 @@ namespace min {
 			atoms as = {arg};
 			return try_call(name, as);
 		}
+        
+        bool has_call(const std::string& name) {
+            auto found_message = m_messages.find(name);
+            return (found_message != m_messages.end());
+        }
 
 	protected:
 		max::t_object*										m_maxobj; // initialized prior to placement new
