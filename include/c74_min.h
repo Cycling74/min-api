@@ -63,7 +63,7 @@ namespace min {
 	// Helper code for type/template selection
 
 	class symbol;
-	class time_interval;
+	class time_value;
 	class matrix_operator_base;
 	class gl_operator_base;
 	class sample_operator_base;
@@ -76,7 +76,7 @@ namespace min {
 	using is_symbol = is_same<T, symbol>;
 
 	template<class T>
-	using is_time_interval = is_same<T, time_interval>;
+	using is_time_value = is_same<T, time_value>;
 
 	template<class min_class_type>
 	using enable_if_matrix_operator = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value, int>::type;

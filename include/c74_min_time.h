@@ -16,9 +16,9 @@ namespace min {
 	// This allows us to pass a time_interval as a value
 	// but also allows us to specialize attributes which create a time_interval member that interfaces with ITM.
 
-	class time_interval {
+	class time_value {
 	public:
-		time_interval(object_base* owner, symbol attrname, double initial_interval)
+		time_value(object_base* owner, symbol attrname, double initial_interval)
 		: m_owner		{ owner }
 		, m_name		{ attrname }
 		, m_timeobj		{ nullptr }
@@ -28,26 +28,26 @@ namespace min {
 			set_milliseconds(initial_interval);
 		}
 
-		time_interval(double interval_in_ms)
+		time_value(double interval_in_ms)
 		: m_owner	{ nullptr }
 		, m_timeobj	{ nullptr }
 		{
 			set_milliseconds(interval_in_ms);
 		}
 
-		time_interval(const atom& interval_in_ms)
+		time_value(const atom& interval_in_ms)
 		: m_owner	{ nullptr }
 		, m_timeobj	{ nullptr }
 		{
 			set_milliseconds(interval_in_ms);
 		}
 
-		time_interval()
+		time_value()
 		: m_owner	{ nullptr }
 		, m_timeobj	{ nullptr }
 		{}
 
-		~time_interval() {
+		~time_value() {
 			max::object_free(m_timeobj);
 		}
 
@@ -57,26 +57,26 @@ namespace min {
 		// Ideally we could delete the copy ctor but it would require changes to all attributes
 		// e.g. to set defaults by const ref
 
-		time_interval(const time_interval& other)
+		time_value(const time_value& other)
 		: m_owner		{ other.m_owner }
 		, m_name		{ other.m_name }
 		, m_timeobj		{ nullptr }		// we cannot copy the timeobj or we will potentially double-free it
 		, m_interval_ms	{ other.m_interval_ms }
 		{}
 
-		time_interval& operator = (const time_interval& other) {
+		time_value& operator = (const time_value& other) {
 			// do not overwrite anything!
 			// we just want to set the time for the existing timeobj
 			(*this) = double(other);
 			return *this;
 		}
 
-		time_interval& operator = (double value) {
+		time_value& operator = (double value) {
 			set_milliseconds(value);
 			return *this;
 		}
 
-		time_interval& operator = (const atom& value) {
+		time_value& operator = (const atom& value) {
 			set_milliseconds(value);
 			return *this;
 		}

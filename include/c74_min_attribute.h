@@ -281,7 +281,7 @@ namespace min {
 
 
 		// we need to return by const reference due to cases where the type of the attribute is a class
-		// for example, a time_interval attribute cannot be copy constructed
+		// for example, a time_value attribute cannot be copy constructed
 
 		operator const T&() const {
 			if (m_getter)
@@ -342,7 +342,7 @@ namespace min {
 
 	template<>
 	template<typename ...ARGS>
-	attribute<time_interval>::attribute(object_base* an_owner, std::string a_name, time_interval a_default_value, ARGS... args)
+	attribute<time_value>::attribute(object_base* an_owner, std::string a_name, time_value a_default_value, ARGS... args)
 	: attribute_base	{ *an_owner, a_name }
 	, m_value			{ an_owner, a_name, double(a_default_value) }
 	{
@@ -436,7 +436,7 @@ namespace min {
 
 
 	// all non-enum attrs can just copy range normally
-	template<class T, typename enable_if< !std::is_enum<T>::value /*&& !is_time_interval<T>::value*/, int>::type = 0>
+	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
 	void range_copy_helper(attribute<T>* attr) {
 		for (const auto& a : attr->get_range_args())
 			attr->range_ref().push_back(a);
