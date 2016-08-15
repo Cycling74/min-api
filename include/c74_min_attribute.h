@@ -289,7 +289,15 @@ namespace min {
 			else
 				return m_value;
 		}
-		
+
+
+		// simplify getting millisecond time from a time_value attribute
+
+		template<class U=T, typename enable_if< std::is_same<U, time_value>::value, int>::type = 0>
+		operator double() const {
+			return m_value;
+		}
+
 
 		std::string range_string();
 		
@@ -386,8 +394,8 @@ namespace min {
 			max::class_addattr(c, max_attr);
 		}
 	};
-	
-	
+
+
 	// enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
 	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 	std::string range_string_item(attribute<T>* attr, const T& item) {
