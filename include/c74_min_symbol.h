@@ -35,20 +35,18 @@ namespace min {
 		/// @param value	Value of an assignable type (e.g. some sort of string or symbol)
 		// template<class T>
 		symbol(const max::t_symbol* value) {
-			*this = value;
+			s = const_cast<max::t_symbol*>(value);
 		}
 
 		symbol(const char* value) {
-			*this = value;
+			s = max::gensym(value);
 		}
 
 		symbol(const std::string& value) {
-			*this = value;
+			s = max::gensym(value.c_str());
 		}
 
-		symbol(const atom& value) {
-			*this = value;
-		}
+		symbol(const atom& value);
 
 
 		symbol& operator = (max::t_symbol* value) {

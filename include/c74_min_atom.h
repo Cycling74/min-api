@@ -215,10 +215,17 @@ namespace min {
 	
 
 	// part of the symbol class but must be defined after atom is defined
+	symbol::symbol(const atom& value) {
+		s = value;
+	}
+
+	// part of the symbol class but must be defined after atom is defined
 	symbol& symbol::operator = (const atom& value) {
 		s = value;
 		return *this;
 	}
+
+
 	
 
 	/// The atoms container is the standard means by which zero or more values are passed.
