@@ -254,6 +254,12 @@ namespace min {
 			set(args);
 			return *this;
 		}
+
+
+		friend bool operator == (const attribute& lhs, const T& rhs) {
+			return lhs.m_value == rhs;
+		}
+
 		
 		/// Set the attribute value
 		void set(const atoms& args, bool notify = true) {
