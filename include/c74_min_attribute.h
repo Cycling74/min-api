@@ -289,23 +289,12 @@ namespace min {
 		// we need to return by const reference due to cases where the type of the attribute is a class
 		// for example, a time_value attribute cannot be copy constructed
 
-//		template<class U=T, typename enable_if< is_same<U,time_value>::value || is_enum<U>::value, int>::type = 0>
 		operator const T&() const {
 			if (m_getter)
 				assert(false); // at the moment there is no easy way to support this
 			else
 				return m_value;
 		}
-
-//		template<class U=T, typename enable_if< !is_same<U, time_value>::value && !is_enum<U>::value, int>::type = 0>
-//		operator U() const {
-//			if (m_getter)
-//				assert(false); // at the moment there is no easy way to support this
-//			else
-//				return m_value;
-//		}
-
-
 
 		// simplify getting millisecond time from a time_value attribute
 

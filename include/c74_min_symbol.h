@@ -33,7 +33,7 @@ namespace min {
 		
 		/// Constructor with an initial value (of any assignable type)
 		/// @param value	Value of an assignable type (e.g. some sort of string or symbol)
-		// template<class T>
+
 		symbol(const max::t_symbol* value) {
 			s = const_cast<max::t_symbol*>(value);
 		}
