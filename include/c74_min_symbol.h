@@ -109,7 +109,8 @@ namespace min {
 	#pragma mark -
 	#pragma mark Cache of Pre-Defined Symbols
 	#endif
-	
+
+	static const symbol k_sym_box("box");				/// The symbol "box", which is the max-namespace for normal user-facing classes.
 	static const symbol k_sym__empty("");				/// The special empty symbol which contains no chars at all.
 	static const symbol k_sym__pound_d("#D");			/// The special "#D" symbol used for accessing an object's dictionary in the patcher.
 	static const symbol k_sym_float32("float32");		/// The symbol "float32".
