@@ -33,12 +33,23 @@ namespace min {
 		
 		/// Constructor with an initial value (of any assignable type)
 		/// @param value	Value of an assignable type (e.g. some sort of string or symbol)
-		template<class T>
-		symbol(T value) {
+		// template<class T>
+		symbol(const max::t_symbol* value) {
 			*this = value;
 		}
 
-		
+		symbol(const char* value) {
+			*this = value;
+		}
+
+		symbol(const std::string& value) {
+			*this = value;
+		}
+
+		symbol(const atom& value) {
+			*this = value;
+		}
+
 
 		symbol& operator = (max::t_symbol* value) {
 			s = value;
