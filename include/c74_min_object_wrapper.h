@@ -430,7 +430,7 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,	self_ptr_long_ptr_long_ptr_long,	A_CANT)
 			else if (a_message.first == "maxclass_setup")	; // for min class construction only, do not add for exposure to max
             else if (a_message.first == "jitclass_setup")	; // for min class construction only, do not add for exposure to max
-            else if (a_message.first == "mob_setup")        ; // for min class construction only, do not add for exposure to max
+            else if (a_message.first == "mop_setup")        ; // for min class construction only, do not add for exposure to max
             else if (a_message.first == "maxob_setup")      ; // for min class construction only, do not add for exposure to max
             else if (a_message.first == "setup")            ; // for min class construction only, do not add for exposure to max
 			else

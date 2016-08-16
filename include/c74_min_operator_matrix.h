@@ -177,10 +177,10 @@ namespace min {
         
         job->min_object.postinitialize();
         
-        if(job->min_object.has_call("mob_setup")) {
+        if(job->min_object.has_call("mop_setup")) {
             atoms atomargs(args.begin(), args.begin()+attrstart);
             atomargs.push_back(atom{self});
-            job->min_object.try_call("mob_setup", atomargs);
+            job->min_object.try_call("mop_setup", atomargs);
         }
         else {
             max_jit_mop_setup_simple(self, o, args.size(), args.begin());
