@@ -33,12 +33,21 @@ namespace min {
 		
 		/// Constructor with an initial value (of any assignable type)
 		/// @param value	Value of an assignable type (e.g. some sort of string or symbol)
-		template<class T>
-		symbol(T value) {
-			*this = value;
+
+		symbol(const max::t_symbol* value) {
+			s = const_cast<max::t_symbol*>(value);
 		}
 
-		
+		symbol(const char* value) {
+			s = max::gensym(value);
+		}
+
+		symbol(const std::string& value) {
+			s = max::gensym(value.c_str());
+		}
+
+		symbol(const atom& value);
+
 
 		symbol& operator = (max::t_symbol* value) {
 			s = value;
@@ -109,7 +118,8 @@ namespace min {
 	#pragma mark -
 	#pragma mark Cache of Pre-Defined Symbols
 	#endif
-	
+
+	static const symbol k_sym_box("box");				/// The symbol "box", which is the max-namespace for normal user-facing classes.
 	static const symbol k_sym__empty("");				/// The special empty symbol which contains no chars at all.
 	static const symbol k_sym__pound_d("#D");			/// The special "#D" symbol used for accessing an object's dictionary in the patcher.
 	static const symbol k_sym_float32("float32");		/// The symbol "float32".
@@ -121,7 +131,8 @@ namespace min {
 	static const symbol k_sym_list("list");				/// The symbol "list".
 	static const symbol k_sym_bang("bang");				/// The symbol "bang".
 	static const symbol k_sym_getname("getname");		/// The symbol "getname".
-	static const symbol k_sym_max("max");				/// The symbol "max" -- the max object
+	static const symbol k_sym_max("max");				/// The symbol "max" -- the max object.
+	static const symbol k_sym_time("time");				/// The symbol "time".
 
 	
 }} // namespace c74::min

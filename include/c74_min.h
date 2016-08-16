@@ -63,6 +63,7 @@ namespace min {
 	// Helper code for type/template selection
 
 	class symbol;
+	class time_value;
 	class matrix_operator_base;
 	class gl_operator_base;
 	class sample_operator_base;
@@ -73,6 +74,9 @@ namespace min {
 	
 	template<class T>
 	using is_symbol = is_same<T, symbol>;
+
+	template<class T>
+	using is_time_value = is_same<T, time_value>;
 
 	template<class min_class_type>
 	using enable_if_matrix_operator = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
@@ -127,6 +131,7 @@ namespace min {
 
 #include "c74_min_object_components.h"	// Shared components of Max objects
 #include "c74_jitter.h"
+#include "c74_min_time.h"				// ITM Support
 #include "c74_min_ports.h"				// Inlets and Outlets
 #include "c74_min_argument.h"			// Arguments to objects
 #include "c74_min_message.h"			// Messages to objects

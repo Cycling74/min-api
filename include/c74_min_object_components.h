@@ -48,6 +48,8 @@ namespace min {
 	/// An object_base is a generic way to pass around a min::object as a min::object, while sharing common code,
 	/// is actually sepcific to the the user's defined class due to template specialization.
 	class object_base {
+		static const constexpr long k_magic = 19740011004791;
+
 	public:
 		object_base()
 		: m_state { (max::t_dictionary*)k_sym__pound_d, false }
@@ -66,12 +68,37 @@ namespace min {
 			return proxy_getinlet((max::t_object*)m_maxobj);
 		}
 		
-		operator max::t_object* () {
-			return m_maxobj;
+		operator max::t_object* () const {
+			return maxobj();
+		}
+
+		max::t_object* maxobj() const {
+			if (m_min_magic == k_magic)
+				return m_maxobj;
+			else
+				return nullptr;
 		}
 		
 		void assign_instance(max::t_object* instance) {
 			m_maxobj = instance;
+
+			// this very much not ideal...
+			// we have two ways objects are instantiated:
+			//
+			// 1. instantiated by Max (using placement new)
+			// 2. instantiated some other way (not using placement now)
+			//
+			// When created by Max we need to have the member set for the 
+			// max object prior to the call to the constructor.
+			// But, if we are instatiated directly then that memory is uninitialized.
+			//
+			// One option would be to use a global and access that during the construction.
+			// That solution is wrought with many obvious problems, so this solution was chosen
+			// despite some different problems 
+			// (e.g. the rare case where the magic number would be 
+			//  randomly initialized to the correct value.)
+
+			m_min_magic = k_magic;
 		}
 		
 		
@@ -151,9 +178,15 @@ namespace min {
 			atoms as = {arg};
 			return try_call(name, as);
 		}
+        
+        bool has_call(const std::string& name) {
+            auto found_message = m_messages.find(name);
+            return (found_message != m_messages.end());
+        }
 
 	protected:
-		max::t_object*										m_maxobj; // initialized prior to placement new
+		max::t_object*										m_maxobj;		// initialized prior to placement new
+		long												m_min_magic;	// should be valid if m_maxobj has been assigned
 		bool												m_initializing = true;
 		bool												m_initialized = false;
 		std::vector<inlet*>									m_inlets;

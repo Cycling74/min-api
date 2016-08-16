@@ -166,16 +166,27 @@ namespace min {
 	
 	template<class min_class_type>
 	void* max_jit_mop_new(max::t_symbol* s, long argc, max::t_atom* argv) {
+		assert(this_class_name != nullptr); // required pre-condition
+
 		atom_reference		args(argc, argv);
         long				attrstart	= attr_args_offset((short)args.size(), args.begin());
         auto				cppname		= this_class_name;
 		max_jit_wrapper*	self		= (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
 		void*				o			= max::jit_object_new(cppname, s);
-		
-		max_jit_mop_setup_simple(self, o, args.size(), args.begin());
-		max_jit_attr_args(self, (short)args.size(), args.begin());
+		auto                job = (minwrap<min_class_type>*)o;
         
-        auto	job = (minwrap<min_class_type>*)o;
+        job->min_object.postinitialize();
+        
+        if(job->min_object.has_call("mob_setup")) {
+            atoms atomargs(args.begin(), args.begin()+attrstart);
+            atomargs.push_back(atom{self});
+            job->min_object.try_call("mob_setup", atomargs);
+        }
+        else {
+            max_jit_mop_setup_simple(self, o, args.size(), args.begin());
+        }
+        
+        max_jit_attr_args(self, (short)args.size(), args.begin());
         job->min_object.try_call("maxob_setup", atoms(args.begin(), args.begin()+attrstart));
         
 		return self;

@@ -32,6 +32,91 @@ namespace min {
 			std::uniform_real_distribution<> dis(min, max);
 			return dis(gen);
 		}
+        
+        
+        // calculates the fold of x between lo and hi.
+        
+        double fold(double x, double lo, double hi) {
+            long di;
+            double m,d,tmp;
+            
+            if (lo > hi) {
+                tmp = lo;
+                lo  = hi;
+                hi  = tmp;
+            }
+            if (lo)
+                x -= lo;
+            m = hi-lo;
+            if (m) {
+                if (x < 0.)
+                    x = -x;
+                if (x>m) {
+                    if (x>(m*2.)) {
+                        d = x / m;
+                        di = (long) d;
+                        d = d - (double) di;
+                        if (di%2) {
+                            if (d < 0) {
+                                d = -1. - d;
+                            } else {
+                                d = 1. - d;
+                            }
+                        }
+                        x = d * m;
+                        if (x < 0.)
+                            x = m+x;
+                    } else {
+                        x = m-(x-m);
+                    }
+                }
+            } else x = 0.; //don't divide by zero
+            
+            return x + lo;
+        }
+        
+        
+        //Calculates the wrap of x between lo and hi.
+        
+        double wrap(double x, double lo, double hi) {
+            double m,d,tmp;
+            long di;
+            
+            if (lo > hi) {
+                tmp = lo;
+                lo  = hi;
+                hi  = tmp;
+            }
+            if (lo)
+                x -= lo;
+            m = hi-lo;
+            if (m) {		
+                if (x>m) {
+                    if (x>(m*2.)) {
+                        d = x / m;
+                        di = (long) d;
+                        d = d - (double) di;
+                        x = d * m;
+                    } else {
+                        x -= m;
+                    }
+                } else if (x<0.) {
+                    if (x<(-m)) {
+                        d = x / m;
+                        di = (long) d;
+                        d = d - (double) di;
+                        x = d * m;
+                        if (x<0.)
+                            x += m;
+                    } else {
+                        x += m;
+                    }
+                }
+            } else x = 0.; //don't divide by zero
+            
+            return x + lo; 
+        }
+        
 		
 		/// Generates a cosine wave constrained between -1 to 1
 		///	@param T       render output as this datatype. algorithm was designed to assume the use of floating point.

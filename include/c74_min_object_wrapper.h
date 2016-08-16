@@ -360,12 +360,17 @@ namespace min {
 		// If no matrix inputs are declared, the mop is a generator
 		bool ownsinput = (inletcount==0);
 		
-		//add mop
-		auto mop = max::jit_object_new(max::_jit_sym_jit_mop, inletcount, outletcount);
-		max::jit_class_addadornment(this_jit_class, mop);
-		
-		//add methods
-		max::jit_class_addmethod(this_jit_class, (method)jit_matrix_calc<min_class_type>, "matrix_calc", max::A_CANT, 0);
+        if (instance->has_call("jitclass_setup")) {
+            instance->try_call("jitclass_setup", this_jit_class);
+        }
+        else {
+            // add mop
+            auto mop = max::jit_object_new(max::_jit_sym_jit_mop, inletcount, outletcount);
+            max::jit_class_addadornment(this_jit_class, mop);
+            
+            // add methods
+            max::jit_class_addmethod(this_jit_class, (method)jit_matrix_calc<min_class_type>, "matrix_calc", max::A_CANT, 0);
+        }
 		
 		for (auto& an_attribute : instance->attributes()) {
 			std::string		attr_name = an_attribute.first;
@@ -388,7 +393,6 @@ namespace min {
 		}
 		
 		jit_class_register(this_jit_class);
-		instance->try_call("jitclass_setup", this_jit_class);
 	
 		
 		// 2. Max Wrapper Class
@@ -404,33 +408,40 @@ namespace min {
 		
 		max::max_jit_class_obex_setup(c, calcoffset(max_jit_wrapper, obex));
 		
-		// for generator mops, override jit_matrix and outputmatrix
-		long flags = (ownsinput ? max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX | max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
-		
-		max::max_jit_class_mop_wrap(c, this_jit_class, flags);	// attrs & methods for name, type, dim, planecount, bang, outputmatrix, etc
-		max::max_jit_class_wrap_standard(c, this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
-		
+        if(instance->has_call("maxclass_setup")) {
+            instance->try_call("maxclass_setup", c);
+        }
+        else {
+            // for generator mops, override jit_matrix and outputmatrix
+            long flags = (ownsinput ? max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX | max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
+            
+            max::max_jit_class_mop_wrap(c, this_jit_class, flags);	// attrs & methods for name, type, dim, planecount, bang, outputmatrix, etc
+            max::max_jit_class_wrap_standard(c, this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
+            
+            if(ownsinput)
+                max::max_jit_class_addmethod_usurp_low(c, (method)min_jit_mop_outputmatrix<min_class_type>, (char*)"outputmatrix");
+        }
+        
 		max::class_addmethod(c, (method)max::max_jit_mop_assist, "assist", max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
-		
-		if(ownsinput)
-			max::max_jit_class_addmethod_usurp_low(c, (method)min_jit_mop_outputmatrix<min_class_type>, (char*)"outputmatrix");
 		
 		for (auto& a_message : instance->messages()) {
 			MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
 			else MIN_WRAPPER_ADDMETHOD(c, notify,			self_sym_sym_ptr_ptr___err,			A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,	self_ptr_long_ptr_long_ptr_long,	A_CANT)
 			else if (a_message.first == "maxclass_setup")	; // for min class construction only, do not add for exposure to max
+            else if (a_message.first == "jitclass_setup")	; // for min class construction only, do not add for exposure to max
+            else if (a_message.first == "mob_setup")        ; // for min class construction only, do not add for exposure to max
+            else if (a_message.first == "maxob_setup")      ; // for min class construction only, do not add for exposure to max
+            else if (a_message.first == "setup")            ; // for min class construction only, do not add for exposure to max
 			else
 				class_addmethod(c, (method)wrapper_method_generic<min_class_type>, a_message.first.c_str(), a_message.second->type(), 0);
 		}
 		
-		// the menufun isn't used anymore, so we are repurposing it here to store the name of the jitter class we wrap
-		c->c_menufun = (max::method)max::gensym(cppname);
+		this_class_name = max::gensym(cppname);
 		
 		max::class_register(max::CLASS_BOX, c);
 		
 		this_class = c;
-		instance->try_call("maxclass_setup", c);
 
 		// documentation update (if neccessary)
 		doc_update<min_class_type>(*instance, maxname, cppname);
