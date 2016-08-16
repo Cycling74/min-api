@@ -318,6 +318,14 @@ namespace min {
 		std::vector<T>& range_ref() {
 			return m_range;
 		}
+        
+        bool disabled() const {
+            return c74::max::object_attr_getdisabled(m_owner, m_name);
+        }
+        
+        void set_disabled(bool value) {
+            c74::max::object_attr_setdisabled(m_owner, m_name, value);
+        }
 
 	private:
 		T				m_value;
