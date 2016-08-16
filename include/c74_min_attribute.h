@@ -323,7 +323,7 @@ namespace min {
             return c74::max::object_attr_getdisabled(m_owner, m_name);
         }
         
-        void set_disabled(bool value) {
+        void disable(bool value) {
             c74::max::object_attr_setdisabled(m_owner, m_name, value);
         }
 
