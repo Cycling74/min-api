@@ -9,6 +9,13 @@
 namespace c74 {
 namespace min {
 
+	enum class time_flags {
+		none,			// anything goes -- both fixed times and tempo-based times
+		tempo_based		// only tempo-based times permitted: ticks, bbu, and notevalues
+	};
+
+	using time_callback = std::function<void()>;
+
 
 	// time_interval is a hybrid object that can represent a time value
 	// but also can be an actor by implementing the internals used by Max's ITM system.
