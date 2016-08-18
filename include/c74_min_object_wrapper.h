@@ -420,9 +420,9 @@ namespace min {
             
             if(ownsinput)
                 max::max_jit_class_addmethod_usurp_low(c, (method)min_jit_mop_outputmatrix<min_class_type>, (char*)"outputmatrix");
+                
+            max::class_addmethod(c, (method)max::max_jit_mop_assist, "assist", max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
         }
-        
-		max::class_addmethod(c, (method)max::max_jit_mop_assist, "assist", max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
 		
 		for (auto& a_message : instance->messages()) {
 			MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
