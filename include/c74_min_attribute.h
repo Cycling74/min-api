@@ -217,6 +217,28 @@ namespace min {
 		}
 
 
+		/// constructor utility: for time_value attrs, handle arg defining time_flags
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, time_flags>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+//			const_cast<argument_type&>(m_order) = arg;
+		}
+
+		/// constructor utility: for time_value attrs, handle arg defining a time_callback
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, time_callback>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+//			const_cast<argument_type&>(m_order) = arg;
+		}
+
+		/// constructor utility: for time_value attrs, handle arg defining time_quantization
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, time_quantization>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+//			const_cast<argument_type&>(m_order) = arg;
+		}
+
+
 		/// constructor utility: empty argument handling (required for recursive variadic templates)
 		constexpr void handle_arguments() noexcept {
 			;
@@ -337,6 +359,10 @@ namespace min {
 	};
 
 
+	#ifdef __APPLE__
+	#pragma mark -
+	#pragma mark ctor implementation
+	#endif // __APPLE__
 
 	template<class T>
 	template<typename ...ARGS>
@@ -365,7 +391,7 @@ namespace min {
 	template<typename ...ARGS>
 	attribute<time_value>::attribute(object_base* an_owner, std::string a_name, time_value a_default_value, ARGS... args)
 	: attribute_base	{ *an_owner, a_name }
-	, m_value			{ an_owner, a_name, double(a_default_value) }
+	, m_value			{ an_owner, a_name, double(a_default_value), false }
 	{
 		m_owner.attributes()[a_name] = this;
 
@@ -373,41 +399,17 @@ namespace min {
 		m_style = style::time;
 
 		handle_arguments(args...);
+		m_value.finalize();
 		copy_range();
 										
 		set(to_atoms(a_default_value), false);
 	}
 
-	
-	template<class T>
-	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
-		if (m_style == style::time)
-			class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
-		else if (isjitclass) {
-			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
-			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, m_name.c_str(), (max::t_symbol*)datatype(), attrflags, getter, setter, 0);
-			max::jit_class_addattr(c, jit_attr);
-		}
-		else {
-			auto max_attr = max::attr_offset_new(m_name, datatype(), 0, getter, setter, 0);
-			max::class_addattr(c, max_attr);
-		}
-	};
-	
-	
-	template<>
-	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
-		if (isjitclass) {
-			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
-			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset_array, m_name.c_str(), (max::t_symbol*)datatype(), 0xFFFF, attrflags, getter, setter, (long)size_offset(), 0);
-			max::jit_class_addattr(c, jit_attr);
-		}
-		else {
-			auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, 0, getter, setter, (long)size_offset(), 0);
-			max::class_addattr(c, max_attr);
-		}
-	};
 
+	#ifdef __APPLE__
+	#pragma mark -
+	#pragma mark range implementation
+	#endif // __APPLE__
 
 	// enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
 	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
@@ -480,6 +482,11 @@ namespace min {
 		}
 	};
 
+
+	#ifdef __APPLE__
+	#pragma mark -
+	#pragma mark max wrapper
+	#endif // __APPLE__
 	
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
@@ -506,5 +513,36 @@ namespace min {
 		attr->set( atoms(args.begin(), args.end()), false );
 		return 0;
 	}
+
+
+	template<class T>
+	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
+		if (m_style == style::time)
+			class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
+		else if (isjitclass) {
+			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
+			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, m_name.c_str(), (max::t_symbol*)datatype(), attrflags, getter, setter, 0);
+			max::jit_class_addattr(c, jit_attr);
+		}
+		else {
+			auto max_attr = max::attr_offset_new(m_name, datatype(), 0, getter, setter, 0);
+			max::class_addattr(c, max_attr);
+		}
+	};
+
+
+	template<>
+	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
+		if (isjitclass) {
+			long attrflags = max::ATTR_GET_DEFER_LOW | max::ATTR_SET_USURP_LOW;
+			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset_array, m_name.c_str(), (max::t_symbol*)datatype(), 0xFFFF, attrflags, getter, setter, (long)size_offset(), 0);
+			max::jit_class_addattr(c, jit_attr);
+		}
+		else {
+			auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, 0, getter, setter, (long)size_offset(), 0);
+			max::class_addattr(c, max_attr);
+		}
+	};
+
 	
 }} // namespace c74::min
