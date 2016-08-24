@@ -145,6 +145,8 @@ namespace min {
         self->min_object.assign_instance((max::t_object*)self);
 		min_ctor(self, {});
 		self->min_object.set_classname(s);
+        self->min_object.postinitialize();
+        
 		self->min_object.try_call("setup");
 		
 		return (max::t_object*)self;
@@ -175,7 +177,6 @@ namespace min {
 		void*				o			= max::jit_object_new(cppname, s);
 		auto                job = (minwrap<min_class_type>*)o;
         
-        job->min_object.postinitialize();
         
         if(job->min_object.has_call("mop_setup")) {
             atoms atomargs(args.begin(), args.begin()+attrstart);
@@ -361,6 +362,10 @@ namespace min {
 		auto					in_matrix 	= (max::t_object*)max::object_method(in_mop_io, k_sym_getmatrix);
 		auto					out_matrix 	= (max::t_object*)max::object_method(out_mop_io, k_sym_getmatrix);
 		
+        // seems like when called from javascript, the matrix ob is returned from getindex rather than the matrix wrapper
+        if(!in_matrix) in_matrix = in_mop_io;
+        if(!out_matrix) out_matrix = out_mop_io;
+        
 		if (!self || !in_matrix || !out_matrix){
 			err = max::JIT_ERR_INVALID_PTR;
 		}
