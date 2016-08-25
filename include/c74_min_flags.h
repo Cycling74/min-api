@@ -8,12 +8,12 @@
 namespace c74 {
 namespace min {
 
-	enum class documentation_flags {
+	enum class documentation_flags : int {
 		none,
 		do_not_generate
 	};
 
-	enum class behavior_flags {
+	enum class behavior_flags : int {
 		none,
 		nobox	///< cannot create in a max box (i.e. it is an internal-use-only class)
 	};
@@ -21,11 +21,11 @@ namespace min {
 	
 	class flags {
 	public:
-		constexpr flags(documentation_flags doc)
+		explicit constexpr flags(documentation_flags doc)
 		: m_documentation {doc}
 		{}
 
-		constexpr flags(behavior_flags behavior)
+		explicit constexpr flags(behavior_flags behavior)
 		: m_behavior {behavior}
 		{}
 
@@ -44,14 +44,14 @@ namespace min {
 
 
 
-	#define MIN_FLAGS static const constexpr flags class_flags
+	#define MIN_FLAGS const flags class_flags
 
 	template<typename min_class_type>
 	struct has_class_flags {
 		template<class,class> class checker;
 
 		template<typename C>
-		static std::true_type test(checker<C, decltype(&C::class_flags)>);
+		static std::true_type test(checker<C, decltype(&C::class_flags)>*);
 
 		template<typename C>
 		static std::false_type test(...);
@@ -63,13 +63,13 @@ namespace min {
 
 	template<class min_class_type, class T>
 	typename enable_if< has_class_flags<min_class_type>::value>::type
-	doc_get_flags(T& returned_flags) {
-		returned_flags = min_class_type::class_flags;
+	class_get_flags(const min_class_type& instance, T& returned_flags) {
+		returned_flags = instance.class_flags;
 	}
 
 	template<class min_class_type, class T>
 	typename enable_if< !has_class_flags<min_class_type>::value>::type
-	doc_get_flags(T& returned_flags) {
+	class_get_flags(const min_class_type& instance, T& returned_flags) {
 		returned_flags = T::none;
 	}
 

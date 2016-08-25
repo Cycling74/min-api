@@ -132,7 +132,7 @@ namespace min {
 	void doc_generate(const min_class_type& instance, const std::string& refpage_fullpath, std::string& max_class_name, const std::string& min_class_name) {
 		documentation_flags flags = documentation_flags::none;
 
-		doc_get_flags<min_class_type>(flags);
+		class_get_flags<min_class_type>(instance, flags);
 		if (flags == documentation_flags::do_not_generate)
 			return;
 
