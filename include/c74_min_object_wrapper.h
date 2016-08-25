@@ -297,9 +297,15 @@ namespace min {
 
 
 	template<class min_class_type>
-	void wrap_as_max_external_finish(max::t_class* c) {
+	void wrap_as_max_external_finish(max::t_class* c, const min_class_type& instance) {
 		max::class_addmethod(c, (max::method)wrapper_method_assist<min_class_type>, "assist", max::A_CANT, 0);
-		max::class_register(max::CLASS_BOX, c);
+
+		behavior_flags flags = behavior_flags::none;
+		class_get_flags<min_class_type>(instance, flags);
+		if (flags == behavior_flags::nobox)
+			max::class_register(max::CLASS_NOBOX, c);
+		else
+			max::class_register(max::CLASS_BOX, c);
 	}
 
 
@@ -320,7 +326,7 @@ namespace min {
 		auto c = wrap_as_max_external_common<min_class_type>(*instance, cppname, maxname, resources);
 
 		wrap_as_max_external_audio<min_class_type>(c);
-		wrap_as_max_external_finish<min_class_type>(c);
+		wrap_as_max_external_finish<min_class_type>(c, *instance);
 		this_class = c;
 		instance->try_call("maxclass_setup", c);
 	}
