@@ -314,6 +314,9 @@ namespace min {
 
 	template<class min_class_type>
 	type_enable_if_not_jitter_class<min_class_type> wrap_as_max_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr) {
+		if (this_class != nullptr)
+			return;
+
 		this_class_init = true;
 
 		std::unique_ptr<min_class_type> dummy_instance = nullptr;
@@ -336,6 +339,9 @@ namespace min {
 	void wrap_as_max_external(const char* cppname, const char* cmaxname, void *resources, min_class_type* instance = nullptr) {
 		using c74::max::method;
 		using c74::max::class_addmethod;
+
+		if (this_class != nullptr)
+			return;
 		
 		this_class_init = true;
 		
