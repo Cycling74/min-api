@@ -148,7 +148,7 @@ namespace min {
 		documentation_flags flags = documentation_flags::none;
 
 		doc_get_flags<min_class_type>(flags);
-		if (flags == documentation_flags::none)
+		if (flags == documentation_flags::do_not_generate)
 			return;
 
 		using namespace std;
