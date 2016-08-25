@@ -128,21 +128,6 @@ namespace min {
 	}
 
 
-
-	template<class min_class_type>
-	typename enable_if< has_class_flags<min_class_type>::value>::type
-	doc_get_flags(documentation_flags& returned_flags) {
-		returned_flags = (documentation_flags)min_class_type::class_flags;
-	}
-
-	template<class min_class_type>
-	typename enable_if< !has_class_flags<min_class_type>::value>::type
-	doc_get_flags(documentation_flags& returned_flags) {
-		returned_flags = documentation_flags::none;
-	}
-
-
-
 	template<class min_class_type>
 	void doc_generate(const min_class_type& instance, const std::string& refpage_fullpath, std::string& max_class_name, const std::string& min_class_name) {
 		documentation_flags flags = documentation_flags::none;
