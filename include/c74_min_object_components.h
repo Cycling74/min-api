@@ -17,7 +17,7 @@ namespace min {
 	
 	template<typename T>
 	class attribute;
-	
+
 	
 	class maxobject_base {
 	public:

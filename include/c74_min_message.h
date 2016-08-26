@@ -28,13 +28,19 @@ namespace min {
 				name = "int";
 			else if (name == "number")
 				name = "float";
-			else if (   a_name == "dsp64"
-					 || a_name == "dblclick"
+			else if (   a_name == "dblclick"
+					 || a_name == "dsp64"
+					 || a_name == "dspsetup"
 					 || a_name == "edclose"
+					 || a_name == "jitclass_setup"
+					 || a_name == "maxclass_setup"
+					 || a_name == "maxob_setup"
+					 || a_name == "mop_setup"
 					 || a_name == "notify"
 					 || a_name == "okclose"
 					 || a_name == "patchlineupdate"
 					 || a_name == "savestate"
+					 || a_name == "setup"
 			) {
 				m_type = max::A_CANT;
 			}
