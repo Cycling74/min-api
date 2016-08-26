@@ -145,7 +145,7 @@ namespace min {
         self->min_object.assign_instance((max::t_object*)self);
 		min_ctor(self, {});
 		self->min_object.set_classname(s);
-        self->min_object.postinitialize();
+		self->min_object.postinitialize();
         
 		self->min_object.try_call("setup");
 		
@@ -357,15 +357,17 @@ namespace min {
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
 	void jit_matrix_docalc(minwrap<min_class_type>* self, max::t_object* inputs, max::t_object* outputs) {
 		max::t_jit_err			err = max::JIT_ERR_NONE;
-		auto					in_mop_io = (max::t_object*)max::object_method(inputs, max::_jit_sym_getindex, 0);
-		auto					out_mop_io = (max::t_object*)max::object_method(outputs, max::_jit_sym_getindex, 0);
-		auto					in_matrix 	= (max::t_object*)max::object_method(in_mop_io, k_sym_getmatrix);
-		auto					out_matrix 	= (max::t_object*)max::object_method(out_mop_io, k_sym_getmatrix);
+		auto					in_matrix = (max::t_object*)max::object_method(inputs, max::_jit_sym_getindex, 0);
+		auto					out_matrix = (max::t_object*)max::object_method(outputs, max::_jit_sym_getindex, 0);
+	
+		if(max::object_classname(in_matrix) != max::_jit_sym_jit_matrix) {
+			in_matrix 	= (max::t_object*)max::object_method(in_matrix, k_sym_getmatrix);
+		}
 		
-        // seems like when called from javascript, the matrix ob is returned from getindex rather than the matrix wrapper
-        if(!in_matrix) in_matrix = in_mop_io;
-        if(!out_matrix) out_matrix = out_mop_io;
-        
+		if(max::object_classname(out_matrix) != max::_jit_sym_jit_matrix) {
+			out_matrix 	= (max::t_object*)max::object_method(out_matrix, k_sym_getmatrix);
+		}
+		
 		if (!self || !in_matrix || !out_matrix){
 			err = max::JIT_ERR_INVALID_PTR;
 		}
