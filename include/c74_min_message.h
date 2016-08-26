@@ -32,6 +32,7 @@ namespace min {
 					 || a_name == "dsp64"
 					 || a_name == "dspsetup"
 					 || a_name == "edclose"
+                     || a_name == "fileusage"
 					 || a_name == "jitclass_setup"
 					 || a_name == "maxclass_setup"
 					 || a_name == "maxob_setup"

@@ -205,6 +205,7 @@ namespace min {
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(dblclick)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(dictionary)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(edclose)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(fileusage)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(float)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(int)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(notify)
@@ -241,6 +242,7 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, appendtodictionary,	ptr,								A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, notify,				self_sym_sym_ptr_ptr___err,			A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,		self_ptr_long_ptr_long_ptr_long,	A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, fileusage,            ptr,                                A_CANT)
 			else if (a_message.first == "dspsetup")				; // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
 			else
@@ -440,6 +442,7 @@ namespace min {
 			MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
 			else MIN_WRAPPER_ADDMETHOD(c, notify,			self_sym_sym_ptr_ptr___err,			A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,	self_ptr_long_ptr_long_ptr_long,	A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, fileusage,        ptr,                                A_CANT)
 			else if (a_message.first == "maxclass_setup")	; // for min class construction only, do not add for exposure to max
             else if (a_message.first == "jitclass_setup")	; // for min class construction only, do not add for exposure to max
             else if (a_message.first == "mop_setup")        ; // for min class construction only, do not add for exposure to max
