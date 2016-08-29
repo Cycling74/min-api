@@ -170,7 +170,9 @@ namespace min {
 		doc_get_description<min_class_type>(class_description);
 		strncpy(digest, class_description.c_str(), digest_length_max);
 
-		char *c = strchr(digest, '.');
+		char *c = strstr(digest, ". ");
+		if (!c)
+			c = strchr(digest, '.');
 		if (c)
 			*c = 0;
 
@@ -204,7 +206,9 @@ namespace min {
 			bool		required	= arg->required();
 
 			strncpy(digest, description.c_str(), digest_length_max);
-			char *c = strchr(digest, '.');
+			char *c = strstr(digest, ". ");
+			if (!c)
+				c = strchr(digest, '.');
 			if (c)
 				*c = 0;
 
@@ -237,7 +241,9 @@ namespace min {
 				const auto& description		= message_object.description_string();
 
 				strncpy(digest, description.c_str(), digest_length_max);
-				char *c = strchr(digest, '.');
+				char *c = strstr(digest, ". ");
+				if (!c)
+					c = strchr(digest, '.');
 				if (c)
 					*c = 0;
 
@@ -264,7 +270,9 @@ namespace min {
 			const auto& attr_type = attr_object.datatype();
 
 			strncpy(digest, description.c_str(), digest_length_max);
-			char *c = strchr(digest, '.');
+			char *c = strstr(digest, ". ");
+			if (!c)
+				c = strchr(digest, '.');
 			if (c)
 				*c = 0;
 
