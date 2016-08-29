@@ -12,24 +12,31 @@ namespace min {
 	class atom : public max::t_atom {
 	public:
 		
-		/// Empty atom constructor
+		/// Default constructor -- an empty atom
 		atom() {
 			this->a_type = c74::max::A_NOTHING;
 			this->a_w.w_obj = nullptr;
 		}
 		
-		/// Generic assigning constructor
+		/// constructor with generic initializer
 		template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
 		atom(T initial_value) {
 			*this = initial_value;
 		}
 		
-		/// Enum assigning constructor
+		/// constructor with enum initializer
 		template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 		atom(T initial_value) {
 			*this = (long)initial_value;
 		}
-		
+
+
+		// copy/move constructors and assignment
+		atom(const atom& source)				= default;
+		atom(atom&& source)						= default;
+		atom& operator = (const atom& source)	= default;
+		atom& operator = (atom&& source)		= default;
+
 		
 		atom& operator = (const max::t_atom& value) {
 			this->a_type = value.a_type;
