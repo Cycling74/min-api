@@ -221,18 +221,6 @@ namespace min {
 	};
 	
 
-	// part of the symbol class but must be defined after atom is defined
-	symbol::symbol(const atom& value) {
-		s = value;
-	}
-
-	// part of the symbol class but must be defined after atom is defined
-	symbol& symbol::operator = (const atom& value) {
-		s = value;
-		return *this;
-	}
-
-
 	
 
 	/// The atoms container is the standard means by which zero or more values are passed.
@@ -340,7 +328,7 @@ namespace std {
 	// as stated in section 17.6.4.2.1 of working draft version N4296 of the C++ Standard at
 	// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4296.pdf
 	
-	string to_string(const c74::min::atoms& as) {
+	inline string to_string(const c74::min::atoms& as) {
 		long	textsize = 0;
 		char*	text = nullptr;
 		string	str;
@@ -360,7 +348,7 @@ namespace std {
 	
 	/// overload of the std::to_string() function for the min::atom_reference type
 
-	string to_string(const c74::min::atom_reference& ar) {
+	inline string to_string(const c74::min::atom_reference& ar) {
 		c74::min::atoms as;
 		for (const auto& ref: ar)
 			as.push_back(ref);

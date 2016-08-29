@@ -56,18 +56,6 @@ namespace min {
 	};
 	
 	
-	// inlets have to be created as a separate step because
-	// max creates them from right-to-left
-	// note that some objects will not call this function... i.e. dsp objects or other strongly-typed objects.
-
-	void object_base::create_inlets() {
-		if (m_inlets.empty())
-			return;
-		for (auto i = m_inlets.size()-1; i>0; --i)
-			m_inlets[i]->m_instance = max::proxy_new(m_maxobj, (long)i, nullptr);
-	}
-	
-	
 	class outlet  : public port {
 		friend void object_base::create_outlets();
 		
@@ -146,16 +134,6 @@ namespace min {
 	};
 	
 	
-	// outlets have to be created as a separate step because
-	// max creates them from right-to-left
-	void object_base::create_outlets() {
-		for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet) {
-			if ((*outlet)->type() == "")
-				(*outlet)->m_instance = max::outlet_new(m_maxobj, nullptr);
-			else
-				(*outlet)->m_instance = max::outlet_new(m_maxobj, (*outlet)->type().c_str());
-		}
-	}
 
 	
 }} // namespace c74::min

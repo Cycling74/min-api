@@ -67,9 +67,6 @@ namespace min {
 	};
 	
 	
-	void timer_tick_callback(timer* a_timer) {
-		a_timer->tick();
-	}
 
 	
 }} // namespace c74::min

@@ -194,11 +194,16 @@ namespace min {
 	// Except that you cannot pass non-integral data as a template parameter.
 	// Thus we create types for each string that we would like to pass and then
 	// specialize the template calls with the type.
-	
+
+#ifdef C74_MIN_WITH_IMPLEMENTATION
 	#define MIN_WRAPPER_CREATE_TYPE_FROM_STRING(str)\
 	struct wrapper_message_name_##str { static const char name[]; };\
 	const char wrapper_message_name_##str::name[] = #str;
-	
+#else
+	#define MIN_WRAPPER_CREATE_TYPE_FROM_STRING(str)\
+	struct wrapper_message_name_##str { static const char name[]; };
+#endif
+
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(anything)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(appendtodictionary)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(bang)

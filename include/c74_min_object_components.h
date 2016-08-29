@@ -235,7 +235,7 @@ namespace min {
 	
 	
 	// maxname may come in as an entire path because of use of the __FILE__ macro
-	std::string deduce_maxclassname(const char* maxname) {
+	inline std::string deduce_maxclassname(const char* maxname) {
 		std::string smaxname;
 		
 		const char* start = strrchr(maxname, '/');

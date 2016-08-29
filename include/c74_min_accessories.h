@@ -26,7 +26,7 @@ namespace min {
 		/// code from http://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
 		/// see also http://en.cppreference.com/w/cpp/numeric/random
 		
-		double random(double min, double max) {
+		inline double random(double min, double max) {
 			std::random_device rd;
 			std::mt19937 gen(rd());
 			std::uniform_real_distribution<> dis(min, max);
@@ -36,7 +36,7 @@ namespace min {
         
         // calculates the fold of x between lo and hi.
         
-        double fold(double x, double lo, double hi) {
+        inline double fold(double x, double lo, double hi) {
             long di;
             double m,d,tmp;
             
@@ -78,7 +78,7 @@ namespace min {
         
         //Calculates the wrap of x between lo and hi.
         
-        double wrap(double x, double lo, double hi) {
+        inline double wrap(double x, double lo, double hi) {
             double m,d,tmp;
             long di;
             
@@ -174,7 +174,7 @@ namespace min {
 		/// param	a	feedforward coefficients (numerator)
 		/// param	b	feedback coefficients (denominator)
 		/// param	N	optional size of the generated response, default 64
-		auto generate_impulse_response(const sample_vector& a, const sample_vector& b, int N = 64) {
+		inline auto generate_impulse_response(const sample_vector& a, const sample_vector& b, int N = 64) {
 			sample_vector	x(N);				// input -- feedforward history
 			sample_vector	y(N);				// output -- feedback history
 			
@@ -215,7 +215,7 @@ namespace min {
 		/// @param	s	The string to trim
 		/// @return		The trimmed string
 
-		string trim(string& s) {
+		inline string trim(string& s) {
 			size_t first = s.find_first_not_of(' ');
 			size_t last = s.find_last_not_of(' ');
 			return s.substr(first, (last - first + 1));
@@ -227,7 +227,7 @@ namespace min {
 		/// @param	delim	The delimiter on which to split the string
 		/// @return			A vector of substrings
 
-		vector<string> split(const string &s, char delim) {
+		inline vector<string> split(const string &s, char delim) {
 			vector<string>		substrings;
 			string				substring;
 			std::stringstream	ss(s);

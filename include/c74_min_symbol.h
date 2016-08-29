@@ -64,7 +64,7 @@ namespace min {
 			return *this;
 		}
 
-		symbol& operator = (const atom& value); // defined in c74_min_atom.h
+		symbol& operator = (const atom& value);
 
 		
 		

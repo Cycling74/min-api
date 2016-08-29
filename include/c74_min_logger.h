@@ -11,7 +11,7 @@ namespace min {
 
 	
 	class logger_line_ending {};	/// A type to represent line endings for the logger class.
-	logger_line_ending endl;		/// An instance of a line ending for convenience
+	static logger_line_ending endl;		/// An instance of a line ending for convenience
 	
 	
 	/// Logging utility to deliver console messages
