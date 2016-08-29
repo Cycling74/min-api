@@ -435,10 +435,22 @@ namespace min {
 	T from_atoms(const atoms& as) {
 		return (T)as[0];
 	}
-	
+
+
+	// Copies a value out from a vector of atoms to the desired type -- an enum
+	// The value is restricted to the range of the enum
+	// The enum *must* follow the convention of starting a zero, incrementing sequentially, and ending with 'enum_count'
+
 	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 	T from_atoms(const atoms& as) {
-		return (T)(long)as[0];
+		auto index = (long)as[0];
+		auto size = (long)T::enum_count;
+		
+		if (index < 0)
+			index = 0;
+		else if (index >= size)
+			index = size - 1;
+		return T(index);
 	}
 
 	
