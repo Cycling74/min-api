@@ -144,7 +144,9 @@ namespace min {
         
         self->min_object.assign_instance((max::t_object*)self);
 		min_ctor(self, {});
-		self->min_object.set_classname(s);
+		
+		// NOTE: when instantiated from JS s will be NULL
+		if(s) self->min_object.set_classname(s);
 		self->min_object.postinitialize();
         
 		self->min_object.try_call("setup");

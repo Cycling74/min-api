@@ -15,9 +15,10 @@ namespace min {
 	
 	class message {
 	public:
-		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {})
+		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, long type = max::A_GIMME)
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
+		, m_type		{ type }
 		, m_description	{ a_description }
 		{
 			assert(m_function != nullptr); // could happen if a function is passed as the arg but that fn hasn't initialized yet
