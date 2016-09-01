@@ -15,7 +15,26 @@ namespace min {
 	
 	class message {
 	public:
-		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, long type = max::A_GIMME)
+
+		enum class types : long {
+			nothing,
+			long_arg,
+			float_arg,
+			symbol_arg,
+			object_argument,
+			long_optional,
+			float_optional,
+			symbol_optional,
+			gimme,
+			cant,
+			semicolon,
+			comma,
+			dollar,
+			dollar_symbol,
+			gimmeback
+		};
+
+		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		, m_type		{ type }
@@ -44,7 +63,7 @@ namespace min {
 					 || a_name == "savestate"
 					 || a_name == "setup"
 			) {
-				m_type = max::A_CANT;
+				m_type = types::cant;
 			}
 
 			m_name = name;
@@ -65,7 +84,7 @@ namespace min {
 		}
 		
 		long type() const {
-			return m_type;
+			return static_cast<long>(m_type);
 		}
 
 		std::string description_string() const {
@@ -79,7 +98,7 @@ namespace min {
 	private:
 		object_base*	m_owner;
 		function		m_function;
-		long			m_type { max::A_GIMME };
+		types			m_type { types::gimme };
 		symbol			m_name;
 		description		m_description;
 	};
