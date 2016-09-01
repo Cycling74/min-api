@@ -457,7 +457,7 @@ namespace min {
 			else if (a_message.first == "maxob_setup")      ; // for min class construction only, do not add for exposure to max
 			else if (a_message.first == "setup")            ; // for min class construction only, do not add for exposure to max
 			else {
-				if(a_message.second->type() == max::A_GIMMEBACK) {
+				if (a_message.second->type() == max::A_GIMMEBACK) {
 					// add handlers for gimmeback messages, allowing for return values in JS and max wrapper dumpout
 					class_addmethod(this_jit_class, (method)wrapper_method_generic<min_class_type>, a_message.first.c_str(), max::A_CANT, 0);
 					class_addtypedwrapper(this_jit_class, (method)wrapper_method_generic_typed<min_class_type>, (char*)a_message.first.c_str(), a_message.second->type(), 0);
@@ -470,7 +470,7 @@ namespace min {
 			}
 		}
 		
-        if(instance->has_call("maxclass_setup")) {
+        if (instance->has_call("maxclass_setup")) {
             instance->try_call("maxclass_setup", c);
         }
         else {
