@@ -31,7 +31,11 @@ namespace min {
 			comma,
 			dollar,
 			dollar_symbol,
-			gimmeback
+			gimmeback,
+			defer = max::A_DEFER,
+			usurp = max::A_USURP,
+			defer_low = max::A_DEFER_LOW,
+			usurp_low = max::A_USURP_LOW
 		};
 
 		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
