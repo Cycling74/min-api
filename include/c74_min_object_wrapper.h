@@ -189,7 +189,7 @@ namespace min {
 
 	// same as wrapper_method_generic but can return values in an atom (A_GIMMEBACK)
 	template<class min_class_type>
-	void wrapper_method_generic_typed(max::t_object* o, max::t_symbol *s, long ac, max::t_atom* av, max::t_atom* rv) {
+	void wrapper_method_generic_typed(max::t_object* o, max::t_symbol* s, long ac, max::t_atom* av, max::t_atom* rv) {
 		auto	self = wrapper_find_self<min_class_type>(o);
 		auto&	meth = *self->min_object.messages()[s->s_name];
 		atoms	as(ac);
@@ -198,7 +198,7 @@ namespace min {
 			as[i] = av[i];
 		atoms ra = meth(as);
 		
-		if(rv)
+		if (rv)
 			*rv = ra[0];
 	}
 
