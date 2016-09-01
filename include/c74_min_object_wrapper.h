@@ -80,9 +80,10 @@ namespace min {
 	
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
 	minwrap<min_class_type>* wrapper_find_self(max::t_object* mob) {
-		void * job = max::max_jit_obex_jitob_get(mob);
-		if(!job) job = mob;
-		return (minwrap<min_class_type>*)job;
+		auto job = max::max_jit_obex_jitob_get(mob);
+		if (!job)
+			job = mob;
+		return static_cast<minwrap<min_class_type>*>(job);
 	}
 
 	
