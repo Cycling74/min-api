@@ -140,11 +140,14 @@ namespace min {
 	///		In such cases we might not know what the object name is at compile time.
 	template<class min_class_type>
 	max::t_object* jit_new(max::t_symbol* s){
-		minwrap<min_class_type>*	self = (minwrap<min_class_type>*)max::jit_object_alloc(this_jit_class);
+		auto self = (minwrap<min_class_type>*)max::jit_object_alloc(this_jit_class);
         
         self->min_object.assign_instance((max::t_object*)self);
 		min_ctor(self, {});
-		self->min_object.set_classname(s);
+		
+		// NOTE: when instantiated from JS s will be NULL
+		if (s)
+			self->min_object.set_classname(s);
 		self->min_object.postinitialize();
         
 		self->min_object.try_call("setup");
@@ -153,19 +156,18 @@ namespace min {
 	}
 	
 	template<class min_class_type>
-	void jit_free(minwrap<min_class_type>* self){
+	void jit_free(minwrap<min_class_type>* self) {
 		self->cleanup();
 		self->min_object.~min_class_type(); // placement delete
 	}
-	
-	
-	
+
+
 	struct max_jit_wrapper {
 		max::t_object	ob;
 		void*			obex;
 	};
-	
-	
+
+
 	template<class min_class_type>
 	void* max_jit_mop_new(max::t_symbol* s, long argc, max::t_atom* argv) {
 		assert(this_class_name != nullptr); // required pre-condition

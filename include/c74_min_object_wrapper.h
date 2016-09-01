@@ -80,7 +80,10 @@ namespace min {
 	
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
 	minwrap<min_class_type>* wrapper_find_self(max::t_object* mob) {
-		return (minwrap<min_class_type>*)max::max_jit_obex_jitob_get(mob);
+		auto job = max::max_jit_obex_jitob_get(mob);
+		if (!job)
+			job = mob;
+		return static_cast<minwrap<min_class_type>*>(job);
 	}
 
 	
@@ -183,7 +186,21 @@ namespace min {
 			as[i] = av[i];
 		meth(as);
 	}
-	
+
+	// same as wrapper_method_generic but can return values in an atom (A_GIMMEBACK)
+	template<class min_class_type>
+	void wrapper_method_generic_typed(max::t_object* o, max::t_symbol* s, long ac, max::t_atom* av, max::t_atom* rv) {
+		auto	self = wrapper_find_self<min_class_type>(o);
+		auto&	meth = *self->min_object.messages()[s->s_name];
+		atoms	as(ac);
+		
+		for (auto i=0; i<ac; ++i)
+			as[i] = av[i];
+		atoms ra = meth(as);
+		
+		if (rv)
+			*rv = ra[0];
+	}
 
 	
 	
@@ -427,7 +444,33 @@ namespace min {
 		
 		max::max_jit_class_obex_setup(c, calcoffset(max_jit_wrapper, obex));
 		
-        if(instance->has_call("maxclass_setup")) {
+		// add special messages to max class, and object messages to jitter class
+		// must happen pror to max_jit_class_wrap_standard call
+		for (auto& a_message : instance->messages()) {
+			MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
+			else MIN_WRAPPER_ADDMETHOD(c, notify,			self_sym_sym_ptr_ptr___err,			A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,	self_ptr_long_ptr_long_ptr_long,	A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, fileusage,        ptr,                                A_CANT)
+			else if (a_message.first == "maxclass_setup")	; // for min class construction only, do not add for exposure to max
+			else if (a_message.first == "jitclass_setup")	; // for min class construction only, do not add for exposure to max
+			else if (a_message.first == "mop_setup")        ; // for min class construction only, do not add for exposure to max
+			else if (a_message.first == "maxob_setup")      ; // for min class construction only, do not add for exposure to max
+			else if (a_message.first == "setup")            ; // for min class construction only, do not add for exposure to max
+			else {
+				if (a_message.second->type() == max::A_GIMMEBACK) {
+					// add handlers for gimmeback messages, allowing for return values in JS and max wrapper dumpout
+					class_addmethod(this_jit_class, (method)wrapper_method_generic<min_class_type>, a_message.first.c_str(), max::A_CANT, 0);
+					class_addtypedwrapper(this_jit_class, (method)wrapper_method_generic_typed<min_class_type>, (char*)a_message.first.c_str(), a_message.second->type(), 0);
+					max_jit_class_addmethod_defer_low(c, (method)max::max_jit_obex_gimmeback_dumpout, (char*)a_message.first.c_str());
+				}
+				else {
+					// all other messages are added to the jitter class
+					class_addmethod(this_jit_class, (method)wrapper_method_generic<min_class_type>, a_message.first.c_str(), a_message.second->type(), 0);
+				}
+			}
+		}
+		
+        if (instance->has_call("maxclass_setup")) {
             instance->try_call("maxclass_setup", c);
         }
         else {
@@ -442,20 +485,6 @@ namespace min {
                 
             max::class_addmethod(c, (method)max::max_jit_mop_assist, "assist", max::A_CANT, 0);	// standard matrix-operator (mop) assist fn
         }
-		
-		for (auto& a_message : instance->messages()) {
-			MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
-			else MIN_WRAPPER_ADDMETHOD(c, notify,			self_sym_sym_ptr_ptr___err,			A_CANT)
-			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,	self_ptr_long_ptr_long_ptr_long,	A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, fileusage,        ptr,                                A_CANT)
-			else if (a_message.first == "maxclass_setup")	; // for min class construction only, do not add for exposure to max
-            else if (a_message.first == "jitclass_setup")	; // for min class construction only, do not add for exposure to max
-            else if (a_message.first == "mop_setup")        ; // for min class construction only, do not add for exposure to max
-            else if (a_message.first == "maxob_setup")      ; // for min class construction only, do not add for exposure to max
-            else if (a_message.first == "setup")            ; // for min class construction only, do not add for exposure to max
-			else
-				class_addmethod(c, (method)wrapper_method_generic<min_class_type>, a_message.first.c_str(), a_message.second->type(), 0);
-		}
 		
 		this_class_name = max::gensym(cppname);
 		
