@@ -29,6 +29,11 @@ namespace min {
 		: m_behavior {behavior}
 		{}
 
+		explicit constexpr flags(behavior_flags behavior, documentation_flags doc)
+		: m_documentation {doc}
+		, m_behavior {behavior}
+		{}
+
 		constexpr operator documentation_flags() const {
 			return m_documentation;
 		}
