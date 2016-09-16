@@ -237,6 +237,18 @@ namespace min {
 			return substrings;
 		}
 
+
+		inline string join(const vector<string>& input, char glue = ' ') {
+			string output;
+
+			for (const auto& str : input) {
+				output += str;
+				output += " ";
+			}
+			trim(output);
+			return output;
+		}
+
 	}
 	
 	

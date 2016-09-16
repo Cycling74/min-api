@@ -115,10 +115,31 @@ namespace min {
 		static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
 	};
 
+
+	inline std::string doc_format_description(const std::string& input) {
+		using std::string;
+
+		strings tokens = string_utility::split(input, ' ');
+
+		for (auto& token : tokens) {
+			if (token[0] == '@') {										// attribute
+				token = string("<at>") + token.substr(1, string::npos) + string("</at>");
+			}
+			else if (token[0] == '#') {									// message
+				token = string("<m>") + token.substr(1, string::npos) + string("</m>");
+			}
+			else if (token[0] == '[' && token[token.size()-1] == ']') {	// object
+				token = string("<o>") + token.substr(1, token.size()-2) + string("</o>");
+			}
+		}
+
+		return string_utility::join(tokens);
+	}
+
 	template<class min_class_type>
 	typename enable_if< has_class_description<min_class_type>::value>::type
 	doc_get_description(std::string& returned_description) {
-		returned_description = min_class_type::class_description;
+		returned_description = doc_format_description(min_class_type::class_description);
 	}
 
 	template<class min_class_type>
@@ -201,7 +222,7 @@ namespace min {
 		const auto& arguments = instance.arguments();
 
 		for (const auto& arg: arguments) {
-			const auto& description	= arg->description_string();
+			const auto& description	= doc_format_description(arg->description_string());
 			const auto&	type		= arg->type();
 			bool		required	= arg->required();
 
@@ -238,7 +259,7 @@ namespace min {
 		for (const auto& p: messages) {
 			const auto& message_object	= *p.second;
 			if (message_object.type() != max::A_CANT) {
-				const auto& description		= message_object.description_string();
+				const auto& description		= doc_format_description(message_object.description_string());
 
 				strncpy(digest, description.c_str(), digest_length_max);
 				char *c = strstr(digest, ". ");
@@ -266,7 +287,7 @@ namespace min {
 
 		for (const auto& p: attributes) {
 			const auto& attr_object	= *p.second;
-			const auto& description	= attr_object.description_string();
+			const auto& description	= doc_format_description(attr_object.description_string());
 			const auto& attr_type = attr_object.datatype();
 
 			strncpy(digest, description.c_str(), digest_length_max);
