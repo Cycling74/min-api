@@ -297,7 +297,7 @@ namespace min {
 			if (c)
 				*c = 0;
 
-			refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='1' type='" << attr_type << "' size='1' >" << endl;
+			refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='"<< attr_object.writable() <<"' type='" << attr_type << "' size='1' >" << endl;
 			refpage_file << "			<digest>" << digest << "</digest>" << endl;
 			refpage_file << "			<description>" << description << "</description>" << endl;
 			refpage_file << "		</attribute>" << endl << endl;

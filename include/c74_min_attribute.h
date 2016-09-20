@@ -73,7 +73,7 @@ namespace min {
 		virtual attribute_base& operator = (atoms args) = 0;
 		
 		/// set the value of the attribute
-		virtual void set(const atoms& args, bool notify = true) = 0;
+		virtual void set(const atoms& args, bool notify = true, bool override_readonly = false) = 0;
 		
 		/// get the value of the attribute
 		virtual operator atoms() const = 0;
@@ -85,6 +85,12 @@ namespace min {
 
 		symbol name() const {
 			return m_name;
+		}
+
+		// note: cannot call it "readonly" because that is the name of a type and
+		// it thus confuses the variadic template parsing below
+		bool writable() const {
+			return !m_readonly;
 		}
 
 		/// fetch the title/label as a string
@@ -118,8 +124,24 @@ namespace min {
 		size_t size_offset() {
 			return (&m_size) - ((size_t*)&m_owner);
 		}
-		
+
+
 	protected:
+
+		long flags(bool isjitclass) {
+			auto attrflags = 0;
+
+			if (!writable()) {
+				attrflags |= max::ATTR_SET_OPAQUE_USER;
+				attrflags |= max::ATTR_SET_OPAQUE;
+			}
+			if (isjitclass) {
+				attrflags |= max::ATTR_GET_DEFER_LOW;
+				attrflags |= max::ATTR_SET_USURP_LOW;
+			}
+			return attrflags;
+		}
+
 		object_base&	m_owner;
 		symbol			m_name;
         symbol			m_title;
@@ -144,7 +166,7 @@ namespace min {
 	template<typename T>
 	class attribute : public attribute_base {
 	private:
-		
+
 		/// constructor utility: handle an argument defining an attribute's title / label
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, title>::value>::type
@@ -262,17 +284,19 @@ namespace min {
 
 		
 		/// Set the attribute value
-		void set(const atoms& args, bool notify = true) {
+		void set(const atoms& args, bool notify = true, bool override_readonly = false) {
 			if (notify && this_class)
 				max::object_attr_setvalueof(m_owner, m_name, (long)args.size(), (max::t_atom*)&args[0]);
-			else {
-				if (m_setter)
-//					m_value = range_apply( from_atoms<T>(m_setter(args)) );
-					m_value = ( from_atoms<T>(m_setter(args)) );
-				else
-					m_value = ( from_atoms<T>(args) );
-//					m_value = range_apply( from_atoms<T>(args) );
-			}
+
+			if (!writable() && !override_readonly)
+				return; // we're all done... unless this is a readonly attr that we are forcing to update
+
+			if (m_setter)
+//				m_value = range_apply( from_atoms<T>(m_setter(args)) );
+				m_value = ( from_atoms<T>(m_setter(args)) );
+			else
+				m_value = ( from_atoms<T>(args) );
+//				m_value = range_apply( from_atoms<T>(args) );
 		}
 
 
@@ -364,8 +388,8 @@ namespace min {
 		atom_reference	args(ac,av);
 		symbol			attr_name	= (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
 		auto			attr		= self->min_object.attributes()[attr_name.c_str()];
-		
-		attr->set( atoms(args.begin(), args.end()), false );
+
+		attr->set( atoms(args.begin(), args.end()), false, false );
 		return 0;
 	}
 	
