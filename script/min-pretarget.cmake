@@ -3,7 +3,7 @@
 
 if (${CMAKE_GENERATOR} MATCHES "Xcode")
  		if (${XCODE_VERSION} VERSION_LESS 7)
-  			message(STATUS "Xcode 7 is required. Please install from the Mac App Store")
+  			message(STATUS "Xcode 7 or 8 is required. Please install from the Mac App Store")
 			return ()
 		endif ()
 endif ()
