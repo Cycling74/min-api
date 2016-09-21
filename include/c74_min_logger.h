@@ -39,7 +39,8 @@ namespace min {
 		
 
 		/// Use the insertion operator as for any other stream to build the output message
-		/// @param	x	A token to be added to the output stream. d
+		/// @param	x	A token to be added to the output stream.
+		/// @return		A reference to the output stream.
 		template<typename T>
 		logger& operator<<(const T& x) {
 			stream << x;
@@ -49,6 +50,7 @@ namespace min {
 
 		/// Pass endl to the insertion operator to complete the console post and flush it.
 		/// @param x	The min::endl token
+		/// @return		A reference to the output stream.
 		logger& operator<<(const logger_line_ending& x) {
 			const std::string& s = stream.str();
 			
