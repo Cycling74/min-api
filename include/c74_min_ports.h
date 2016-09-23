@@ -115,7 +115,7 @@ namespace min {
 				return;
 			
 			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
-				max::outlet_anything(m_instance, k_sym_list, (short)as.size(), (max::t_atom*)&as[0]);
+				max::outlet_list(m_instance, nullptr, (short)as.size(), (max::t_atom*)&as[0]);
 			else
 				max::outlet_anything(m_instance, as[0], (short)as.size()-1, (max::t_atom*)&as[1]);
 		}
