@@ -295,8 +295,8 @@ namespace min {
                 CLASS_ATTR_ATTR_ATOMS(c, attr_name.c_str(), "category", 0, k_sym_symbol, 1, &category_atom);
             }
 
-            atom order_atom(attr.editor_order());
-            CLASS_ATTR_ATTR_ATOMS(c, attr_name.c_str(), "order", 0, k_sym_long, 1, &order_atom);
+			atom order_atom { attr.editor_order() };
+			max::class_attr_addattr_atoms(c, attr_name.c_str(), "order", 0, k_sym_long, 1, &order_atom);
 
 			auto range_string = attr.range_string();
 			if (!range_string.empty()) {
