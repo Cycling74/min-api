@@ -83,11 +83,18 @@ public:
 	void push(t_symbol *name, long argc, t_atom *argv)
 	{
 		t_atom_vector av;
-		
-		av.resize(argc+1);
-		atom_setsym(&av[0],name);
-		for (long i=0; i<argc; i++)
-			av[i] = argv[i];
+
+		if (!strcmp(name->s_name, "list")) {
+			av.resize(argc);
+			for (long i=0; i<argc; i++)
+				av[i] = argv[i];
+		}
+		else {
+			av.resize(argc+1);
+			atom_setsym(&av[0],name);
+			for (long i=0; i<argc; i++)
+				av[i+1] = argv[i];
+		}
 		m_messages.push_back(av);
 	}
 };
