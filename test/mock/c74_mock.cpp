@@ -27,6 +27,7 @@ namespace max {
 	}
 
 	MOCK_EXPORT short path_getfilemoddate(const char* filename, const short path, t_ptr_uint* date) {
+		*date = 0;
 		return 0;
 	}
 
