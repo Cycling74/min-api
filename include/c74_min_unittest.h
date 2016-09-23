@@ -11,11 +11,39 @@
 #include "c74_min.h"
 
 namespace c74 {
-namespace max {
+
+	namespace min {
+
+
+		template<class min_class_type>
+		class test_wrapper {
+		public:
+			test_wrapper() {
+				m_minwrap_obj = (minwrap<min_class_type>*)wrapper_new<min_class_type>(symbol("dummy"), 0, nullptr);
+			}
+
+			~test_wrapper() {
+				max::object_free(m_minwrap_obj);
+			}
+
+			operator min_class_type&() {
+				return m_minwrap_obj->min_object;
+			}
+
+		private:
+			minwrap<min_class_type>* m_minwrap_obj = nullptr;
+
+		};
+
+
+	} // namespace min
+
+
+
+	namespace max {
 
 
 	/**	A vector of atoms.	*/
-//	typedef std::vector<c74::max::t_atom>	t_atom_vector;
 	using t_atom_vector = min::atoms;
 
 	/** A sequence of atom vectors.
@@ -32,4 +60,6 @@ namespace max {
 	t_sequence& object_getoutput(void *o, int outletnum);
 
 	
-}} // namespace c74::min
+	} // namespace max
+
+} // namespace c74
