@@ -57,7 +57,9 @@ namespace min {
 		if (m_style == style::time)
 			class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
 		else if (isjitclass) {
-			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, m_name, datatype(), flags(isjitclass), getter, setter, 0);
+//			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, m_name, datatype(), flags(isjitclass), getter, setter, 0);
+			auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset, (void*)m_name.c_str(), (max::t_symbol*)datatype(), (void*)flags(isjitclass), (void*)getter, (void*)setter, nullptr, nullptr, nullptr);
+
 			max::jit_class_addattr(c, jit_attr);
 		}
 		else {
