@@ -3,7 +3,6 @@
 ## Special methods called by Max at Runtime:
 
 * `number` : respond to both **float** and **int** messages
-* `toggle` : respond to **int** messages which are only 1 or 0
 * `anything` : the Max catch-all method for messages of any name not otherwise defined
 * `dblclick` : called when a user double-clicks on your object
 * `dspsetup` : called when the Max audio signal graph is being compiled (i.e. when a user turns on the DSP for a patcher)
