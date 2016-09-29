@@ -82,7 +82,7 @@ namespace max {
 	}
 
 	
-	t_object* object_new_imp(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8, void* p9, void* p10) {
+	MOCK_EXPORT t_object* object_new_imp(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8, void* p9, void* p10) {
 		return nullptr;
 	}
 	
@@ -132,6 +132,20 @@ namespace max {
 	MOCK_EXPORT t_max_err class_attr_addattr_atoms(t_class* c, const char* attrname, const char* attrname2, t_symbol* type, long flags, long ac, t_atom* av) {
 		return 0;
 	}
+
+	MOCK_EXPORT void class_time_addattr(t_class *c, char *attrname, char *attrlabel, long flags) {
+		return;
+	}
+
+
+	MOCK_EXPORT t_max_err class_addtypedwrapper(t_class *x, method m, char *name, ...) {
+		return 0;
+	}
+
+	MOCK_EXPORT void max_jit_obex_gimmeback_dumpout(void *x, t_symbol *s, long ac, t_atom *av) {
+		return;
+	}
+
 
 	
 	MOCK_EXPORT void *max_jit_object_alloc(t_class *mclass, t_symbol *jitter_classname) {
