@@ -33,6 +33,8 @@ namespace min {
 	using sample = double;
 	struct anything {};
 
+	using numbers = std::vector<number>;
+
 	template<size_t count>
 	using samples = std::array<sample, count>;
 
