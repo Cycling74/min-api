@@ -51,6 +51,7 @@ namespace min {
 			return (max::t_object*)self;
 		}
 		catch(std::runtime_error& e) {
+			max::object_error(nullptr, e.what());
 			return nullptr;
 		}
 	}
