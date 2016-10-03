@@ -217,7 +217,11 @@ namespace min {
 			return atom_getobj(&a) == value;
 		}
 
-		
+		/// Compare an atom against an atom for equality.
+		inline friend bool operator == (const max::t_atom& a, const max::t_atom& b) {
+			return a.a_type == b.a_type && a.a_w.w_obj == b.a_w.w_obj;
+		}
+
 	};
 	
 

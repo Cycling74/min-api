@@ -277,10 +277,49 @@ namespace min {
 			return *this;
 		}
 
+		// special setter for enum attributes
+		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
+		attribute& operator = (symbol arg) {
+			for (auto i=0; i<m_enum_map.size(); ++i) {
+				if (arg == m_enum_map[i]) {
+					(*this) = T(i);
+					break;
+				}
+			}
+			return *this;
+		}
+		
+		
 
 		friend bool operator == (const attribute& lhs, const T& rhs) {
 			return lhs.m_value == rhs;
 		}
+
+
+
+
+
+		template<class U=T, typename enable_if< !is_enum<U>::value, int>::type = 0>
+		void assign(const atoms& args) {
+			m_value = ( from_atoms<T>(args) );
+		}
+
+		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
+		void assign(const atoms& args) {
+			const atom& a = args[0];
+
+			if (a.a_type == max::A_SYM) {
+				for (auto i=0; i<m_enum_map.size(); ++i) {
+					if (a == m_enum_map[i]) {
+						m_value = T(i);
+						break;
+					}
+				}
+			}
+			else
+				m_value = ( from_atoms<T>(args) );
+		}
+
 
 		
 		/// Set the attribute value
@@ -295,7 +334,8 @@ namespace min {
 //				m_value = range_apply( from_atoms<T>(m_setter(args)) );
 				m_value = ( from_atoms<T>(m_setter(args)) );
 			else
-				m_value = ( from_atoms<T>(args) );
+				assign(args);
+				//m_value = ( from_atoms<T>(args) );
 //				m_value = range_apply( from_atoms<T>(args) );
 		}
 
@@ -325,6 +365,17 @@ namespace min {
 			else
 				return m_value;
 		}
+
+		// getting a writable reference to the underlying data is of particular importance
+		// for e.g. vector<number> attributes
+
+		operator T&() {
+			if (m_getter)
+				assert(false); // at the moment there is no easy way to support this
+			else
+				return m_value;
+		}
+
 
 		// simplify getting millisecond time from a time_value attribute
 
