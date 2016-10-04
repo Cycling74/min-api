@@ -156,6 +156,7 @@ namespace min {
 #include "c74_min_texteditor.h"			// Wrapper for text editor window
 
 #include "c74_min_accessories.h"		// Library of miscellaneous helper functions and widgets
+#include "c74_min_graphics.h"			// Class for UI objects
 #include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 
 
