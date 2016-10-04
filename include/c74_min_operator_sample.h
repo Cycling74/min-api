@@ -144,7 +144,8 @@ namespace min {
 
 				auto out = ins.call();
 
-				perform_copy_output(self, i, out_chans, out);
+				if (numouts > 0)
+					perform_copy_output(self, i, out_chans, out);
 			}
 		}
 	};
