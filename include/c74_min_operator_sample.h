@@ -67,6 +67,20 @@ namespace min {
 	};
 
 
+	template<class min_class_type>
+	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator<1,0>, min_class_type >::value>::type> {
+	public:
+		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+			auto in_samps = in_chans[0];
+
+			for (auto i=0; i<sampleframes; ++i) {
+				auto in = in_samps[i];
+				self->min_object(in);
+			}
+		}
+	};
+
+
 	// To implement the min_performer class generically we use std::array<sample> for both input and output.
 	// However, we wish to define the call operator in the Min class with each sample as a
 	// separate argument.
@@ -133,7 +147,7 @@ namespace min {
 	// See above for the 1x1 optimized version.
 
 	template<class min_class_type>
-	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator_base, min_class_type >::value && !is_base_of<sample_operator<1,1>, min_class_type >::value>::type> {
+	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator_base, min_class_type >::value && !is_base_of<sample_operator<1,1>, min_class_type >::value && !is_base_of<sample_operator<1,0>, min_class_type >::value>::type> {
 	public:
 		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			for (auto i=0; i<sampleframes; ++i) {
