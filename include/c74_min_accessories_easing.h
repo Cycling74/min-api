@@ -333,7 +333,7 @@ namespace easing {
 		enum_count
 	};
 
-	enum_map function_info = {
+	static enum_map function_info = {
 		"linear",
 
 		"in_back",
