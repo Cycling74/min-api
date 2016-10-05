@@ -46,6 +46,9 @@ namespace min {
 		a_timer->tick();
 	}
 
+	void queue_qfn_callback(queue* a_queue) {
+		a_queue->qfn();
+	}
 
 
 	// part of the symbol class but must be defined after atom is defined
