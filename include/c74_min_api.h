@@ -153,6 +153,7 @@ namespace min {
 #include "c74_min_object.h"				// The Min object class that glues it all together
 
 #include "c74_min_timer.h"				// Wrapper for clocks
+#include "c74_min_queue.h"				// Wrapper for qelems and fifos
 #include "c74_min_buffer.h"				// Wrapper for MSP buffers
 #include "c74_min_path.h"				// Wrapper class for accessing the Max path system
 #include "c74_min_texteditor.h"			// Wrapper for text editor window
