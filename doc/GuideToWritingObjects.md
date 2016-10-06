@@ -196,6 +196,20 @@ timer metro = { this, MIN_FUNCTION {
 
 In the example above `bang_out` is an outlet. After sending the "bang" the timer schedules itself to run again at an interval in milliseconds.
 
+## Queues
+
+A `min::queue` creates a an element that, when set, will be executed by Max's low-priority queue. This provides a mechanism for transferring or deferring events from other threads (such as the scheduler or audio thread) to Max's main thread.
+
+```c++
+queue deferrer = { this, MIN_FUNCTION {		
+	bang_out.send("bang");
+	return {};
+}};
+
+// in some other code call this to fire the queue element:
+// deferrer.set()
+```
+
 
 ## Text Editor Windows
 
