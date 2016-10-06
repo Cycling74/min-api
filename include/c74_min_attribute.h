@@ -13,7 +13,7 @@ namespace min {
 	
 	
 	class inlet;
-	class outlet;
+	class outlet_base;
 	class message;
 	class attribute_base;
 	

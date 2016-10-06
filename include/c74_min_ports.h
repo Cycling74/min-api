@@ -54,11 +54,24 @@ namespace min {
 	private:
 		void* m_instance { nullptr };
 	};
-	
-	
-	class outlet  : public port {
+
+
+	class outlet_base : public port {
 		friend void object_base::create_outlets();
-		
+
+	public:
+		outlet_base(object_base* an_owner, const std::string& a_description, const std::string& a_type)
+		: port { an_owner, a_description, a_type}
+		{}
+
+	protected:
+		void* m_instance { nullptr };
+	};
+
+
+	template<thread_policy thread_policy_type = thread_policy::any>
+	class outlet : public outlet_base {
+
 		/// utility: queue an argument of any type for output
 		template<typename argument_type>
 		void queue_argument(const argument_type& arg) noexcept {
@@ -81,37 +94,43 @@ namespace min {
 		
 	public:
 		outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-		: port { an_owner, a_description, a_type}
+		: outlet_base { an_owner, a_description, a_type}
 		{
 			m_owner->outlets().push_back(this);
 		}
 		
 		void send(bool value) {
-			max::outlet_int(m_instance, value);
+			if (safe())
+				max::outlet_int(m_instance, value);
 		}
 
 		void send(int value) {
-			max::outlet_int(m_instance, value);
+			if (safe())
+				max::outlet_int(m_instance, value);
 		}
 
 		void send(long value) {
-			max::outlet_int(m_instance, value);
+			if (safe())
+				max::outlet_int(m_instance, value);
 		}
 
 		void send(size_t value) {
-			max::outlet_int(m_instance, value);
+			if (safe())
+				max::outlet_int(m_instance, value);
 		}
 
 		void send(float value) {
-			max::outlet_float(m_instance, value);
+			if (safe())
+				max::outlet_float(m_instance, value);
 		}
 
 		void send(double value) {
-			max::outlet_float(m_instance, value);
+			if (safe())
+				max::outlet_float(m_instance, value);
 		}
 		
 		void send(const atoms& as) {
-			if (as.empty())
+			if (as.empty() || !safe())
 				return;
 			
 			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
@@ -129,11 +148,44 @@ namespace min {
 		}
 		
 	private:
-		void* m_instance { nullptr };
 		atoms m_queued_output;
+
+		bool safe();
 	};
 	
-	
+
+	template<>
+	bool outlet<thread_policy::main>::safe() {
+		if (max::systhread_ismainthread())
+			return true;
+		else
+			return false;
+	};
 
 	
+	template<>
+	bool outlet<thread_policy::scheduler>::safe() {
+		if (max::systhread_istimerthread())
+			return true;
+		else
+			return false;
+	};
+
+	
+	template<>
+	bool outlet<thread_policy::any>::safe() {
+		if (max::systhread_ismainthread() || max::systhread_istimerthread())
+			return true;
+		else
+			return false;
+	};
+
+	
+	template<>
+	bool outlet<thread_policy::unchecked>::safe() {
+		return true;
+	};
+
+
+
 }} // namespace c74::min

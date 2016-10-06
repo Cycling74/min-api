@@ -8,9 +8,16 @@
 namespace c74 {
 namespace min {
 	
-	
+	enum class thread_policy {
+		main,
+		scheduler,
+		any,
+		unchecked
+	};
+
+
 	class inlet;
-	class outlet;
+	class outlet_base;
 	class argument_base;
 	class message;
 	class attribute_base;
@@ -106,7 +113,7 @@ namespace min {
 			return m_inlets;
 		}
 		
-		auto outlets() -> std::vector<outlet*>& {
+		auto outlets() -> std::vector<outlet_base*>& {
 			return m_outlets;
 		}
 		
@@ -190,7 +197,7 @@ namespace min {
 		bool												m_initializing = true;
 		bool												m_initialized = false;
 		std::vector<inlet*>									m_inlets;
-		std::vector<outlet*>								m_outlets;
+		std::vector<outlet_base*>							m_outlets;
 		std::vector<argument_base*>							m_arguments;
 		std::unordered_map<std::string, message*>			m_messages;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
