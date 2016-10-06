@@ -19,7 +19,7 @@ namespace min {
 	class inlet_base;
 	class outlet_base;
 	class argument_base;
-	class message;
+	class message_base;
 	class attribute_base;
 	
 	template<typename T>
@@ -133,10 +133,10 @@ namespace min {
 		}
 
 
-		auto messages() -> std::unordered_map<std::string, message*>& {
+		auto messages() -> std::unordered_map<std::string, message_base*>& {
 			return m_messages;
 		}
-		auto messages() const -> const std::unordered_map<std::string, message*>& {
+		auto messages() const -> const std::unordered_map<std::string, message_base*>& {
 			return m_messages;
 		}
 
@@ -199,7 +199,7 @@ namespace min {
 		std::vector<inlet_base*>							m_inlets;
 		std::vector<outlet_base*>							m_outlets;
 		std::vector<argument_base*>							m_arguments;
-		std::unordered_map<std::string, message*>			m_messages;
+		std::unordered_map<std::string, message_base*>		m_messages;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
 		dict												m_state;
         symbol                                              m_classname; // what's typed in the max box

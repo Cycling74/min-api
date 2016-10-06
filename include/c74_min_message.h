@@ -11,9 +11,9 @@ namespace min {
 	
 	using function = std::function<atoms(const atoms&)>;
 	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms
-	
-	
-	class message {
+
+
+	class message_base {
 	public:
 
 		enum class types : long {
@@ -38,7 +38,7 @@ namespace min {
 			usurp_low = max::A_USURP_LOW
 		};
 
-		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
+		message_base(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		, m_type		{ type }
@@ -74,8 +74,8 @@ namespace min {
 			m_owner->messages()[name] = this;
 		}
 
-		message(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
-		: message(an_owner, a_name, a_function, a_description)
+		message_base(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
+		: message_base(an_owner, a_name, a_function, a_description)
 		{}
 
 		
@@ -107,6 +107,30 @@ namespace min {
 		description		m_description;
 	};
 	
-	
+
+
+	enum class threading {
+		defer,
+		usurp,
+		none
+	};
+
+	template<threading thread_handling_type = threading::none>
+	class message : public message_base {
+	public:
+
+		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
+		: message_base(an_owner, a_name, a_function, a_description)
+		{}
+
+		message(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
+		: message_base(an_owner, a_name, a_function, a_description)
+		{}
+
+
+		
+		
+	};
+
 
 }} // namespace c74::min

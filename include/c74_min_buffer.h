@@ -12,8 +12,7 @@ namespace min {
 	class buffer_reference {
 	public:
 		friend class buffer_lock;
-		
-		
+
 		// takes a single arg, but cannot be marked explicit unless we are willing to decorate all using code with a cast to this type
 		// thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
 
@@ -39,21 +38,21 @@ namespace min {
 		max::t_buffer_ref*	instance { nullptr };
 		object_base&		owner;
 		
-		message set_meth = { &owner, "set", "Choose a named buffer~ from which to read.",
+		message<threading::defer> set_meth = { &owner, "set", "Choose a named buffer~ from which to read.",
 			MIN_FUNCTION {
 				set(args[0]);
 				return {};
 			}
 		};
 		
-		message dblclick_meth = { &owner, "dblclick",
+		message<> dblclick_meth = { &owner, "dblclick",
 			MIN_FUNCTION {
 				max::buffer_view(max::buffer_ref_getobject(instance));
 				return {};
 			}
 		};
 		
-		message notify_meth = { &owner, "notify",
+		message<> notify_meth = { &owner, "notify",
 			MIN_FUNCTION {
 				symbol	s = args[1];
 				symbol	msg = args[2];

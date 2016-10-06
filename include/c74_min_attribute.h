@@ -14,7 +14,7 @@ namespace min {
 	
 	class inlet_base;
 	class outlet_base;
-	class message;
+	class message_base;
 	class attribute_base;
 	
 	template<typename T>
