@@ -16,7 +16,7 @@ namespace min {
 	};
 
 
-	class inlet;
+	class inlet_base;
 	class outlet_base;
 	class argument_base;
 	class message;
@@ -109,7 +109,7 @@ namespace min {
 		}
 		
 		
-		auto inlets() -> std::vector<inlet*>& {
+		auto inlets() -> std::vector<inlet_base*>& {
 			return m_inlets;
 		}
 		
@@ -196,7 +196,7 @@ namespace min {
 		long												m_min_magic;	// should be valid if m_maxobj has been assigned
 		bool												m_initializing = true;
 		bool												m_initialized = false;
-		std::vector<inlet*>									m_inlets;
+		std::vector<inlet_base*>							m_inlets;
 		std::vector<outlet_base*>							m_outlets;
 		std::vector<argument_base*>							m_arguments;
 		std::unordered_map<std::string, message*>			m_messages;

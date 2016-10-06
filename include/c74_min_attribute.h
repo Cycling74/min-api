@@ -12,7 +12,7 @@ namespace c74 {
 namespace min {
 	
 	
-	class inlet;
+	class inlet_base;
 	class outlet_base;
 	class message;
 	class attribute_base;
