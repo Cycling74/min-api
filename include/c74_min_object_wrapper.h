@@ -71,8 +71,10 @@ namespace min {
 			strncpy(s, outlet->description().c_str(), 256);
 		}
 		else {
-			const auto& inlet = self->min_object.inlets()[a];
-			strncpy(s, inlet->description().c_str(), 256);
+            if ( !self->min_object.inlets().empty() ) {
+                const auto& inlet = self->min_object.inlets()[a];
+                strncpy(s, inlet->description().c_str(), 256);
+            }
 		}
 	}
 	
