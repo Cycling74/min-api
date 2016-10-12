@@ -166,40 +166,6 @@ namespace min {
 
 		bool safe();
 	};
-	
-
-	template<>
-	bool outlet<thread_policy::main>::safe() {
-		if (max::systhread_ismainthread())
-			return true;
-		else
-			return false;
-	};
-
-	
-	template<>
-	bool outlet<thread_policy::scheduler>::safe() {
-		if (max::systhread_istimerthread())
-			return true;
-		else
-			return false;
-	};
-
-	
-	template<>
-	bool outlet<thread_policy::any>::safe() {
-		if (max::systhread_ismainthread() || max::systhread_istimerthread())
-			return true;
-		else
-			return false;
-	};
-
-	
-	template<>
-	bool outlet<thread_policy::unchecked>::safe() {
-		return true;
-	};
-
 
 
 }} // namespace c74::min

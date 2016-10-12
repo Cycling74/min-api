@@ -38,7 +38,7 @@ namespace min {
 		max::t_buffer_ref*	instance { nullptr };
 		object_base&		owner;
 		
-		message<threading::defer> set_meth = { &owner, "set", "Choose a named buffer~ from which to read.",
+		message<> set_meth = { &owner, "set", "Choose a named buffer~ from which to read.",
 			MIN_FUNCTION {
 				set(args[0]);
 				return {};

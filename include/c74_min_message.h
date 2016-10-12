@@ -13,6 +13,12 @@ namespace min {
 	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms
 
 
+	enum class threadsafe {
+		no,
+		yes
+	};
+
+
 	class message_base {
 	public:
 
@@ -78,15 +84,9 @@ namespace min {
 		: message_base(an_owner, a_name, a_function, a_description)
 		{}
 
-		
-		atoms operator ()(atoms args = {}) {
-			return m_function(args);
-		}
-		
-		atoms operator ()(atom arg) {
-			return m_function({arg});
-		}
-		
+		virtual atoms operator ()(atoms args = {}) = 0;
+		virtual atoms operator ()(atom arg) = 0;
+
 		long type() const {
 			return static_cast<long>(m_type);
 		}
@@ -98,8 +98,8 @@ namespace min {
 		symbol name() const {
 			return m_name;
 		}
-		
-	private:
+
+	protected:
 		object_base*	m_owner;
 		function		m_function;
 		types			m_type { types::gimme };
@@ -109,14 +109,103 @@ namespace min {
 	
 
 
-	enum class threading {
-		defer,
-		usurp,
-		none
+	class deferred_message;
+
+
+	template<threadsafe threadsafety = threadsafe::no>
+	class message : public message_base {
+	public:
+		friend class deferred_message;
+
+		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
+		: message_base(an_owner, a_name, a_function, a_description)
+		{}
+
+		message(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
+		: message_base(an_owner, a_name, a_function, a_description)
+		{}
+
+		atoms operator ()(atoms args = {}) override {
+			// this is the same as what happens in a defer() call
+			if (max::systhread_ismainthread())
+				return m_function(args);
+			else {
+				auto m = std::make_unique<deferred_message>(this, args);
+				m->push(m);
+			}
+			return {};
+		}
+
+		atoms operator ()(atom arg) override {
+			atoms as { arg };
+			return (*this)(as);
+		}
+
+	private:
+		std::queue< std::unique_ptr<deferred_message> >		m_deferred_messages;
+
 	};
 
-	template<threading thread_handling_type = threading::none>
-	class message : public message_base {
+
+
+	struct t_deferred_message {
+		max::t_object		obj;
+		deferred_message*	mess;
+	};
+
+	static max::t_class* s_deferred_message_class = nullptr;
+
+	inline void deferred_message_class_setup() {
+		if (!s_deferred_message_class)
+			s_deferred_message_class = max::class_new("min_deferred_message", nullptr, nullptr, sizeof(t_deferred_message), nullptr, 0, 0);
+	}
+
+	template<threadsafe threadsafety>
+	class message;
+
+	class deferred_message {
+	public:
+		deferred_message(message<threadsafe::no>* owner, const atoms& args)
+		: m_owner { owner }
+		, m_args { args }
+		{
+			deferred_message_class_setup(); // TODO: would be nice to avoid this lazy initialization?
+			m_maxwrapper = (t_deferred_message*)max::object_alloc(s_deferred_message_class);
+			m_maxwrapper->mess = this;
+			m_qelem = max::qelem_new((max::t_object*)m_maxwrapper, (max::method)deferred_message::callback);
+		}
+
+		deferred_message(const deferred_message& other) = delete; // no copying allowed!
+
+		~deferred_message() {
+			max::qelem_free(m_qelem);
+		}
+
+		void push(std::unique_ptr<deferred_message>& m) {
+			m_owner->m_deferred_messages.push( std::move(m) );
+			max::qelem_set(m_qelem);
+		}
+
+		void pop() {
+			m_owner->m_function(m_args);
+			m_owner->m_deferred_messages.pop();
+		}
+
+		static void callback(t_deferred_message* self) {
+			self->mess->pop();
+		}
+
+	private:
+		message<threadsafe::no>*	m_owner;
+		atoms						m_args;
+		t_deferred_message*			m_maxwrapper;
+		void*						m_qelem;
+	};
+
+
+
+	template<>
+	class message<threadsafe::yes> : public message_base {
 	public:
 
 		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
@@ -127,10 +216,18 @@ namespace min {
 		: message_base(an_owner, a_name, a_function, a_description)
 		{}
 
+		atoms operator ()(atoms args = {}) override {
+			return m_function(args);
+		}
 
-		
-		
+		atoms operator ()(atom arg) override {
+			return m_function( { arg } );
+		}
+
 	};
+
+
+
 
 
 }} // namespace c74::min

@@ -50,7 +50,7 @@ namespace min {
 		textfunction	m_callback;
 
 		
-		message<threading::defer> edclose_meth = { m_owner, "edclose", MIN_FUNCTION {
+		message<> edclose_meth = { m_owner, "edclose", MIN_FUNCTION {
 			m_jed = nullptr;
 			return {};
 		}};
