@@ -70,6 +70,56 @@ namespace min {
 	};
 
 
+
+	enum class thread_check {
+		main,
+		scheduler,
+		any,
+		none
+	};
+
+	enum class thread_action {
+		assert,
+		fifo,
+		first,
+		last
+	};
+
+
+	using t_max_outlet = void*;
+
+
+	template<typename outlet_type>
+	void outlet_do_send(t_max_outlet maxoutlet, const outlet_type& value) {
+		if (value[0].a_type == max::A_LONG || value[0].a_type == max::A_FLOAT)
+			max::outlet_list(maxoutlet, nullptr, value.size(), (max::t_atom*)&value[0]);
+		else
+			max::outlet_anything(maxoutlet, value[0], value.size()-1, (max::t_atom*)&value[1]);
+	}
+
+	//	template<thread_check check_type, thread_action action_type>
+	template<>
+	void outlet_do_send<max::t_atom_long>(t_max_outlet maxoutlet, const max::t_atom_long& value) {
+		max::outlet_int(maxoutlet, value);
+	}
+
+	//	template<thread_check check_type, thread_action action_type>
+	template<>
+	void outlet_do_send<double>(t_max_outlet maxoutlet, const double& value) {
+		max::outlet_float(maxoutlet, value);
+	}
+
+
+// TODO: could use different defaults for DEBUG vs RELEASE
+	template<thread_check check = thread_check::any, thread_action action = thread_action::assert>
+	class outlet;
+
+	template<thread_check check, thread_action action_type, typename outlet_type>
+	void handle_unsafe_outlet_send(outlet<check,action_type>* outlet, outlet_type arg) {
+		assert(false);
+	}
+
+
 	class outlet_base : public port {
 		friend void object_base::create_outlets();
 
@@ -79,11 +129,11 @@ namespace min {
 		{}
 
 	protected:
-		void* m_instance { nullptr };
+		t_max_outlet m_instance { nullptr };
 	};
 
 
-	template<thread_policy thread_policy_type = thread_policy::any>
+	template<thread_check check, thread_action action>
 	class outlet : public outlet_base {
 
 		/// utility: queue an argument of any type for output
@@ -114,45 +164,46 @@ namespace min {
 		}
 		
 		void send(bool value) {
-			if (safe())
-				max::outlet_int(m_instance, value);
+			if (safe()) outlet_do_send(m_instance, (max::t_atom_long)value);
+			else		handle_unsafe_outlet_send(this, value);
 		}
 
 		void send(int value) {
-			if (safe())
-				max::outlet_int(m_instance, value);
+			if (safe())	outlet_do_send(m_instance, (max::t_atom_long)value);
+			else		handle_unsafe_outlet_send(this, value);
 		}
 
 		void send(long value) {
-			if (safe())
-				max::outlet_int(m_instance, value);
+			if (safe())	outlet_do_send(m_instance, (max::t_atom_long)value);
+			else		handle_unsafe_outlet_send(this, value);
 		}
 
 		void send(size_t value) {
-			if (safe())
-				max::outlet_int(m_instance, value);
+			if (safe())	outlet_do_send(m_instance, (max::t_atom_long)value);
+			else		handle_unsafe_outlet_send(this, value);
 		}
 
 		void send(float value) {
-			if (safe())
-				max::outlet_float(m_instance, value);
+			if (safe())	outlet_do_send(m_instance, (double)value);
+			else		handle_unsafe_outlet_send(this, value);
 		}
 
 		void send(double value) {
-			if (safe())
-				max::outlet_float(m_instance, value);
+			if (safe())	outlet_do_send(m_instance, (double)value);
+			else		handle_unsafe_outlet_send(this, value);
 		}
 		
-		void send(const atoms& as) {
-			if (as.empty() || !safe())
+		void send(const atoms& value) {
+			if (value.empty())
 				return;
-			
-			if (as[0].a_type == max::A_LONG || as[0].a_type == max::A_FLOAT)
-				max::outlet_list(m_instance, nullptr, (short)as.size(), (max::t_atom*)&as[0]);
-			else
-				max::outlet_anything(m_instance, as[0], (short)as.size()-1, (max::t_atom*)&as[1]);
+			if (!safe()) {
+				handle_unsafe_outlet_send(this, value);
+				return;
+			}
+			outlet_do_send(m_instance, value);
 		}
-		
+
+
 		/// Send values out through the outlet
 		template<typename ...ARGS>
 		void send(ARGS... args) {
@@ -165,6 +216,7 @@ namespace min {
 		atoms m_queued_output;
 
 		bool safe();
+
 	};
 
 

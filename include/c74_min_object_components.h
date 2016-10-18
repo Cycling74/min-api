@@ -7,14 +7,6 @@
 
 namespace c74 {
 namespace min {
-	
-	enum class thread_policy {
-		main,
-		scheduler,
-		any,
-		unchecked
-	};
-
 
 	class inlet_base;
 	class outlet_base;
