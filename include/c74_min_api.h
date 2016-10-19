@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iostream>
 #include <list>
+#include <mutex>
 #include <queue>
 #include <string>
 #include <sstream>

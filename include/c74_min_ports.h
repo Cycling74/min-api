@@ -185,7 +185,7 @@ namespace min {
 	class outlet_queue : public outlet_queue_base<check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: outlet_queue_base<check> { a_maxoutlet }
+		: outlet_queue_base<check> ( a_maxoutlet )
 		{}
 
 		void callback() {}
@@ -197,7 +197,7 @@ namespace min {
 	class outlet_queue<check, thread_action::first> : public outlet_queue_base<check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: outlet_queue_base<check> { a_maxoutlet }
+		: outlet_queue_base<check> ( a_maxoutlet )
 		{}
 
 		void callback() {
@@ -223,7 +223,7 @@ namespace min {
 	class outlet_queue<check, thread_action::last> : public outlet_queue_base<check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: outlet_queue_base<check> { a_maxoutlet }
+		: outlet_queue_base<check> ( a_maxoutlet )
 		{}
 
 		void callback() {
@@ -244,7 +244,7 @@ namespace min {
 	class outlet_queue<check, thread_action::fifo> : public outlet_queue_base<check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: outlet_queue_base<check> { a_maxoutlet }
+		: outlet_queue_base<check> ( a_maxoutlet )
 		{}
 
 		void callback() {
@@ -282,7 +282,7 @@ namespace min {
 
 	public:
 		outlet_base(object_base* an_owner, const std::string& a_description, const std::string& a_type)
-		: port { an_owner, a_description, a_type}
+		: port ( an_owner, a_description, a_type )
 		{}
 
 		virtual void create() = 0;
@@ -317,7 +317,7 @@ namespace min {
 		
 	public:
 		outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-		: outlet_base { an_owner, a_description, a_type}
+		: outlet_base ( an_owner, a_description, a_type )
 		{
 			m_owner->outlets().push_back(this);
 		}
