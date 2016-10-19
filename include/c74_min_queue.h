@@ -5,13 +5,10 @@
 
 #pragma once
 
-#include "readerwriterqueue/readerwriterqueue.h"
 
 namespace c74 {
 namespace min {
 	
-	template<typename T>
-	using fifo = moodycamel::ReaderWriterQueue<T>;
 
 
 

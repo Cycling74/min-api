@@ -12,9 +12,9 @@ namespace c74 {
 namespace min {
 	
 	
-	class inlet;
-	class outlet;
-	class message;
+	class inlet_base;
+	class outlet_base;
+	class message_base;
 	class attribute_base;
 	
 	template<typename T>

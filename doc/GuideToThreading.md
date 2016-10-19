@@ -68,11 +68,11 @@ There are no easy answers.
 
 The traditional Max API favors an agnostic approach to handling message input. 
 
-The Min API favors a deferred approach. By default any `message` you create for your object in Min will be deferred unless you opt-in by saying a method is scheduler-safe.
+The Min API favors a deferred approach. By default any `message<>` you create for your object in Min will be deferred unless you opt-in by saying a method is scheduler-safe. This can be done by specifying an optional template parameter ``message<threadsafe::yes>`.
 
 As we have seen there are good reasons for both approaches. The deferred approach can lead to unexpected behavior if not thought out. The consequences of the agnostic approach if not throught out, however, can be catastrophic and lead to program instability and unpredictability.
 
-That said, you are not off the hook. If you declare a `message` to be scheduler-safe you still must do the work to ensure that it really is scheduler safe.
+That said, you are not off the hook. If you declare a `message<>` to be scheduler-safe you still must do the work to ensure that it really is scheduler safe.
 
 
 ## Correct Threading for Output
@@ -232,7 +232,7 @@ In each case a lock is created using the mutex we create for our class. At this 
 There is only one other place in this object where `m_data` is accessed, which is the "bang" message. 
 
 ```c++
-message bang { this, "bang", "Send out the collected list.",
+message<threadsafe::yes> bang { this, "bang", "Send out the collected list.",
 	MIN_FUNCTION {
 		lock lock { m_mutex };
 		atoms data_copy = m_data;

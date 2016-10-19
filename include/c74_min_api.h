@@ -7,6 +7,7 @@
 
 #include "c74_max.h"
 #include "c74_msp.h"
+
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -14,6 +15,7 @@
 #include <fstream>
 #include <iostream>
 #include <list>
+#include <queue>
 #include <string>
 #include <sstream>
 #include <thread>
@@ -21,6 +23,7 @@
 #include <functional>
 #include <unordered_map>
 
+#include "readerwriterqueue/readerwriterqueue.h"
 
 namespace c74 {
 namespace min {
@@ -110,6 +113,9 @@ namespace min {
 	using guard = std::lock_guard<std::mutex>;
 	using lock = std::unique_lock<std::mutex>;
 
+
+	template<typename T>
+	using fifo = moodycamel::ReaderWriterQueue<T>;
 
 }}
 

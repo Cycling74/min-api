@@ -33,12 +33,8 @@ namespace min {
 	// outlets have to be created as a separate step because
 	// max creates them from right-to-left
 	void object_base::create_outlets() {
-		for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet) {
-			if ((*outlet)->type() == "")
-				(*outlet)->m_instance = max::outlet_new(m_maxobj, nullptr);
-			else
-				(*outlet)->m_instance = max::outlet_new(m_maxobj, (*outlet)->type().c_str());
-		}
+		for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet)
+			(*outlet)->create();
 	}
 
 
@@ -70,5 +66,36 @@ namespace min {
 			(*m_arguments[i])(args[i]);
 	}
 
+
+
+	template<>
+	bool outlet<thread_check::main>::safe() {
+		if (max::systhread_ismainthread())
+			return true;
+		else
+			return false;
+	};
+
+	template<>
+	bool outlet<thread_check::scheduler>::safe() {
+		if (max::systhread_istimerthread())
+			return true;
+		else
+			return false;
+	};
+
+	template<>
+	bool outlet<thread_check::any>::safe() {
+		if (max::systhread_ismainthread() || max::systhread_istimerthread())
+			return true;
+		else
+			return false;
+	};
+
+	template<>
+	bool outlet<thread_check::none>::safe() {
+		return true;
+	};
+	
 	
 }} // namespace c74::min
