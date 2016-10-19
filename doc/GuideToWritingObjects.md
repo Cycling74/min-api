@@ -4,7 +4,11 @@ Min objects are external objects for Max written in C++ using a high-level decla
 
 Example code is distributed as a part of the [Min-DevKit Package](https://github.com/Cycling74/min-devkit).
 
-See Also: [Where To Look...](WhereToLook.md)
+See Also:
+
+* [Guide To Theading](GuideToThreading.md)
+* [Special Messages](SpecialMethods.md)
+* [Where To Look...](WhereToLook.md)
 
 ## Class Definition
 

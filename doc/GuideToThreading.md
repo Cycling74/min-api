@@ -1,12 +1,8 @@
 # Min Guide to Threading in Max
 
-Min objects are external objects for Max written in C++ using a high-level declarative application programming interface.
+Min objects are external objects for Max written in C++ using a high-level declarative application programming interface.  To get started refer to [Writing Min Objects](GuideToWritingObjects.md).
 
-Example code is distributed as a part of the [Min-DevKit Package](https://github.com/Cycling74/min-devkit).
-
-See Also: [Where To Look...](WhereToLook.md)
-
-CMJ Article
+Additional information on Max's threading model can be found in the excellent *Computer Music Journal* article [Creating Visual Music in Jitter](https://www.scribd.com/document/86138715/Creating-Visual-Music-in-Jitter-Approaches-and-Techniques) by Randy Jones and Ben Nevile.
 
 ## The Max Threading Model
 
@@ -58,7 +54,7 @@ Another option is to defer all operations to the main thread. This isn't always 
  |
 ```
 
-If the number handling of the `acme.square` object is deferred then the output of the patcher will be *not what a user expects*. In this case the `+` object will process on the scheduler thread, triggered by the counter, and the input it receives from `acme.square` will almost certainly (though maybe occassionally not) be a previous output of the square because the operation has differed and offloaded to a different thread.
+If the number handling of the `acme.square` object is deferred then the output of the patcher will be *not what a user expects*. In this case the `+` object will process on the scheduler thread, triggered by the counter, and the input it receives from `acme.square` will almost certainly (though maybe occassionally not) be a previous output of the square because the operation has deferred and offloaded to a different thread.
 
 In this case an "agnostic" approach seems ideal. But it isn't always ideal. Consider the scenario where `acme.square` is actually a working on a list that it maintains internally. An attribute determines the length of the list. While this patcher is running (in the scheduler thread) a user changes the length of the list in the object inspector. **Max crashes** as the scheduler accesses memory that is being reallocated. Or worse, memory is corrupted and some strange behavior happens in a random part of the patcher at an undetermined moment in the future. 
 
@@ -72,7 +68,7 @@ The Min API favors a deferred approach. By default any `message<>` you create fo
 
 As we have seen there are good reasons for both approaches. The deferred approach can lead to unexpected behavior if not thought out. The consequences of the agnostic approach if not throught out, however, can be catastrophic and lead to program instability and unpredictability.
 
-That said, you are not off the hook. If you declare a `message<>` to be scheduler-safe you still must do the work to ensure that it really is scheduler safe.
+That said, you are not off the hook. *If you declare a `message<>` to be scheduler-safe you still must do the work to ensure that it really is scheduler safe*.
 
 
 ## Correct Threading for Output
@@ -81,7 +77,7 @@ It is essential that your object adhere to the Max threading model and send mess
 
 1. The `timer` class. You can trigger a timer from any thread and it will run on the **scheduler** thread. Use a delay time of zero to trigger the timer to run immediately. It is safe to call outlets, post to the console, etc. from a timer. Please be a good citizen and don't bog down the scheduler with lengthy or indeterminant operations however.
 2. The `queue` class. You can trigger a queue operation from any thread and it will run on the **main** thread as soon as possible.
-3. The timer and queue will trigger an event (your function) to be called on a different thread. If you need data to be passed to the new thread as well then you can use a `fifo`. The FIFO is a "first-in, first-out" storage container for data of any type. In can be written to from one thread and read from another. The fifo in Min is a lock-free implementation that is safe for use in the audio thread (or any other thread).
+3. The timer and queue will trigger an event (your function) to be called on a different thread. If you need data to be passed to the new thread as well then you can use a `fifo`. The FIFO is a "first-in, first-out" storage container for data of any type. You write into it from one thread and read from another. The fifo in Min is a lock-free implementation that is safe for use in the audio thread (or any other thread).
 
 ### An Example, Step-by-Step
 
@@ -126,7 +122,7 @@ private:
 
 If the audio sample input changes from zero to non-zero then switch our notion of state and trigger an output in the scheduler thread as soon as possible.
 
-The problem with this implementation is that by the the scheduler is serviced the state may have changed. In this case the bang could come from the wrong outlet. Also, what happens if there is more than one zero / non-zero transition between servicings of the scheduler? Representing the data from this simple analysis of the signal as a single value is not adequate.
+The problem with this implementation is that by time the scheduler is serviced the state may have changed. In this case the bang could come from the wrong outlet. Also, what happens if there is more than one zero / non-zero transition between servicings of the scheduler? Representing the data from this simple analysis of the signal as a single value is not adequate.
 
 The solution is to use a FIFO buffer and information about each transition will be added to the FIFO. Then when the timer is serviced it will drain the FIFO buffer and deliver a bang for each transition that occurred.
 
