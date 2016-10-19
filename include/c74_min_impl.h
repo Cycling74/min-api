@@ -33,12 +33,8 @@ namespace min {
 	// outlets have to be created as a separate step because
 	// max creates them from right-to-left
 	void object_base::create_outlets() {
-		for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet) {
-			if ((*outlet)->type() == "")
-				(*outlet)->m_instance = max::outlet_new(m_maxobj, nullptr);
-			else
-				(*outlet)->m_instance = max::outlet_new(m_maxobj, (*outlet)->type().c_str());
-		}
+		for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet)
+			(*outlet)->create();
 	}
 
 
