@@ -21,6 +21,16 @@ namespace max {
 	}
 
 
+	MOCK_EXPORT short systhread_ismainthread(void) {
+		return true;
+	}
+
+	MOCK_EXPORT short systhread_istimerthread(void) {
+		return false;
+	}
+
+
+
 	MOCK_EXPORT short locatefile_extended(char* name, short* outvol, t_fourcc* outtype, const t_fourcc* filetypelist, short numtypes) {
 		return 0;
 	}
