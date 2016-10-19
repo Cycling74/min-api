@@ -236,6 +236,17 @@ buffer_reference my_buffer = { this };
 ```
 All of the neccessary methods (e.g. `set` and `dblclick`), notification handling, etc. will be provided for you automatically.
 
+If you wish to receive notifications when the buffer~ content changes you can provide an optional callback to be triggered when a change occurs.
+
+```c++
+buffer_reference my_buffer = { this, MIN_FUNCTION {
+  // do something in response to the change...
+  return {};
+}};
+```
+
+
+
 
 ## Dictionaries
 
