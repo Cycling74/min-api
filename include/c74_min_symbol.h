@@ -134,5 +134,11 @@ namespace min {
 	static const symbol k_sym_max("max");				/// The symbol "max" -- the max object.
 	static const symbol k_sym_time("time");				/// The symbol "time".
 
-	
+	static const symbol k_sym_globalsymbol_binding		{ "globalsymbol_binding" };		/// Cached symbol "globalsymbol_binding"
+	static const symbol k_sym_binding					{ "binding" };					/// Cached symbol "binding"
+	static const symbol k_sym_globalsymbol_unbinding	{ "globalsymbol_unbinding" };	/// Cached symbol "globalsymbol_unbinding"
+	static const symbol k_sym_unbinding					{ "unbinding" };				/// Cached symbol "unbinding"
+	static const symbol k_sym_buffer_modified			{ "buffer_modified" };			/// Cached symbol "buffer_modified"
+
+
 }} // namespace c74::min

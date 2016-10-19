@@ -17,8 +17,9 @@ namespace min {
 		// takes a single arg, but cannot be marked explicit unless we are willing to decorate all using code with a cast to this type
 		// thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
 
-		buffer_reference(object_base* an_owner)
+		buffer_reference(object_base* an_owner, const function& a_function = nullptr)
 		: owner { *an_owner }
+		, m_notification_callback { a_function }
 		{}
 		
 		
@@ -38,6 +39,7 @@ namespace min {
 	private:
 		max::t_buffer_ref*	instance { nullptr };
 		object_base&		owner;
+		function			m_notification_callback;
 		
 		message set_meth = { &owner, "set", "Choose a named buffer~ from which to read.",
 			MIN_FUNCTION {
@@ -59,6 +61,15 @@ namespace min {
 				symbol	msg = args[2];
 				void*	sender = args[3];
 				void*	data = args[4];
+
+				if (m_notification_callback) {
+					if (msg == k_sym_globalsymbol_binding)
+						m_notification_callback( { k_sym_binding } );
+					else if (msg == k_sym_globalsymbol_unbinding)
+						m_notification_callback( { k_sym_unbinding } );
+					else if (msg == k_sym_buffer_modified)
+						m_notification_callback( { k_sym_buffer_modified } );
+				}
 			
 				return { (long)max::buffer_ref_notify(instance, s, msg, sender, data) };
 			}
