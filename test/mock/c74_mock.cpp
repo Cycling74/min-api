@@ -12,6 +12,15 @@
 namespace c74 {
 namespace max {
 
+	MOCK_EXPORT void* qelem_new(void* obj, method fn) {
+		return nullptr;
+	}
+
+	MOCK_EXPORT void qelem_free(void* qelem) {
+		;
+	}
+
+
 	MOCK_EXPORT short locatefile_extended(char* name, short* outvol, t_fourcc* outtype, const t_fourcc* filetypelist, short numtypes) {
 		return 0;
 	}
