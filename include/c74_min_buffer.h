@@ -138,6 +138,10 @@ namespace min {
 			return framecount() / samplerate();
 		}
 
+		void dirty() {
+			max::buffer_setdirty(m_buffer_obj);
+		}
+
 
 		/// resize a buffer.
 		/// only available for non-audio thread access.
