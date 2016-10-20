@@ -132,6 +132,7 @@ namespace min {
 	static const symbol k_sym_bang("bang");				/// The symbol "bang".
 	static const symbol k_sym_getname("getname");		/// The symbol "getname".
 	static const symbol k_sym_max("max");				/// The symbol "max" -- the max object.
+	static const symbol k_sym_size						{ "size" } ;					/// Cached symbol "size"
 	static const symbol k_sym_time("time");				/// The symbol "time".
 
 	static const symbol k_sym_globalsymbol_binding		{ "globalsymbol_binding" };		/// Cached symbol "globalsymbol_binding"

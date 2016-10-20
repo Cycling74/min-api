@@ -125,6 +125,9 @@ namespace min {
 			return (&m_size) - ((size_t*)&m_owner);
 		}
 
+		void touch() {
+			max::object_attr_touch(m_owner, m_name);
+		}
 
 	protected:
 

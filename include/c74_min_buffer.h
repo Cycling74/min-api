@@ -14,6 +14,7 @@ namespace min {
 
 	class buffer_reference {
 	public:
+		template<bool>
 		friend class buffer_lock;
 
 		// takes a single arg, but cannot be marked explicit unless we are willing to decorate all using code with a cast to this type
@@ -79,27 +80,18 @@ namespace min {
 
 	};
 	
-	
+
+	/// A lock guard and accessor for buffer~ access from the audio thread.
+	template<bool audio_thread_access = true>
 	class buffer_lock {
 	public:
 		
-		buffer_lock(buffer_reference& a_buffer_ref)
-		: buffer_ref { a_buffer_ref }
-		{
-			buffer_obj = buffer_ref_getobject(buffer_ref.instance);
-			tab = buffer_locksamples(buffer_obj);
-			// TODO: handle case where tab is null -- can't throw an exception in audio code...
-		}
-		
-		
-		~buffer_lock() {
-			if (tab)
-				buffer_unlocksamples(buffer_obj);
-		}
-		
-		
+		buffer_lock(buffer_reference& a_buffer_ref);
+		~buffer_lock();
+
+
 		bool valid() {
-			if (!tab)
+			if (!m_tab)
 				return false;
 			else
 				return true;
@@ -107,17 +99,17 @@ namespace min {
 		
 		
 		size_t framecount() {
-			return max::buffer_getframecount(buffer_obj);
+			return max::buffer_getframecount(m_buffer_obj);
 		}
 		
 		
 		int channelcount() {
-			return (int)max::buffer_getchannelcount(buffer_obj);
+			return (int)max::buffer_getchannelcount(m_buffer_obj);
 		}
 		
 		
 		float& operator[](long index) {
-			return tab[index];
+			return m_tab[index];
 		}
 		
 		
@@ -130,14 +122,14 @@ namespace min {
 			if (channelcount() > 1)
 				index = index * channelcount() + channel;
 
-			return tab[index];
+			return m_tab[index];
 		}
 
 
 		double samplerate() {
 			max::t_buffer_info info;
 
-			max::buffer_getinfo(buffer_obj, &info);
+			max::buffer_getinfo(m_buffer_obj, &info);
 			return info.b_sr;
 		}
 
@@ -147,10 +139,52 @@ namespace min {
 		}
 
 
+		/// resize a buffer.
+		/// only available for non-audio thread access.
+		template<bool U=audio_thread_access, typename enable_if< U == false, int>::type = 0>
+		void resize(double length_in_ms) {
+			max::object_attr_setfloat(m_buffer_obj, k_sym_size, length_in_ms);
+		}
+
+
 	private:
-		buffer_reference&	buffer_ref;
-		max::t_buffer_obj*	buffer_obj	{ nullptr };
-		float*				tab			{ nullptr };
+		buffer_reference&	m_buffer_ref;
+		max::t_buffer_obj*	m_buffer_obj	{ nullptr };
+		float*				m_tab			{ nullptr };
 	};
-	
+
+
+	template<>
+	buffer_lock<true>::buffer_lock(buffer_reference& a_buffer_ref)
+	: m_buffer_ref { a_buffer_ref }
+	{
+		m_buffer_obj = buffer_ref_getobject(m_buffer_ref.instance);
+		m_tab = buffer_locksamples(m_buffer_obj);
+		// TODO: handle case where tab is null -- can't throw an exception in audio code...
+	}
+
+	template<>
+	buffer_lock<false>::buffer_lock(buffer_reference& a_buffer_ref)
+	: m_buffer_ref { a_buffer_ref }
+	{
+		max::t_buffer_info info;
+
+		m_buffer_obj = buffer_ref_getobject(m_buffer_ref.instance);
+		buffer_edit_begin(m_buffer_obj);
+		buffer_getinfo(m_buffer_obj, &info);
+		m_tab = info.b_samples;
+	}
+
+
+	template<>
+	buffer_lock<true>::~buffer_lock() {
+		if (m_tab)
+			buffer_unlocksamples(m_buffer_obj);
+	}
+
+	template<>
+	buffer_lock<false>::~buffer_lock() {
+		buffer_edit_end(m_buffer_obj, true);
+	}
+
 }} // namespace c74::min
