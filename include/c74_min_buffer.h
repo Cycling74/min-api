@@ -132,7 +132,21 @@ namespace min {
 
 			return tab[index];
 		}
-		
+
+
+		double samplerate() {
+			max::t_buffer_info info;
+
+			max::buffer_getinfo(buffer_obj, &info);
+			return info.b_sr;
+		}
+
+
+		double length_in_seconds() {
+			return framecount() / samplerate();
+		}
+
+
 	private:
 		buffer_reference&	buffer_ref;
 		max::t_buffer_obj*	buffer_obj	{ nullptr };
