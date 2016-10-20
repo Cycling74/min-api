@@ -20,6 +20,10 @@ namespace max {
 		;
 	}
 
+	MOCK_EXPORT void qelem_set(void* q) {
+		;
+	}
+
 
 	MOCK_EXPORT short systhread_ismainthread(void) {
 		return true;
