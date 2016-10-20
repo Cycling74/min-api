@@ -21,6 +21,10 @@ namespace min {
 		
 		void setup() {
 			max::dsp_setup(max_base, (long)min_object.inlets().size());
+
+			max::t_pxobject* x = max_base;
+			x->z_misc |= max::Z_NO_INPLACE;
+			
 			min_object.create_outlets();
 		}
 		
