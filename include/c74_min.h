@@ -10,5 +10,6 @@
 #include "c74_min_api.h"
 #include "c74_min_impl.h"
 #include "c74_min_attribute_impl.h"
+#include "c74_min_buffer_impl.h"
 
 #undef C74_MIN_WITH_IMPLEMENTATION
