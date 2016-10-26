@@ -22,29 +22,7 @@ namespace min {
 	class message_base {
 	public:
 
-		enum class types : long {
-			nothing,
-			long_arg,
-			float_arg,
-			symbol_arg,
-			object_argument,
-			long_optional,
-			float_optional,
-			symbol_optional,
-			gimme,
-			cant,
-			semicolon,
-			comma,
-			dollar,
-			dollar_symbol,
-			gimmeback,
-			defer = max::A_DEFER,
-			usurp = max::A_USURP,
-			defer_low = max::A_DEFER_LOW,
-			usurp_low = max::A_USURP_LOW
-		};
-
-		message_base(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
+		message_base(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type type = message_type::gimme)
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		, m_type		{ type }
@@ -73,7 +51,7 @@ namespace min {
 					 || a_name == "savestate"
 					 || a_name == "setup"
 			) {
-				m_type = types::cant;
+				m_type = message_type::cant;
 			}
 
 			m_name = name;
@@ -102,7 +80,7 @@ namespace min {
 	protected:
 		object_base*	m_owner;
 		function		m_function;
-		types			m_type { types::gimme };
+		message_type	m_type { message_type::gimme };
 		symbol			m_name;
 		description		m_description;
 	};
@@ -117,7 +95,7 @@ namespace min {
 	public:
 		friend class deferred_message;
 
-		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
+		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type type = message_type::gimme)
 		: message_base(an_owner, a_name, a_function, a_description)
 		{}
 
@@ -208,7 +186,7 @@ namespace min {
 	class message<threadsafe::yes> : public message_base {
 	public:
 
-		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, types type = types::gimme)
+		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type type = message_type::gimme)
 		: message_base(an_owner, a_name, a_function, a_description)
 		{}
 

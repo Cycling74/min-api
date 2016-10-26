@@ -57,6 +57,29 @@ namespace min {
 	};
 
 
+	enum class message_type : long {
+		nothing,
+		long_arg,
+		float_arg,
+		symbol_arg,
+		object_argument,
+		long_optional,
+		float_optional,
+		symbol_optional,
+		gimme,
+		cant,
+		semicolon,
+		comma,
+		dollar,
+		dollar_symbol,
+		gimmeback,
+		defer = max::A_DEFER,
+		usurp = max::A_USURP,
+		defer_low = max::A_DEFER_LOW,
+		usurp_low = max::A_USURP_LOW
+	};
+
+
 	// Very selective group from the STL used only for making common
 	// template SFINAE code more readable
 
