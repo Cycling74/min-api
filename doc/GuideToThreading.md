@@ -89,9 +89,9 @@ A naïve first implementation might look like this:
 class edge : public object<edge>, sample_operator<1,0> {
 public:
 
-	inlet	input			{ this, "(signal) Input" };
-	outlet	output_true		{ this, "(bang) input is non-zero" };
-	outlet	output_false	{ this, "(bang) input is zero" };
+	inlet<>		input			{ this, "(signal) Input" };
+	outlet<>	output_true		{ this, "(bang) input is non-zero" };
+	outlet<>	output_false	{ this, "(bang) input is zero" };
 
 	timer deliverer { this, MIN_FUNCTION {
 		if (state)
@@ -117,7 +117,6 @@ private:
 	sample	prev { 0.0 };
 	bool	state { false };
 };
-
 ```
 
 If the audio sample input changes from zero to non-zero then switch our notion of state and trigger an output in the scheduler thread as soon as possible.
@@ -130,9 +129,9 @@ The solution is to use a FIFO buffer and information about each transition will 
 class edge : public object<edge>, sample_operator<1,0> {
 public:
 
-	inlet	input			{ this, "(signal) Input" };
-	outlet	output_true		{ this, "(bang) input is non-zero" };
-	outlet	output_false	{ this, "(bang) input is zero" };
+	inlet<>		input			{ this, "(signal) Input" };
+	outlet<>	output_true		{ this, "(bang) input is non-zero" };
+	outlet<>	output_false	{ this, "(bang) input is zero" };
 
 	timer deliverer { this, MIN_FUNCTION {
 		bool state;
@@ -161,7 +160,6 @@ private:
 	sample		prev { 0.0 };
 	fifo<bool>	transitions { 100 };
 };
-
 ```
 
 The FIFO is initialized with an argument of `100` meaning that there will be space allocated for 100 `bool` values.
@@ -173,6 +171,42 @@ The timer function drains the FIFO using a while loop build on the `try_dequeue(
 Do we really want to deliver up to 100 bangs in a single scheduler tick? Maybe. Maybe not. Perhaps we want to format the output as a list of ones and zeros. Or make each of the two outlets output an `int` with the number of transitions. These strategies would thin the load placed on the scheduler thread to make the object more performant.
 
 These same techniques also apply when using a `queue` instead of a `timer` if you want to move data to the main thread.
+
+### High-Level Outlet Threading Specification
+
+Rather than manually coding the timers, queues, and fifos to send from the audio thread, you can instead specify the threading behavior of your outlets. This will enforce delivery on a specific thread. 
+
+If the outlet call is made on a thread other than the specified thread then an action will be performed. The action may be `assert` (crash before anything else can go wrong), `first` (output the first value received), `last` (output the last value received, aka "usurp"), or `fifo` (all values are queued as in our previous example).
+
+The previous edge~ example could then be rewritten like this:
+
+```c++
+class edge : public object<edge>, sample_operator<1,0> {
+public:
+	inlet<> input { this, "(signal) input" };
+  
+	outlet<thread_check::scheduler, thread_action::fifo> output_true { 
+      this, "(bang) input is non-zero" 
+    };
+  
+	outlet<thread_check::scheduler, thread_action::fifo> output_false {
+      this, "(bang) input is zero" 
+    };
+
+	void operator()(sample x) {
+		if (x != 0.0 && prev == 0.0)
+			output_true.send(k_sym_bang);	// change from zero to non-zero
+		else if (x == 0.0 && prev != 0.0)
+			output_false.send(k_sym_bang);	// change from non-zero to zero
+		prev = x;
+	}
+
+private:
+	sample		prev { 0.0 };
+};
+```
+
+In this case the manually queued version is more computationally efficient because no thread check is performed and the fifo size is fixed when the object is created. However, the declarative nature of the outlets makes this code clearer and less error-prone — and requires less typing.
 
 ## Using Locks
 
