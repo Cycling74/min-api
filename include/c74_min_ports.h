@@ -174,6 +174,8 @@ namespace min {
 
 		virtual void callback() = 0;
 
+		virtual void push(message_type a_type, const atoms& values) = 0;
+
 	protected:
 		t_max_outlet	m_maxoutlet;
 		max::t_clock*	m_clock;
@@ -201,20 +203,21 @@ namespace min {
 		{}
 
 		void callback() {
-			outlet_do_send(value);
-			set = false;
+			outlet_do_send(m_value);
+			m_set = false;
 		}
 
-		void push(const atoms& as) {
-			if (!set) {
-				value = as;
-				set = true;
+		void push(message_type a_type, const atoms& as) {
+			if (!m_set) {
+				m_value = as;
+				m_set = true;
+				outlet_queue_base<check>::set();
 			}
 		}
 
 	private:
-		atoms	value;
-		bool	set { false };
+		atoms	m_value;
+		bool	m_set { false };
 	};
 
 
@@ -227,53 +230,93 @@ namespace min {
 		{}
 
 		void callback() {
-			outlet_do_send(this->m_maxoutlet, value);
+			outlet_do_send(this->m_maxoutlet, m_value);
 		}
 
-		void push(const atoms& as) {
-			value = as;
+		void push(message_type a_type, const atoms& as) {
+			m_value = as;
+			outlet_queue_base<check>::set();
 		}
 
 	private:
-		atoms	value;
+		atoms	m_value;
 	};
 
 
 	/// defer all values
 	template<thread_check check>
 	class outlet_queue<check, thread_action::fifo> : public outlet_queue_base<check> {
+
+		struct tagged_atoms {
+			message_type	m_type;
+			atoms			m_as;
+		};
+
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
 		: outlet_queue_base<check> ( a_maxoutlet )
 		{}
 
 		void callback() {
-			atoms as;
-			while (values.try_dequeue(as))
-				outlet_do_send(this->m_maxoutlet, as);
+			tagged_atoms tas;
+			while (m_values.try_dequeue(tas)) {
+				if (tas.m_type == message_type::long_arg)
+					outlet_do_send<max::t_atom_long>(this->m_maxoutlet, tas.m_as[0]);
+				else if (tas.m_type == message_type::float_arg)
+					outlet_do_send<double>(this->m_maxoutlet, tas.m_as[0]);
+				else
+					outlet_do_send(this->m_maxoutlet, tas.m_as);
+			}
 		}
 
-		void push(const atoms& as) {
-			values.enqueue(as);
+		void push(message_type a_type, const atoms& as) {
+			tagged_atoms tas { a_type, as };
+			m_values.enqueue(tas);
+			outlet_queue_base<check>::set();
 		}
 
 
 	private:
-		fifo<atoms>	values;
+		fifo<tagged_atoms>	m_values;
 	};
 
 
+	template<thread_check>
+	bool outlet_call_is_safe();
 
 
 // TODO: could use different defaults for DEBUG vs RELEASE
 	template<thread_check check = thread_check::any, thread_action action = thread_action::assert>
 	class outlet;
 
-	template<thread_check check, thread_action action_type, typename outlet_type>
-	void handle_unsafe_outlet_send(outlet<check,action_type>* outlet, outlet_type arg) {
-		assert(false);
-	}
 
+
+
+	template<thread_check check, thread_action action_type, typename outlet_type>
+	class handle_unsafe_outlet_send;
+
+
+	template<thread_check check, typename outlet_type>
+	class handle_unsafe_outlet_send<check, thread_action::assert, outlet_type> {
+	public:
+		handle_unsafe_outlet_send(outlet<check,thread_action::assert>* an_outlet, const outlet_type& a_value) {
+			assert(false);
+		}
+	};
+
+
+	template<thread_check check, typename outlet_type>
+	class handle_unsafe_outlet_send<check, thread_action::fifo, outlet_type> {
+	public:
+		handle_unsafe_outlet_send(outlet<check,thread_action::fifo>* an_outlet, const outlet_type& a_value) {
+			if (typeid(outlet_type) == typeid(max::t_atom_long))
+				an_outlet->queue_storage().push(message_type::long_arg, a_value);
+			else if (typeid(outlet_type) == typeid(double))
+				an_outlet->queue_storage().push(message_type::float_arg, a_value);
+			else // atoms
+				an_outlet->queue_storage().push(message_type::gimme, a_value);
+		}
+	};
 
 
 
@@ -294,7 +337,6 @@ namespace min {
 
 	template<thread_check check, thread_action action>
 	class outlet : public outlet_base {
-
 		/// utility: queue an argument of any type for output
 		template<typename argument_type>
 		void queue_argument(const argument_type& arg) noexcept {
@@ -331,41 +373,55 @@ namespace min {
 		}
 
 		void send(bool value) {
-			if (safe()) outlet_do_send(m_instance, (max::t_atom_long)value);
-			else		handle_unsafe_outlet_send(this, value);
+			if (outlet_call_is_safe<check>())
+				outlet_do_send(m_instance, (max::t_atom_long)value);
+			else
+				handle_unsafe_outlet_send<check,action,max::t_atom_long>(this, value);
 		}
 
 		void send(int value) {
-			if (safe())	outlet_do_send(m_instance, (max::t_atom_long)value);
-			else		handle_unsafe_outlet_send(this, value);
+			if (outlet_call_is_safe<check>())
+				outlet_do_send(m_instance, (max::t_atom_long)value);
+			else
+				handle_unsafe_outlet_send<check,action,max::t_atom_long>(this, value);
 		}
 
 		void send(long value) {
-			if (safe())	outlet_do_send(m_instance, (max::t_atom_long)value);
-			else		handle_unsafe_outlet_send(this, value);
+			if (outlet_call_is_safe<check>())
+				outlet_do_send(m_instance, (max::t_atom_long)value);
+			else
+				handle_unsafe_outlet_send<check,action,max::t_atom_long>(this, value);
 		}
 
 		void send(size_t value) {
-			if (safe())	outlet_do_send(m_instance, (max::t_atom_long)value);
-			else		handle_unsafe_outlet_send(this, value);
+			if (outlet_call_is_safe<check>())
+				outlet_do_send(m_instance, (max::t_atom_long)value);
+			else
+				handle_unsafe_outlet_send<check,action,max::t_atom_long>(this, value);
 		}
 
 		void send(float value) {
-			if (safe())	outlet_do_send(m_instance, (double)value);
-			else		handle_unsafe_outlet_send(this, value);
+			if (outlet_call_is_safe<check>())
+				outlet_do_send(m_instance, (double)value);
+			else
+				handle_unsafe_outlet_send<check,action,double>(this, value);
 		}
 
 		void send(double value) {
-			if (safe())	outlet_do_send(m_instance, (double)value);
-			else		handle_unsafe_outlet_send(this, value);
+			if (outlet_call_is_safe<check>())
+				outlet_do_send(m_instance, (double)value);
+			else
+				handle_unsafe_outlet_send<check,action,double>(this, value);
 		}
 		
 		void send(const atoms& value) {
 			if (value.empty())
 				return;
 
-			if (safe())	outlet_do_send(m_instance, value);
-			else		handle_unsafe_outlet_send(this, value);
+			if (outlet_call_is_safe<check>())
+				outlet_do_send(m_instance, value);
+			else
+				handle_unsafe_outlet_send<check,action,atoms>(this, value);
 		}
 
 
@@ -376,12 +432,15 @@ namespace min {
 			send(m_accumulated_output);
 			m_accumulated_output.clear();
 		}
-		
+
+		outlet_queue<check,action>& queue_storage() {
+			return m_queue_storage;
+		}
+
 	private:
 		atoms						m_accumulated_output;
 		outlet_queue<check,action>	m_queue_storage { this->m_instance };
 
-		bool safe();
 
 	};
 

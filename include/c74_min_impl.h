@@ -69,7 +69,7 @@ namespace min {
 
 
 	template<>
-	bool outlet<thread_check::main>::safe() {
+	bool outlet_call_is_safe<thread_check::main>() {
 		if (max::systhread_ismainthread())
 			return true;
 		else
@@ -77,7 +77,7 @@ namespace min {
 	};
 
 	template<>
-	bool outlet<thread_check::scheduler>::safe() {
+	bool outlet_call_is_safe<thread_check::scheduler>() {
 		if (max::systhread_istimerthread())
 			return true;
 		else
@@ -85,7 +85,7 @@ namespace min {
 	};
 
 	template<>
-	bool outlet<thread_check::any>::safe() {
+	bool outlet_call_is_safe<thread_check::any>() {
 		if (max::systhread_ismainthread() || max::systhread_istimerthread())
 			return true;
 		else
@@ -93,7 +93,7 @@ namespace min {
 	};
 
 	template<>
-	bool outlet<thread_check::none>::safe() {
+	bool outlet_call_is_safe<thread_check::none>() {
 		return true;
 	};
 	

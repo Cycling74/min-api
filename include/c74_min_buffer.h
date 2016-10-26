@@ -73,7 +73,6 @@ namespace min {
 					else if (msg == k_sym_buffer_modified)
 						m_notification_callback( { k_sym_modified } );
 				}
-			
 				return { (long)max::buffer_ref_notify(instance, s, msg, sender, data) };
 			}
 		};
