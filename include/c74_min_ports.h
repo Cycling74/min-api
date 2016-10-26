@@ -285,10 +285,16 @@ namespace min {
 	bool outlet_call_is_safe();
 
 
-// TODO: could use different defaults for DEBUG vs RELEASE
+	// for performance reasons we do not check threads in release builds unless specifically requested.
+	// we do check it in debug builds, however (unless specifically not requested).
+
+#ifdef NDEBUG
+	template<thread_check check = thread_check::none, thread_action action = thread_action::assert>
+	class outlet;
+#else // DEBUG
 	template<thread_check check = thread_check::any, thread_action action = thread_action::assert>
 	class outlet;
-
+#endif
 
 
 
