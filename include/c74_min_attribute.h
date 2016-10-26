@@ -10,24 +10,15 @@
 
 namespace c74 {
 namespace min {
-	
-	
+
 	class inlet_base;
 	class outlet_base;
 	class message_base;
 	class attribute_base;
-	
-	template<typename T>
-	class attribute;
-
 	class sample_operator_base;	
 	class perform_operator_base;
 	class matrix_operator_base;
 	class gl_operator_base;
-	
-
-	
-	
 	
 	using setter = function;
 	using getter = std::function<atoms()>;
@@ -165,8 +156,9 @@ namespace min {
 	using enum_map = std::vector<std::string>;
 	using readonly = bool;
 
-	
-	template<typename T>
+
+	// threadsafety defaults to threadsafe::no
+	template<typename T, threadsafe threadsafety>
 	class attribute : public attribute_base {
 	private:
 

@@ -131,7 +131,10 @@ namespace min {
 	template<class min_class_type>
 	using type_enable_if_not_jitter_class = typename enable_if< !is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value >::type;
 
-
+	enum class threadsafe {
+		no,
+		yes
+	};
 
 	using mutex = std::mutex;
 	using guard = std::lock_guard<std::mutex>;

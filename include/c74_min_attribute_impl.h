@@ -10,9 +10,9 @@
 namespace c74 {
 namespace min {
 
-	template<class T>
+	template<class T, threadsafe threadsafety>
 	template<typename ...ARGS>
-	attribute<T>::attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
+	attribute<T,threadsafety>::attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
 	: attribute_base { *an_owner, a_name }
 	{
 		m_owner.attributes()[a_name] = this;
@@ -52,8 +52,8 @@ namespace min {
 
 
 	
-	template<class T>
-	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
+	template<class T, threadsafe threadsafety>
+	void attribute<T,threadsafety>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
 		if (m_style == style::time)
 			class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
 		else if (isjitclass) {
@@ -97,8 +97,8 @@ namespace min {
 		return item;
 	}
 	
-	template<class T>
-	std::string attribute<T>::range_string() {
+	template<class T, threadsafe threadsafety>
+	std::string attribute<T,threadsafety>::range_string() {
 		std::stringstream ss;
 		for (const auto& val : m_range)
 			ss << "\"" << range_string_item<T>(this, val) << "\" ";
@@ -136,8 +136,8 @@ namespace min {
 			attr->range_ref().push_back(a);
 	}
 
-	template<class T>
-	void attribute<T>::copy_range() {
+	template<class T, threadsafe threadsafety>
+	void attribute<T,threadsafety>::copy_range() {
 		range_copy_helper<T>(this);
 	};
 		

@@ -14,7 +14,7 @@ namespace min {
 	class message_base;
 	class attribute_base;
 	
-	template<typename T>
+	template<typename T, threadsafe threadsafety = threadsafe::no>
 	class attribute;
 
 	

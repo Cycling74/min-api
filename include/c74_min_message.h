@@ -13,12 +13,6 @@ namespace min {
 	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms
 
 
-	enum class threadsafe {
-		no,
-		yes
-	};
-
-
 	class message_base {
 	public:
 
