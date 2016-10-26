@@ -123,6 +123,10 @@ namespace min {
 			return long(atom_getlong(this));
 		}
 
+		operator long long() const {
+			return long(atom_getlong(this));
+		}
+
 		operator bool() const {
 			return atom_getlong(this) != 0;
 		}
