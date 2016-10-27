@@ -157,7 +157,7 @@ namespace min {
 	using readonly = bool;
 
 
-	// threadsafety defaults to threadsafe::no
+	// default is `threadsafe::no`
 	template<typename T, threadsafe threadsafety>
 	class attribute : public attribute_base {
 	private:
@@ -326,12 +326,9 @@ namespace min {
 				return; // we're all done... unless this is a readonly attr that we are forcing to update
 
 			if (m_setter)
-//				m_value = range_apply( from_atoms<T>(m_setter(args)) );
 				m_value = ( from_atoms<T>(m_setter(args)) );
 			else
 				assign(args);
-				//m_value = ( from_atoms<T>(args) );
-//				m_value = range_apply( from_atoms<T>(args) );
 		}
 
 

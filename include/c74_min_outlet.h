@@ -7,84 +7,6 @@
 
 namespace c74 {
 namespace min {
-	
-	
-
-	class port {
-	public:
-		port(object_base* an_owner, const std::string& a_description, const std::string& a_type)
-		: m_owner(an_owner)
-		, m_description(a_description)
-		, m_type(a_type)
-		{}
-		
-		bool has_signal_connection() {
-			return m_signal_connection;
-		}
-		
-		void update_signal_connection(bool new_signal_connection_status) {
-			m_signal_connection = new_signal_connection_status;
-		}
-		
-		const std::string& type() {
-			return m_type;
-		}
-		
-		const std::string& description() {
-			return m_description;
-		}
-		
-	protected:
-		object_base*	m_owner;
-		std::string		m_description;
-		std::string		m_type;
-		bool			m_signal_connection { false };
-	};
-
-
-	class inlet_base : public port {
-		friend void object_base::create_inlets();
-	public:
-		inlet_base(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-		: port { an_owner, a_description, a_type}
-		{}
-	private:
-		void* m_instance { nullptr };
-	};
-
-
-	enum class inlet_trigger {
-		automatic,
-		hot,
-		cold
-	};
-
-	template<inlet_trigger inlet_trigger_type = inlet_trigger::automatic>
-	class inlet : public inlet_base {
-	public:
-		inlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-		: inlet_base { an_owner, a_description, a_type}
-		{
-			m_owner->inlets().push_back(this);
-		}
-	};
-
-
-
-	enum class thread_check {
-		main,
-		scheduler,
-		any,
-		none
-	};
-
-	enum class thread_action {
-		assert,
-		fifo,
-		first,
-		last
-	};
-
 
 	using t_max_outlet = void*;
 
@@ -110,84 +32,12 @@ namespace min {
 	}
 
 
-	template<thread_check>
-	class outlet_queue_base;
-
-	template<thread_check check>
-	void outlet_queue_base_callback(outlet_queue_base<check>* self);
-
-	template<thread_check check>
-	class outlet_queue_base {
-	public:
-		explicit outlet_queue_base(t_max_outlet a_maxoutlet)
-		: m_maxoutlet { a_maxoutlet }
-		{
-			m_qelem = max::qelem_new(this, (max::method)outlet_queue_base_callback<check>);
-		}
-
-		virtual ~outlet_queue_base() {
-			max::qelem_free(m_qelem);
-		}
-
-		void update_instance(t_max_outlet a_maxoutlet) {
-			m_maxoutlet = a_maxoutlet;
-		}
-
-		void set() {
-			max::qelem_set(m_qelem);
-		}
-
-		virtual void callback() = 0;
-
-	protected:
-		t_max_outlet	m_maxoutlet;
-		void*			m_qelem;
-	};
-
-
-	template<thread_check check>
-	void outlet_queue_base_callback(outlet_queue_base<check>* self) {
-		self->callback();
-	}
-
-
-	template<>
-	class outlet_queue_base<thread_check::scheduler> {
-	public:
-		explicit outlet_queue_base(t_max_outlet a_maxoutlet)
-		: m_maxoutlet { a_maxoutlet }
-		{
-			m_clock = max::clock_new(this, (max::method)outlet_queue_base_callback<thread_check::scheduler>);
-		}
-
-		virtual ~outlet_queue_base() {
-			object_free(m_clock);
-		}
-
-		void update_instance(t_max_outlet a_maxoutlet) {
-			m_maxoutlet = a_maxoutlet;
-		}
-
-		void set() {
-			max::clock_fdelay(m_clock, 0);
-		}
-
-		virtual void callback() = 0;
-
-		virtual void push(message_type a_type, const atoms& values) = 0;
-
-	protected:
-		t_max_outlet	m_maxoutlet;
-		max::t_clock*	m_clock;
-	};
-
-
 	/// default thread_action is to assert, which means no queue at all...
 	template<thread_check check, thread_action action>
-	class outlet_queue : public outlet_queue_base<check> {
+	class outlet_queue : public thread_trigger<t_max_outlet,check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: outlet_queue_base<check> ( a_maxoutlet )
+		: thread_trigger<t_max_outlet,check> ( a_maxoutlet )
 		{}
 
 		void callback() {}
@@ -196,10 +46,10 @@ namespace min {
 
 	/// store only the first value and discard additional values (opposite of usurp)
 	template<thread_check check>
-	class outlet_queue<check, thread_action::first> : public outlet_queue_base<check> {
+	class outlet_queue<check, thread_action::first> : public thread_trigger<t_max_outlet,check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: outlet_queue_base<check> ( a_maxoutlet )
+		: thread_trigger<t_max_outlet,check> ( a_maxoutlet )
 		{}
 
 		void callback() {
@@ -211,7 +61,7 @@ namespace min {
 			if (!m_set) {
 				m_value = as;
 				m_set = true;
-				outlet_queue_base<check>::set();
+				thread_trigger<t_max_outlet,check>::set();
 			}
 		}
 
@@ -223,10 +73,10 @@ namespace min {
 
 	/// store only the last value received (usurp)
 	template<thread_check check>
-	class outlet_queue<check, thread_action::last> : public outlet_queue_base<check> {
+	class outlet_queue<check, thread_action::last> : public thread_trigger<t_max_outlet,check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: outlet_queue_base<check> ( a_maxoutlet )
+		: thread_trigger<t_max_outlet,check> ( a_maxoutlet )
 		{}
 
 		void callback() {
@@ -235,7 +85,7 @@ namespace min {
 
 		void push(message_type a_type, const atoms& as) {
 			m_value = as;
-			outlet_queue_base<check>::set();
+			thread_trigger<t_max_outlet,check>::set();
 		}
 
 	private:
@@ -245,7 +95,7 @@ namespace min {
 
 	/// defer all values
 	template<thread_check check>
-	class outlet_queue<check, thread_action::fifo> : public outlet_queue_base<check> {
+	class outlet_queue<check, thread_action::fifo> : public thread_trigger<t_max_outlet,check> {
 
 		struct tagged_atoms {
 			message_type	m_type;
@@ -254,25 +104,25 @@ namespace min {
 
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: outlet_queue_base<check> ( a_maxoutlet )
+		: thread_trigger<t_max_outlet,check> ( a_maxoutlet )
 		{}
 
 		void callback() {
 			tagged_atoms tas;
 			while (m_values.try_dequeue(tas)) {
 				if (tas.m_type == message_type::long_arg)
-					outlet_do_send<max::t_atom_long>(this->m_maxoutlet, tas.m_as[0]);
+					outlet_do_send<max::t_atom_long>(this->m_baton, tas.m_as[0]);
 				else if (tas.m_type == message_type::float_arg)
-					outlet_do_send<double>(this->m_maxoutlet, tas.m_as[0]);
+					outlet_do_send<double>(this->m_baton, tas.m_as[0]);
 				else
-					outlet_do_send(this->m_maxoutlet, tas.m_as);
+					outlet_do_send(this->m_baton, tas.m_as);
 			}
 		}
 
 		void push(message_type a_type, const atoms& as) {
 			tagged_atoms tas { a_type, as };
 			m_values.enqueue(tas);
-			outlet_queue_base<check>::set();
+			thread_trigger<t_max_outlet,check>::set();
 		}
 
 

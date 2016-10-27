@@ -180,7 +180,10 @@ namespace min {
 #include "c74_jitter.h"
 #include "c74_min_flags.h"				// Class flags
 #include "c74_min_time.h"				// ITM Support
-#include "c74_min_ports.h"				// Inlets and Outlets
+#include "c74_min_port.h"				// Inlets and Outlets
+#include "c74_min_threadsafety.h"		// ...
+#include "c74_min_inlet.h"				// ...
+#include "c74_min_outlet.h"				// ...
 #include "c74_min_argument.h"			// Arguments to objects
 #include "c74_min_message.h"			// Messages to objects
 #include "c74_min_attribute.h"			// Attributes of objects
