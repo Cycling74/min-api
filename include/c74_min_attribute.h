@@ -156,6 +156,12 @@ namespace min {
 	using enum_map = std::vector<std::string>;
 	using readonly = bool;
 
+	template<typename T, threadsafe threadsafety>
+	class attribute_threadsafe_helper;
+
+	template<typename T, threadsafe threadsafety>
+	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args);
+
 
 	// default is `threadsafe::no`
 	template<typename T, threadsafe threadsafety>
@@ -315,7 +321,6 @@ namespace min {
 				m_value = ( from_atoms<T>(args) );
 		}
 
-
 		
 		/// Set the attribute value
 		void set(const atoms& args, bool notify = true, bool override_readonly = false) {
@@ -325,10 +330,7 @@ namespace min {
 			if (!writable() && !override_readonly)
 				return; // we're all done... unless this is a readonly attr that we are forcing to update
 
-			if (m_setter)
-				m_value = ( from_atoms<T>(m_setter(args)) );
-			else
-				assign(args);
+			m_helper.set(args);
 		}
 
 
@@ -405,11 +407,101 @@ namespace min {
 		atoms			m_range_args;	// the range/enum as provided by the subclass
 		std::vector<T>	m_range;		// the range/enum translated into the native datatype
 		enum_map		m_enum_map;		// the range/enum mapping for indexed enums (as opposed to symbol enums)
-		
+		attribute_threadsafe_helper<T,threadsafety>	m_helper { this };
+
 		void copy_range();				// copy m_range_args to m_range
+
+		friend void attribute_threadsafe_helper_do_set<T,threadsafety>(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args);
 	};
 
+/*	The setter/getter for the wrapper are below.
+	Regarding thread-safety...
+
+	First, lets just consider the getter.
+	We can't defer here -- it must happen at a higher level.  Like in Max somewhere.  
+	Or we lock Max with a critical region?  Ick?
+	This is because we are required to return the value syncronously.
+
+	So getters are out ???
+ 
+ 
+	Second, let's consider the setter.
+	We can defer this (and should if the setter is not threadsafe).
 	
+	If we defer, we need to do it in the attribut<>::set() method
+	because it is common to set the attr value from calls other than just the outside Max call.
+	Unfortunately, we cannot do a partial template specialization for a member function in C++.
+	So the set method is then required to call a templated class (which can be partially specialized) as a functor.
+
+	That is what we have here:
+ */
+
+	template<typename T, threadsafe threadsafety>
+	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args) {
+		auto& attr = *helper->m_attribute;
+
+		if (attr.m_setter)
+			attr.m_value = ( from_atoms<T>(attr.m_setter(args)) );
+		else
+			attr.assign(args);
+	}
+
+	template<typename T>
+	class attribute_threadsafe_helper<T,threadsafe::yes> {
+		friend void attribute_threadsafe_helper_do_set<T,threadsafe::yes>(attribute_threadsafe_helper<T,threadsafe::yes>* helper, const atoms& args);
+	public:
+		explicit attribute_threadsafe_helper(attribute<T,threadsafe::yes>* an_attribute)
+		: m_attribute ( an_attribute )
+		{}
+
+		void set(const atoms& args) {
+			attribute_threadsafe_helper_do_set(this, args);
+		}
+
+	private:
+		attribute<T,threadsafe::yes>*	m_attribute;
+	};
+
+
+	template<typename T, threadsafe threadsafety>
+	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T,threadsafety>* helper) {
+		static_assert(threadsafety == threadsafe::no, "helper function should not be called by threadsafe attrs");
+		attribute_threadsafe_helper_do_set<T,threadsafety>(helper, helper->m_value);
+	}
+
+
+	template<typename T>
+	class attribute_threadsafe_helper<T,threadsafe::no> {
+		friend void attribute_threadsafe_helper_do_set<T,threadsafe::no>(attribute_threadsafe_helper<T,threadsafe::no>* helper, const atoms& args);
+		friend void attribute_threadsafe_helper_qfn<T,threadsafe::no>(attribute_threadsafe_helper<T,threadsafe::no>* helper);
+	public:
+		explicit attribute_threadsafe_helper(attribute<T,threadsafe::no>* an_attribute)
+		: m_attribute ( an_attribute )
+		{
+			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)attribute_threadsafe_helper_qfn<T,threadsafe::no>);
+		}
+
+		~attribute_threadsafe_helper() {
+			max::qelem_free(m_qelem);
+		}
+
+		void set(const atoms& args) {
+			m_value = args;
+			max::qelem_set(m_qelem);
+		}
+
+	private:
+		attribute<T,threadsafe::no>*	m_attribute;
+		max::t_qelem*					m_qelem;
+		atoms							m_value;
+	};
+
+
+
+	/*	Native Max methods for the wrapper class
+		to perform getting /setting attributes
+	 */
+
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
 		symbol	attr_name	= (max::t_symbol*)max::object_method(maxattr, k_sym_getname);

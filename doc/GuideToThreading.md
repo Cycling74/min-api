@@ -64,7 +64,7 @@ There are no easy answers.
 
 The traditional Max API favors an agnostic approach to handling message input. 
 
-The Min API favors a deferred approach. By default any `message<>` you create for your object in Min will be deferred unless you opt-in by saying a method is scheduler-safe. This can be done by specifying an optional template parameter ``message<threadsafe::yes>`.
+The Min API favors a deferred approach. By default any `message<>` or `attribute<>` you create for your object in Min will be deferred unless you opt-in by saying a method is scheduler-safe. This can be done by specifying an optional template parameter ``message<threadsafe::yes>`. In attribute declarations the optional threadsafe parameter follows the underlying attribute type, for example `attribute<number, threadsafe::yes>`.
 
 As we have seen there are good reasons for both approaches. The deferred approach can lead to unexpected behavior if not thought out. The consequences of the agnostic approach if not throught out, however, can be catastrophic and lead to program instability and unpredictability.
 
@@ -277,3 +277,16 @@ message<threadsafe::yes> bang { this, "bang", "Send out the collected list.",
 
 We must *not* call the outlet while `m_data` is locked. But `m_data` is the very thing we want to send to our outlet. The solution is to make a copy while the lock is held. Then unlock and send the copy to the outlet instead of the original.
 
+Example Projects
+
+* `min.edge~` delivers output from the audio thread to the scheduler thread using the declarative outlet specification.
+
+* `min.edgelow~` delivers output from the audio thread to the main thread using the declarative outlet specification.
+
+* `min.sift~` delivers output to from the audio thread to either the scheduler or main thread depending on the setting of an attribute. The mechanism uses a manually configured timer, queue, and fifo.
+
+* `min.list.process` uses locks to protect dynamically-sized shared memory for concurrent access by both the main and scheduler threads.
+
+* `min.convolve` currently operates using the defaults — meaning everything is deferred to the main thread. It is an example that will require locks to be added before it can be declared thread-safe. This is left as an exercise for the diligent coder. When approaching the problem remember the order of operations for attribute setting — the attribute itself is not actually done until *after* you have returned from your setter function.
+
+  ​

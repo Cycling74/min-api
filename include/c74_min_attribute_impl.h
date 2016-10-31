@@ -83,8 +83,8 @@ namespace min {
 
 
 	// enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
-	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
-	std::string range_string_item(attribute<T>* attr, const T& item) {
+	template<class T, threadsafe threadsafety, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+	std::string range_string_item(attribute<T,threadsafety>* attr, const T& item) {
 		if (attr->get_enum_map().empty())
 			return std::to_string((int)item);
 		else
@@ -92,8 +92,8 @@ namespace min {
 	}
 	
 	// all non-enum values can just pass through
-	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
-	T range_string_item(attribute<T>* attr, const T& item) {
+	template<class T, threadsafe threadsafety, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+	T range_string_item(attribute<T,threadsafety>* attr, const T& item) {
 		return item;
 	}
 	
@@ -101,7 +101,7 @@ namespace min {
 	std::string attribute<T,threadsafety>::range_string() {
 		std::stringstream ss;
 		for (const auto& val : m_range)
-			ss << "\"" << range_string_item<T>(this, val) << "\" ";
+			ss << "\"" << range_string_item<T,threadsafety>(this, val) << "\" ";
 		return ss.str();
 	};
 
@@ -122,23 +122,23 @@ namespace min {
 
 
 	// enum attrs use the special enum map for range
-	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
-	void range_copy_helper(attribute<T>* attr) {
+	template<class T, threadsafe threadsafety, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+	void range_copy_helper(attribute<T,threadsafety>* attr) {
 		for (auto i=0; i < attr->get_enum_map().size(); ++i)
 			attr->range_ref().push_back((T)i);
 	}
 
 
 	// all non-enum attrs can just copy range normally
-	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
-	void range_copy_helper(attribute<T>* attr) {
+	template<class T, threadsafe threadsafety, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+	void range_copy_helper(attribute<T,threadsafety>* attr) {
 		for (const auto& a : attr->get_range_args())
 			attr->range_ref().push_back(a);
 	}
 
 	template<class T, threadsafe threadsafety>
 	void attribute<T,threadsafety>::copy_range() {
-		range_copy_helper<T>(this);
+		range_copy_helper<T,threadsafety>(this);
 	};
 		
 	template<>
