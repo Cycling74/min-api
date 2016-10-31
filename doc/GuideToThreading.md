@@ -277,16 +277,26 @@ message<threadsafe::yes> bang { this, "bang", "Send out the collected list.",
 
 We must *not* call the outlet while `m_data` is locked. But `m_data` is the very thing we want to send to our outlet. The solution is to make a copy while the lock is held. Then unlock and send the copy to the outlet instead of the original.
 
-Example Projects
+## Example Projects
 
 * `min.edge~` delivers output from the audio thread to the scheduler thread using the declarative outlet specification.
-
 * `min.edgelow~` delivers output from the audio thread to the main thread using the declarative outlet specification.
-
 * `min.sift~` delivers output to from the audio thread to either the scheduler or main thread depending on the setting of an attribute. The mechanism uses a manually configured timer, queue, and fifo.
-
 * `min.list.process` uses locks to protect dynamically-sized shared memory for concurrent access by both the main and scheduler threads.
-
 * `min.convolve` currently operates using the defaults — meaning everything is deferred to the main thread. It is an example that will require locks to be added before it can be declared thread-safe. This is left as an exercise for the diligent coder. When approaching the problem remember the order of operations for attribute setting — the attribute itself is not actually done until *after* you have returned from your setter function.
 
-  ​
+## Addendum: Attributes for Matrix Operators (Jitter)
+
+Any objects you create that inherit from `matrix_operator` are **Jitter** classes. Under the hood there are some differences with regards to the thread-related behavior of attributes.
+
+### Setters
+
+A typical Min attribute setter defaults to a "usurp" behavior. This means that if the setter is called from a non-main thead that the execution of the setter will be deferred to the back of the queue. If multiple events occur before the queue is serviced then only the last value will be actually be set.
+
+A Jitter attribute setter defaults to a "usurp low" behavior. This means that the call to the setter is *always* deferred to the back of the queue, even if it was called on the main thread. If multiple events occur before the queue is serviced then only the last value will be actually be set.
+
+### Getters
+
+At this point in time, getters for Min attributes occur synchronously — meaning that they are assumed to be threadsafe. Writing custom getters is atypical for most people coding externs, but if you do write a custom getter then please keep this in mind.
+
+A Jitter attribute getter defaults to a "defer low". Meaning the call is *always* deferred to the back of the queue, even if called from the main thread. Additionally, it will be called once for every get "request" — not boiled down to a single call as in the "usurp" behavior of setters. 

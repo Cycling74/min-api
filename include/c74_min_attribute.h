@@ -421,9 +421,7 @@ namespace min {
 	We can't defer here -- it must happen at a higher level.  Like in Max somewhere.  
 	Or we lock Max with a critical region?  Ick?
 	This is because we are required to return the value syncronously.
-
-	So getters are out ???
- 
+	So getters are out of our control.
  
 	Second, let's consider the setter.
 	We can defer this (and should if the setter is not threadsafe).
