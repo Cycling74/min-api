@@ -26,30 +26,6 @@ MIN_EXTERNAL(my_object);
 Note that the `object` which you are extending is itself specialized with the type of your class. This idiom provides a means of achieving [static polymorphism](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism).
 
 
-## Inlets and Outlets
-
-The first thing you will want to define for your new class are inlets and outlets. To do so you create an instance of the `inlet<>` or `outlet<>` type and initialize it with a pointer to your class' instance (`this`) and an assistance string for users that describes what the inlet or outlet does.
-
-```c++
-class my_object : public object<my_object> {
-public:
-	inlet<>		input	= { this, "(list) values to convolve" };
-	outlet<>	output	= { this, "(list) result of convolution" };
-
-	/// ...
-```
-
-Inlets and outlets may be generic, as above, or they may be specific to a type. Below, the left inlet is generic but the right inlet and the outlet both have the optional type defined for "dictionary". Audio objects will typically have outlets defined with the "signal" type and Jitter objects will typically use the "matrix" type.
-
-```c++
-inlet<>		left	= { this, "dict to combine with dict at right inlet" };
-inlet<>		right	= { this, "dict to combine with dict at left inlet", "dictionary" };
-outlet<>	output	= { this, "dictionary of entries combined from both inlets", "dictionary" };
-```
-
-Both inlets and outlets are defined in left to right order.
-
-
 ## Constructors
 
 You may provide a constructor for your object if you have some custom initialization to perform. If you do, it should possess a `const atoms&` parameter for passing in arguments typed into the Max object box.  
@@ -84,7 +60,68 @@ If you need to do any tear-down when your object is freed then simply define a d
 }
 ```
 
+## Inlets and Outlets
+
+The first thing you will want to define for your new class are inlets and outlets. To do so you create an instance of the `inlet<>` or `outlet<>` type and initialize it with a pointer to your class' instance (`this`) and an assistance string for users that describes what the inlet or outlet does.
+
+```c++
+class my_object : public object<my_object> {
+public:
+	inlet<>		input	= { this, "(list) values to convolve" };
+	outlet<>	output	= { this, "(list) result of convolution" };
+
+	/// ...
+```
+
+Inlets and outlets may be generic, as above, or they may be specific to a type. Below, the left inlet is generic but the right inlet and the outlet both have the optional type defined for "dictionary". Audio objects will typically have outlets defined with the "signal" type and Jitter objects will typically use the "matrix" type.
+
+```c++
+inlet<>		left	= { this, "dict to combine with dict at right inlet" };
+inlet<>		right	= { this, "dict to combine with dict at left inlet", "dictionary" };
+outlet<>	output	= { this, "dictionary of entries combined from both inlets", "dictionary" };
+```
+
+Both inlets and outlets are defined in left to right order.
+
+### Configuring Inlets and Outlets at Runtime
+
+In most cases configuring inlets and outlets at compile time is the ideal solution. There are cases, however, where you may wish to define the inlets and outlets at runtime based on the arguments passed to your object's constructor.
+
+(note: you cannot define the number of inlets and outlets at runtime for classes inheriting from `sample_operator<>` , you must instead inherit from `perform_operator<>`)
+
+In an example where you wish to define both the inlets and the outlets at runtime, you will need to create a place in your class to store the inlet/outlet instances. A convenient way to store the instances is in a vector.
+
+```c++
+private:
+    std::vector< std::unique_ptr<inlet<>> >		m_inlets;
+    std::vector< std::unique_ptr<outlet<>> >	m_outlets;
+```
+
+In your constructor you then create the inlets and outlets and add the instances to your vectors. Here is an example that takes the value of an argument to determine the number of inlets and outlets.
+
+```c++
+/// constructor
+clone(const atoms& args = {}) {
+	if (args.empty())
+		error("argument required");
+  
+  	auto inlet_count = args[0];
+  	auto outlet_count = inlet_count * 2;
+  
+	for (auto i=0; i < inlet_count; ++i) {
+      	auto an_inlet = std::make_unique<inlet<>>(this, "(bang) my assist message")
+		m_inlets.push_back( an_inlet );
+	}
+
+  	for (auto i=0; i < outlet_count; ++i) {
+      	auto an_outlet = std::make_unique<outlet<>>(this, "my outlet assist message")
+		m_outlets.push_back( an_outlet );
+	}
+}
+```
+
 ## Messages
+
 The basic work of most Max objects is done by messages. All messages take a single `const atoms&` parameter just as constructors. If you don't need arguments for your message then you can simply ignore it as in this example message:
 
 ```c++
