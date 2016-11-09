@@ -170,7 +170,7 @@ namespace min {
 
 	template<class min_class_type, enable_if_sample_operator<min_class_type> = 0>
 	void wrap_as_max_external_audio(max::t_class* c) {
-		max::class_addmethod(c, (max::method)min_dsp64<min_class_type>, "dsp64", max::A_CANT, 0);
+		max::class_addmethod(c, reinterpret_cast<max::method>(min_dsp64<min_class_type>), "dsp64", max::A_CANT, 0);
 		max::class_dspinit(c);
 	}
 }} // namespace c74::min

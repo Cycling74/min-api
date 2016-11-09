@@ -115,7 +115,6 @@ namespace min {
 
 	private:
 		std::queue< std::unique_ptr<deferred_message> >		m_deferred_messages;
-
 	};
 
 
@@ -142,9 +141,9 @@ namespace min {
 		, m_args { args }
 		{
 			deferred_message_class_setup(); // TODO: would be nice to avoid this lazy initialization?
-			m_maxwrapper = (t_deferred_message*)max::object_alloc(s_deferred_message_class);
+			m_maxwrapper = static_cast<t_deferred_message*>(max::object_alloc(s_deferred_message_class));
 			m_maxwrapper->mess = this;
-			m_qelem = max::qelem_new((max::t_object*)m_maxwrapper, (max::method)deferred_message::callback);
+			m_qelem = max::qelem_new(reinterpret_cast<max::t_object*>(m_maxwrapper), reinterpret_cast<max::method>(deferred_message::callback));
 		}
 
 		deferred_message(const deferred_message& other) = delete; // no copying allowed!
@@ -171,7 +170,7 @@ namespace min {
 		message<threadsafe::no>*	m_owner;
 		atoms						m_args;
 		t_deferred_message*			m_maxwrapper;
-		void*						m_qelem;
+		max::t_qelem*				m_qelem;
 	};
 
 

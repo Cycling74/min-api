@@ -27,7 +27,7 @@ namespace min {
 		/// constructor with enum initializer
 		template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 		atom(T initial_value) {
-			*this = (long)initial_value;
+			*this = static_cast<long>(initial_value);
 		}
 
 
@@ -48,7 +48,12 @@ namespace min {
 			*this = *init;
 			return *this;
 		}
-		
+
+		atom& operator = (const long long value) {
+			atom_setlong(this, value);
+			return *this;
+		}
+
 		atom& operator = (const long value) {
 			atom_setlong(this, value);
 			return *this;
@@ -80,22 +85,22 @@ namespace min {
 		}
 		
 		atom& operator = (const char* value) {
-			atom_setsym(this, max::gensym(value));
+			atom_setsym(this, symbol(value));
 			return *this;
 		}
 		
 		atom& operator = (const std::string& value) {
-			max::atom_setsym(this, max::gensym(value.c_str()));
+			max::atom_setsym(this, symbol(value.c_str()));
 			return *this;
 		}
 
-		atom& operator = (const max::t_object* value) {
-			atom_setobj(this, (void*)value);
+		atom& operator = (max::t_object* value) {
+			atom_setobj(this, static_cast<void*>(value));
 			return *this;
 		}
 		
-		atom& operator = (const max::t_class* value) {
-			atom_setobj(this, (void*)value);
+		atom& operator = (max::t_class* value) {
+			atom_setobj(this, static_cast<void*>(value));
 			return *this;
 		}
 		
@@ -108,7 +113,7 @@ namespace min {
 		/// Enum assigning constructor
 		template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 		operator T() const {
-			return (T)atom_getlong(this);
+			return static_cast<T>(atom_getlong(this));
 		}
 
 		operator double() const {
@@ -116,15 +121,15 @@ namespace min {
 		}
 		
 		operator int() const {
-			return int(atom_getlong(this));
+			return static_cast<int>(atom_getlong(this));
 		}
 
 		operator long() const {
-			return long(atom_getlong(this));
+			return static_cast<long>(atom_getlong(this));
 		}
 
 		operator long long() const {
-			return long(atom_getlong(this));
+			return static_cast<long long>(atom_getlong(this));
 		}
 
 		operator bool() const {
@@ -136,11 +141,11 @@ namespace min {
 		}
 
 		operator max::t_object*() const {
-			return (max::t_object*)atom_getobj(this);
+			return static_cast<max::t_object*>(atom_getobj(this));
 		}
 
 		operator max::t_class*() const {
-			return (max::t_class*)atom_getobj(this);
+			return static_cast<max::t_class*>(atom_getobj(this));
 		}
 		
 		operator void*() const {
@@ -429,7 +434,7 @@ namespace min {
 	
 	template<class T, typename enable_if< !std::is_enum<T>::value && (is_symbol<T>::value || is_time_value<T>::value || !is_class<T>::value), int>::type = 0>
 	T from_atoms(const atoms& as) {
-		return (T)as[0];
+		return static_cast<T>(as[0]);
 	}
 
 
@@ -446,9 +451,9 @@ namespace min {
 
 	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 	T from_atoms(const atoms& as) {
-		auto index = (long)as[0];
-		auto size = (long)T::enum_count;
-		
+		auto index = static_cast<long>(as[0]);
+		auto size = static_cast<long>(T::enum_count);
+
 		if (index < 0)
 			index = 0;
 		else if (index >= size)
@@ -462,7 +467,7 @@ namespace min {
 
 	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 	T from_atoms(const atoms& as) {
-		auto index = (long)as[0];
+		auto index = static_cast<long>(as[0]);
 		return T(index);
 	}
 

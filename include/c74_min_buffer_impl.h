@@ -14,7 +14,7 @@ namespace min {
 	buffer_lock<true>::buffer_lock(buffer_reference& a_buffer_ref)
 	: m_buffer_ref { a_buffer_ref }
 	{
-		m_buffer_obj = buffer_ref_getobject(m_buffer_ref.instance);
+		m_buffer_obj = buffer_ref_getobject(m_buffer_ref.m_instance);
 		m_tab = buffer_locksamples(m_buffer_obj);
 		// TODO: handle case where tab is null -- can't throw an exception in audio code...
 	}
@@ -25,7 +25,7 @@ namespace min {
 	{
 		max::t_buffer_info info;
 
-		m_buffer_obj = buffer_ref_getobject(m_buffer_ref.instance);
+		m_buffer_obj = buffer_ref_getobject(m_buffer_ref.m_instance);
 		buffer_edit_begin(m_buffer_obj);
 		buffer_getinfo(m_buffer_obj, &info);
 		m_tab = info.b_samples;

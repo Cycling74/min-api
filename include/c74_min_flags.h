@@ -43,8 +43,8 @@ namespace min {
 		}
 
 	private:
-		documentation_flags m_documentation {documentation_flags::none};
-		behavior_flags		m_behavior		{behavior_flags::none};
+		documentation_flags m_documentation { documentation_flags::none };
+		behavior_flags		m_behavior		{ behavior_flags::none };
 	};
 
 

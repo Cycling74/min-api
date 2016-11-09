@@ -57,15 +57,13 @@ namespace min {
                 if (x > m) {
                     if (x > (m*2.0)) {
                         d = x / m;
-                        di = (long)d;
-                        d = d - (double)di;
+                        di = d;				// cast to long
+                        d = d - di;			// cast to double
                         if (di % 2) {
-                            if (d < 0) {
+                            if (d < 0)
                                 d = -1.0 - d;
-                            }
-							else {
+							else
                                 d = 1.0 - d;
-                            }
                         }
                         x = d * m;
                         if (x < 0.0)
@@ -113,8 +111,8 @@ namespace min {
 				else if (x < 0.0) {
                     if (x < (-m)) {
                         d = x / m;
-                        di = (long)d;
-                        d = d - (double)di;
+                        di = d;				// cast to long
+                        d = d - di;			// cast to double
                         x = d * m;
                         if (x < 0.0)
                             x += m;

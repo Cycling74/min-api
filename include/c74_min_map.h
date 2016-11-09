@@ -8,7 +8,7 @@
 namespace c74 {
 namespace min {
 	
-	
+	/*
 	// this is the peer object for the t_hashtab in the legacy max api
 	template<class T>
 	class map {
@@ -51,7 +51,7 @@ namespace min {
 		
 		
 		void store(symbol key, T value) {
-			/*auto err = */max::hashtab_store(instance, key, (max::t_object*)value);
+			max::hashtab_store(instance, key, (max::t_object*)value);
 			// TODO: handle errors
 		}
 		
@@ -59,5 +59,7 @@ namespace min {
 	private:
 		max::t_hashtab*	instance { nullptr };
 	};
-	
+	 
+	*/
+
 }} // namespace c74::min

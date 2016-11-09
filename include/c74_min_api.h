@@ -161,6 +161,12 @@ inline void error() {
 	throw std::runtime_error("unknown");
 }
 
+inline void error(bool check, const std::string& description) {
+	if (!check)
+		throw std::runtime_error(description);
+}
+
+
 
 #include "c74_min_symbol.h"
 #include "c74_min_atom.h"
@@ -191,7 +197,6 @@ namespace min {
 #include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"	// Jitter MOP
-#include "c74_min_operator_gl.h"		// Jitter GL
 #include "c74_min_object_wrapper.h"		// Max wrapper for Min objects
 #include "c74_min_object.h"				// The Min object class that glues it all together
 

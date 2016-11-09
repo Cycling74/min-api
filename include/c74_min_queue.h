@@ -28,7 +28,7 @@ namespace min {
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		{
-			m_instance = max::qelem_new(this, (max::method)queue_qfn_callback);
+			m_instance = max::qelem_new(this, reinterpret_cast<max::method>(queue_qfn_callback));
 		}
 
 
@@ -66,7 +66,7 @@ namespace min {
 	private:
 		object_base*	m_owner;
 		function		m_function;
-		void*			m_instance { nullptr };
+		max::t_qelem*	m_instance { nullptr };
 	};
 	
 	

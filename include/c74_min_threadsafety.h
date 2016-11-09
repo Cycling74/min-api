@@ -41,7 +41,7 @@ namespace min {
 		explicit thread_trigger(T a_baton)
 		: m_baton { a_baton }
 		{
-			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)thread_trigger_callback<T,check>);
+			m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(thread_trigger_callback<T,check>));
 		}
 
 		virtual ~thread_trigger() {
@@ -76,7 +76,7 @@ namespace min {
 		explicit thread_trigger(T a_baton)
 		: m_baton { a_baton }
 		{
-			m_clock = max::clock_new(this, (max::method)thread_trigger_callback<T,thread_check::scheduler>);
+			m_clock = max::clock_new(this, reinterpret_cast<max::method>(thread_trigger_callback<T,thread_check::scheduler>));
 		}
 
 		virtual ~thread_trigger() {

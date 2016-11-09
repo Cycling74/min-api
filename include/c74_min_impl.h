@@ -26,7 +26,7 @@ namespace min {
 		if (m_inlets.empty())
 			return;
 		for (auto i = m_inlets.size()-1; i>0; --i)
-			m_inlets[i]->m_instance = max::proxy_new(m_maxobj, (long)i, nullptr);
+			m_inlets[i]->m_instance = max::proxy_new(m_maxobj, i, nullptr);
 	}
 
 	

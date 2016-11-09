@@ -11,16 +11,17 @@
 
 namespace c74 {
 namespace max {
+	struct t_qelem;
 
-	MOCK_EXPORT void* qelem_new(void* obj, method fn) {
+	MOCK_EXPORT t_qelem* qelem_new(void* obj, method fn) {
 		return nullptr;
 	}
 
-	MOCK_EXPORT void qelem_free(void* qelem) {
+	MOCK_EXPORT void qelem_free(t_qelem* qelem) {
 		;
 	}
 
-	MOCK_EXPORT void qelem_set(void* q) {
+	MOCK_EXPORT void qelem_set(t_qelem* q) {
 		;
 	}
 
@@ -70,7 +71,7 @@ namespace max {
 		return 0;
 	}
 	
-	MOCK_EXPORT t_max_err object_attr_setvalueof(t_object* x, t_symbol* s, long argc, t_atom* argv) {
+	MOCK_EXPORT t_max_err object_attr_setvalueof(t_object* x, t_symbol* s, long argc, const t_atom* argv) {
 		return 0;
 	}
 
@@ -161,7 +162,7 @@ namespace max {
 	}
 
 
-	MOCK_EXPORT t_max_err class_addtypedwrapper(t_class *x, method m, char *name, ...) {
+	MOCK_EXPORT t_max_err class_addtypedwrapper(t_class *x, method m, const char *name, ...) {
 		return 0;
 	}
 
@@ -184,10 +185,10 @@ namespace max {
 	MOCK_EXPORT void max_jit_class_wrap_addmethods(t_class *mclass, t_class *jclass) {}
 	MOCK_EXPORT void max_jit_class_wrap_addmethods_flags(t_class *mclass, t_class *jclass, long flags) {}
 	MOCK_EXPORT void max_jit_class_wrap_attrlist2methods(t_class *mclass, t_class *jclass) {}
-	MOCK_EXPORT void max_jit_class_addmethod_defer(t_class *mclass, method m, char *s) {}
-	MOCK_EXPORT void max_jit_class_addmethod_defer_low(t_class *mclass, method m, char *s) {}
-	MOCK_EXPORT void max_jit_class_addmethod_usurp(t_class *mclass, method m, char *s) {}
-	MOCK_EXPORT void max_jit_class_addmethod_usurp_low(t_class *mclass, method m, char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_defer(t_class *mclass, method m, const char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_defer_low(t_class *mclass, method m, const char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_usurp(t_class *mclass, method m, const char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_usurp_low(t_class *mclass, method m, const char *s) {}
 	
 	
 	MOCK_EXPORT t_jit_err max_jit_class_mop_wrap(t_class* mclass, t_class* jclass, long flags) {

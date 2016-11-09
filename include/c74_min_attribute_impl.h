@@ -37,7 +37,7 @@ namespace min {
 	template<typename ...ARGS>
 	attribute<time_value>::attribute(object_base* an_owner, std::string a_name, time_value a_default_value, ARGS... args)
 	: attribute_base	{ *an_owner, a_name }
-	, m_value			{ an_owner, a_name, double(a_default_value) }
+	, m_value			{ an_owner, a_name, static_cast<double>(a_default_value) }
 	{
 		m_owner.attributes()[a_name] = this;
 
@@ -57,9 +57,14 @@ namespace min {
 		if (m_style == style::time)
 			class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
 		else if (isjitclass) {
-//			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, m_name, datatype(), flags(isjitclass), getter, setter, 0);
-			auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset, (void*)m_name.c_str(), (max::t_symbol*)datatype(), (void*)flags(isjitclass), (void*)getter, (void*)setter, nullptr, nullptr, nullptr);
-
+			auto jit_attr = max::object_new_imp(max::gensym("jitter"),
+												max::_jit_sym_jit_attr_offset,
+												const_cast<void*>(static_cast<const void*>(m_name.c_str())),
+												static_cast<max::t_symbol*>(datatype()),
+												reinterpret_cast<void*>(flags(isjitclass)),
+												reinterpret_cast<void*>(getter),
+												reinterpret_cast<void*>(setter),
+												nullptr, nullptr, nullptr);
 			max::jit_class_addattr(c, jit_attr);
 		}
 		else {
@@ -72,11 +77,29 @@ namespace min {
 	template<>
 	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
 		if (isjitclass) {
-			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset_array, m_name.c_str(), (max::t_symbol*)datatype(), 0xFFFF, flags(isjitclass), getter, setter, (long)size_offset(), 0);
+//			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset_array,
+//												m_name.c_str(),
+//												(max::t_symbol*)datatype(),
+//												0xFFFF,
+//												flags(isjitclass),
+//												getter,
+//												setter,
+//												(long)size_offset(),
+//												0);
+			auto jit_attr = max::object_new_imp(max::gensym("jitter"),
+												max::_jit_sym_jit_attr_offset_array,
+												const_cast<void*>(static_cast<const void*>(m_name.c_str())),
+												static_cast<max::t_symbol*>(datatype()),
+												reinterpret_cast<void*>(0xFFFF),
+												reinterpret_cast<void*>(flags(isjitclass)),
+												reinterpret_cast<void*>(getter),
+												reinterpret_cast<void*>(setter),
+												reinterpret_cast<void*>(size_offset()),
+												nullptr);
 			max::jit_class_addattr(c, jit_attr);
 		}
 		else {
-			auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, flags(isjitclass), getter, setter, (long)size_offset(), 0);
+			auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, flags(isjitclass), getter, setter, size_offset(), 0);
 			max::class_addattr(c, max_attr);
 		}
 	};
@@ -85,10 +108,12 @@ namespace min {
 	// enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
 	template<class T, threadsafe threadsafety, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 	std::string range_string_item(attribute<T,threadsafety>* attr, const T& item) {
+		auto i = static_cast<int>(item);
+
 		if (attr->get_enum_map().empty())
-			return std::to_string((int)item);
+			return std::to_string(i);
 		else
-			return attr->get_enum_map()[(int)item];
+			return attr->get_enum_map()[i];
 	}
 	
 	// all non-enum values can just pass through
@@ -125,7 +150,7 @@ namespace min {
 	template<class T, threadsafe threadsafety, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 	void range_copy_helper(attribute<T,threadsafety>* attr) {
 		for (auto i=0; i < attr->get_enum_map().size(); ++i)
-			attr->range_ref().push_back((T)i);
+			attr->range_ref().push_back(static_cast<T>(i));
 	}
 
 

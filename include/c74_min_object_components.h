@@ -64,7 +64,7 @@ namespace min {
 
 		
 		int current_inlet() {
-			return proxy_getinlet((max::t_object*)m_maxobj);
+			return proxy_getinlet(static_cast<max::t_object*>(m_maxobj));
 		}
 		
 		operator max::t_object* () const {
@@ -230,6 +230,10 @@ namespace min {
 		}
 		
 		void cleanup() {}
+
+		max::t_object* maxobj() {
+			return max_base;
+		}
 	};
 	
 	

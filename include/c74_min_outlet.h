@@ -14,9 +14,9 @@ namespace min {
 	template<typename outlet_type>
 	inline void outlet_do_send(t_max_outlet maxoutlet, const outlet_type& value) {
 		if (value[0].a_type == max::A_LONG || value[0].a_type == max::A_FLOAT)
-			max::outlet_list(maxoutlet, nullptr, value.size(), (max::t_atom*)&value[0]);
+			max::outlet_list(maxoutlet, nullptr, value.size(), static_cast<const max::t_atom*>(&value[0]));
 		else
-			max::outlet_anything(maxoutlet, value[0], value.size()-1, (max::t_atom*)&value[1]);
+			max::outlet_anything(maxoutlet, value[0], value.size()-1, static_cast<const max::t_atom*>(&value[1]));
 	}
 
 	//	template<thread_check check_type, thread_action action_type>

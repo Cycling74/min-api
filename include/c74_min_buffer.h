@@ -21,44 +21,44 @@ namespace min {
 		// thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
 
 		buffer_reference(object_base* an_owner, const function& a_function = nullptr)
-		: owner { *an_owner }
-		, m_notification_callback { a_function }
+		: m_owner					{ *an_owner }
+		, m_notification_callback	{ a_function }
 		{}
 		
 		
 		~buffer_reference() {
-			object_free(instance);
+			object_free(m_instance);
 		}
 		
 		
 		void set(symbol name) {
-			if (!instance)
-				instance = max::buffer_ref_new(owner, name);
+			if (!m_instance)
+				m_instance = max::buffer_ref_new(m_owner, name);
 			else
-				buffer_ref_set(instance, name);
+				buffer_ref_set(m_instance, name);
 		}
 		
 		
 	private:
-		max::t_buffer_ref*	instance { nullptr };
-		object_base&		owner;
+		max::t_buffer_ref*	m_instance { nullptr };
+		object_base&		m_owner;
 		function			m_notification_callback;
 		
-		message<> set_meth = { &owner, "set", "Choose a named buffer~ from which to read.",
+		message<> set_meth = { &m_owner, "set", "Choose a named buffer~ from which to read.",
 			MIN_FUNCTION {
 				set(args[0]);
 				return {};
 			}
 		};
 		
-		message<> dblclick_meth = { &owner, "dblclick",
+		message<> dblclick_meth = { &m_owner, "dblclick",
 			MIN_FUNCTION {
-				max::buffer_view(max::buffer_ref_getobject(instance));
+				max::buffer_view(max::buffer_ref_getobject(m_instance));
 				return {};
 			}
 		};
 		
-		message<> notify_meth = { &owner, "notify",
+		message<> notify_meth = { &m_owner, "notify",
 			MIN_FUNCTION {
 				symbol	s = args[1];
 				symbol	msg = args[2];
@@ -73,7 +73,7 @@ namespace min {
 					else if (msg == k_sym_buffer_modified)
 						m_notification_callback( { k_sym_modified } );
 				}
-				return { (long)max::buffer_ref_notify(instance, s, msg, sender, data) };
+				return { max::buffer_ref_notify(m_instance, s, msg, sender, data) };
 			}
 		};
 
@@ -103,7 +103,7 @@ namespace min {
 		
 		
 		int channelcount() {
-			return (int)max::buffer_getchannelcount(m_buffer_obj);
+			return max::buffer_getchannelcount(m_buffer_obj);
 		}
 		
 		

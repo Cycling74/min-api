@@ -113,7 +113,7 @@ namespace min {
 		
 		/// calculate the offset of the size member as required for array/vector attributes
 		size_t size_offset() {
-			return (&m_size) - ((size_t*)&m_owner);
+			return (&m_size) - reinterpret_cast<size_t*>(&m_owner);
 		}
 
 		void touch() {
@@ -283,7 +283,7 @@ namespace min {
 		attribute& operator = (symbol arg) {
 			for (auto i=0; i<m_enum_map.size(); ++i) {
 				if (arg == m_enum_map[i]) {
-					(*this) = T(i);
+					*this = static_cast<T>(i);
 					break;
 				}
 			}
@@ -302,7 +302,7 @@ namespace min {
 
 		template<class U=T, typename enable_if< !is_enum<U>::value, int>::type = 0>
 		void assign(const atoms& args) {
-			m_value = ( from_atoms<T>(args) );
+			m_value = from_atoms<T>(args);
 		}
 
 		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
@@ -312,20 +312,20 @@ namespace min {
 			if (a.a_type == max::A_SYM) {
 				for (auto i=0; i<m_enum_map.size(); ++i) {
 					if (a == m_enum_map[i]) {
-						m_value = T(i);
+						m_value = static_cast<T>(i);
 						break;
 					}
 				}
 			}
 			else
-				m_value = ( from_atoms<T>(args) );
+				m_value = from_atoms<T>(args);
 		}
 
 		
 		/// Set the attribute value
 		void set(const atoms& args, bool notify = true, bool override_readonly = false) {
 			if (notify && this_class)
-				max::object_attr_setvalueof(m_owner, m_name, (long)args.size(), (max::t_atom*)&args[0]);
+				max::object_attr_setvalueof(m_owner, m_name, args.size(), static_cast<const c74::max::t_atom*>(&args[0]));
 
 			if (!writable() && !override_readonly)
 				return; // we're all done... unless this is a readonly attr that we are forcing to update
@@ -439,7 +439,7 @@ namespace min {
 		auto& attr = *helper->m_attribute;
 
 		if (attr.m_setter)
-			attr.m_value = ( from_atoms<T>(attr.m_setter(args)) );
+			attr.m_value = from_atoms<T>(attr.m_setter(args));
 		else
 			attr.assign(args);
 	}
@@ -502,7 +502,7 @@ namespace min {
 
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
-		symbol	attr_name	= (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
+		symbol	attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
 		auto&	attr		= self->min_object.attributes()[attr_name.c_str()];
 		atoms	rvals		= *attr;
 		
@@ -519,7 +519,7 @@ namespace min {
 	template<class T>
 	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, long ac, max::t_atom* av) {
 		atom_reference	args(ac,av);
-		symbol			attr_name	= (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
+		symbol			attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
 		auto			attr		= self->min_object.attributes()[attr_name.c_str()];
 
 		attr->set( atoms(args.begin(), args.end()), false, false );
