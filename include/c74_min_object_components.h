@@ -17,7 +17,6 @@ namespace min {
 	template<typename T, threadsafe threadsafety = threadsafe::no>
 	class attribute;
 
-	
 	class maxobject_base {
 	public:
 		
@@ -62,7 +61,10 @@ namespace min {
 			// TODO: free proxy inlets!
 		}
 
+
+		virtual bool is_jitter_class() = 0;
 		
+
 		int current_inlet() {
 			return proxy_getinlet((max::t_object*)m_maxobj);
 		}
