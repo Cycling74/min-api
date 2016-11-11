@@ -490,8 +490,12 @@ namespace min {
 		}
 
 		void set(const atoms& args) {
-			m_value = args;
-			max::qelem_set(m_qelem);
+			if (max::systhread_ismainthread())
+				attribute_threadsafe_helper_do_set(this, args);
+			else {
+				m_value = args;
+				max::qelem_set(m_qelem);
+			}
 		}
 
 	private:
