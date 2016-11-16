@@ -47,6 +47,12 @@ namespace min {
 		
 		virtual ~object() {}
 
+
+		bool is_jitter_class() {
+			return is_base_of<matrix_operator_base, min_class_type>::value;
+		};
+
+
 	protected:
 		logger	cout { this, logger::type::message };
 		logger	cerr { this, logger::type::error };

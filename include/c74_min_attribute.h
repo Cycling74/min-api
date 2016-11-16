@@ -330,7 +330,13 @@ namespace min {
 			if (!writable() && !override_readonly)
 				return; // we're all done... unless this is a readonly attr that we are forcing to update
 
-			m_helper.set(args);
+			// currently all jitter attributes bypass the defer mechanism here opting to instead use the default jitter handling
+			// were we to simply call `m_helper.set(args);` then our defer mechanism would be called **in addition to** jitter's deferring
+
+			if (m_owner.is_jitter_class())
+				attribute_threadsafe_helper_do_set<T,threadsafety>(&m_helper, args);
+			else
+				m_helper.set(args);
 		}
 
 
@@ -484,8 +490,12 @@ namespace min {
 		}
 
 		void set(const atoms& args) {
-			m_value = args;
-			max::qelem_set(m_qelem);
+			if (max::systhread_ismainthread())
+				attribute_threadsafe_helper_do_set(this, args);
+			else {
+				m_value = args;
+				max::qelem_set(m_qelem);
+			}
 		}
 
 	private:
