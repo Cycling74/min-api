@@ -137,9 +137,9 @@ MOCK_EXPORT_CPP t_mock_outlet& object_getoutlet(void *o, int i) {
 	@param i	the index (zero-based) of the outlet whose sequence you want
 	@return		a reference to the sequence
  */
-MOCK_EXPORT_CPP t_sequence& object_getoutput(void *o, int outletnum) {
+MOCK_EXPORT t_sequence* object_getoutput(void *o, int outletnum) {
 	t_mock_outlet& outlet = object_getoutlet(o, outletnum);
-	return outlet.get_messages();
+	return &outlet.get_messages();
 }
 
 

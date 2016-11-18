@@ -34,6 +34,7 @@ namespace c74 {
 
 	} // namespace min
 
+
 	namespace max {
 
 		///	A vector of atoms.
@@ -48,7 +49,8 @@ namespace c74 {
 		/// @remark		should sequences have time-stamps?
 		typedef std::vector<t_atom_vector>	t_sequence;
 
-		t_sequence& object_getoutput(void *o, int outletnum);
+		extern "C" t_sequence* object_getoutput(void *o, int outletnum);
 	
 	} // namespace max
+
 } // namespace c74
