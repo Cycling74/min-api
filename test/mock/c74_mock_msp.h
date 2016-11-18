@@ -236,5 +236,37 @@ MOCK_EXPORT void z_dsp_setup(t_pxobject* x, long inletcount)
 	for (long i=inletcount-1; i>=1; i--)
 		proxy_new(x, i, NULL); // we are using mock inlets, so we don't have to track the pointer or free it manually
 }
+
+
+	using t_buffer_obj = t_object;
+	using t_buffer_ref = t_object;
+	struct t_buffer_info;
+
+	MOCK_EXPORT t_buffer_obj* buffer_ref_getobject(t_buffer_ref* x) {
+		return nullptr;
+	}
+
+	MOCK_EXPORT float* buffer_locksamples(t_buffer_obj* buffer_object) {
+		return nullptr;
+	}
 	
+
+	MOCK_EXPORT void buffer_unlocksamples(t_buffer_obj* buffer_object) {
+	}
+	
+
+	MOCK_EXPORT t_max_err buffer_getinfo(t_buffer_obj* buffer_object, t_buffer_info* info) {
+		return 0;
+	}
+	
+
+	MOCK_EXPORT t_max_err buffer_edit_begin(t_buffer_obj* buffer_object) {
+		return 0;
+	}
+	
+
+	MOCK_EXPORT t_max_err buffer_edit_end(t_buffer_obj* buffer_object, long valid) {
+		return 0;
+	}
+
 }}
