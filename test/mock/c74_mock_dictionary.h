@@ -25,4 +25,27 @@ namespace max {
 	}
 
 
+	MOCK_EXPORT t_max_err dictionary_clone_to_existing(const t_dictionary* d, t_dictionary* dc) {
+		return 0;
+	}
+
+	MOCK_EXPORT t_max_err dictionary_copyunique(t_dictionary* d, t_dictionary* copyfrom) {
+		return 0;
+	}
+
+
+	MOCK_EXPORT t_symbol* dictobj_namefromptr(t_dictionary* d) {
+		return nullptr;
+	}
+
+	MOCK_EXPORT t_max_err dictobj_dictionaryfromatoms(t_dictionary** d, const long argc, const t_atom* argv) {
+		return 0;
+	}
+
+	MOCK_EXPORT t_max_err object_notify(void* x, const t_symbol* s, void* data) {
+		return 0;
+	}
+
+
+
 }} // namespace c74::max
