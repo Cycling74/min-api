@@ -195,6 +195,11 @@ namespace min {
 	};
 
 
+	/// An outlet for sending output from a Min object.
+	/// Outlets are specialized with two optional template parameters.
+	/// @tparam check	Define which threads are valid sources for calls to the outlet.
+	/// @tparam action	Define what action is to be taken if the thread check fails.
+
 	template<thread_check check, thread_action action>
 	class outlet : public outlet_base {
 		/// utility: queue an argument of any type for output
