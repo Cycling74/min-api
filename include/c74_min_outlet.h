@@ -218,11 +218,33 @@ namespace min {
 		}
 		
 	public:
-		outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
+
+		/// Create an outlet
+		/// @param an_owner			The Min object instance that owns this outlet. Typically you should pass 'this'.
+		/// @param a_description	Documentation string for this outlet.
+		/// @param a_type			String defining the Max message type of the outlet for checking patch-cord connections.
+		/// @param an_atom_count	The number of atoms that will be passed out as a list from this outlet.
+		///							This is optional but allows memory to be pre-allocated to improve performance.
+
+		outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "", size_t an_atom_count = 1)
 		: outlet_base ( an_owner, a_description, a_type )
 		{
 			m_owner->outlets().push_back(this);
+			m_accumulated_output.reserve(an_atom_count);
 		}
+
+
+		/// Create an outlet
+		/// @param an_owner			The Min object instance that owns this outlet. Typically you should pass 'this'.
+		/// @param a_description	Documentation string for this outlet.
+		/// @param an_atom_count	The number of atoms that will be passed out as a list from this outlet.
+		///							This is optional but allows memory to be pre-allocated to improve performance.
+		/// @param a_type			String defining the Max message type of the outlet for checking patch-cord connections.
+
+		outlet(object_base* an_owner, const std::string& a_description, size_t an_atom_count, const std::string& a_type = "")
+		: outlet ( an_owner, a_description, a_type, an_atom_count )
+		{}
+
 
 		void create() {
 			if (type() == "")
