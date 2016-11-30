@@ -7,18 +7,16 @@
 
 namespace c74 {
 namespace min {
-	
-	
-	class inlet;
-	class outlet;
+
+	class inlet_base;
+	class outlet_base;
 	class argument_base;
-	class message;
+	class message_base;
 	class attribute_base;
 	
-	template<typename T>
+	template<typename T, threadsafe threadsafety = threadsafe::no>
 	class attribute;
-	
-	
+
 	class maxobject_base {
 	public:
 		
@@ -63,9 +61,12 @@ namespace min {
 			// TODO: free proxy inlets!
 		}
 
+
+		virtual bool is_jitter_class() = 0;
 		
+
 		int current_inlet() {
-			return proxy_getinlet((max::t_object*)m_maxobj);
+			return proxy_getinlet(static_cast<max::t_object*>(m_maxobj));
 		}
 		
 		operator max::t_object* () const {
@@ -102,11 +103,11 @@ namespace min {
 		}
 		
 		
-		auto inlets() -> std::vector<inlet*>& {
+		auto inlets() -> std::vector<inlet_base*>& {
 			return m_inlets;
 		}
 		
-		auto outlets() -> std::vector<outlet*>& {
+		auto outlets() -> std::vector<outlet_base*>& {
 			return m_outlets;
 		}
 		
@@ -126,10 +127,10 @@ namespace min {
 		}
 
 
-		auto messages() -> std::unordered_map<std::string, message*>& {
+		auto messages() -> std::unordered_map<std::string, message_base*>& {
 			return m_messages;
 		}
-		auto messages() const -> const std::unordered_map<std::string, message*>& {
+		auto messages() const -> const std::unordered_map<std::string, message_base*>& {
 			return m_messages;
 		}
 
@@ -189,10 +190,10 @@ namespace min {
 		long												m_min_magic;	// should be valid if m_maxobj has been assigned
 		bool												m_initializing = true;
 		bool												m_initialized = false;
-		std::vector<inlet*>									m_inlets;
-		std::vector<outlet*>								m_outlets;
+		std::vector<inlet_base*>							m_inlets;
+		std::vector<outlet_base*>							m_outlets;
 		std::vector<argument_base*>							m_arguments;
-		std::unordered_map<std::string, message*>			m_messages;
+		std::unordered_map<std::string, message_base*>		m_messages;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
 		dict												m_state;
         symbol                                              m_classname; // what's typed in the max box
@@ -231,11 +232,15 @@ namespace min {
 		}
 		
 		void cleanup() {}
+
+		max::t_object* maxobj() {
+			return max_base;
+		}
 	};
 	
 	
 	// maxname may come in as an entire path because of use of the __FILE__ macro
-	std::string deduce_maxclassname(const char* maxname) {
+	inline std::string deduce_maxclassname(const char* maxname) {
 		std::string smaxname;
 		
 		const char* start = strrchr(maxname, '/');

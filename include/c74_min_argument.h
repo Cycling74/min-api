@@ -77,13 +77,4 @@ namespace min {
 		}
 	};
 
-
-	void object_base::process_arguments(const atoms& args) {
-		auto argcount = std::min(args.size(), m_arguments.size());
-
-		for (auto i=0; i<argcount; ++i)
-			(*m_arguments[i])(args[i]);
-	}
-
-
 }} // namespace c74::min

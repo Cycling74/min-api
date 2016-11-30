@@ -36,10 +36,10 @@ namespace min {
 				if (!this_class_init) {						// if we aren't already in the process of initializing...
 					std::string maxname = typeid(min_class_type).name();
 					maxname += "_max";
-					wrap_as_max_external<min_class_type> ( typeid(min_class_type).name(), maxname.c_str(), nullptr, (min_class_type*)this );
+					wrap_as_max_external<min_class_type> ( typeid(min_class_type).name(), maxname.c_str(), nullptr, static_cast<min_class_type*>(this) );
 				}
 				if (this_class) {
-					m_maxobj = (max::t_object*)max::object_alloc(this_class);
+					m_maxobj = static_cast<max::t_object*>(max::object_alloc(this_class));
 					postinitialize();
 				}
 			}			
@@ -47,7 +47,12 @@ namespace min {
 		
 		virtual ~object() {}
 
-		
+
+		bool is_jitter_class() {
+			return is_base_of<matrix_operator_base, min_class_type>::value;
+		};
+
+
 	protected:
 		logger	cout { this, logger::type::message };
 		logger	cerr { this, logger::type::error };

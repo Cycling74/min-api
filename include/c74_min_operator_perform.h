@@ -9,8 +9,6 @@ namespace c74 {
 namespace min {
 		
 	class perform_operator_base {};
-	
-
 	class perform_operator : public perform_operator_base {};
 	
 	
@@ -21,11 +19,19 @@ namespace min {
 		
 		void setup() {
 			max::dsp_setup(max_base, (long)min_object.inlets().size());
+
+			max::t_pxobject* x = max_base;
+			x->z_misc |= max::Z_NO_INPLACE;
+			
 			min_object.create_outlets();
 		}
 		
 		void cleanup() {
 			max::dsp_free(max_base);
+		}
+
+		max::t_object* maxobj() {
+			return max_base;
 		}
 	};
 	
@@ -127,7 +133,7 @@ namespace min {
 	void min_dsp64_add_perform(minwrap<min_class_type>* self, max::t_object* dsp64) {
 		// find the perform method and add it
 		object_method_direct(void, (max::t_object*, max::t_object*, max::t_perfroutine64, long, void*),
-							 dsp64, max::gensym("dsp_add64"), (max::t_object*)self, (max::t_perfroutine64)min_performer<min_class_type>::perform, 0, NULL);
+							 dsp64, symbol("dsp_add64"), self->maxobj(), reinterpret_cast<max::t_perfroutine64>(min_performer<min_class_type>::perform), 0, NULL);
 	}
 	
 	template<class min_class_type>
@@ -158,7 +164,7 @@ namespace min {
 
 	template<class min_class_type, enable_if_perform_operator<min_class_type> = 0>
 	void wrap_as_max_external_audio(max::t_class* c) {
-		max::class_addmethod(c, (max::method)min_dsp64<min_class_type>, "dsp64", max::A_CANT, 0);
+		max::class_addmethod(c, reinterpret_cast<max::method>(min_dsp64<min_class_type>), "dsp64", max::A_CANT, 0);
 		max::class_dspinit(c);
 	}
 }} // namespace c74::min

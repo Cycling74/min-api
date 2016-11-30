@@ -45,6 +45,8 @@ namespace min {
 		{
 			if (finalize)
 				this->finalize();
+			if (owner->maxobj())
+				m_timeobj = max::time_new(owner->maxobj(), attrname, nullptr, 0);
 			set_milliseconds(initial_interval);
 		}
 
@@ -102,7 +104,7 @@ namespace min {
 		time_value& operator = (const time_value& other) {
 			// do not overwrite anything!
 			// we just want to set the time for the existing timeobj
-			(*this) = double(other);
+			(*this) = static_cast<double>(other);
 			return *this;
 		}
 

@@ -1,35 +1,33 @@
 # Where To Look...
 
-Min object examples by topic...
+Min object examples by topic.
 
 Most of the referenced example code is distributed as a part of the [Min-DevKit Package](https://github.com/Cycling74/min-devkit) unless otherwise specified.
 
 
-
-
 ## Attributes
 
-* xfade~ (enumerated list of symbol options with 'range' argument)
-* convolve (vector/array attrs)
+* `min.xfade~` (enumerated list of symbol options with 'range' argument)
+* `min.convolve` (vector/array attrs)
 
 
 ## Audio Sample Operators
 
-* dcblocker~
-* xfade~
+* `min.dcblocker~`
+* `min.xfade~`
 
 
 ## Audio Perform Operators
 
-* buffer.index~
-* link.phasor~ (see the link package)
+* `buffer.index~`
+* `link.phasor~` (see the **Link** package)
 
 
 ## Matrix Operators
 
-* jit.clamp
-* jit.stencil
-* jit.mograph (see the mograph package)
+* `min.jit.clamp`
+* `min.jit.stencil`
+* `jit.mo.func` (see the **jit.mo** package)
 
 
 ## OpenGL Operators
@@ -39,48 +37,53 @@ Most of the referenced example code is distributed as a part of the [Min-DevKit 
 
 ## Timers
 
-* pedro
+* `min.beat.random`
+* `min.beat.pattern`
+* `link.beat` (see the **Link** package)
+* `min.note.make`
 
 
 ## Dictionaries
 
-* dict.joiner
-* pedro
-* mini
+* `min.dict.join`
+* `min.beat.pattern`
+* `min.function`
 
 
 ## Text Editors
 
-* mini
+* `min.function`
 
 
 ## Buffers
 
-* buffer.index~
+* `buffer.index~`
 
 
 ## State Saving
 
-* mini
+* `min.function`
 
 
 ## Class and Instance Creation Callbacks
 
-* jit.mograph (see the mograph package)
+* `jit.mo.func` (see the **jit.mo** package)
 
 
 ## Constructor Arguments
 
-* buffer.index~
-* mini
+* `buffer.index~`
+* `min.function`
 
 
 ## Library
 
-* banger (uses random function)
+* `min.beat.random` (uses random function)
 
 
 ## More Advanced C++
 
-* xfade~
-* mini
+* `min.xfade~` 
+* `min.function`
+
+  ​

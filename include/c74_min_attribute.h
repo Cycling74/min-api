@@ -10,24 +10,15 @@
 
 namespace c74 {
 namespace min {
-	
-	
-	class inlet;
-	class outlet;
-	class message;
-	class attribute_base;
-	
-	template<typename T>
-	class attribute;
 
+	class inlet_base;
+	class outlet_base;
+	class message_base;
+	class attribute_base;
 	class sample_operator_base;	
 	class perform_operator_base;
 	class matrix_operator_base;
 	class gl_operator_base;
-	
-
-	
-	
 	
 	using setter = function;
 	using getter = std::function<atoms()>;
@@ -47,7 +38,7 @@ namespace min {
 		time
 	};
 
-	std::unordered_map<style, symbol> style_symbols {
+	static std::unordered_map<style, symbol> style_symbols {
 			{ style::text, "text"},
 			{ style::onoff, "onoff"},
 			{ style::rgba, "rgba"},
@@ -73,7 +64,7 @@ namespace min {
 		virtual attribute_base& operator = (atoms args) = 0;
 		
 		/// set the value of the attribute
-		virtual void set(const atoms& args, bool notify = true) = 0;
+		virtual void set(const atoms& args, bool notify = true, bool override_readonly = false) = 0;
 		
 		/// get the value of the attribute
 		virtual operator atoms() const = 0;
@@ -85,6 +76,12 @@ namespace min {
 
 		symbol name() const {
 			return m_name;
+		}
+
+		// note: cannot call it "readonly" because that is the name of a type and
+		// it thus confuses the variadic template parsing below
+		bool writable() const {
+			return !m_readonly;
 		}
 
 		/// fetch the title/label as a string
@@ -116,10 +113,29 @@ namespace min {
 		
 		/// calculate the offset of the size member as required for array/vector attributes
 		size_t size_offset() {
-			return (&m_size) - ((size_t*)&m_owner);
+			return (&m_size) - reinterpret_cast<size_t*>(&m_owner);
 		}
-		
+
+		void touch() {
+			max::object_attr_touch(m_owner, m_name);
+		}
+
 	protected:
+
+		long flags(bool isjitclass) {
+			auto attrflags = 0;
+
+			if (!writable()) {
+				attrflags |= max::ATTR_SET_OPAQUE_USER;
+				attrflags |= max::ATTR_SET_OPAQUE;
+			}
+			if (isjitclass) {
+				attrflags |= max::ATTR_GET_DEFER_LOW;
+				attrflags |= max::ATTR_SET_USURP_LOW;
+			}
+			return attrflags;
+		}
+
 		object_base&	m_owner;
 		symbol			m_name;
         symbol			m_title;
@@ -140,11 +156,18 @@ namespace min {
 	using enum_map = std::vector<std::string>;
 	using readonly = bool;
 
-	
-	template<typename T>
+	template<typename T, threadsafe threadsafety>
+	class attribute_threadsafe_helper;
+
+	template<typename T, threadsafe threadsafety>
+	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args);
+
+
+	// default is `threadsafe::no`
+	template<typename T, threadsafe threadsafety>
 	class attribute : public attribute_base {
 	private:
-		
+
 		/// constructor utility: handle an argument defining an attribute's title / label
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, title>::value>::type
@@ -277,23 +300,70 @@ namespace min {
 			return *this;
 		}
 
+		// special setter for enum attributes
+		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
+		attribute& operator = (symbol arg) {
+			for (auto i=0; i<m_enum_map.size(); ++i) {
+				if (arg == m_enum_map[i]) {
+					*this = static_cast<T>(i);
+					break;
+				}
+			}
+			return *this;
+		}
+		
+		
 
 		friend bool operator == (const attribute& lhs, const T& rhs) {
 			return lhs.m_value == rhs;
 		}
 
+
+
+
+
+		template<class U=T, typename enable_if< !is_enum<U>::value, int>::type = 0>
+		void assign(const atoms& args) {
+			m_value = from_atoms<T>(args);
+		}
+
+		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
+		void assign(const atoms& args) {
+			const atom& a = args[0];
+
+			if (a.a_type == max::A_SYM) {
+				for (auto i=0; i<m_enum_map.size(); ++i) {
+					if (a == m_enum_map[i]) {
+						m_value = static_cast<T>(i);
+						break;
+					}
+				}
+			}
+			else
+				m_value = from_atoms<T>(args);
+		}
+
 		
 		/// Set the attribute value
-		void set(const atoms& args, bool notify = true) {
+		void set(const atoms& args, bool notify = true, bool override_readonly = false) {
 			if (notify && this_class)
-				max::object_attr_setvalueof(m_owner, m_name, (long)args.size(), (max::t_atom*)&args[0]);
-			else {
-				if (m_setter)
-					m_value = from_atoms<T>(m_setter(args));
-				else
-					m_value = from_atoms<T>(args);
-			}
+				max::object_attr_setvalueof(m_owner, m_name, args.size(), static_cast<const c74::max::t_atom*>(&args[0]));
+
+			if (!writable() && !override_readonly)
+				return; // we're all done... unless this is a readonly attr that we are forcing to update
+
+			// currently all jitter attributes bypass the defer mechanism here opting to instead use the default jitter handling
+			// were we to simply call `m_helper.set(args);` then our defer mechanism would be called **in addition to** jitter's deferring
+
+			if (m_owner.is_jitter_class())
+				attribute_threadsafe_helper_do_set<T,threadsafety>(&m_helper, args);
+			else
+				m_helper.set(args);
 		}
+
+
+		// Apply range limiting, if any, to input
+		T range_apply(const T& value);
 		
 		
 		/// Create the Max attribute and add it to the Max class
@@ -317,6 +387,17 @@ namespace min {
 			else
 				return m_value;
 		}
+
+		// getting a writable reference to the underlying data is of particular importance
+		// for e.g. vector<number> attributes
+
+		operator T&() {
+			if (m_getter)
+				assert(false); // at the moment there is no easy way to support this
+			else
+				return m_value;
+		}
+
 
 		// simplify getting millisecond time from a time_value attribute
 
@@ -354,38 +435,59 @@ namespace min {
 		atoms			m_range_args;	// the range/enum as provided by the subclass
 		std::vector<T>	m_range;		// the range/enum translated into the native datatype
 		enum_map		m_enum_map;		// the range/enum mapping for indexed enums (as opposed to symbol enums)
-		
+		attribute_threadsafe_helper<T,threadsafety>	m_helper { this };
+
 		void copy_range();				// copy m_range_args to m_range
+
+		friend void attribute_threadsafe_helper_do_set<T,threadsafety>(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args);
 	};
 
+/*	The setter/getter for the wrapper are below.
+	Regarding thread-safety...
 
-	#ifdef __APPLE__
-	#pragma mark -
-	#pragma mark ctor implementation
-	#endif // __APPLE__
+	First, lets just consider the getter.
+	We can't defer here -- it must happen at a higher level.  Like in Max somewhere.  
+	Or we lock Max with a critical region?  Ick?
+	This is because we are required to return the value syncronously.
+	So getters are out of our control.
+ 
+	Second, let's consider the setter.
+	We can defer this (and should if the setter is not threadsafe).
+	
+	If we defer, we need to do it in the attribut<>::set() method
+	because it is common to set the attr value from calls other than just the outside Max call.
+	Unfortunately, we cannot do a partial template specialization for a member function in C++.
+	So the set method is then required to call a templated class (which can be partially specialized) as a functor.
 
-	template<class T>
-	template<typename ...ARGS>
-	attribute<T>::attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
-	: attribute_base { *an_owner, a_name }
-	{
-		m_owner.attributes()[a_name] = this;
+	That is what we have here:
+ */
 
-		if (is_same<T, bool>::value)			m_datatype = k_sym_long;
-		else if (is_same<T, int>::value)		m_datatype = k_sym_long;
-		else if (is_enum<T>::value)				m_datatype = k_sym_long;
-		else if (is_same<T, symbol>::value)		m_datatype = k_sym_symbol;
-		else if (is_same<T, float>::value)		m_datatype = k_sym_float32;
-		else									m_datatype = k_sym_float64;
+	template<typename T, threadsafe threadsafety>
+	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args) {
+		auto& attr = *helper->m_attribute;
 
-		if (is_same<T, bool>::value)			m_style = style::onoff;
-		else									m_style = style::none;
-
-		handle_arguments(args...);
-		copy_range();
-
-		set(to_atoms(a_default_value), false);
+		if (attr.m_setter)
+			attr.m_value = from_atoms<T>(attr.m_setter(args));
+		else
+			attr.assign(args);
 	}
+
+	template<typename T>
+	class attribute_threadsafe_helper<T,threadsafe::yes> {
+		friend void attribute_threadsafe_helper_do_set<T,threadsafe::yes>(attribute_threadsafe_helper<T,threadsafe::yes>* helper, const atoms& args);
+	public:
+		explicit attribute_threadsafe_helper(attribute<T,threadsafe::yes>* an_attribute)
+		: m_attribute ( an_attribute )
+		{}
+
+		void set(const atoms& args) {
+			attribute_threadsafe_helper_do_set(this, args);
+		}
+
+	private:
+		attribute<T,threadsafe::yes>*	m_attribute;
+	};
+
 
 	template<>
 	template<typename ...ARGS>
@@ -411,76 +513,48 @@ namespace min {
 	#pragma mark range implementation
 	#endif // __APPLE__
 
-	// enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
-	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
-	std::string range_string_item(attribute<T>* attr, const T& item) {
-		if (attr->get_enum_map().empty())
-			return std::to_string((int)item);
-		else
-			return attr->get_enum_map()[(int)item];
-	}
-	
-	// all non-enum values can just pass through
-	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
-	T range_string_item(attribute<T>* attr, const T& item) {
-		return item;
-	}
-	
-	template<class T>
-	std::string attribute<T>::range_string() {
-		std::stringstream ss;
-		for (const auto& val : m_range)
-			ss << "\"" << range_string_item<T>(this, val) << "\" ";
-		return ss.str();
-	};
-
-
-	template<>
-	std::string attribute<std::vector<double>>::range_string() {
-		if (m_range.empty())
-			return "";
-		
-		// the range for this type is a low-bound and high-bound applied to all elements in the vector
-		assert( m_range.size() == 2);
-	
-		std::stringstream ss;
-		ss << m_range[0][0] << " " << m_range[1][0];
-		return ss.str();
-	};
-
-
-
-	// enum attrs use the special enum map for range
-	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
-	void range_copy_helper(attribute<T>* attr) {
-		for (auto i=0; i < attr->get_enum_map().size(); ++i)
-			attr->range_ref().push_back((T)i);
+	template<typename T, threadsafe threadsafety>
+	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T,threadsafety>* helper) {
+		static_assert(threadsafety == threadsafe::no, "helper function should not be called by threadsafe attrs");
+		attribute_threadsafe_helper_do_set<T,threadsafety>(helper, helper->m_value);
 	}
 
 
-	// all non-enum attrs can just copy range normally
-	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
-	void range_copy_helper(attribute<T>* attr) {
-		for (const auto& a : attr->get_range_args())
-			attr->range_ref().push_back(a);
-	}
-
-	template<class T>
-	void attribute<T>::copy_range() {
-		range_copy_helper<T>(this);
-	};
-		
-	template<>
-	void attribute<std::vector<double>>::copy_range() {
-		if (!m_range.empty()) {
-			// the range for this type is a low-bound and high-bound applied to all elements in the vector
-			assert( m_range_args.size() == 2);
-			
-			m_range.resize(2);
-			m_range[0][0] = m_range_args[0];
-			m_range[1][0] = m_range_args[1];
+	template<typename T>
+	class attribute_threadsafe_helper<T,threadsafe::no> {
+		friend void attribute_threadsafe_helper_do_set<T,threadsafe::no>(attribute_threadsafe_helper<T,threadsafe::no>* helper, const atoms& args);
+		friend void attribute_threadsafe_helper_qfn<T,threadsafe::no>(attribute_threadsafe_helper<T,threadsafe::no>* helper);
+	public:
+		explicit attribute_threadsafe_helper(attribute<T,threadsafe::no>* an_attribute)
+		: m_attribute ( an_attribute )
+		{
+			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)attribute_threadsafe_helper_qfn<T,threadsafe::no>);
 		}
+
+		~attribute_threadsafe_helper() {
+			max::qelem_free(m_qelem);
+		}
+
+		void set(const atoms& args) {
+			if (max::systhread_ismainthread())
+				attribute_threadsafe_helper_do_set(this, args);
+			else {
+				m_value = args;
+				max::qelem_set(m_qelem);
+			}
+		}
+
+	private:
+		attribute<T,threadsafe::no>*	m_attribute;
+		max::t_qelem*					m_qelem;
+		atoms							m_value;
 	};
+
+
+
+	/*	Native Max methods for the wrapper class
+		to perform getting /setting attributes
+	 */
 
 
 	#ifdef __APPLE__
@@ -490,7 +564,7 @@ namespace min {
 	
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
-		symbol	attr_name	= (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
+		symbol	attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
 		auto&	attr		= self->min_object.attributes()[attr_name.c_str()];
 		atoms	rvals		= *attr;
 		
@@ -507,10 +581,10 @@ namespace min {
 	template<class T>
 	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, long ac, max::t_atom* av) {
 		atom_reference	args(ac,av);
-		symbol			attr_name	= (max::t_symbol*)max::object_method(maxattr, k_sym_getname);
+		symbol			attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
 		auto			attr		= self->min_object.attributes()[attr_name.c_str()];
-		
-		attr->set( atoms(args.begin(), args.end()), false );
+
+		attr->set( atoms(args.begin(), args.end()), false, false );
 		return 0;
 	}
 

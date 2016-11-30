@@ -11,7 +11,7 @@ namespace min {
 
 	
 	class logger_line_ending {};	/// A type to represent line endings for the logger class.
-	logger_line_ending endl;		/// An instance of a line ending for convenience
+	static logger_line_ending endl;		/// An instance of a line ending for convenience
 	
 	
 	/// Logging utility to deliver console messages
@@ -33,50 +33,52 @@ namespace min {
 		/// @param an_owner		Your object instance
 		/// @param type			The type of console output to deliver
 		logger(object_base* an_owner, logger::type type)
-		: owner		{ *an_owner }
-		, target	{ type }
+		: m_owner	{ *an_owner }
+		, m_target	{ type }
 		{}
 		
 
 		/// Use the insertion operator as for any other stream to build the output message
-		/// @param	x	A token to be added to the output stream. d
+		/// @param	x	A token to be added to the output stream.
+		/// @return		A reference to the output stream.
 		template<typename T>
 		logger& operator<<(const T& x) {
-			stream << x;
+			m_stream << x;
 			return *this;
 		}
 
 
 		/// Pass endl to the insertion operator to complete the console post and flush it.
 		/// @param x	The min::endl token
+		/// @return		A reference to the output stream.
 		logger& operator<<(const logger_line_ending& x) {
-			const std::string& s = stream.str();
+			const std::string& s = m_stream.str();
 			
-			switch(target) {
+			switch(m_target) {
 				case message:
 					std::cout << s << std::endl;
 
 					 // if the max object is present then it is safe to post even if the owner isn't yet fully initialized
-					if (owner.initialized() || k_sym_max )
-						max::object_post(owner, s.c_str());
+					if (m_owner.initialized() || k_sym_max )
+						max::object_post(m_owner, s.c_str());
 					break;
 				case error:
 					std::cerr << s << std::endl;
 
 					 // if the max object is present then it is safe to post even if the owner isn't yet fully initialized
-					if (owner.initialized() || k_sym_max)
-						max::object_error(owner, s.c_str());
+					if (m_owner.initialized() || k_sym_max)
+						max::object_error(m_owner, s.c_str());
 					break;
 			}
 
-			stream.str("");
+			m_stream.str("");
 			return *this;
 		}
 
 	private:
-		object_base&		owner;
-		logger::type		target;
-		std::stringstream	stream;
+		object_base&		m_owner;
+		logger::type		m_target;
+		std::stringstream	m_stream;
 	};
 	
 

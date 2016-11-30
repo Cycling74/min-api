@@ -26,51 +26,56 @@ namespace min {
 		/// code from http://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
 		/// see also http://en.cppreference.com/w/cpp/numeric/random
 		
-		double random(double min, double max) {
-			std::random_device rd;
-			std::mt19937 gen(rd());
-			std::uniform_real_distribution<> dis(min, max);
+		inline double random(double min, double max) {
+			std::random_device					rd;
+			std::mt19937						gen { rd() };
+			std::uniform_real_distribution<>	dis { min, max };
+
 			return dis(gen);
 		}
         
         
         // calculates the fold of x between lo and hi.
         
-        double fold(double x, double lo, double hi) {
-            long di;
-            double m,d,tmp;
-            
+        inline double fold(double x, double lo, double hi) {
+            long	di;
+			double	m;
+			double	d;
+
             if (lo > hi) {
-                tmp = lo;
-                lo  = hi;
-                hi  = tmp;
+				auto tmp { lo };
+                lo = hi;
+                hi = tmp;
             }
             if (lo)
                 x -= lo;
-            m = hi-lo;
+
+			m = hi - lo;
             if (m) {
-                if (x < 0.)
+                if (x < 0.0)
                     x = -x;
-                if (x>m) {
-                    if (x>(m*2.)) {
+                if (x > m) {
+                    if (x > (m*2.0)) {
                         d = x / m;
-                        di = (long) d;
-                        d = d - (double) di;
-                        if (di%2) {
-                            if (d < 0) {
-                                d = -1. - d;
-                            } else {
-                                d = 1. - d;
-                            }
+                        di = d;				// cast to long
+                        d = d - di;			// cast to double
+                        if (di % 2) {
+                            if (d < 0)
+                                d = -1.0 - d;
+							else
+                                d = 1.0 - d;
                         }
                         x = d * m;
-                        if (x < 0.)
-                            x = m+x;
-                    } else {
-                        x = m-(x-m);
+                        if (x < 0.0)
+                            x = m + x;
+                    }
+					else {
+                        x = m - (x-m);
                     }
                 }
-            } else x = 0.; //don't divide by zero
+            }
+			else
+				x = 0.0; //don't divide by zero
             
             return x + lo;
         }
@@ -78,41 +83,47 @@ namespace min {
         
         //Calculates the wrap of x between lo and hi.
         
-        double wrap(double x, double lo, double hi) {
-            double m,d,tmp;
+        inline double wrap(double x, double lo, double hi) {
+			double m;
+			double d;
             long di;
             
             if (lo > hi) {
-                tmp = lo;
-                lo  = hi;
-                hi  = tmp;
+				auto tmp { lo };
+                lo = hi;
+                hi = tmp;
             }
             if (lo)
                 x -= lo;
             m = hi-lo;
             if (m) {		
-                if (x>m) {
-                    if (x>(m*2.)) {
+                if (x > m) {
+                    if (x>(m*2.0)) {
                         d = x / m;
                         di = (long) d;
                         d = d - (double) di;
                         x = d * m;
-                    } else {
+                    }
+					else {
                         x -= m;
                     }
-                } else if (x<0.) {
-                    if (x<(-m)) {
+                }
+				else if (x < 0.0) {
+                    if (x < (-m)) {
                         d = x / m;
-                        di = (long) d;
-                        d = d - (double) di;
+                        di = d;				// cast to long
+                        d = d - di;			// cast to double
                         x = d * m;
-                        if (x<0.)
+                        if (x < 0.0)
                             x += m;
-                    } else {
+                    }
+					else {
                         x += m;
                     }
                 }
-            } else x = 0.; //don't divide by zero
+            }
+			else
+				x = 0.0; //don't divide by zero
             
             return x + lo; 
         }
@@ -155,7 +166,8 @@ namespace min {
 			std::transform(v.begin(), v.end(), diff.begin(),
 						   [mean](double x) {
 							   return x - mean;
-						   });
+						   }
+			);
 			
 			double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
 			double stdev = std::sqrt(sq_sum / v.size());
@@ -174,7 +186,7 @@ namespace min {
 		/// param	a	feedforward coefficients (numerator)
 		/// param	b	feedback coefficients (denominator)
 		/// param	N	optional size of the generated response, default 64
-		auto generate_impulse_response(const sample_vector& a, const sample_vector& b, int N = 64) {
+		inline auto generate_impulse_response(const sample_vector& a, const sample_vector& b, int N = 64) {
 			sample_vector	x(N);				// input -- feedforward history
 			sample_vector	y(N);				// output -- feedback history
 			
@@ -203,7 +215,7 @@ namespace min {
 		
 	
 	
-	}
+	} // namespace filters
 
 
 	namespace string_utility {
@@ -215,7 +227,7 @@ namespace min {
 		/// @param	s	The string to trim
 		/// @return		The trimmed string
 
-		string trim(string& s) {
+		inline string trim(string& s) {
 			size_t first = s.find_first_not_of(' ');
 			size_t last = s.find_last_not_of(' ');
 			return s.substr(first, (last - first + 1));
@@ -227,7 +239,7 @@ namespace min {
 		/// @param	delim	The delimiter on which to split the string
 		/// @return			A vector of substrings
 
-		vector<string> split(const string &s, char delim) {
+		inline vector<string> split(const string &s, char delim) {
 			vector<string>		substrings;
 			string				substring;
 			std::stringstream	ss(s);
@@ -237,7 +249,19 @@ namespace min {
 			return substrings;
 		}
 
-	}
+
+		inline string join(const vector<string>& input, char glue = ' ') {
+			string output;
+
+			for (const auto& str : input) {
+				output += str;
+				output += " ";
+			}
+			trim(output);
+			return output;
+		}
+
+	} // namespace string_utility
 	
 	
 

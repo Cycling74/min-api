@@ -11,10 +11,8 @@ namespace c74 {
 namespace min {
 
 	class matrix_operator_base {};
-
 	class matrix_operator : public matrix_operator_base {};
-	
-	
+
 	using pixel = std::array<uchar,4>;
 
 	template<class matrix_type, size_t planecount>
@@ -47,43 +45,43 @@ namespace min {
 	
 	class matrix_info {
 	public:
-		matrix_info(max::t_jit_matrix_info* a_in_info, char* ip, max::t_jit_matrix_info* a_out_info, char* op)
-		: in_info	{ a_in_info }
-		, bip		{ ip }
-		, out_info	{ a_out_info }
-		, bop		{ op }
+		matrix_info(max::t_jit_matrix_info* a_in_info, uchar* ip, max::t_jit_matrix_info* a_out_info, uchar* op)
+		: m_in_info		{ a_in_info }
+		, m_bip			{ ip }
+		, m_out_info	{ a_out_info }
+		, m_bop			{ op }
 		{}
 
 		
 		long planecount() const {
-			return in_info->planecount;
+			return m_in_info->planecount;
 		}
 
 		long dimcount() const {
-			return in_info->dimcount;
+			return m_in_info->dimcount;
 		}
 
 		long width() const {
-			return in_info->dim[0];
+			return m_in_info->dim[0];
 		}
 
 		long height() const {
-			return in_info->dim[1];
+			return m_in_info->dim[1];
 		}
 
 		
 		
 		template<class matrix_type, size_t planecount>
 		const std::array<matrix_type,planecount> in_cell(const matrix_coord& coord) const {
-			auto p = (char*)bip;
+			auto p = m_bip;
 			
-			for (auto j=0; j < in_info->dimcount; ++j)
-				p += coord.position[j] * in_info->dimstride[j];
+			for (auto j=0; j < m_in_info->dimcount; ++j)
+				p += coord.position[j] * m_in_info->dimstride[j];
 			
 			std::array<matrix_type,planecount> pa;
 			
-			auto p2 = (matrix_type*)p;
-			for (auto plane=0; plane<planecount; ++plane)
+			auto p2 = reinterpret_cast<matrix_type*>(p);
+			for (auto plane = 0; plane < planecount; ++plane)
 				pa[plane] = *(p2+plane);
 			return pa;
 		}
@@ -97,10 +95,10 @@ namespace min {
 
 	
 		const pixel in_pixel(const matrix_coord& coord) const {
-			uchar* p = (uchar*)bip;
+			auto p = m_bip;
 			
-			for (auto j=0; j < in_info->dimcount; ++j)
-				p += coord.position[j] * in_info->dimstride[j];
+			for (auto j=0; j < m_in_info->dimcount; ++j)
+				p += coord.position[j] * m_in_info->dimstride[j];
 
 			const pixel pa = {{ *(p), *(p+1), *(p+2), *(p+3) }};
 			return pa;
@@ -120,11 +118,10 @@ namespace min {
 		}
 
 		
-		max::t_jit_matrix_info*	in_info;
-		char*		bip;
-		max::t_jit_matrix_info*	out_info;
-		char*		bop;
-		
+		max::t_jit_matrix_info*	m_in_info;
+		uchar*					m_bip;
+		max::t_jit_matrix_info*	m_out_info;
+		uchar*					m_bop;
 	};
 	
 	
@@ -140,42 +137,44 @@ namespace min {
 	///		In such cases we might not know what the object name is at compile time.
 	template<class min_class_type>
 	max::t_object* jit_new(max::t_symbol* s){
-		minwrap<min_class_type>*	self = (minwrap<min_class_type>*)max::jit_object_alloc(this_jit_class);
+		auto self = static_cast<minwrap<min_class_type>*>(max::jit_object_alloc(this_jit_class));
         
-        self->min_object.assign_instance((max::t_object*)self);
+        self->min_object.assign_instance(self->maxobj());
 		min_ctor(self, {});
-		self->min_object.set_classname(s);
+		
+		// NOTE: when instantiated from JS s will be NULL
+		if (s)
+			self->min_object.set_classname(s);
+		self->min_object.postinitialize();
+        
 		self->min_object.try_call("setup");
 		
-		return (max::t_object*)self;
+		return self->maxobj();
 	}
 	
 	template<class min_class_type>
-	void jit_free(minwrap<min_class_type>* self){
+	void jit_free(minwrap<min_class_type>* self) {
 		self->cleanup();
 		self->min_object.~min_class_type(); // placement delete
 	}
-	
-	
-	
+
+
 	struct max_jit_wrapper {
-		max::t_object	ob;
-		void*			obex;
+		max::t_object	m_ob;
+		void*			m_obex;
 	};
-	
-	
+
+
 	template<class min_class_type>
 	void* max_jit_mop_new(max::t_symbol* s, long argc, max::t_atom* argv) {
 		assert(this_class_name != nullptr); // required pre-condition
 
 		atom_reference		args(argc, argv);
-        long				attrstart	= attr_args_offset((short)args.size(), args.begin());
+        long				attrstart	= attr_args_offset(args.size(), args.begin());
         auto				cppname		= this_class_name;
-		max_jit_wrapper*	self		= (max_jit_wrapper*)max::max_jit_object_alloc(this_class, cppname);
-		void*				o			= max::jit_object_new(cppname, s);
-		auto                job = (minwrap<min_class_type>*)o;
-        
-        job->min_object.postinitialize();
+		auto				self		= static_cast<max_jit_wrapper*>(max::max_jit_object_alloc(this_class, cppname));
+		auto				o			= max::jit_object_new(cppname, s);
+		auto                job			= reinterpret_cast<minwrap<min_class_type>*>(o);
         
         if(job->min_object.has_call("mop_setup")) {
             atoms atomargs(args.begin(), args.begin()+attrstart);
@@ -186,7 +185,7 @@ namespace min {
             max_jit_mop_setup_simple(self, o, args.size(), args.begin());
         }
         
-        max_jit_attr_args(self, (short)args.size(), args.begin());
+        max_jit_attr_args(self, args.size(), args.begin());
         job->min_object.try_call("maxob_setup", atoms(args.begin(), args.begin()+attrstart));
         
 		return self;
@@ -205,31 +204,35 @@ namespace min {
 	// Thus, we don't need to duplicate the code for each datatype.
 	template<class min_class_type, typename U, enable_if_matrix_operator<min_class_type> = 0>
 	void jit_calculate_vector(minwrap<min_class_type>* self, const matrix_info& info, long n, long i, max::t_jit_op_info* in, max::t_jit_op_info* out) {
-		auto ip = (in ? ((U*)in->p) : nullptr);
-		auto op = ((U*)out->p);
-		auto is = (in ? in->stride : 0);
-		auto os = out->stride;
-		const auto step = os / info.planecount();
-		const bool planematch = (info.in_info->planecount == info.out_info->planecount);
+		auto		ip = in ? static_cast<U*>(in->p) : nullptr;
+		auto		op = static_cast<U*>(out->p);
+		auto		is = in ? in->stride : 0;
+		auto		os = out->stride;
+		const auto	step = os / info.planecount();
+		const bool	planematch = (info.m_in_info->planecount == info.m_out_info->planecount);
         
 		if (planematch && info.planecount() == 1) {
-			for (auto j=0; j<n; ++j) {
-				matrix_coord position(j, i);
-                U val = (ip ? *(ip) : 0);
-                const std::array<U,1> tmp = {{ val }};
-                const std::array<U,1> out = self->min_object.calc_cell(tmp, info, position);
+			for (auto j = 0; j < n; ++j) {
+				matrix_coord			position(j, i);
+                U						val = ip ? *(ip) : 0;
+                const std::array<U,1>	tmp = {{ val }};
+                const std::array<U,1>	out = self->min_object.calc_cell(tmp, info, position);
                 
 				*(op) = out[0];
-				if(ip) ip += is;
+				if (ip)
+					ip += is;
 				op += os;
 			}
 		}
 		else if (planematch && info.planecount() == 4) {
-			for (auto j=0; j<n; ++j) {
-				matrix_coord position(j, i);
-                U v1=(ip?*(ip):0), v2=(ip?*(ip+step):0), v3=(ip?*(ip+step*2):0), v4=(ip?*(ip+step*3):0);
-                const std::array<U,4> tmp = {{ v1,v2,v3,v4 }};
-                const std::array<U,4> out = self->min_object.calc_cell(tmp, info, position);
+			for (auto j = 0; j < n; ++j) {
+				matrix_coord			position(j, i);
+				U						v1 = ip ? *(ip) : 0;
+				U						v2 = ip ? *(ip+step) : 0;
+				U						v3 = ip ? *(ip+step*2) : 0;
+				U						v4 = ip ? *(ip+step*3) : 0;
+                const std::array<U,4>	tmp = {{ v1, v2, v3, v4 }};
+                const std::array<U,4>	out = self->min_object.calc_cell(tmp, info, position);
                 
 				*(op) = out[0];
 				*(op+step) = out[1];
@@ -242,22 +245,23 @@ namespace min {
 		}
 		else {
 			for (auto j=0; j<n; ++j) {
-                const auto instep = is / info.in_info->planecount;
-                const auto outstep = os / info.out_info->planecount;
+                const auto instep = is / info.m_in_info->planecount;
+                const auto outstep = os / info.m_out_info->planecount;
 				std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT> tmp;// = { *(ip), *(ip+step), *(ip+step*2), *(ip+step*3) };
 				
-                if(ip) {
-                    for (auto k=0; k<info.in_info->planecount; ++k)
+                if (ip) {
+                    for (auto k = 0; k < info.m_in_info->planecount; ++k)
                         tmp[k] = *(ip+instep*k);
                 }
 				
 				matrix_coord position(j, i);
 				const std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT> out = self->min_object.calc_cell(tmp, info, position);
 				
-				for (auto k=0; k<info.out_info->planecount; ++k)
+				for (auto k = 0; k < info.m_out_info->planecount; ++k)
 					*(op+outstep*k) = out[k];
 				
-				if(ip) ip += is;
+				if (ip)
+					ip += is;
 				op += os;
 			}
 		}
@@ -269,10 +273,11 @@ namespace min {
 	// The calls into these templates should be inlined by the compiler, eliminating concern about any added function call overhead.
 	template<class min_class_type, typename U>
 	typename enable_if<is_base_of<matrix_operator, min_class_type>::value>::type
-	jit_calculate_ndim_loop(minwrap<min_class_type>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, char* bip, char* bop, long* dim, long planecount, long datasize) {
+	jit_calculate_ndim_loop(minwrap<min_class_type>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, uchar* bip, uchar* bop, long* dim, long planecount, long datasize) {
 		matrix_info info((in_minfo ? in_minfo : out_minfo), (bip ? bip : bop), out_minfo, bop);
 		for (auto i=0; i<dim[1]; i++) {
-			if(in_opinfo) in_opinfo->p  = bip + i * in_minfo->dimstride[1];
+			if (in_opinfo)
+				in_opinfo->p = bip + i * in_minfo->dimstride[1];
 			out_opinfo->p = bop + i * out_minfo->dimstride[1];
 			jit_calculate_vector<min_class_type,U>(self, info, n, i, in_opinfo, out_opinfo);
 		}
@@ -280,7 +285,7 @@ namespace min {
 
 	
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
-	void jit_calculate_ndim(minwrap<min_class_type>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info *in_minfo, char* bip, max::t_jit_matrix_info* out_minfo, char* bop) {
+	void jit_calculate_ndim(minwrap<min_class_type>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info *in_minfo, uchar* bip, max::t_jit_matrix_info* out_minfo, uchar* bop) {
 		if (dimcount < 1)
 			return; // safety
 
@@ -316,9 +321,10 @@ namespace min {
 				}
 		}
 	}
-	
+
+
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
-	void jit_calculate_ndim_single(minwrap<min_class_type>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info* out_minfo, char* bop) {
+	void jit_calculate_ndim_single(minwrap<min_class_type>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info* out_minfo, uchar* bop) {
 		if (dimcount < 1)
 			return; // safety
         
@@ -355,26 +361,28 @@ namespace min {
 	
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
 	void jit_matrix_docalc(minwrap<min_class_type>* self, max::t_object* inputs, max::t_object* outputs) {
-		max::t_jit_err			err = max::JIT_ERR_NONE;
-		auto					in_mop_io = (max::t_object*)max::object_method(inputs, max::_jit_sym_getindex, 0);
-		auto					out_mop_io = (max::t_object*)max::object_method(outputs, max::_jit_sym_getindex, 0);
-		auto					in_matrix 	= (max::t_object*)max::object_method(in_mop_io, k_sym_getmatrix);
-		auto					out_matrix 	= (max::t_object*)max::object_method(out_mop_io, k_sym_getmatrix);
-		
-		if (!self || !in_matrix || !out_matrix){
+		max::t_jit_err			err			= max::JIT_ERR_NONE;
+		auto					in_matrix	= static_cast<max::t_object*>(max::object_method(inputs, max::_jit_sym_getindex, 0));
+		auto					out_matrix	= static_cast<max::t_object*>(max::object_method(outputs, max::_jit_sym_getindex, 0));
+	
+		if (max::object_classname(in_matrix) != max::_jit_sym_jit_matrix)
+			in_matrix = static_cast<max::t_object*>(max::object_method(in_matrix, k_sym_getmatrix));
+		if (max::object_classname(out_matrix) != max::_jit_sym_jit_matrix)
+			out_matrix = static_cast<max::t_object*>(max::object_method(out_matrix, k_sym_getmatrix));
+
+		if (!self || !in_matrix || !out_matrix)
 			err = max::JIT_ERR_INVALID_PTR;
-		}
 		else {
-			auto in_savelock = max::object_method(in_matrix, max::_jit_sym_lock, (void*)1);
-			auto out_savelock = max::object_method(out_matrix, max::_jit_sym_lock, (void*)1);
+			auto in_savelock = max::object_method(in_matrix, max::_jit_sym_lock, reinterpret_cast<void*>(1));
+			auto out_savelock = max::object_method(out_matrix, max::_jit_sym_lock, reinterpret_cast<void*>(1));
 			
 			max::t_jit_matrix_info in_minfo;
 			max::t_jit_matrix_info out_minfo;
 			max::object_method(in_matrix, max::_jit_sym_getinfo, &in_minfo);
 			max::object_method(out_matrix, max::_jit_sym_getinfo, &out_minfo);
 			
-			char* in_bp = nullptr;
-			char* out_bp = nullptr;
+			uchar* in_bp = nullptr;
+			uchar* out_bp = nullptr;
 			max::object_method(in_matrix, max::_jit_sym_getdata, &in_bp);
 			max::object_method(out_matrix, max::_jit_sym_getdata, &out_bp);
 			
@@ -390,19 +398,19 @@ namespace min {
 				auto dimcount   = out_minfo.dimcount;
 				auto planecount = out_minfo.planecount;
 				
-				for (auto i=0; i<dimcount; ++i) {
+				for (auto i = 0; i < dimcount; ++i) {
 					//if dimsize is 1, treat as infinite domain across that dimension.
 					//otherwise truncate if less than the output dimsize
 					dim[i] = out_minfo.dim[i];
-					if ((in_minfo.dim[i]<dim[i]) && in_minfo.dim[i]>1) {
+					if (in_minfo.dim[i] < dim[i]  &&  in_minfo.dim[i] > 1) {
 						dim[i] = in_minfo.dim[i];
 					}
 				}
 				
 				max::jit_parallel_ndim_simplecalc2(
-												   (max::method)jit_calculate_ndim<min_class_type>,
+												   reinterpret_cast<max::method>(jit_calculate_ndim<min_class_type>),
 												   self,
-												   dimcount, dim, planecount, &in_minfo, in_bp, &out_minfo, out_bp,
+												   dimcount, dim, planecount, &in_minfo, reinterpret_cast<char*>(in_bp), &out_minfo, reinterpret_cast<char*>(out_bp),
 												   0, 0
 				);
 			}
@@ -424,25 +432,25 @@ namespace min {
 			return err;
 		}
 	}
-	
-	
+
+
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
 	void min_jit_mop_outputmatrix(max_jit_wrapper* self) {
-        auto jitob = (minwrap<min_class_type>*)max::max_jit_obex_jitob_get(self);
+        auto jitob		= static_cast<minwrap<min_class_type>*>(max::max_jit_obex_jitob_get(self));
         long outputmode = max::max_jit_mop_getoutputmode(self);
-        void *mop = max::max_jit_obex_adornment_get(self, max::_jit_sym_jit_mop);
+        auto mop		= max::max_jit_obex_adornment_get(self, max::_jit_sym_jit_mop);
  
         if (outputmode && mop && outputmode==1) { //always output unless output mode is none
-            max::t_object*	outputs = (max::t_object*)max::object_method((max::t_object*)mop,max::_jit_sym_getoutputlist);
+            auto			outputs = static_cast<max::t_object*>(max::object_method((max::t_object*)mop, max::_jit_sym_getoutputlist));
             max::t_jit_err	err = max::JIT_ERR_NONE;
-            auto			out_mop_io = (max::t_object*)max::object_method(outputs, max::_jit_sym_getindex, 0);
-            auto			out_matrix = (max::t_object*)max::object_method(out_mop_io, k_sym_getmatrix);
+            auto			out_mop_io = static_cast<max::t_object*>(max::object_method(outputs, max::_jit_sym_getindex, 0));
+            auto			out_matrix = static_cast<max::t_object*>(max::object_method(out_mop_io, k_sym_getmatrix));
             
             if (!self || !out_matrix){
                 err = max::JIT_ERR_INVALID_PTR;
             }
             else {
-                auto					out_savelock = max::object_method(out_matrix, max::_jit_sym_lock, (void*)1);
+                auto					out_savelock = max::object_method(out_matrix, max::_jit_sym_lock, reinterpret_cast<void*>(1));
                 max::t_jit_matrix_info	out_minfo;
 				char*					out_bp = nullptr;
 
@@ -453,9 +461,14 @@ namespace min {
                     err = max::JIT_ERR_INVALID_OUTPUT;
                 else {
                     max::jit_parallel_ndim_simplecalc1(
-                                                       (max::method)jit_calculate_ndim_single<min_class_type>, jitob,
-                                                       out_minfo.dimcount, out_minfo.dim, out_minfo.planecount, &out_minfo, out_bp, 0
-                    );
+                                                       reinterpret_cast<max::method>(jit_calculate_ndim_single<min_class_type>),
+													   jitob,
+                                                       out_minfo.dimcount,
+													   out_minfo.dim,
+													   out_minfo.planecount,
+													   &out_minfo,
+													   out_bp,
+													   0);
                 }
 
                 max::object_method(out_matrix, max::_jit_sym_lock, out_savelock);
@@ -466,7 +479,5 @@ namespace min {
             max::max_jit_mop_outputmatrix(self);
         }
     }
-	
-	
 
 }} // namespace c74::min

@@ -8,7 +8,6 @@
 namespace c74 {
 namespace min {
 
-
 	#define MIN_AUTHOR		static constexpr const char* class_author
 
 	template<typename min_class_type>
@@ -100,7 +99,7 @@ namespace min {
 	}
 
 
-#define MIN_DESCRIPTION static constexpr const char* class_description
+	#define MIN_DESCRIPTION static constexpr const char* class_description
 
 	template<typename min_class_type>
 	struct has_class_description {
@@ -116,10 +115,34 @@ namespace min {
 		static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
 	};
 
+
+	inline std::string doc_format(const std::string& input) {
+		using std::string;
+
+		strings tokens = string_utility::split(input, ' ');
+
+		for (auto& token : tokens) {
+			if (token[0] == '@') {										// attribute
+				token = string("<at>") + token.substr(1, string::npos) + string("</at>");
+			}
+			else if (token[0] == '#') {									// message
+				token = string("<m>") + token.substr(1, string::npos) + string("</m>");
+			}
+			else if (token[0] == '[' && token[token.size()-1] == ']') {	// object
+				token = string("<o>") + token.substr(1, token.size()-2) + string("</o>");
+			}
+			else if (token == "&") {
+				token = string("&amp;");
+			}
+		}
+
+		return string_utility::join(tokens);
+	}
+
 	template<class min_class_type>
 	typename enable_if< has_class_description<min_class_type>::value>::type
 	doc_get_description(std::string& returned_description) {
-		returned_description = min_class_type::class_description;
+		returned_description = doc_format(min_class_type::class_description);
 	}
 
 	template<class min_class_type>
@@ -129,9 +152,14 @@ namespace min {
 	}
 
 
-
 	template<class min_class_type>
 	void doc_generate(const min_class_type& instance, const std::string& refpage_fullpath, std::string& max_class_name, const std::string& min_class_name) {
+		documentation_flags flags = documentation_flags::none;
+
+		class_get_flags<min_class_type>(instance, flags);
+		if (flags == documentation_flags::do_not_generate)
+			return;
+
 		using namespace std;
 		using std::endl;
 		cout << "Updating Reference Page for class " << max_class_name << endl;
@@ -166,7 +194,9 @@ namespace min {
 		doc_get_description<min_class_type>(class_description);
 		strncpy(digest, class_description.c_str(), digest_length_max);
 
-		char *c = strchr(digest, '.');
+		char *c = strstr(digest, ". ");
+		if (!c)
+			c = strchr(digest, '.');
 		if (c)
 			*c = 0;
 
@@ -181,7 +211,7 @@ namespace min {
 
 		refpage_file << "	<!--METADATA-->" << endl << endl;
 		refpage_file << "	<metadatalist>" << endl;
-		refpage_file << "		<metadata name='author'>" << author << "</metadata>" << endl;
+		refpage_file << "		<metadata name='author'>" << doc_format(author) << "</metadata>" << endl;
 		for (auto i=0; i<class_tags.size(); ++i)
 			refpage_file << "		<metadata name='tag'>" << string_utility::trim(class_tags[i]) << "</metadata>" << endl;
 		refpage_file << "	</metadatalist>" << endl;
@@ -195,12 +225,14 @@ namespace min {
 		const auto& arguments = instance.arguments();
 
 		for (const auto& arg: arguments) {
-			const auto& description	= arg->description_string();
+			const auto& description	= doc_format(arg->description_string());
 			const auto&	type		= arg->type();
 			bool		required	= arg->required();
 
 			strncpy(digest, description.c_str(), digest_length_max);
-			char *c = strchr(digest, '.');
+			char *c = strstr(digest, ". ");
+			if (!c)
+				c = strchr(digest, '.');
 			if (c)
 				*c = 0;
 
@@ -230,10 +262,12 @@ namespace min {
 		for (const auto& p: messages) {
 			const auto& message_object	= *p.second;
 			if (message_object.type() != max::A_CANT) {
-				const auto& description		= message_object.description_string();
+				const auto& description		= doc_format(message_object.description_string());
 
 				strncpy(digest, description.c_str(), digest_length_max);
-				char *c = strchr(digest, '.');
+				char *c = strstr(digest, ". ");
+				if (!c)
+					c = strchr(digest, '.');
 				if (c)
 					*c = 0;
 
@@ -256,15 +290,17 @@ namespace min {
 
 		for (const auto& p: attributes) {
 			const auto& attr_object	= *p.second;
-			const auto& description	= attr_object.description_string();
+			const auto& description	= doc_format(attr_object.description_string());
 			const auto& attr_type = attr_object.datatype();
 
 			strncpy(digest, description.c_str(), digest_length_max);
-			char *c = strchr(digest, '.');
+			char *c = strstr(digest, ". ");
+			if (!c)
+				c = strchr(digest, '.');
 			if (c)
 				*c = 0;
 
-			refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='1' type='" << attr_type << "' size='1' >" << endl;
+			refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='"<< attr_object.writable() <<"' type='" << attr_type << "' size='1' >" << endl;
 			refpage_file << "			<digest>" << digest << "</digest>" << endl;
 			refpage_file << "			<description>" << description << "</description>" << endl;
 			refpage_file << "		</attribute>" << endl << endl;

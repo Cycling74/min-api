@@ -19,13 +19,13 @@ namespace min {
 			if (!d) {	// didn't find a dictionary with that name, so create it
 				d = max::dictionary_new();
 				max::t_symbol* s = name;
-				instance = max::dictobj_register(d, &s);
+				m_instance = max::dictobj_register(d, &s);
 			}
 		}
 		
 		/// Create an unregistered dictionary from dict-syntax
 		dict(atoms content) {
-			max::dictobj_dictionaryfromatoms(&instance, (long)content.size(), &content[0]);
+			max::dictobj_dictionaryfromatoms(&m_instance, content.size(), &content[0]);
 		}
 		
 		/// Create an unregistered dictionary
@@ -33,45 +33,44 @@ namespace min {
 		/// @param take_ownership	defaults to true, change to false only in exceptional cases
 		dict(max::t_dictionary* d = nullptr, bool take_ownership = true) {
 			if (d == nullptr)
-				instance = max::dictionary_new();
+				m_instance = max::dictionary_new();
 			else {
 				if (take_ownership)
 					max::object_retain(d);
 				else
-					has_ownership = false;
-				instance = d;
+					m_has_ownership = false;
+				m_instance = d;
 			}
 		}
 		
 		
 		dict(atom an_atom_containing_a_dict) {
-			auto a = (max::t_atom*)&an_atom_containing_a_dict;
-			instance = (max::t_dictionary*)max::atom_getobj(a);
-			if (!instance)
+			auto a = static_cast<max::t_atom*>(&an_atom_containing_a_dict);
+			m_instance = static_cast<max::t_dictionary*>(max::atom_getobj(a));
+			if (!m_instance)
 				error("no dictionary in atom");
-			auto err = max::object_retain(instance);
-			if (err)
-				error("failed to retain dictionary instance");
+			auto err = max::object_retain(m_instance);
+			error(err, "failed to retain dictionary instance");
 		}
 		
 	
 		~dict() {
-			if (has_ownership)
-				object_free(instance);
+			if (m_has_ownership)
+				object_free(m_instance);
 		}
 		
 		
 		
 		dict& operator = (const dict& value) {
-			max::dictionary_clone_to_existing(value.instance, instance);
+			max::dictionary_clone_to_existing(value.m_instance, m_instance);
 			return *this;
 		}
 		
 
 		dict& operator = (const atom& value) {
-			auto a = (max::t_atom*)&value;
+			auto a = static_cast<const max::t_atom*>(&value);
 			if (max::atomisdictionary(a))
-				instance = (max::t_dictionary*)max::atom_getobj(a);
+				m_instance = static_cast<max::t_dictionary*>(max::atom_getobj(a));
 			return *this;
 		}
 		
@@ -80,45 +79,44 @@ namespace min {
 		atom_reference at(symbol key){
 			long			argc = 0;
 			max::t_atom*	argv = nullptr;
-			auto			err = max::dictionary_getatoms(instance, key, &argc, &argv);
+			auto			err = max::dictionary_getatoms(m_instance, key, &argc, &argv);
 			
-			if (err)
-				error("could not get key from dictionary");
+			error(err, "could not get key from dictionary");
 			return atom_reference(argc, argv);
 		}
 		
 		
 		// bounds check: if key doesn't exist, create it
 		atom_reference operator[](symbol key){
-			if (!max::dictionary_hasentry(instance, key))
-				max::dictionary_appendatom(instance, key, &atoms{0}[0]);
+			if (!max::dictionary_hasentry(m_instance, key))
+				max::dictionary_appendatom(m_instance, key, &atoms{0}[0]);
 			return at(key);
 		};
 
 		
 		symbol name() {
-			return dictobj_namefromptr(instance);
+			return dictobj_namefromptr(m_instance);
 		}
 		
 		
 		bool valid() {
-			return instance != nullptr;
+			return m_instance != nullptr;
 		}
 		
 		
 		void copyunique(const dict& source) {
-			dictionary_copyunique(instance, source.instance);
+			dictionary_copyunique(m_instance, source.m_instance);
 		}
 		
 		
 		void touch() {
-			object_notify(instance, k_sym_modified, nullptr);
+			object_notify(m_instance, k_sym_modified, nullptr);
 		}
 		
 		
 	private:
-		max::t_dictionary*	instance		{ nullptr };
-		bool				has_ownership	{ true };
+		max::t_dictionary*	m_instance		{ nullptr };
+		bool				m_has_ownership	{ true };
 	};
 	
 }} // namespace c74::min

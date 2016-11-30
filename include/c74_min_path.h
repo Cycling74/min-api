@@ -130,7 +130,7 @@ namespace min {
 			else
 				err = max::path_getfilemoddate(m_filename, m_path, &date);
 
-			if (err) {
+			if (err || date == 0) {
 				error("failed to get date modified");
 			}
 			return date;
