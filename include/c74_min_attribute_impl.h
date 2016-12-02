@@ -37,7 +37,7 @@ namespace min {
 	template<typename ...ARGS>
 	attribute<time_value>::attribute(object_base* an_owner, std::string a_name, time_value a_default_value, ARGS... args)
 	: attribute_base	{ *an_owner, a_name }
-	, m_value			{ an_owner, a_name, static_cast<double>(a_default_value) }
+	, m_value			{ an_owner, a_name, static_cast<double>(a_default_value), false }
 	{
 		m_owner.attributes()[a_name] = this;
 
@@ -45,13 +45,13 @@ namespace min {
 		m_style = style::time;
 
 		handle_arguments(args...);
+		m_value.finalize();
 		copy_range();
 										
 		set(to_atoms(a_default_value), false);
 	}
 
 
-	
 	template<class T, threadsafe threadsafety>
 	void attribute<T,threadsafety>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
 		if (m_style == style::time)
@@ -73,7 +73,7 @@ namespace min {
 		}
 	};
 	
-	
+
 	template<>
 	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
 		if (isjitclass) {
