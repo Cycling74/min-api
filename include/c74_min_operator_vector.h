@@ -60,6 +60,13 @@ namespace min {
 		long framecount() {
 			return m_framecount;
 		}
+
+		void clear() {
+			for (auto channel=0; channel < m_channelcount; ++channel) {
+				for (auto i=0; i < m_framecount; ++i)
+					m_samples[channel][i] = 0.0;
+			}
+		}
 		
 		double**	m_samples = nullptr;
 		long		m_channelcount = 0;
