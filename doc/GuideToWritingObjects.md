@@ -7,6 +7,7 @@ Example code is distributed as a part of the [Min-DevKit Package](https://github
 See Also:
 
 * [Guide To Theading](GuideToThreading.md)
+* [Guide To Audio](GuideToAudio.md)
 * [Special Messages](SpecialMethods.md)
 * [Where To Look...](WhereToLook.md)
 
@@ -266,26 +267,6 @@ texteditor editor = { this, [this](const char* text) {
 	// do something with the text...
 }};
 ```
-
-## Buffers
-
-To access a `buffer~` object from your class all you need is to create an instance of a `buffer_reference`, initializing it with a pointer to an instance of your class.
-
-```c++
-buffer_reference my_buffer = { this };
-```
-All of the neccessary methods (e.g. `set` and `dblclick`), notification handling, etc. will be provided for you automatically.
-
-If you wish to receive notifications when the buffer~ content changes you can provide an optional callback to be triggered when a change occurs.
-
-```c++
-buffer_reference my_buffer = { this, MIN_FUNCTION {
-  // do something in response to the change...
-  return {};
-}};
-```
-
-
 
 
 ## Dictionaries
