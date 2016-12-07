@@ -206,7 +206,7 @@ Often, as in the examples above, the setter is used to produce a side effect. An
 
 ### Vector Attributes
 
-Array/Vector attributes are defined by using a specialization of `std::vector` for the attribute type. Here is an example from the **convolve** object in the Min-DevKit.
+Array/Vector attributes are defined by using a specialization of `std::vector` for the attribute type. Here is an example from the **min.convolve** object in the Min-DevKit.
 
 ```c++
 attribute< vector<double> > kernel = { this, "kernel", {1.0, 0.0} };

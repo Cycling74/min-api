@@ -4,7 +4,7 @@ This documentation extends the [Min Guide to Writing Objects](./GuideToWritingOb
 
 ## Audio Processing in Max
 
-When you turn on the audio in Max (e.g. by clicking on an **ezdac~** object) it sets in motion a series of events.  First, a signal chain is compiled by sending a "dspsetup" message to all objects in the patcher. Any object that responds to that message can then add a vector audio processing routine to the signal chain.
+When you turn on the audio in Max (e.g. by clicking on an **ezdac~** object) it sets in motion a series of events.  First, a signal chain is compiled by sending a 'dspsetup' message to all objects in the patcher. Any object that responds to that message can then add a vector audio processing routine to the signal chain.
 
 With the signal chain completed, Max will now begin to receive callbacks from the operating system on an *audio thread*. This callback will copy a block (vector) of samples from Max to the audio output device for your system. The number of samples in the vector is determined by the *Input/Output Vector Size* in Max's Audio Settings. Max further divides this vector into smaller blocks determined by the setting simply named *Vector Size*. Max will call your vector audio processing routine on the audio thread once for each of these smaller blocks.
 
@@ -51,7 +51,7 @@ Note that you define your inlets and outlets for both `vector_operator` and `sam
 
 ## Messages
 
-There are no required messages for either `vector_operator` or `sample_operator` classes. You may optionally define a "dspsetup" message which will be called when Max is compiling the signal chain.
+There are no required messages for either `vector_operator` or `sample_operator` classes. You may optionally define a 'dspsetup' message which will be called when Max is compiling the signal chain.
 
 ```c++
 message<> dspsetup { this, "dspsetup", MIN_FUNCTION {
@@ -65,7 +65,7 @@ The message will be passed two arguments: the sample rate and the vector size.
 
 ## Buffers
 
-To access a `buffer~` object from your class all you need is to create an instance of a `buffer_reference`, initializing it with a pointer to an instance of your class.
+To access a **buffer~** object from your class all you need is to create an instance of a `buffer_reference`, initializing it with a pointer to an instance of your class.
 
 ```c++
 buffer_reference my_buffer = { this };
@@ -73,7 +73,7 @@ buffer_reference my_buffer = { this };
 
 All of the neccessary methods (e.g. `set` and `dblclick`), notification handling, etc. will be provided for you automatically.
 
-If you wish to receive notifications when the buffer~ content changes you can provide an optional callback to be triggered when a change occurs.
+If you wish to receive notifications when the **buffer~** content changes you can provide an optional callback to be triggered when a change occurs.
 
 ```c++
 buffer_reference my_buffer = { this, MIN_FUNCTION {
@@ -82,7 +82,7 @@ buffer_reference my_buffer = { this, MIN_FUNCTION {
 }};
 ```
 
-To access the `buffer~` contents in your audio routine, see the example below for `vector_operator` function call implementation.
+To access the **buffer~** contents in your audio routine, see the example below for `vector_operator` function call implementation.
 
 ## Audio Operator Functions
 
@@ -92,7 +92,7 @@ Your object must define a function call operator where the samples of audio will
 
 For `sample_operator` classes, the function call operator will take N `sample` arguments as input and return either a `sample` or a container `samples<>` as output.  
 
-The **dcblocker~** example processes a single input and produces a single output.
+The **min.dcblocker~** example processes a single input and produces a single output.
 
 ```c++
 sample operator()(sample x) {
@@ -103,7 +103,7 @@ sample operator()(sample x) {
 }
 ```
 
-The **panner~** example has two audio inputs and produces two audio outputs. This is specified in the initial class definition, and the function signature of the call operator must match — meaning that it must take two `sample` arguments and return two samples in a `samples<2>`  container. 
+The **min.panner~** example has two audio inputs and produces two audio outputs. This is specified in the initial class definition, and the function signature of the call operator must match — meaning that it must take two `sample` arguments and return two samples in a `samples<2>`  container. 
 
 ```c++
 class panner : public signal_routing_base<panner>, public sample_operator<2,2> {
@@ -132,7 +132,7 @@ For `vector_operator` classes, the function call operator will take two `audio_b
 
 The number of channels and the size of the vectors are properties of the `audio_bundle`.  Use the `channelcount()` and `framecount()` methods to access the dimensions and the `samples()` method to gain access to the vector data for a specified channel.
 
-The example below is from the **buffer.index~** example object. It demonstrates both access to a **buffer~** and implementation of a `vector_operator`. Remembering that buffer access is using a shared-resource and must perform atomic operations for threadsafety, the `vector_operator` is a much better choice than a `sample_operator` because the buffer only needs to be "locked" (and "unlocked") once for the entire vector instead of for each sample.
+The example below is from the **min.buffer.index~** example object. It demonstrates both access to a **buffer~** and implementation of a `vector_operator`. Remembering that buffer access is using a shared-resource and must perform atomic operations for threadsafety, the `vector_operator` is a much better choice than a `sample_operator` because the buffer only needs to be "locked" (and "unlocked") once for the entire vector instead of for each sample.
 
 ```c++
 void operator()(audio_bundle input, audio_bundle output) {
