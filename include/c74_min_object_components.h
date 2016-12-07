@@ -205,7 +205,7 @@ namespace min {
 	
 
 	class sample_operator_base;
-	class perform_operator_base;
+	class vector_operator_base;
 	class matrix_operator_base;
 	class gl_operator_base;
 	
@@ -219,7 +219,7 @@ namespace min {
 	
 	template<class min_class_type>
 	struct minwrap <min_class_type, typename enable_if<
-		   !is_base_of< perform_operator_base, min_class_type>::value
+		   !is_base_of< vector_operator_base, min_class_type>::value
 		&& !is_base_of< sample_operator_base, min_class_type>::value
 		&& !is_base_of< gl_operator_base, min_class_type>::value
 	>::type > {

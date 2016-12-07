@@ -8,8 +8,8 @@
 namespace c74 {
 namespace min {
 		
-	class perform_operator_base {};
-	class perform_operator : public perform_operator_base {};
+	class vector_operator_base {};
+	class vector_operator : public vector_operator_base {};
 	
 	
 	template<class min_class_type>
@@ -65,23 +65,8 @@ namespace min {
 		long		m_channelcount = 0;
 		long		m_framecount = 0;
 	};
-	
-	
-	template<typename min_class_type>
-	struct has_perform {
-		template<class,class> class checker;
-		
-		template<typename C>
-		static std::true_type test(checker<C, decltype(&C::perform)> *);
-		
-		template<typename C>
-		static std::false_type test(...);
-		
-		typedef decltype(test<min_class_type>(nullptr)) type;
-		static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
-	};
-	
-	
+
+
 	// the partial specialization of A is enabled via a template parameter
 	template<class min_class_type, class Enable = void>
 	class min_performer {
@@ -89,7 +74,7 @@ namespace min {
 		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			audio_bundle input = {in_chans, numins, sampleframes};
 			audio_bundle output = {out_chans, numouts, sampleframes};
-			self->min_object.perform(input, output);
+			self->min_object(input, output);
 		}
 	}; // primary template
 	
@@ -137,7 +122,7 @@ namespace min {
 	}
 	
 	template<class min_class_type>
-	typename enable_if< has_dspsetup<min_class_type>::value && is_base_of<perform_operator_base, min_class_type>::value>::type
+	typename enable_if< has_dspsetup<min_class_type>::value && is_base_of<vector_operator_base, min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
 		min_dsp64_io(self, count);
 		
@@ -162,7 +147,7 @@ namespace min {
 	}
 
 
-	template<class min_class_type, enable_if_perform_operator<min_class_type> = 0>
+	template<class min_class_type, enable_if_vector_operator<min_class_type> = 0>
 	void wrap_as_max_external_audio(max::t_class* c) {
 		max::class_addmethod(c, reinterpret_cast<max::method>(min_dsp64<min_class_type>), "dsp64", max::A_CANT, 0);
 		max::class_dspinit(c);

@@ -96,7 +96,7 @@ namespace min {
 	class matrix_operator_base;
 	class gl_operator_base;
 	class sample_operator_base;
-	class perform_operator_base;
+	class vector_operator_base;
 	
 	template<class T>
 	using is_class = std::is_class<T>;
@@ -120,13 +120,13 @@ namespace min {
 	using enable_if_sample_operator = typename enable_if<is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using enable_if_perform_operator = typename enable_if<is_base_of<perform_operator_base, min_class_type>::value, int>::type;
+	using enable_if_vector_operator = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using type_enable_if_audio_class = typename enable_if<is_base_of<perform_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value >::type;
+	using type_enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value >::type;
 
 	template<class min_class_type>
-	using type_enable_if_not_audio_class = typename enable_if<!is_base_of<perform_operator_base, min_class_type>::value && !is_base_of<sample_operator_base, min_class_type>::value >::type;
+	using type_enable_if_not_audio_class = typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value && !is_base_of<sample_operator_base, min_class_type>::value >::type;
 
 	template<class min_class_type>
 	using type_enable_if_not_jitter_class = typename enable_if< !is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value >::type;
@@ -194,7 +194,7 @@ namespace min {
 #include "c74_min_message.h"			// Messages to objects
 #include "c74_min_attribute.h"			// Attributes of objects
 #include "c74_min_logger.h"				// Console / Max Window output
-#include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
+#include "c74_min_operator_vector.h"	// Vector-based MSP object add-ins
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"	// Jitter MOP
 #include "c74_min_object_wrapper.h"		// Max wrapper for Min objects
