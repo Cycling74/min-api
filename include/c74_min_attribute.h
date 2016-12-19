@@ -19,12 +19,19 @@ namespace min {
 	class vector_operator_base;
 	class matrix_operator_base;
 	class gl_operator_base;
-	
+
+	/// @defgroup attributes Attributes
+
+	/// @ingroup attributes
 	using setter = function;
+
+	/// @ingroup attributes
 	using getter = std::function<atoms()>;
 
+	/// @ingroup attributes
 	#define MIN_GETTER_FUNCTION [this]()->atoms
 
+	/// @ingroup attributes
 	enum class style {
 		none,
         text,
@@ -38,6 +45,7 @@ namespace min {
 		time
 	};
 
+	/// @ingroup attributes
 	static std::unordered_map<style, symbol> style_symbols {
 			{ style::text, "text"},
 			{ style::onoff, "onoff"},
@@ -52,6 +60,7 @@ namespace min {
 	using category = symbol;
 	using order = long;
 
+	/// @ingroup attributes
 	class attribute_base {
 	public:
 		attribute_base(object_base& an_owner, std::string a_name)
@@ -156,14 +165,17 @@ namespace min {
 	using enum_map = std::vector<std::string>;
 	using readonly = bool;
 
+	/// @ingroup attributes
 	template<typename T, threadsafe threadsafety>
 	class attribute_threadsafe_helper;
 
+	/// @ingroup attributes
 	template<typename T, threadsafe threadsafety>
 	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args);
 
 
-	// default is `threadsafe::no`
+	/// default is `threadsafe::no`
+	/// @ingroup attributes
 	template<typename T, threadsafe threadsafety>
 	class attribute : public attribute_base {
 	private:
@@ -440,6 +452,7 @@ namespace min {
 	That is what we have here:
  */
 
+	/// @ingroup attributes
 	template<typename T, threadsafe threadsafety>
 	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args) {
 		auto& attr = *helper->m_attribute;
@@ -450,6 +463,7 @@ namespace min {
 			attr.assign(args);
 	}
 
+	/// @ingroup attributes
 	template<typename T>
 	class attribute_threadsafe_helper<T,threadsafe::yes> {
 		friend void attribute_threadsafe_helper_do_set<T,threadsafe::yes>(attribute_threadsafe_helper<T,threadsafe::yes>* helper, const atoms& args);
@@ -467,6 +481,7 @@ namespace min {
 	};
 
 
+	/// @ingroup attributes
 	template<typename T, threadsafe threadsafety>
 	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T,threadsafety>* helper) {
 		static_assert(threadsafety == threadsafe::no, "helper function should not be called by threadsafe attrs");
@@ -474,6 +489,7 @@ namespace min {
 	}
 
 
+	/// @ingroup attributes
 	template<typename T>
 	class attribute_threadsafe_helper<T,threadsafe::no> {
 		friend void attribute_threadsafe_helper_do_set<T,threadsafe::no>(attribute_threadsafe_helper<T,threadsafe::no>* helper, const atoms& args);
@@ -510,6 +526,7 @@ namespace min {
 		to perform getting /setting attributes
 	 */
 
+	/// @ingroup attributes
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
 		symbol	attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
@@ -526,6 +543,7 @@ namespace min {
 	}
 	
 	
+	/// @ingroup attributes
 	template<class T>
 	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, long ac, max::t_atom* av) {
 		atom_reference	args(ac,av);

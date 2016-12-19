@@ -7,10 +7,15 @@
 
 namespace c74 {
 namespace min {
+
+
+	/// @defgroup buffers Buffer Objects
+
 	
 	/// A reference to a buffer~ object.
 	/// The buffer_reference automatically adds the management hooks required for your object to work with a buffer~.
 	/// This includes adding a 'set' message and a 'dblclick' message as well as dealing with notifications and binding.
+	/// @ingroup buffers
 
 	class buffer_reference {
 	public:
@@ -81,6 +86,8 @@ namespace min {
 	
 
 	/// A lock guard and accessor for buffer~ access from the audio thread.
+	/// @ingroup buffers
+
 	template<bool audio_thread_access = true>
 	class buffer_lock {
 	public:

@@ -165,7 +165,8 @@ namespace min {
 	void attribute<T,threadsafety>::copy_range() {
 		range_copy_helper<T,threadsafety>(this);
 	};
-		
+
+
 	template<>
 	void attribute<std::vector<double>>::copy_range() {
 		if (!m_range.empty()) {
@@ -177,6 +178,7 @@ namespace min {
 			m_range[1][0] = m_range_args[1];
 		}
 	};
+
 
 /*
 	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
