@@ -168,6 +168,13 @@ inline void error(bool check, const std::string& description) {
 
 
 
+inline uint16_t byteorder_swap(uint16_t x) {
+	return ((int16_t)(((((uint16_t)(x))>>8)&0x00ff)+
+					  ((((uint16_t)(x))<<8)&0xff00)));
+}
+
+
+
 #include "c74_min_symbol.h"
 #include "c74_min_atom.h"
 #include "c74_min_map.h"
