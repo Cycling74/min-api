@@ -48,8 +48,8 @@ namespace min {
 
 			self->setup();
 
-			max::attr_args_process(self, args.size(), args.begin());
 			max::object_attach_byptr_register(self, self, k_sym_box); // so that objects can get notifications about their own attributes
+			max::attr_args_process(self, args.size(), args.begin());
 			return self;
 		}
 		catch(std::runtime_error& e) {
