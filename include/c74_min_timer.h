@@ -11,7 +11,8 @@ namespace min {
 	
 	class timer;
 	extern "C" void timer_tick_callback(timer* an_owner);
-	
+	extern "C" void timer_qfn_callback(timer* a_timer);
+
 	
 	/// The timer class allows you to schedule a function to be called in the future using Max's scheduler.
 	/// Note: the name `timer` was chosen instead of `clock` because of the use of the type is `clock` is ambiguous on the Mac OS
@@ -20,16 +21,24 @@ namespace min {
 	class timer {
 	public:
 
-		timer(object_base* an_owner, function a_function)
+		timer(object_base* an_owner, function a_function, bool defer_to_main_thread = false)
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		{
-			m_instance = max::clock_new(this, (max::method)timer_tick_callback);
+			m_instance = max::clock_new(this, reinterpret_cast<max::method>(timer_tick_callback));
+			if (defer_to_main_thread)
+				m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(timer_qfn_callback));
 		}
+
+		timer(object_base* an_owner, bool defer_to_main_thread, function a_function)
+		: timer(an_owner, a_function, defer_to_main_thread)
+		{}
 
 		
 		~timer() {
 			object_free(m_instance);
+			if (m_qelem)
+				max::qelem_free(m_qelem);
 		}
 
 
@@ -51,6 +60,16 @@ namespace min {
 			atoms a;
 			m_function(a);
 		}
+
+
+		bool should_defer() {
+			return m_qelem;
+		}
+
+		
+		void defer() {
+			max::qelem_set(m_qelem);
+		}
 		
 		
 		/// post information about the timer to the console
@@ -64,6 +83,7 @@ namespace min {
 		object_base*	m_owner;
 		function		m_function;
 		max::t_clock*	m_instance { nullptr };
+		max::t_qelem*	m_qelem { nullptr };
 	};
 	
 	

@@ -39,6 +39,13 @@ namespace min {
 
 
 	void timer_tick_callback(timer* a_timer) {
+		if (a_timer->should_defer())
+			a_timer->defer();
+		else
+			a_timer->tick();
+	}
+
+	void timer_qfn_callback(timer* a_timer) {
 		a_timer->tick();
 	}
 
