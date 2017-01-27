@@ -21,17 +21,22 @@ namespace min {
 	class timer {
 	public:
 
-		timer(object_base* an_owner, function a_function, bool defer_to_main_thread = false)
+		enum class options {
+			deliver_on_scheduler,
+			defer_delivery
+		};
+
+		timer(object_base* an_owner, function a_function, options options = options::deliver_on_scheduler)
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		{
 			m_instance = max::clock_new(this, reinterpret_cast<max::method>(timer_tick_callback));
-			if (defer_to_main_thread)
+			if (options == options::defer_delivery)
 				m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(timer_qfn_callback));
 		}
 
-		timer(object_base* an_owner, bool defer_to_main_thread, function a_function)
-		: timer(an_owner, a_function, defer_to_main_thread)
+		timer(object_base* an_owner, options options, function a_function)
+		: timer(an_owner, a_function, options)
 		{}
 
 		
