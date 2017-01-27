@@ -29,8 +29,8 @@ namespace min {
 		/// Options that control the behavior of the timer.
 
 		enum class options {
-			deliver_on_scheduler,	/// The default behavior delivers events on Max's scheduler thread
-			defer_delivery			/// Defers events from the scheduler to Max's main thread
+			deliver_on_scheduler,	///< The default behavior delivers events on Max's scheduler thread
+			defer_delivery			///< Defers events from the scheduler to Max's main thread
 		};
 
 
