@@ -17,6 +17,10 @@ namespace min {
 	/// The timer class allows you to schedule a function to be called in the future using Max's scheduler.
 	/// Note: the name `timer` was chosen instead of `clock` because of the use of the type is `clock` is ambiguous on the Mac OS
 	/// when not explicitly specifying the `c74::min` namespace.
+	///
+	///	@seealso	#time_value
+	/// @seealso	#queue
+	/// @seealso	#fifo
 	
 	class timer {
 	public:

@@ -8,21 +8,26 @@
 
 namespace c74 {
 namespace min {
-	
-
-
-
 
 
 	class queue;
 	extern "C" void queue_qfn_callback(queue* a_queue);
 
 
-	/// The queue class allows you to defer the call of a function to the near future in
-	/// Max's main (low-priority) thread.
+	/// The queue class allows you to defer the call of a function to the near future in Max's main (low-priority) thread.
+	///
+	/// @seealso	#timer
+	///	@seealso	#time_value
+	/// @seealso	#fifo
+
 
 	class queue {
 	public:
+
+		/// Create a queue.
+		/// @param	an_owner	The owning object for the queue. Typically you will pass `this`.
+		/// @param	a_function	A function to be executed when the queue is serviced.
+		///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
 
 		queue(object_base* an_owner, function a_function)
 		: m_owner		{ an_owner }
@@ -32,28 +37,34 @@ namespace min {
 		}
 
 
+		/// Destroy a timer.
+
 		~queue() {
 			max::qelem_free(m_instance);
 		}
 
 
-		queue(const timer&) = delete;
+		// Queues cannot be copied.
+		// If they are then the ownership of the internal t_qelem becomes ambiguous.
 
+		queue(const timer&) = delete;
+		queue& operator = (const queue& value) = delete;
+
+
+		/// Set the queue to fire the next time Max services main thread queues.
+		/// When the queue fires its function will be executed.
 
 		void set() {
 			max::qelem_set(m_instance);
 		}
 
 
+		/// Stop a queue that has been previously set().
+
 		void unset() {
 			max::qelem_unset(m_instance);
 		}
 
-
-		void qfn() {
-			atoms a;
-			m_function(a);
-		}
 
 
 		/// post information about the timer to the console
@@ -67,11 +78,13 @@ namespace min {
 		object_base*	m_owner;
 		function		m_function;
 		max::t_qelem*	m_instance { nullptr };
+
+		friend void queue_qfn_callback(queue* a_queue);
+		void qfn() {
+			atoms a;
+			m_function(a);
+		}
 	};
-	
-	
-
-
 
 
 }} // namespace c74::min
