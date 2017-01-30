@@ -161,8 +161,12 @@ inline void error() {
 	throw std::runtime_error("unknown");
 }
 
+
+/// @param	check	The condition which triggers the error.
+///					In other words "true" will cause an exception to throw while "false" will not.
+
 inline void error(bool check, const std::string& description) {
-	if (!check)
+	if (check)
 		throw std::runtime_error(description);
 }
 
