@@ -58,7 +58,11 @@ namespace min {
 		bool			m_signal_connection { false };
 
 
-		// This is called by Max's "dspsetup" method to update our audio signal connection state.
+		// update_signal_connection() is called to update our audio signal connection state
+		// by Max's "dspsetup" method via min_dsp64_io()
+
+		template<class min_class_type>
+		friend void min_dsp64_io(minwrap<min_class_type>* self, short* count);
 
 		void update_signal_connection(bool new_signal_connection_status) {
 			m_signal_connection = new_signal_connection_status;

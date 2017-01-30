@@ -203,10 +203,10 @@ namespace min {
 
 	// FIRST / LAST / FIFO: queue up the data if the outlet call is not thread-safe
 
-	template<thread_check check, thread_action action_type, typename outlet_type>
+	template<thread_check check_type, thread_action action_type, typename outlet_type>
 	class handle_unsafe_outlet_send {
 	public:
-		handle_unsafe_outlet_send(outlet<check,thread_action::fifo>* an_outlet, const outlet_type& a_value) {
+		handle_unsafe_outlet_send(outlet<check_type,thread_action::fifo>* an_outlet, const outlet_type& a_value) {
 			if (typeid(outlet_type) == typeid(max::t_atom_long))
 				an_outlet->queue_storage().push(message_type::long_arg, a_value);
 			else if (typeid(outlet_type) == typeid(double))
@@ -219,10 +219,10 @@ namespace min {
 
 	// ASSERT: throw an assertion if the outlet call is not thread-safe
 
-	template<thread_check check, typename outlet_type>
-	class handle_unsafe_outlet_send<check, thread_action::assert, outlet_type> {
+	template<thread_check check_type, typename outlet_type>
+	class handle_unsafe_outlet_send<check_type, thread_action::assert, outlet_type> {
 	public:
-		handle_unsafe_outlet_send(outlet<check,thread_action::assert>* an_outlet, const outlet_type& a_value) {
+		handle_unsafe_outlet_send(outlet<check_type,thread_action::assert>* an_outlet, const outlet_type& a_value) {
 			assert(false);
 		}
 	};
@@ -415,7 +415,10 @@ namespace min {
 		}
 
 
-		// called by handle_unsafe_outlet_send()
+		// outlet_queue is drained by handle_unsafe_outlet_send()
+
+		template<thread_check check_type, thread_action action_type, typename outlet_type>
+		friend class handle_unsafe_outlet_send;
 
 		outlet_queue<check,action>& queue_storage() {
 			return m_queue_storage;
