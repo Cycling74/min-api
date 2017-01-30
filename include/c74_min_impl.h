@@ -32,6 +32,7 @@ namespace min {
 	
 	// outlets have to be created as a separate step because
 	// max creates them from right-to-left
+
 	void object_base::create_outlets() {
 		for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet)
 			(*outlet)->create();
@@ -55,11 +56,14 @@ namespace min {
 
 
 	// part of the symbol class but must be defined after atom is defined
+
 	symbol::symbol(const atom& value) {
 		s = value;
 	}
 
+
 	// part of the symbol class but must be defined after atom is defined
+
 	symbol& symbol::operator = (const atom& value) {
 		s = value;
 		return *this;
@@ -74,7 +78,6 @@ namespace min {
 	}
 
 
-
 	template<>
 	bool outlet_call_is_safe<thread_check::main>() {
 		if (max::systhread_ismainthread())
@@ -82,6 +85,7 @@ namespace min {
 		else
 			return false;
 	};
+
 
 	template<>
 	bool outlet_call_is_safe<thread_check::scheduler>() {
@@ -91,6 +95,7 @@ namespace min {
 			return false;
 	};
 
+
 	template<>
 	bool outlet_call_is_safe<thread_check::any>() {
 		if (max::systhread_ismainthread() || max::systhread_istimerthread())
@@ -99,10 +104,11 @@ namespace min {
 			return false;
 	};
 
+
 	template<>
 	bool outlet_call_is_safe<thread_check::none>() {
 		return true;
 	};
-	
+
 	
 }} // namespace c74::min
