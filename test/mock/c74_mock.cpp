@@ -101,6 +101,11 @@ namespace max {
 	}
 
 
+	MOCK_EXPORT t_max_err object_attach_byptr_register(void* x, void* object_to_attach, const t_symbol* reg_name_space) {
+		return 0;
+	}
+
+
 	MOCK_EXPORT t_max_err object_retain(t_object*) {
 		return 0;
 	}
