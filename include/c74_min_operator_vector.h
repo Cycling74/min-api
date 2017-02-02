@@ -9,7 +9,20 @@ namespace c74 {
 namespace min {
 		
 	class vector_operator_base {};
-	class vector_operator : public vector_operator_base {};
+	class vector_operator : public vector_operator_base {
+	public:
+
+		void samplerate_set(double a_samplerate) {
+			m_samplerate = a_samplerate;
+		}
+
+		double samplerate() {
+			return m_samplerate;
+		}
+
+	private:
+		double m_samplerate { c74::max::sys_getsr() };
+	};
 	
 	
 	template<class min_class_type>
@@ -67,7 +80,18 @@ namespace min {
 					m_samples[channel][i] = 0.0;
 			}
 		}
-		
+
+		audio_bundle& operator = (const audio_bundle& other) {
+			assert(m_channelcount == other.m_channelcount);
+			assert(m_framecount == other.m_framecount);
+
+			for (auto channel=0; channel < m_channelcount; ++channel) {
+				for (auto i=0; i < m_framecount; ++i)
+					m_samples[channel][i] = other.m_samples[channel][i];
+			}
+			return *this;
+		}
+
 		double**	m_samples = nullptr;
 		long		m_channelcount = 0;
 		long		m_framecount = 0;
@@ -131,8 +155,9 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< has_dspsetup<min_class_type>::value && is_base_of<vector_operator_base, min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
+		self->min_object.samplerate_set(samplerate);
 		min_dsp64_io(self, count);
-		
+
 		atoms args;
 		args.push_back(atom(samplerate));
 		args.push_back(atom(maxvectorsize));
@@ -144,6 +169,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< !has_dspsetup<min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
+		self->min_object.samplerate_set(samplerate);
 		min_dsp64_io(self, count);
 		min_dsp64_add_perform(self, dsp64);
 	}

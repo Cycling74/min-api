@@ -34,13 +34,25 @@ namespace min {
 			return m_inputcount;
 		}
 
+
 		static constexpr size_t outputcount() {
 			return m_outputcount;
+		}
+
+
+		void samplerate_set(double a_samplerate) {
+			m_samplerate = a_samplerate;
+		}
+
+
+		double samplerate() {
+			return m_samplerate;
 		}
 
 	private:
 		static constexpr size_t m_inputcount	{ input_count };
 		static constexpr size_t m_outputcount	{ output_count };
+		double					m_samplerate	{ c74::max::sys_getsr() };
 	};
 
 
