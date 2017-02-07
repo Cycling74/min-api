@@ -35,6 +35,10 @@ namespace max {
 	}
 
 
+	MOCK_EXPORT float sys_getsr(void) {
+		return 44100;
+	}
+
 
 	MOCK_EXPORT short locatefile_extended(char* name, short* outvol, t_fourcc* outtype, const t_fourcc* filetypelist, short numtypes) {
 		return 0;
