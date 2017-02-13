@@ -316,7 +316,10 @@ namespace min {
 		for (auto& an_attribute : instance.attributes()) {
 			std::string		attr_name = an_attribute.first;
 			attribute_base&	attr = *an_attribute.second;
-			
+
+			if (attr.visibility() == visibility::disable)
+				continue;
+
 			attr.create(c,
 						reinterpret_cast<method>(min_attr_getter<min_class_type>),
 						reinterpret_cast<method>(min_attr_setter<min_class_type>));

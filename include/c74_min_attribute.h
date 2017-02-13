@@ -45,6 +45,15 @@ namespace min {
 		time
 	};
 
+
+	/// @ingroup attributes
+	enum class visibility {
+		show,	///< standard behavior: show the attribute to the user
+		hide,	///< hide the attribute from the user
+		disable	///< don't create the attribute at all
+	};
+
+
 	/// @ingroup attributes
 	static std::unordered_map<style, symbol> style_symbols {
 			{ style::text, "text"},
@@ -92,6 +101,12 @@ namespace min {
 		bool writable() const {
 			return !m_readonly;
 		}
+
+
+		visibility visibility() {
+			return m_visibility;
+		}
+
 
 		/// fetch the title/label as a string
 		const char* label_string() {
@@ -152,6 +167,7 @@ namespace min {
 		setter			m_setter;
 		getter			m_getter;
 		bool			m_readonly { false };
+		enum visibility	m_visibility { visibility::show };
 		size_t			m_size;		/// size of array/vector if attr is array/vector
 		description		m_description;
 
@@ -164,6 +180,7 @@ namespace min {
 	using range = atoms;
 	using enum_map = std::vector<std::string>;
 	using readonly = bool;
+
 
 	/// @ingroup attributes
 	template<typename T, threadsafe threadsafety>
@@ -228,6 +245,13 @@ namespace min {
 		constexpr typename enable_if<is_same<argument_type, readonly>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_readonly) = arg;
+		}
+
+		/// constructor utility: handle an argument defining a attribute's visibility property
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, enum visibility>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(m_visibility) = arg;
 		}
 
 		/// constructor utility: handle an argument defining a attribute's style property
