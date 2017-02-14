@@ -153,7 +153,8 @@ namespace easing {
 
 	template<typename T>
 	T out_cubic(T x) {
-		return x * x * x + 1.0;
+		double f = x - 1.0;
+		return f * f * f + 1.0;
 	}
 
 
