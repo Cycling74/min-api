@@ -47,14 +47,6 @@ namespace min {
 
 
 	/// @ingroup attributes
-	enum class visibility {
-		show,	///< standard behavior: show the attribute to the user
-		hide,	///< hide the attribute from the user
-		disable	///< don't create the attribute at all
-	};
-
-
-	/// @ingroup attributes
 	static std::unordered_map<style, symbol> style_symbols {
 			{ style::text, "text"},
 			{ style::onoff, "onoff"},
@@ -66,11 +58,20 @@ namespace min {
 			{ style::file, "file"},
 	};
 
+
+	enum class visibility {
+		show,	///< standard behavior: show the attribute to the user
+		hide,	///< hide the attribute from the user
+		disable	///< don't create the attribute at all
+	};
+
+
 	using category = symbol;
 	using order = long;
 
 	/// @ingroup attributes
 	class attribute_base {
+
 	public:
 		attribute_base(object_base& an_owner, std::string a_name)
 		: m_owner	{ an_owner }
@@ -103,7 +104,7 @@ namespace min {
 		}
 
 
-		visibility visibility() {
+		visibility visible() {
 			return m_visibility;
 		}
 
@@ -167,7 +168,7 @@ namespace min {
 		setter			m_setter;
 		getter			m_getter;
 		bool			m_readonly { false };
-		enum class visibility	m_visibility { visibility::show };
+		visibility		m_visibility { visibility::show };
 		size_t			m_size;		/// size of array/vector if attr is array/vector
 		description		m_description;
 
@@ -249,7 +250,7 @@ namespace min {
 
 		/// constructor utility: handle an argument defining a attribute's visibility property
 		template<typename argument_type>
-		constexpr typename enable_if<is_same<argument_type, enum class visibility>::value>::type
+		constexpr typename enable_if<is_same<argument_type, visibility>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_visibility) = arg;
 		}

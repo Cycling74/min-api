@@ -317,7 +317,7 @@ namespace min {
 			std::string		attr_name = an_attribute.first;
 			attribute_base&	attr = *an_attribute.second;
 
-			if (attr.visibility() == visibility::disable)
+			if (attr.visible() == visibility::disable)
 				continue;
 
 			attr.create(c,
