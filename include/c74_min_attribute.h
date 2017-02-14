@@ -167,7 +167,7 @@ namespace min {
 		setter			m_setter;
 		getter			m_getter;
 		bool			m_readonly { false };
-		enum visibility	m_visibility { visibility::show };
+		enum class visibility	m_visibility { visibility::show };
 		size_t			m_size;		/// size of array/vector if attr is array/vector
 		description		m_description;
 
@@ -249,7 +249,7 @@ namespace min {
 
 		/// constructor utility: handle an argument defining a attribute's visibility property
 		template<typename argument_type>
-		constexpr typename enable_if<is_same<argument_type, enum visibility>::value>::type
+		constexpr typename enable_if<is_same<argument_type, enum class visibility>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_visibility) = arg;
 		}
