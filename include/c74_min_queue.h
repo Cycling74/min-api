@@ -59,6 +59,13 @@ namespace min {
 		}
 
 
+		/// Calling a queue is the same as calling the set() method
+
+		void operator()() {
+			set();
+		}
+
+
 		/// Stop a queue that has been previously set().
 
 		void unset() {
