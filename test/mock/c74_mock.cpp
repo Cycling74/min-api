@@ -11,6 +11,34 @@
 
 namespace c74 {
 namespace max {
+	struct t_qelem;
+
+	MOCK_EXPORT t_qelem* qelem_new(void* obj, method fn) {
+		return nullptr;
+	}
+
+	MOCK_EXPORT void qelem_free(t_qelem* qelem) {
+		;
+	}
+
+	MOCK_EXPORT void qelem_set(t_qelem* q) {
+		;
+	}
+
+
+	MOCK_EXPORT short systhread_ismainthread(void) {
+		return true;
+	}
+
+	MOCK_EXPORT short systhread_istimerthread(void) {
+		return false;
+	}
+
+
+	MOCK_EXPORT float sys_getsr(void) {
+		return 44100;
+	}
+
 
 	MOCK_EXPORT short locatefile_extended(char* name, short* outvol, t_fourcc* outtype, const t_fourcc* filetypelist, short numtypes) {
 		return 0;
@@ -47,7 +75,7 @@ namespace max {
 		return 0;
 	}
 	
-	MOCK_EXPORT t_max_err object_attr_setvalueof(t_object* x, t_symbol* s, long argc, t_atom* argv) {
+	MOCK_EXPORT t_max_err object_attr_setvalueof(t_object* x, t_symbol* s, long argc, const t_atom* argv) {
 		return 0;
 	}
 
@@ -77,12 +105,17 @@ namespace max {
 	}
 
 
+	MOCK_EXPORT t_max_err object_attach_byptr_register(void* x, void* object_to_attach, const t_symbol* reg_name_space) {
+		return 0;
+	}
+
+
 	MOCK_EXPORT t_max_err object_retain(t_object*) {
 		return 0;
 	}
 
 	
-	t_object* object_new_imp(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8, void* p9, void* p10) {
+	MOCK_EXPORT t_object* object_new_imp(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8, void* p9, void* p10) {
 		return nullptr;
 	}
 	
@@ -133,6 +166,20 @@ namespace max {
 		return 0;
 	}
 
+	MOCK_EXPORT void class_time_addattr(t_class *c, char *attrname, char *attrlabel, long flags) {
+		return;
+	}
+
+
+	MOCK_EXPORT t_max_err class_addtypedwrapper(t_class *x, method m, const char *name, ...) {
+		return 0;
+	}
+
+	MOCK_EXPORT void max_jit_obex_gimmeback_dumpout(void *x, t_symbol *s, long ac, t_atom *av) {
+		return;
+	}
+
+
 	
 	MOCK_EXPORT void *max_jit_object_alloc(t_class *mclass, t_symbol *jitter_classname) {
 		return nullptr;
@@ -147,10 +194,10 @@ namespace max {
 	MOCK_EXPORT void max_jit_class_wrap_addmethods(t_class *mclass, t_class *jclass) {}
 	MOCK_EXPORT void max_jit_class_wrap_addmethods_flags(t_class *mclass, t_class *jclass, long flags) {}
 	MOCK_EXPORT void max_jit_class_wrap_attrlist2methods(t_class *mclass, t_class *jclass) {}
-	MOCK_EXPORT void max_jit_class_addmethod_defer(t_class *mclass, method m, char *s) {}
-	MOCK_EXPORT void max_jit_class_addmethod_defer_low(t_class *mclass, method m, char *s) {}
-	MOCK_EXPORT void max_jit_class_addmethod_usurp(t_class *mclass, method m, char *s) {}
-	MOCK_EXPORT void max_jit_class_addmethod_usurp_low(t_class *mclass, method m, char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_defer(t_class *mclass, method m, const char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_defer_low(t_class *mclass, method m, const char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_usurp(t_class *mclass, method m, const char *s) {}
+	MOCK_EXPORT void max_jit_class_addmethod_usurp_low(t_class *mclass, method m, const char *s) {}
 	
 	
 	MOCK_EXPORT t_jit_err max_jit_class_mop_wrap(t_class* mclass, t_class* jclass, long flags) {
@@ -204,3 +251,4 @@ namespace max {
 	#endif
 
 }}
+

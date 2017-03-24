@@ -11,15 +11,13 @@
 #include "c74_min.h"
 
 namespace c74 {
-
 	namespace min {
-
 
 		template<class min_class_type>
 		class test_wrapper {
 		public:
 			test_wrapper() {
-				m_minwrap_obj = (minwrap<min_class_type>*)wrapper_new<min_class_type>(symbol("dummy"), 0, nullptr);
+				m_minwrap_obj = wrapper_new<min_class_type>(symbol("dummy"), 0, nullptr);
 			}
 
 			~test_wrapper() {
@@ -32,33 +30,26 @@ namespace c74 {
 
 		private:
 			minwrap<min_class_type>* m_minwrap_obj = nullptr;
-
 		};
-
 
 	} // namespace min
 
 
-
 	namespace max {
 
+		///	A vector of atoms.
+		using t_atom_vector = min::atoms;
 
-	/**	A vector of atoms.	*/
-	using t_atom_vector = min::atoms;
+		/// A sequence of atom vectors.
+		/// Used to log inlet and outlet activity in the mock environment.
+		/// We can use logging of inlet and outlet sequences for BDD.
+		/// We can also do more traditional state-based testing.
+		/// Or mix-n-match as we see fit...
+		///
+		/// @remark		should sequences have time-stamps?
+		typedef std::vector<t_atom_vector>	t_sequence;
 
-	/** A sequence of atom vectors.
-	 Used to log inlet and outlet activity in the mock environment.
-	 We can use logging of inlet and outlet sequences for BDD.
-	 We can also do more traditional state-based testing.
-	 Or mix-n-match as we see fit...
-
-	 @remark		should sequences have time-stamps?
-	 */
-	typedef std::vector<t_atom_vector>	t_sequence;
-
-
-	t_sequence& object_getoutput(void *o, int outletnum);
-
+		extern "C" t_sequence* object_getoutput(void *o, int outletnum);
 	
 	} // namespace max
 

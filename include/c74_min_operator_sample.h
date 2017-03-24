@@ -34,13 +34,25 @@ namespace min {
 			return m_inputcount;
 		}
 
+
 		static constexpr size_t outputcount() {
 			return m_outputcount;
+		}
+
+
+		void samplerate_set(double a_samplerate) {
+			m_samplerate = a_samplerate;
+		}
+
+
+		double samplerate() {
+			return m_samplerate;
 		}
 
 	private:
 		static constexpr size_t m_inputcount	{ input_count };
 		static constexpr size_t m_outputcount	{ output_count };
+		double					m_samplerate	{ c74::max::sys_getsr() };
 	};
 
 
@@ -62,6 +74,20 @@ namespace min {
 				auto in = in_samps[i];
 				auto out = self->min_object(in);
 				out_samps[i] = out;
+			}
+		}
+	};
+
+
+	template<class min_class_type>
+	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator<1,0>, min_class_type >::value>::type> {
+	public:
+		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+			auto in_samps = in_chans[0];
+
+			for (auto i=0; i<sampleframes; ++i) {
+				auto in = in_samps[i];
+				self->min_object(in);
 			}
 		}
 	};
@@ -133,7 +159,7 @@ namespace min {
 	// See above for the 1x1 optimized version.
 
 	template<class min_class_type>
-	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator_base, min_class_type >::value && !is_base_of<sample_operator<1,1>, min_class_type >::value>::type> {
+	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator_base, min_class_type >::value && !is_base_of<sample_operator<1,1>, min_class_type >::value && !is_base_of<sample_operator<1,0>, min_class_type >::value>::type> {
 	public:
 		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			for (auto i=0; i<sampleframes; ++i) {
@@ -144,7 +170,8 @@ namespace min {
 
 				auto out = ins.call();
 
-				perform_copy_output(self, i, out_chans, out);
+				if (numouts > 0)
+					perform_copy_output(self, i, out_chans, out);
 			}
 		}
 	};
@@ -155,7 +182,7 @@ namespace min {
 
 	template<class min_class_type, enable_if_sample_operator<min_class_type> = 0>
 	void wrap_as_max_external_audio(max::t_class* c) {
-		max::class_addmethod(c, (max::method)min_dsp64<min_class_type>, "dsp64", max::A_CANT, 0);
+		max::class_addmethod(c, reinterpret_cast<max::method>(min_dsp64<min_class_type>), "dsp64", max::A_CANT, 0);
 		max::class_dspinit(c);
 	}
 }} // namespace c74::min

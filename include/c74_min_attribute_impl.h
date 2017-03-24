@@ -10,9 +10,9 @@
 namespace c74 {
 namespace min {
 
-	template<class T>
+	template<class T, threadsafe threadsafety>
 	template<typename ...ARGS>
-	attribute<T>::attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
+	attribute<T,threadsafety>::attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
 	: attribute_base { *an_owner, a_name }
 	{
 		m_owner.attributes()[a_name] = this;
@@ -37,7 +37,7 @@ namespace min {
 	template<typename ...ARGS>
 	attribute<time_value>::attribute(object_base* an_owner, std::string a_name, time_value a_default_value, ARGS... args)
 	: attribute_base	{ *an_owner, a_name }
-	, m_value			{ an_owner, a_name, double(a_default_value) }
+	, m_value			{ an_owner, a_name, static_cast<double>(a_default_value) }
 	{
 		m_owner.attributes()[a_name] = this;
 
@@ -52,12 +52,19 @@ namespace min {
 
 
 	
-	template<class T>
-	void attribute<T>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
+	template<class T, threadsafe threadsafety>
+	void attribute<T,threadsafety>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
 		if (m_style == style::time)
 			class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
 		else if (isjitclass) {
-			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset, m_name, datatype(), flags(isjitclass), getter, setter, 0);
+			auto jit_attr = max::object_new_imp(max::gensym("jitter"),
+												max::_jit_sym_jit_attr_offset,
+												const_cast<void*>(static_cast<const void*>(m_name.c_str())),
+												static_cast<max::t_symbol*>(datatype()),
+												reinterpret_cast<void*>(flags(isjitclass)),
+												reinterpret_cast<void*>(getter),
+												reinterpret_cast<void*>(setter),
+												nullptr, nullptr, nullptr);
 			max::jit_class_addattr(c, jit_attr);
 		}
 		else {
@@ -70,36 +77,56 @@ namespace min {
 	template<>
 	void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
 		if (isjitclass) {
-			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset_array, m_name.c_str(), (max::t_symbol*)datatype(), 0xFFFF, flags(isjitclass), getter, setter, (long)size_offset(), 0);
+//			auto jit_attr = max::jit_object_new(max::_jit_sym_jit_attr_offset_array,
+//												m_name.c_str(),
+//												(max::t_symbol*)datatype(),
+//												0xFFFF,
+//												flags(isjitclass),
+//												getter,
+//												setter,
+//												(long)size_offset(),
+//												0);
+			auto jit_attr = max::object_new_imp(max::gensym("jitter"),
+												max::_jit_sym_jit_attr_offset_array,
+												const_cast<void*>(static_cast<const void*>(m_name.c_str())),
+												static_cast<max::t_symbol*>(datatype()),
+												reinterpret_cast<void*>(0xFFFF),
+												reinterpret_cast<void*>(flags(isjitclass)),
+												reinterpret_cast<void*>(getter),
+												reinterpret_cast<void*>(setter),
+												reinterpret_cast<void*>(size_offset()),
+												nullptr);
 			max::jit_class_addattr(c, jit_attr);
 		}
 		else {
-			auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, flags(isjitclass), getter, setter, (long)size_offset(), 0);
+			auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, flags(isjitclass), getter, setter, size_offset(), 0);
 			max::class_addattr(c, max_attr);
 		}
 	};
 
 
 	// enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
-	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
-	std::string range_string_item(attribute<T>* attr, const T& item) {
+	template<class T, threadsafe threadsafety, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+	std::string range_string_item(attribute<T,threadsafety>* attr, const T& item) {
+		auto i = static_cast<int>(item);
+
 		if (attr->get_enum_map().empty())
-			return std::to_string((int)item);
+			return std::to_string(i);
 		else
-			return attr->get_enum_map()[(int)item];
+			return attr->get_enum_map()[i];
 	}
 	
 	// all non-enum values can just pass through
-	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
-	T range_string_item(attribute<T>* attr, const T& item) {
+	template<class T, threadsafe threadsafety, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+	T range_string_item(attribute<T,threadsafety>* attr, const T& item) {
 		return item;
 	}
 	
-	template<class T>
-	std::string attribute<T>::range_string() {
+	template<class T, threadsafe threadsafety>
+	std::string attribute<T,threadsafety>::range_string() {
 		std::stringstream ss;
 		for (const auto& val : m_range)
-			ss << "\"" << range_string_item<T>(this, val) << "\" ";
+			ss << "\"" << range_string_item<T,threadsafety>(this, val) << "\" ";
 		return ss.str();
 	};
 
@@ -120,25 +147,26 @@ namespace min {
 
 
 	// enum attrs use the special enum map for range
-	template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
-	void range_copy_helper(attribute<T>* attr) {
+	template<class T, threadsafe threadsafety, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+	void range_copy_helper(attribute<T,threadsafety>* attr) {
 		for (auto i=0; i < attr->get_enum_map().size(); ++i)
-			attr->range_ref().push_back((T)i);
+			attr->range_ref().push_back(static_cast<T>(i));
 	}
 
 
 	// all non-enum attrs can just copy range normally
-	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
-	void range_copy_helper(attribute<T>* attr) {
+	template<class T, threadsafe threadsafety, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+	void range_copy_helper(attribute<T,threadsafety>* attr) {
 		for (const auto& a : attr->get_range_args())
 			attr->range_ref().push_back(a);
 	}
 
-	template<class T>
-	void attribute<T>::copy_range() {
-		range_copy_helper<T>(this);
+	template<class T, threadsafe threadsafety>
+	void attribute<T,threadsafety>::copy_range() {
+		range_copy_helper<T,threadsafety>(this);
 	};
-		
+
+
 	template<>
 	void attribute<std::vector<double>>::copy_range() {
 		if (!m_range.empty()) {
@@ -150,6 +178,7 @@ namespace min {
 			m_range[1][0] = m_range_args[1];
 		}
 	};
+
 
 /*
 	template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>

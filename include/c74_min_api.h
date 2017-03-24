@@ -7,6 +7,7 @@
 
 #include "c74_max.h"
 #include "c74_msp.h"
+
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -14,6 +15,8 @@
 #include <fstream>
 #include <iostream>
 #include <list>
+#include <mutex>
+#include <queue>
 #include <string>
 #include <sstream>
 #include <thread>
@@ -21,6 +24,7 @@
 #include <functional>
 #include <unordered_map>
 
+#include "readerwriterqueue/readerwriterqueue.h"
 
 namespace c74 {
 namespace min {
@@ -32,6 +36,8 @@ namespace min {
 	using number = double;
 	using sample = double;
 	struct anything {};
+
+	using numbers = std::vector<number>;
 
 	template<size_t count>
 	using samples = std::array<sample, count>;
@@ -51,6 +57,29 @@ namespace min {
 	};
 
 
+	enum class message_type : long {
+		nothing,
+		long_arg,
+		float_arg,
+		symbol_arg,
+		object_argument,
+		long_optional,
+		float_optional,
+		symbol_optional,
+		gimme,
+		cant,
+		semicolon,
+		comma,
+		dollar,
+		dollar_symbol,
+		gimmeback,
+		defer = max::A_DEFER,
+		usurp = max::A_USURP,
+		defer_low = max::A_DEFER_LOW,
+		usurp_low = max::A_USURP_LOW
+	};
+
+
 	// Very selective group from the STL used only for making common
 	// template SFINAE code more readable
 
@@ -67,7 +96,7 @@ namespace min {
 	class matrix_operator_base;
 	class gl_operator_base;
 	class sample_operator_base;
-	class perform_operator_base;
+	class vector_operator_base;
 	
 	template<class T>
 	using is_class = std::is_class<T>;
@@ -91,16 +120,29 @@ namespace min {
 	using enable_if_sample_operator = typename enable_if<is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using enable_if_perform_operator = typename enable_if<is_base_of<perform_operator_base, min_class_type>::value, int>::type;
+	using enable_if_vector_operator = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using type_enable_if_audio_class = typename enable_if<is_base_of<perform_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value >::type;
+	using type_enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value >::type;
 
 	template<class min_class_type>
-	using type_enable_if_not_audio_class = typename enable_if<!is_base_of<perform_operator_base, min_class_type>::value && !is_base_of<sample_operator_base, min_class_type>::value >::type;
+	using type_enable_if_not_audio_class = typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value && !is_base_of<sample_operator_base, min_class_type>::value >::type;
 
 	template<class min_class_type>
 	using type_enable_if_not_jitter_class = typename enable_if< !is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value >::type;
+
+	enum class threadsafe {
+		no,
+		yes
+	};
+
+	using mutex = std::mutex;
+	using guard = std::lock_guard<std::mutex>;
+	using lock = std::unique_lock<std::mutex>;
+
+
+	template<typename T>
+	using fifo = moodycamel::ReaderWriterQueue<T>;
 
 }}
 
@@ -118,6 +160,23 @@ inline void error(const std::string& description) {
 inline void error() {
 	throw std::runtime_error("unknown");
 }
+
+
+/// @param	check	The condition which triggers the error.
+///					In other words "true" will cause an exception to throw while "false" will not.
+
+inline void error(bool check, const std::string& description) {
+	if (check)
+		throw std::runtime_error(description);
+}
+
+
+
+inline uint16_t byteorder_swap(uint16_t x) {
+	return ((int16_t)(((((uint16_t)(x))>>8)&0x00ff)+
+					  ((((uint16_t)(x))<<8)&0xff00)));
+}
+
 
 
 #include "c74_min_symbol.h"
@@ -138,24 +197,28 @@ namespace min {
 #include "c74_jitter.h"
 #include "c74_min_flags.h"				// Class flags
 #include "c74_min_time.h"				// ITM Support
-#include "c74_min_ports.h"				// Inlets and Outlets
+#include "c74_min_port.h"				// Inlets and Outlets
+#include "c74_min_threadsafety.h"		// ...
+#include "c74_min_inlet.h"				// ...
+#include "c74_min_outlet.h"				// ...
 #include "c74_min_argument.h"			// Arguments to objects
 #include "c74_min_message.h"			// Messages to objects
 #include "c74_min_attribute.h"			// Attributes of objects
 #include "c74_min_logger.h"				// Console / Max Window output
-#include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
+#include "c74_min_operator_vector.h"	// Vector-based MSP object add-ins
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"	// Jitter MOP
-#include "c74_min_operator_gl.h"		// Jitter GL
 #include "c74_min_object_wrapper.h"		// Max wrapper for Min objects
 #include "c74_min_object.h"				// The Min object class that glues it all together
 
 #include "c74_min_timer.h"				// Wrapper for clocks
+#include "c74_min_queue.h"				// Wrapper for qelems and fifos
 #include "c74_min_buffer.h"				// Wrapper for MSP buffers
 #include "c74_min_path.h"				// Wrapper class for accessing the Max path system
 #include "c74_min_texteditor.h"			// Wrapper for text editor window
 
 #include "c74_min_accessories.h"		// Library of miscellaneous helper functions and widgets
+#include "c74_min_accessories_easing.h"	// Library of easing functions
 #include "c74_min_graphics.h"			// Class for UI objects
 #include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 

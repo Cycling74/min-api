@@ -116,7 +116,7 @@ namespace min {
 	};
 
 
-	inline std::string doc_format_description(const std::string& input) {
+	inline std::string doc_format(const std::string& input) {
 		using std::string;
 
 		strings tokens = string_utility::split(input, ' ');
@@ -131,6 +131,9 @@ namespace min {
 			else if (token[0] == '[' && token[token.size()-1] == ']') {	// object
 				token = string("<o>") + token.substr(1, token.size()-2) + string("</o>");
 			}
+			else if (token == "&") {
+				token = string("&amp;");
+			}
 		}
 
 		return string_utility::join(tokens);
@@ -139,7 +142,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< has_class_description<min_class_type>::value>::type
 	doc_get_description(std::string& returned_description) {
-		returned_description = doc_format_description(min_class_type::class_description);
+		returned_description = doc_format(min_class_type::class_description);
 	}
 
 	template<class min_class_type>
@@ -208,7 +211,7 @@ namespace min {
 
 		refpage_file << "	<!--METADATA-->" << endl << endl;
 		refpage_file << "	<metadatalist>" << endl;
-		refpage_file << "		<metadata name='author'>" << author << "</metadata>" << endl;
+		refpage_file << "		<metadata name='author'>" << doc_format(author) << "</metadata>" << endl;
 		for (auto i=0; i<class_tags.size(); ++i)
 			refpage_file << "		<metadata name='tag'>" << string_utility::trim(class_tags[i]) << "</metadata>" << endl;
 		refpage_file << "	</metadatalist>" << endl;
@@ -222,7 +225,7 @@ namespace min {
 		const auto& arguments = instance.arguments();
 
 		for (const auto& arg: arguments) {
-			const auto& description	= doc_format_description(arg->description_string());
+			const auto& description	= doc_format(arg->description_string());
 			const auto&	type		= arg->type();
 			bool		required	= arg->required();
 
@@ -259,7 +262,7 @@ namespace min {
 		for (const auto& p: messages) {
 			const auto& message_object	= *p.second;
 			if (message_object.type() != max::A_CANT) {
-				const auto& description		= doc_format_description(message_object.description_string());
+				const auto& description		= doc_format(message_object.description_string());
 
 				strncpy(digest, description.c_str(), digest_length_max);
 				char *c = strstr(digest, ". ");
@@ -287,7 +290,7 @@ namespace min {
 
 		for (const auto& p: attributes) {
 			const auto& attr_object	= *p.second;
-			const auto& description	= doc_format_description(attr_object.description_string());
+			const auto& description	= doc_format(attr_object.description_string());
 			const auto& attr_type = attr_object.datatype();
 
 			strncpy(digest, description.c_str(), digest_length_max);

@@ -26,34 +26,44 @@ namespace min {
 		if (m_inlets.empty())
 			return;
 		for (auto i = m_inlets.size()-1; i>0; --i)
-			m_inlets[i]->m_instance = max::proxy_new(m_maxobj, (long)i, nullptr);
+			m_inlets[i]->m_instance = max::proxy_new(m_maxobj, i, nullptr);
 	}
 
 	
 	// outlets have to be created as a separate step because
 	// max creates them from right-to-left
+
 	void object_base::create_outlets() {
-		for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet) {
-			if ((*outlet)->type() == "")
-				(*outlet)->m_instance = max::outlet_new(m_maxobj, nullptr);
-			else
-				(*outlet)->m_instance = max::outlet_new(m_maxobj, (*outlet)->type().c_str());
-		}
+		for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet)
+			(*outlet)->create();
 	}
 
 
 	void timer_tick_callback(timer* a_timer) {
+		if (a_timer->should_defer())
+			a_timer->defer();
+		else
+			a_timer->tick();
+	}
+
+	void timer_qfn_callback(timer* a_timer) {
 		a_timer->tick();
 	}
 
+	void queue_qfn_callback(queue* a_queue) {
+		a_queue->qfn();
+	}
 
 
 	// part of the symbol class but must be defined after atom is defined
+
 	symbol::symbol(const atom& value) {
 		s = value;
 	}
 
+
 	// part of the symbol class but must be defined after atom is defined
+
 	symbol& symbol::operator = (const atom& value) {
 		s = value;
 		return *this;
@@ -66,6 +76,39 @@ namespace min {
 		for (auto i=0; i<argcount; ++i)
 			(*m_arguments[i])(args[i]);
 	}
+
+
+	template<>
+	bool outlet_call_is_safe<thread_check::main>() {
+		if (max::systhread_ismainthread())
+			return true;
+		else
+			return false;
+	};
+
+
+	template<>
+	bool outlet_call_is_safe<thread_check::scheduler>() {
+		if (max::systhread_istimerthread())
+			return true;
+		else
+			return false;
+	};
+
+
+	template<>
+	bool outlet_call_is_safe<thread_check::any>() {
+		if (max::systhread_ismainthread() || max::systhread_istimerthread())
+			return true;
+		else
+			return false;
+	};
+
+
+	template<>
+	bool outlet_call_is_safe<thread_check::none>() {
+		return true;
+	};
 
 	
 }} // namespace c74::min

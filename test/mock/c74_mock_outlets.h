@@ -80,7 +80,7 @@ public:
 	}
 	
 	/**	Push a new message to the outlet. */
-	void push(t_symbol *name, long argc, t_atom *argv)
+	void push(t_symbol *name, long argc, const t_atom *argv)
 	{
 		t_atom_vector av;
 
@@ -137,9 +137,9 @@ MOCK_EXPORT_CPP t_mock_outlet& object_getoutlet(void *o, int i) {
 	@param i	the index (zero-based) of the outlet whose sequence you want
 	@return		a reference to the sequence
  */
-MOCK_EXPORT_CPP t_sequence& object_getoutput(void *o, int outletnum) {
+MOCK_EXPORT t_sequence* object_getoutput(void *o, int outletnum) {
 	t_mock_outlet& outlet = object_getoutlet(o, outletnum);
-	return outlet.get_messages();
+	return &outlet.get_messages();
 }
 
 
@@ -247,7 +247,7 @@ MOCK_EXPORT void *outlet_float(void *x, double value)
 	@param av		pointer to the first of an array of atoms
 	@return			usually ignored
  */
-MOCK_EXPORT void *outlet_anything(void *x, t_symbol *s, short ac, t_atom *av)
+MOCK_EXPORT void *outlet_anything(void *x, t_symbol *s, short ac, const t_atom *av)
 {
 	t_ptr_int outlet_id = (t_ptr_int)x;
 	
@@ -279,7 +279,7 @@ This mocks the behavior of Max's real function by this same name.
 @param av		pointer to the first of an array of atoms
 @return			usually ignored
 */
-MOCK_EXPORT void *outlet_list(void *x, t_symbol *s, short ac, t_atom *av)
+MOCK_EXPORT void *outlet_list(void *x, t_symbol *s, short ac, const t_atom *av)
 {
 	return outlet_anything(x, gensym("list"), ac, av);
 }

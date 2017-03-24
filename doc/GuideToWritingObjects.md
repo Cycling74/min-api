@@ -4,7 +4,12 @@ Min objects are external objects for Max written in C++ using a high-level decla
 
 Example code is distributed as a part of the [Min-DevKit Package](https://github.com/Cycling74/min-devkit).
 
-See Also: [Where To Look...](WhereToLook.md)
+See Also:
+
+* [Guide To Theading](GuideToThreading.md)
+* [Guide To Audio](GuideToAudio.md)
+* [Special Messages](SpecialMethods.md)
+* [Where To Look...](WhereToLook.md)
 
 ## Class Definition
 
@@ -20,30 +25,6 @@ MIN_EXTERNAL(my_object);
 ```
 
 Note that the `object` which you are extending is itself specialized with the type of your class. This idiom provides a means of achieving [static polymorphism](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism).
-
-
-## Inlets and Outlets
-
-The first thing you will want to define for your new class are inlets and outlets. To do so you create an instance of the `inlet` or `outlet` type and initialize it with a pointer to your class' instance (`this`) and an assistance string for users that describes what the inlet or outlet does.
-
-```c++
-class my_object : public object<my_object> {
-public:
-	inlet	input	= { this, "(list) values to convolve" };
-	outlet	output	= { this, "(list) result of convolution" };
-
-	/// ...
-```
-
-Inlets and outlets may be generic, as above, or they may be specific to a type. Below, the left inlet is generic but the right inlet and the outlet both have the optional type defined for "dictionary". Audio objects will typically have outlets defined with the "signal" type and Jitter objects will typically use the "matrix" type.
-
-```c++
-inlet	left	= { this, "dict to combine with dict at right inlet" };
-inlet	right	= { this, "dict to combine with dict at left inlet", "dictionary" };
-outlet	output	= { this, "dictionary of entries combined from both inlets", "dictionary" };
-```
-
-Both inlets and outlets are defined in left to right order.
 
 
 ## Constructors
@@ -80,28 +61,91 @@ If you need to do any tear-down when your object is freed then simply define a d
 }
 ```
 
-## Methods
-The basic work of most Max objects is done by methods. All methods take a single `const atoms&` parameter just as constructors. If you don't need arguments for your method then you can simply ignore it as in this example method:
+## Inlets and Outlets
+
+The first thing you will want to define for your new class are inlets and outlets. To do so you create an instance of the `inlet<>` or `outlet<>` type and initialize it with a pointer to your class' instance (`this`) and an assistance string for users that describes what the inlet or outlet does.
 
 ```c++
-method bang = { this, "bang", MIN_FUNCTION {
-	cout << "Hello World" << endl;
-	return {};
-}};
+class my_object : public object<my_object> {
+public:
+	inlet<>		input	= { this, "(list) values to convolve" };
+	outlet<>	output	= { this, "(list) result of convolution" };
+
+	/// ...
 ```
-When you define a method you are creating an instance of a `min::method` and initializing it with a pointer to the owning instance of your class (`this`), a string for the message name in Max, and a function to be executed when the message is called. Typically the function is defined using a C++ lambda, whose verbose signature is tucked-away in the `MIN_FUNCTION` macro. 
 
-The signature of `MIN_FUNCTION` says that it will take `const atoms&` as input and return `atoms` as output.  Most methods won't have a return value so you can just return an empty set of atoms as in the example above.
-
-If you wish to access the arguments to your method, do so the same way as described for the constructor as in this example:
+Inlets and outlets may be generic, as above, or they may be specific to a type. Below, the left inlet is generic but the right inlet and the outlet both have the optional type defined for "dictionary". Audio objects will typically have outlets defined with the "signal" type and Jitter objects will typically use the "matrix" type.
 
 ```c++
-method number = { this, "number", MIN_FUNCTION {
+inlet<>		left	= { this, "dict to combine with dict at right inlet" };
+inlet<>		right	= { this, "dict to combine with dict at left inlet", "dictionary" };
+outlet<>	output	= { this, "dictionary of entries combined from both inlets", "dictionary" };
+```
+
+Both inlets and outlets are defined in left to right order.
+
+### Configuring Inlets and Outlets at Runtime
+
+In most cases configuring inlets and outlets at compile time is the ideal solution. There are cases, however, where you may wish to define the inlets and outlets at runtime based on the arguments passed to your object's constructor.
+
+(note: you cannot define the number of inlets and outlets at runtime for classes inheriting from `sample_operator<>` , you must instead inherit from `perform_operator<>`)
+
+In an example where you wish to define both the inlets and the outlets at runtime, you will need to create a place in your class to store the inlet/outlet instances. A convenient way to store the instances is in a vector.
+
+```c++
+private:
+    std::vector< std::unique_ptr<inlet<>> >		m_inlets;
+    std::vector< std::unique_ptr<outlet<>> >	m_outlets;
+```
+
+In your constructor you then create the inlets and outlets and add the instances to your vectors. Here is an example that takes the value of an argument to determine the number of inlets and outlets.
+
+```c++
+/// constructor
+clone(const atoms& args = {}) {
+	if (args.empty())
+		error("argument required");
+  
+  	auto inlet_count = args[0];
+  	auto outlet_count = inlet_count * 2;
+  
+	for (auto i=0; i < inlet_count; ++i) {
+      	auto an_inlet = std::make_unique<inlet<>>(this, "(bang) my assist message")
+		m_inlets.push_back( an_inlet );
+	}
+
+  	for (auto i=0; i < outlet_count; ++i) {
+      	auto an_outlet = std::make_unique<outlet<>>(this, "my outlet assist message")
+		m_outlets.push_back( an_outlet );
+	}
+}
+```
+
+## Messages
+
+The basic work of most Max objects is done by messages. All messages take a single `const atoms&` parameter just as constructors. If you don't need arguments for your message then you can simply ignore it as in this example message:
+
+```c++
+message<> bang = { this, "bang", "Post something to the Max console."
+	MIN_FUNCTION {
+		cout << "Hello World" << endl;
+		return {};
+	}
+};
+```
+When you define a message you are creating an instance of a `min::message<>` and initializing it with a pointer to the owning instance of your class (`this`), a string for the message name in Max, a description string for documentation, and a function to be executed when the message is called. Typically the function is defined using a C++ lambda, whose verbose signature is tucked-away in the `MIN_FUNCTION` macro. 
+
+The signature of `MIN_FUNCTION` says that it will take `const atoms&` as input and return `atoms` as output.  Most messages won't have a return value so you can just return an empty set of atoms as in the example above.
+
+If you wish to access the arguments to your message, do so the same way as described for the constructor as in this example:
+
+```c++
+message<> number = { this, "number", MIN_FUNCTION {
 	position = args[0];
 	return {};
 }};
 ```
-A "number" method will be called for either "float" or "int" input.
+A "number" message will be called for either "float" or "int" input.
 
 
 ## Attributes
@@ -118,6 +162,7 @@ attribute<double> max = { this, "maximum", 1.0 };
 Following the 3 required arguments, attributes may have any number of optional arguments, which may also be in any order:
 
 * `title`: this is a human-friendly label for your attribute shown in the inspector
+* `description`: a documention string describing the attribute
 * `range`: for numerical attributes this will be two values representing the low and high limits of the number; for symbols this will be a list of possible options available to be specified
 * `setter`: a function to be run prior to assigning the value
 * `getter`: a custom function for fetching the stored value
@@ -155,13 +200,13 @@ attribute<symbol> mode = {
 
 ### Custom Setters
 
-Custom setters use the same `MIN_FUNCTION` signature as methods above. This means it will take `const atoms&` as input and return `atoms` as output.  The input will be the value coming from the patcher and the value that is returned is what will be assigned to the attribute.
+Custom setters use the same `MIN_FUNCTION` signature as messages above. This means it will take `const atoms&` as input and return `atoms` as output.  The input will be the value coming from the patcher and the value that is returned is what will be assigned to the attribute.
 
 Often, as in the examples above, the setter is used to produce a side effect. Another use of custom setters is to check the input for validity prior to assignment and make alterations if neccessary.
 
 ### Vector Attributes
 
-Array/Vector attributes are defined by using a specialization of `std::vector` for the attribute type. Here is an example from the **convolve** object in the Min-DevKit.
+Array/Vector attributes are defined by using a specialization of `std::vector` for the attribute type. Here is an example from the **min.convolve** object in the Min-DevKit.
 
 ```c++
 attribute< vector<double> > kernel = { this, "kernel", {1.0, 0.0} };
@@ -196,6 +241,20 @@ timer metro = { this, MIN_FUNCTION {
 
 In the example above `bang_out` is an outlet. After sending the "bang" the timer schedules itself to run again at an interval in milliseconds.
 
+## Queues
+
+A `min::queue` creates a an element that, when set, will be executed by Max's low-priority queue. This provides a mechanism for transferring or deferring events from other threads (such as the scheduler or audio thread) to Max's main thread.
+
+```c++
+queue deferrer = { this, MIN_FUNCTION {		
+	bang_out.send("bang");
+	return {};
+}};
+
+// in some other code call this to fire the queue element:
+// deferrer.set()
+```
+
 
 ## Text Editor Windows
 
@@ -209,15 +268,6 @@ texteditor editor = { this, [this](const char* text) {
 }};
 ```
 
-## Buffers
-
-To access a `buffer~` object from your class all you need is to create an instance of a `buffer_reference`, initializing it with a pointer to an instance of your class.
-
-```c++
-buffer_reference my_buffer = { this };
-```
-All of the neccessary methods (e.g. `set` and `dblclick`), notification handling, etc. will be provided for you automatically.
-
 
 ## Dictionaries
 
@@ -225,10 +275,10 @@ Dictionaries are Max's implementation of an associative array container mapping 
 
 ### Handling Dictionary Input
 
-To respond to a dictionary coming into an inlet, define a method named "dictionary". It' first argument will be an atom containing a dictionary.
+To respond to a dictionary coming into an inlet, define a message named "dictionary". It' first argument will be an atom containing a dictionary.
 
 ``` c++
-method dictionary = { this, "dictionary", MIN_FUNCTION {
+message<> dictionary = { this, "dictionary", MIN_FUNCTION {
 	dict d { args[0] };
 	sequence = d["pattern"];
 	return {};
@@ -241,7 +291,7 @@ Next, a variable named "sequence" is assigned a value from the dictionary that i
 If "pattern" doesn't exist it will be created and sequence will be assigned an empty set of atoms. If you wish to use bounds checking and have an error thrown then use the `at()` method of `dict` instead of the `[]` operator as in the following example:
 
 ```c++
-method dictionary = { this, "dictionary", MIN_FUNCTION {
+message<> dictionary = { this, "dictionary", MIN_FUNCTION {
 	dict d { args[0] };
 	try {
 		sequence = d.at("pattern");
@@ -255,10 +305,10 @@ method dictionary = { this, "dictionary", MIN_FUNCTION {
 
 ## Saving State
 
-Most state saving in Max is handled automatically via the attribute system. If you need to save additional custom state define a 'savestate' method. This method will receive an atom containing a dictionary as input. Write your data into this dictionary to have it saved with the patcher
+Most state saving in Max is handled automatically via the attribute system. If you need to save additional custom state define a 'savestate' message. This message will receive an atom containing a dictionary as input. Write your data into this dictionary to have it saved with the patcher
 
 ```c++
-method savestate = { this, "savestate", MIN_FUNCTION {
+message<> savestate = { this, "savestate", MIN_FUNCTION {
 	dict d { args[0] };
 	d["my_custom_data"] = some_data;
 	return {};
@@ -283,7 +333,7 @@ In some cases you may wish to do some advanced class setup. The example below co
 ```c++
 // the "maxclass_setup" method is called when the class is created
 // it is not called on an instance at what we think of in Max as "runtime"
-method maxclass_setup = { this, "maxclass_setup", MIN_FUNCTION {
+message<> maxclass_setup = { this, "maxclass_setup", MIN_FUNCTION {
 	c74::max::t_class* c = args[0];
 
 	CLASS_ATTR_ENUM(c,	"shape", 0, "linear equal_power square_root");

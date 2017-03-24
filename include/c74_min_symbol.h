@@ -81,8 +81,8 @@ namespace min {
 			return s;
 		}
 		
-		operator std::string() const {
-			return std::string(s->s_name);
+		operator std::string&&() const {
+			return std::move( std::string(s->s_name) );
 		}
 
 		operator const char*() const {
@@ -110,7 +110,7 @@ namespace min {
 	/// Expose symbol for use in std output streams.
 	template<class charT, class traits>
 	std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, traits>& stream, const symbol& s) {
-		return stream << (const char*)s;
+		return stream << static_cast<const char*>(s);
 	}
 	
 	
@@ -132,7 +132,14 @@ namespace min {
 	static const symbol k_sym_bang("bang");				/// The symbol "bang".
 	static const symbol k_sym_getname("getname");		/// The symbol "getname".
 	static const symbol k_sym_max("max");				/// The symbol "max" -- the max object.
+	static const symbol k_sym_size						{ "size" } ;					/// Cached symbol "size"
 	static const symbol k_sym_time("time");				/// The symbol "time".
 
-	
+	static const symbol k_sym_globalsymbol_binding		{ "globalsymbol_binding" };		/// Cached symbol "globalsymbol_binding"
+	static const symbol k_sym_binding					{ "binding" };					/// Cached symbol "binding"
+	static const symbol k_sym_globalsymbol_unbinding	{ "globalsymbol_unbinding" };	/// Cached symbol "globalsymbol_unbinding"
+	static const symbol k_sym_unbinding					{ "unbinding" };				/// Cached symbol "unbinding"
+	static const symbol k_sym_buffer_modified			{ "buffer_modified" };			/// Cached symbol "buffer_modified"
+
+
 }} // namespace c74::min
