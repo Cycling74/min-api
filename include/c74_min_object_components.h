@@ -17,6 +17,7 @@ namespace min {
 	template<typename T, threadsafe threadsafety = threadsafe::no>
 	class attribute;
 
+
 	class maxobject_base {
 	public:
 		
@@ -24,8 +25,16 @@ namespace min {
 			return &m_objstorage.maxobj;
 		}
 
+		operator max::t_jbox*() {
+			return &m_objstorage.maxbox;
+		}
+
 		operator max::t_pxobject*() {
 			return &m_objstorage.mspobj;
+		}
+
+		operator max::t_pxjbox*() {
+			return &m_objstorage.mspbox;
 		}
 
 		operator void*() {
@@ -36,7 +45,9 @@ namespace min {
 	private:
 		union storage {
 			max::t_object	maxobj;
+			max::t_jbox		maxbox;
 			max::t_pxobject	mspobj;
+			max::t_pxjbox	mspbox;
 		};
 		
 		storage m_objstorage;
@@ -63,6 +74,7 @@ namespace min {
 
 
 		virtual bool is_jitter_class() = 0;
+		virtual bool is_ui_class() = 0;
 		
 
 		int current_inlet() {
@@ -206,7 +218,7 @@ namespace min {
 
 	class sample_operator_base;
 	class vector_operator_base;
-	class matrix_operator_base;
+//	class matrix_operator_base;
 	class gl_operator_base;
 	
 	

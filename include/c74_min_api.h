@@ -6,6 +6,8 @@
 #pragma once
 
 #include "c74_max.h"
+#include "c74_ui.h"
+#include "c74_ui_graphics.h"
 #include "c74_msp.h"
 
 #include <array>
@@ -32,6 +34,7 @@ namespace min {
 	// types
 	
 	using uchar = unsigned char;
+	using string = std::string;
 
 	using number = double;
 	using sample = double;
@@ -97,6 +100,7 @@ namespace min {
 	class gl_operator_base;
 	class sample_operator_base;
 	class vector_operator_base;
+	class ui_operator_base;
 	
 	template<class T>
 	using is_class = std::is_class<T>;
@@ -130,6 +134,18 @@ namespace min {
 
 	template<class min_class_type>
 	using type_enable_if_not_jitter_class = typename enable_if< !is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value >::type;
+
+
+	template<class min_class_type>
+	using enable_if_ui_operator			= typename enable_if<is_base_of<ui_operator_base, min_class_type>::value, int>::type;
+
+	template<class min_class_type>
+	using enable_if_not_ui_operator		= typename enable_if<!is_base_of<ui_operator_base, min_class_type>::value, int>::type;
+
+	template<class min_class_type>
+	using type_enable_if_not_ui_class	= typename enable_if< !is_base_of<ui_operator_base, min_class_type>::value >::type;
+
+
 
 	enum class threadsafe {
 		no,
@@ -207,7 +223,9 @@ namespace min {
 #include "c74_min_logger.h"				// Console / Max Window output
 #include "c74_min_operator_vector.h"	// Vector-based MSP object add-ins
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
-#include "c74_min_operator_matrix.h"	// Jitter MOP
+#include "c74_min_operator_matrix.h"	// Jitter MOP add-ins
+#include "c74_min_operator_ui.h"		// User Interface add-ins
+#include "c74_min_graphics.h"			// Graphics classes for UI objects
 #include "c74_min_object_wrapper.h"		// Max wrapper for Min objects
 #include "c74_min_object.h"				// The Min object class that glues it all together
 
@@ -219,7 +237,6 @@ namespace min {
 
 #include "c74_min_accessories.h"		// Library of miscellaneous helper functions and widgets
 #include "c74_min_accessories_easing.h"	// Library of easing functions
-#include "c74_min_graphics.h"			// Class for UI objects
 #include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 
 

@@ -42,14 +42,26 @@ namespace min {
 			auto			self_ob = reinterpret_cast<max::t_object*>(self);
 
 			self->min_object.assign_instance(self_ob); // maxobj needs to be set prior to placement new
+
 			min_ctor<min_class_type>(self, atoms(args.begin(), args.begin()+attrstart));
 			self->min_object.postinitialize();
 			self->min_object.set_classname(name);
 
 			self->setup();
 
-			max::object_attach_byptr_register(self, self, k_sym_box); // so that objects can get notifications about their own attributes
-			max::attr_args_process(self, args.size(), args.begin());
+			if (self->min_object.is_ui_class()) {
+				max::t_dictionary* d = object_dictionaryarg(ac, av);
+				if (d) {
+// TODO: do I actually need to attach for a UI object?
+					auto err = max::object_attach_byptr(self, self); // so that objects can get notifications about their own attributes
+					max::attr_dictionary_process(self, d);
+					max::jbox_ready((max::t_jbox*)self);
+				}
+			}
+			else {
+				max::object_attach_byptr_register(self, self, k_sym_box); // so that objects can get notifications about their own attributes
+				max::attr_args_process(self, args.size(), args.begin());
+			}
 			return self;
 		}
 		catch(std::runtime_error& e) {
@@ -153,7 +165,16 @@ namespace min {
 		
 		meth(as);
 	}
-	
+
+	template<class min_class_type, class message_name_type>
+	void wrapper_method_self_ptr(max::t_object* o, void* arg1) {
+		auto	self = wrapper_find_self<min_class_type>(o);
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		atoms	as { o, arg1 };
+
+		meth(as);
+	}
+
 	template<class min_class_type, class message_name_type>
 	max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
 		auto	self = wrapper_find_self<min_class_type>(o);
@@ -184,7 +205,7 @@ namespace min {
 		if (d)
 			dictobj_release(d);
 	}
-	
+
 	// this version is called for most message instances defined in the min class
 	template<class min_class_type>
 	void wrapper_method_generic(max::t_object* o, max::t_symbol *s, long ac, max::t_atom* av) {
@@ -243,6 +264,7 @@ namespace min {
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(loadbang)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(notify)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(okclose)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(paint)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(patchlineupdate)
 
 	
@@ -291,6 +313,7 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, notify,				self_sym_sym_ptr_ptr___err,			A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,		self_ptr_long_ptr_long_ptr_long,	A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, fileusage,            ptr,                                A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, paint,				self_ptr,							A_CANT)
 			else if (a_message.first == "dspsetup")				; // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
 			else {
@@ -359,6 +382,9 @@ namespace min {
 	template<class min_class_type>
 	type_enable_if_not_audio_class<min_class_type> wrap_as_max_external_audio(max::t_class*) {}
 
+	template<class min_class_type>
+	type_enable_if_not_ui_class<min_class_type> wrap_as_max_external_ui(max::t_class*) {}
+
 
 	template<class min_class_type>
 	void wrap_as_max_external_finish(max::t_class* c, const min_class_type& instance) {
@@ -396,7 +422,9 @@ namespace min {
 		
 		auto c = wrap_as_max_external_common<min_class_type>(*instance, cppname, maxname, resources);
 
+		wrap_as_max_external_ui<min_class_type>(c);
 		wrap_as_max_external_audio<min_class_type>(c);
+
 		wrap_as_max_external_finish<min_class_type>(c, *instance);
 		this_class = c;
 		instance->try_call("maxclass_setup", c);

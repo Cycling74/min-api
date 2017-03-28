@@ -52,6 +52,10 @@ namespace min {
 			return is_base_of<matrix_operator_base, min_class_type>::value;
 		};
 
+		bool is_ui_class() {
+			return is_base_of<ui_operator_base, min_class_type>::value;
+		}
+
 
 	protected:
 		logger	cout { this, logger::type::message };
