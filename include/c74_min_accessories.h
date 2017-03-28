@@ -228,9 +228,13 @@ namespace min {
 		/// @return		The trimmed string
 
 		inline string trim(string& s) {
-			size_t first = s.find_first_not_of(' ');
-			size_t last = s.find_last_not_of(' ');
-			return s.substr(first, (last - first + 1));
+			if (!s.empty()) {
+				size_t first = s.find_first_not_of(' ');
+				size_t last = s.find_last_not_of(' ');
+				return s.substr(first, (last - first + 1));
+			}
+			else
+				return s;
 		}
 
 
