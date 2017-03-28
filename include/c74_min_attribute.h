@@ -15,10 +15,6 @@ namespace min {
 	class outlet_base;
 	class message_base;
 	class attribute_base;
-	class sample_operator_base;	
-	class vector_operator_base;
-	class matrix_operator_base;
-	class gl_operator_base;
 
 	/// @defgroup attributes Attributes
 
@@ -419,6 +415,12 @@ namespace min {
 		template<class U=T, typename enable_if< is_same<U, time_value>::value, int>::type = 0>
 		operator double() const {
 			return m_value;
+		}
+
+		
+		template<class U=T, typename enable_if< is_same<U, numbers>::value, int>::type = 0>
+		double& operator[](size_t index) {
+			return m_value[index];
 		}
 
 
