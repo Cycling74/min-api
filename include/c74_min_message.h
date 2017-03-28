@@ -26,10 +26,14 @@ namespace min {
 
 			std::string name = a_name;
 			
-			if (name == "integer")
+			if (name == "integer") {
 				name = "int";
-			else if (name == "number")
+				m_type = message_type::long_arg;
+			}
+			else if (name == "number") {
 				name = "float";
+				m_type = message_type::float_arg;
+			}
 			else if (   a_name == "dblclick"
 					 || a_name == "dsp64"
 					 || a_name == "dspsetup"
