@@ -130,8 +130,16 @@ namespace ui {
 	/// textual content
 	class content {
 	public:
-		content(string str) {
+		content(string str)
+		: m_text {str}
+		{}
+
+		void operator()(string& s) {
+			s = m_text;
 		}
+
+	private:
+		string m_text;
 	};
 
 
@@ -143,7 +151,6 @@ namespace ui {
 		, m_slant	{ italic ? max::JGRAPHICS_FONT_SLANT_ITALIC : max::JGRAPHICS_FONT_SLANT_NORMAL }
 		{}
 
-	protected:
 		void operator()(const context& g) {
 			max::jgraphics_select_font_face(g, m_name, m_slant, m_weight);
 		}
@@ -163,7 +170,6 @@ namespace ui {
 		: m_value { a_value }
 		{}
 
-	protected:
 		void operator()(const context& g) {
 			max::jgraphics_set_font_size(g, m_value);
 		}
@@ -209,21 +215,28 @@ namespace ui {
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, fontface>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-//			const_cast<argument_type&>(arg)(m_rect);
+			const_cast<argument_type&>(arg)( const_cast<context&>(*m_context) );
 		}
 
 		/// constructor utility: fontsize
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, fontsize>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-//			const_cast<argument_type&>(arg)(m_rect);
+			const_cast<argument_type&>(arg)( const_cast<context&>(*m_context) );
+		}
+
+		/// constructor utility: line_width
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, line_width>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(arg)( const_cast<context&>(*m_context) );
 		}
 
 		/// constructor utility: content
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, content>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-//			const_cast<argument_type&>(arg)(m_rect);
+			const_cast<argument_type&>(arg)(m_text);
 		}
 
 		/// constructor utility
@@ -254,6 +267,7 @@ namespace ui {
 
 		std::unique_ptr<context>	m_context;
 		max::t_rect					m_rect {};
+		string						m_text;
 	};
 
 
@@ -290,9 +304,6 @@ namespace ui {
 			max::jgraphics_move_to(*m_context, m_rect.x, m_rect.y);
 			max::jgraphics_show_text(*m_context, m_text.c_str());
 		}
-
-	private:
-		string m_text;
 	};
 
 
