@@ -371,6 +371,10 @@ namespace min {
 					CLASS_ATTR_ENUMINDEX(c, attr_name.c_str(), 0, range_string.c_str());
 				}
 			}
+
+			if (instance.is_ui_class()) {
+				CLASS_ATTR_SAVE(c, attr_name.c_str(), 0);
+			}
 		}
 
 		// documentation update (if neccessary)
