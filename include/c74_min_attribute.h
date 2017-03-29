@@ -577,7 +577,8 @@ namespace min {
 		symbol			attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
 		auto			attr		= self->min_object.attributes()[attr_name.c_str()];
 
-		attr->set( atoms(args.begin(), args.end()), false, false );
+		if (attr)
+			attr->set( atoms(args.begin(), args.end()), false, false );
 		return 0;
 	}
 	
