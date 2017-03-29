@@ -52,8 +52,6 @@ namespace min {
 			if (self->min_object.is_ui_class()) {
 				max::t_dictionary* d = object_dictionaryarg(ac, av);
 				if (d) {
-// TODO: do I actually need to attach for a UI object?
-					auto err = max::object_attach_byptr(self, self); // so that objects can get notifications about their own attributes
 					max::attr_dictionary_process(self, d);
 					max::jbox_ready((max::t_jbox*)self);
 				}
@@ -297,6 +295,9 @@ namespace min {
 								   max::A_GIMME,
 								   0);
 
+		// wrapping as ui *must* occur immediately after class_new() or notifications will be broken
+		wrap_as_max_external_ui<min_class_type>(c);
+
 		// messages
 
 		for (auto& a_message : instance.messages()) {
@@ -422,7 +423,6 @@ namespace min {
 		
 		auto c = wrap_as_max_external_common<min_class_type>(*instance, cppname, maxname, resources);
 
-		wrap_as_max_external_ui<min_class_type>(c);
 		wrap_as_max_external_audio<min_class_type>(c);
 
 		wrap_as_max_external_finish<min_class_type>(c, *instance);
