@@ -19,6 +19,9 @@ namespace min {
 		explicit ui_operator(object_base* instance, const atoms& args)
 		: m_instance { instance }
 		{
+			if (!box()) // box will be a nullptr when being dummy-constructed
+				return;
+
 			long flags = 0
 				| c74::max::JBOX_DRAWFIRSTIN		// 0
 				| c74::max::JBOX_NODRAWBOX		// 1
@@ -31,7 +34,7 @@ namespace min {
 			 //	| JBOX_HILITE			// 8
 				| c74::max::JBOX_BACKGROUND		// 9
 			 //	| JBOX_NOFLOATINSPECTOR	// 10
-			 // | JBOX_TEXTFIELD		// 11
+			 // | c74::max::JBOX_TEXTFIELD		// 11
 				| c74::max::JBOX_MOUSEDRAGDELTA	// 12
 			 //	| JBOX_COLOR			// 13
 			 //	| JBOX_BINBUF			// 14
@@ -42,10 +45,8 @@ namespace min {
 			 //	| JBOX_FIXWIDTH			// 19
 			;
 
-			if (box()) { // box will be a nullptr when being dummy-constructed
-				c74::max::jbox_new(box(), flags, args.size(), static_cast<const c74::max::t_atom*>(&args[0]));
-				box()->b_firstin = m_instance->maxobj();
-			}
+			c74::max::jbox_new(box(), flags, args.size(), static_cast<const c74::max::t_atom*>(&args[0]));
+			box()->b_firstin = m_instance->maxobj();
 		}
 
 
@@ -78,7 +79,7 @@ namespace min {
 	wrap_as_max_external_ui(max::t_class* c) {
 		long flags {};
 
-		//flags |= JBOX_TEXTFIELD;
+		// flags |= c74::max::JBOX_TEXTFIELD;
 		jbox_initclass(c, flags);
 		c->c_flags |= c74::max::CLASS_FLAG_NEWDICTIONARY; // to specify dictionary constructor
 
