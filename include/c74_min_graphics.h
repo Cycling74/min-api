@@ -11,9 +11,9 @@ namespace min {
 namespace ui {
 
 
-	class context {
+	class target {
 	public:
-		explicit context(const atoms& args) {
+		explicit target(const atoms& args) {
 			assert(args.size() == 2);
 
 			m_box = (max::t_jbox*)(max::t_object*)args[0];
@@ -71,7 +71,7 @@ namespace ui {
 			}
 		}
 
-		void operator()(context& g) {
+		void operator()(target& g) {
 			max::jgraphics_set_source_jrgba(g, &m_color);
 		}
 
@@ -118,7 +118,7 @@ namespace ui {
 		: m_width { a_width }
 		{}
 
-		void operator()(const context& g) {
+		void operator()(const target& g) {
 			max::jgraphics_set_line_width(g, m_width);
 		}
 
@@ -151,7 +151,7 @@ namespace ui {
 		, m_slant	{ italic ? max::JGRAPHICS_FONT_SLANT_ITALIC : max::JGRAPHICS_FONT_SLANT_NORMAL }
 		{}
 
-		void operator()(const context& g) {
+		void operator()(const target& g) {
 			max::jgraphics_select_font_face(g, m_name, m_slant, m_weight);
 		}
 
@@ -170,7 +170,7 @@ namespace ui {
 		: m_value { a_value }
 		{}
 
-		void operator()(const context& g) {
+		void operator()(const target& g) {
 			max::jgraphics_set_font_size(g, m_value);
 		}
 
@@ -184,17 +184,17 @@ namespace ui {
 
 		/// constructor utility: context
 		template<typename argument_type>
-		constexpr typename enable_if<is_same<argument_type, context>::value>::type
+		constexpr typename enable_if<is_same<argument_type, target>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			//const_cast<symbol&>(m_title) = arg;
-			m_context = std::make_unique<context>(arg);
+			m_target = std::make_unique<target>(arg);
 		}
 
 		/// constructor utility: color
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, color>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-			const_cast<argument_type&>(arg)( const_cast<context&>(*m_context) );
+			const_cast<argument_type&>(arg)( const_cast<target&>(*m_target) );
 		}
 
 		/// constructor utility: position
@@ -215,21 +215,21 @@ namespace ui {
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, fontface>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-			const_cast<argument_type&>(arg)( const_cast<context&>(*m_context) );
+			const_cast<argument_type&>(arg)( const_cast<target&>(*m_target) );
 		}
 
 		/// constructor utility: fontsize
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, fontsize>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-			const_cast<argument_type&>(arg)( const_cast<context&>(*m_context) );
+			const_cast<argument_type&>(arg)( const_cast<target&>(*m_target) );
 		}
 
 		/// constructor utility: line_width
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, line_width>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-			const_cast<argument_type&>(arg)( const_cast<context&>(*m_context) );
+			const_cast<argument_type&>(arg)( const_cast<target&>(*m_target) );
 		}
 
 		/// constructor utility: content
@@ -259,38 +259,47 @@ namespace ui {
 			if (m_rect.y <= 0.0)
 				m_rect.y = 0 + m_rect.y;
 			if (m_rect.width <= 0.0)
-				m_rect.width = m_context->width() + m_rect.width;
+				m_rect.width = m_target->width() + m_rect.width;
 			if (m_rect.height <= 0.0)
-				m_rect.height = m_context->height() + m_rect.height;
+				m_rect.height = m_target->height() + m_rect.height;
 		}
 
 
-		std::unique_ptr<context>	m_context;
+		std::unique_ptr<target>		m_target;
 		max::t_rect					m_rect {};
 		string						m_text;
 	};
 
 
-	class fill : public element {
-	public:
-		template<typename ...ARGS>
-		fill(ARGS... args) {
-			handle_arguments(args...);
-			update();
-			max::jgraphics_rectangle(*m_context, m_rect.x, m_rect.y, m_rect.width, m_rect.height);
-			max::jgraphics_fill(*m_context);
-		}
+	enum draw_style {
+		stroke,
+		fill
 	};
 
 
-	class stroke : public element {
+	template<draw_style style>
+	void draw(target& a_target);
+
+	template<>
+	void draw<stroke>(target& a_target) {
+		max::jgraphics_stroke(a_target);
+	}
+
+	template<>
+	void draw<fill>(target& a_target) {
+		max::jgraphics_fill(a_target);
+	}
+
+
+	template<draw_style style = stroke>
+	class rect : public element {
 	public:
 		template<typename ...ARGS>
-		stroke(ARGS... args) {
+		rect(ARGS... args) {
 			handle_arguments(args...);
 			update();
-			max::jgraphics_rectangle(*m_context, m_rect.x, m_rect.y, m_rect.width, m_rect.height);
-			max::jgraphics_stroke(*m_context);
+			max::jgraphics_rectangle(*m_target, m_rect.x, m_rect.y, m_rect.width, m_rect.height);
+			draw<style>(*m_target);
 		}
 	};
 
@@ -301,8 +310,8 @@ namespace ui {
 		text(ARGS... args) {
 			handle_arguments(args...);
 			update();
-			max::jgraphics_move_to(*m_context, m_rect.x, m_rect.y);
-			max::jgraphics_show_text(*m_context, m_text.c_str());
+			max::jgraphics_move_to(*m_target, m_rect.x, m_rect.y);
+			max::jgraphics_show_text(*m_target, m_text.c_str());
 		}
 	};
 
