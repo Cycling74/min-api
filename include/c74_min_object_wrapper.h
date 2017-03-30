@@ -174,6 +174,15 @@ namespace min {
 	}
 
 	template<class min_class_type, class message_name_type>
+	void wrapper_method_ptr_pt_long(max::t_object* o, void* arg1, max::t_pt arg2, long arg3) {
+		auto	self = wrapper_find_self<min_class_type>(o);
+		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		atoms	as { o, arg1, arg2.x, arg2.y, arg3 };
+
+		meth(as);
+	}
+
+	template<class min_class_type, class message_name_type>
 	max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
 		auto	self = wrapper_find_self<min_class_type>(o);
 		auto&	meth = *self->min_object.messages()[message_name_type::name];
@@ -260,6 +269,12 @@ namespace min {
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(float)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(int)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(loadbang)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseenter)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseleave)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedown)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseup)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedragdelta)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedoubleclick)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(notify)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(okclose)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(paint)
@@ -315,6 +330,12 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,		self_ptr_long_ptr_long_ptr_long,	A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, fileusage,            ptr,                                A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, paint,				self_ptr,							A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mouseenter,			ptr_pt_long,						A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mouseleave,			ptr_pt_long,						A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mousedown,			ptr_pt_long,						A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mouseup,				ptr,								A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta,		ptr_pt_long,						A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick,		ptr_pt_long,						A_CANT)
 			else if (a_message.first == "dspsetup")				; // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
 			else {
