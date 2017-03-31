@@ -174,7 +174,7 @@ namespace min {
 	}
 
 	template<class min_class_type, class message_name_type>
-	void wrapper_method_ptr_pt_long(max::t_object* o, void* arg1, max::t_pt arg2, long arg3) {
+	void wrapper_method_self_ptr_pt_long(max::t_object* o, void* arg1, max::t_pt arg2, long arg3) {
 		auto	self = wrapper_find_self<min_class_type>(o);
 		auto&	meth = *self->min_object.messages()[message_name_type::name];
 		atoms	as { o, arg1, arg2.x, arg2.y, arg3 };
@@ -330,12 +330,12 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,		self_ptr_long_ptr_long_ptr_long,	A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, fileusage,            ptr,                                A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, paint,				self_ptr,							A_CANT)
-			else MIN_WRAPPER_ADDMETHOD(c, mouseenter,			ptr_pt_long,						A_CANT)
-			else MIN_WRAPPER_ADDMETHOD(c, mouseleave,			ptr_pt_long,						A_CANT)
-			else MIN_WRAPPER_ADDMETHOD(c, mousedown,			ptr_pt_long,						A_CANT)
-			else MIN_WRAPPER_ADDMETHOD(c, mouseup,				ptr,								A_CANT)
-			else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta,		ptr_pt_long,						A_CANT)
-			else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick,		ptr_pt_long,						A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mouseenter,			self_ptr_pt_long,					A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mouseleave,			self_ptr_pt_long,					A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mousedown,			self_ptr_pt_long,					A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mouseup,				self_ptr,							A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta,		self_ptr_pt_long,					A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick,		self_ptr_pt_long,					A_CANT)
 			else if (a_message.first == "dspsetup")				; // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
 			else {

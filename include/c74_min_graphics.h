@@ -14,7 +14,7 @@ namespace ui {
 	class target {
 	public:
 		explicit target(const atoms& args) {
-			assert(args.size() == 2);
+			assert(args.size() > 1);
 
 			m_box = (max::t_jbox*)(max::t_object*)args[0];
 			m_view = args[1];
