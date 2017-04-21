@@ -56,8 +56,9 @@ namespace min {
 	
 	template<class T, threadsafe threadsafety>
 	void attribute<T,threadsafety>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
-		if (m_style == style::time)
+		if (m_style == style::time) {
 			class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
+		}
 		else if (isjitclass) {
 			auto jit_attr = max::object_new_imp(max::gensym("jitter"),
 												max::_jit_sym_jit_attr_offset,
