@@ -76,7 +76,11 @@ namespace min {
 		, m_name	{ a_name }
 		, m_title	{ a_name }
 		{}
-		
+
+		attribute_base(const deferred_message& other) = delete; // no copying allowed!
+		attribute_base(const deferred_message&& other) = delete; // no moving allowed!
+
+
 		/// set the value of the attribute
 		virtual attribute_base& operator = (atoms args) = 0;
 		
@@ -298,6 +302,9 @@ namespace min {
 		/// @param ...args			N arguments specifying optional properties of an attribute such as setter, label, style, etc.
 		template<typename ...ARGS>
 		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args);
+
+		attribute(const deferred_message& other) = delete; // no copying allowed!
+		attribute(const deferred_message&& other) = delete; // no moving allowed!
 
 		
 		/// Set the attribute value using the native type of the attribute.
