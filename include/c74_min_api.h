@@ -101,6 +101,63 @@ namespace min {
 	class sample_operator_base;
 	class vector_operator_base;
 	class ui_operator_base;
+	namespace ui {
+		class color {
+		public:
+
+			enum colors {
+				black,
+				white,
+				gray
+			};
+
+			color ()
+			: m_color { colors::black }
+			{}
+
+			color(max::t_jrgba a_color)
+			: m_color { a_color }
+			{}
+
+			color(double red, double green, double blue, double alpha)
+			: m_color { red, green, blue, alpha }
+			{}
+
+			color(colors a_color) {
+				switch (a_color) {
+					case black	: m_color = { 0.0, 0.0, 0.0, 1.0}; break;
+					case white	: m_color = { 1.0, 1.0, 1.0, 1.0}; break;
+					case gray	: m_color = { 0.7, 0.7, 0.7, 1.0}; break;
+				}
+			}
+
+
+			operator c74::max::t_jrgba*() {
+				return &m_color;
+			}
+
+
+
+			double red() const {
+				return m_color.red;
+			}
+
+			double green() const {
+				return m_color.green;
+			}
+
+			double blue() const {
+				return m_color.blue;
+			}
+
+			double alpha() const {
+				return m_color.alpha;
+			}
+			
+		private:
+			max::t_jrgba m_color;
+		};
+	}
 	
 	template<class T>
 	using is_class = std::is_class<T>;
@@ -110,6 +167,9 @@ namespace min {
 
 	template<class T>
 	using is_time_value = is_same<T, time_value>;
+
+	template<class T>
+	using is_color = is_same<T, ui::color>;
 
 	template<class min_class_type>
 	using enable_if_matrix_operator = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value, int>::type;

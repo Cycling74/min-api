@@ -25,6 +25,8 @@ namespace min {
 		else									m_datatype = k_sym_float64;
 
 		if (is_same<T, bool>::value)			m_style = style::onoff;
+		else if (is_same<T, ui::color>::value)	m_style = style::color;
+		else if (a_name == "fontname")			m_style = style::font;
 		else									m_style = style::none;
 
 		handle_arguments(args...);
@@ -147,15 +149,23 @@ namespace min {
 
 
 	// enum attrs use the special enum map for range
-	template<class T, threadsafe threadsafety, typename enable_if< std::is_enum<T>::value, int>::type = 0>
+	template<class T, threadsafe threadsafety, typename enable_if< is_enum<T>::value, int>::type = 0>
 	void range_copy_helper(attribute<T,threadsafety>* attr) {
 		for (auto i=0; i < attr->get_enum_map().size(); ++i)
 			attr->range_ref().push_back(static_cast<T>(i));
 	}
 
 
-	// all non-enum attrs can just copy range normally
-	template<class T, threadsafe threadsafety, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+	// color attrs don't use range
+	template<class T, threadsafe threadsafety, typename enable_if< is_color<T>::value, int>::type = 0>
+	void range_copy_helper(attribute<T,threadsafety>* attr) {
+		//for (auto i=0; i < attr->get_enum_map().size(); ++i)
+		//	attr->range_ref().push_back(static_cast<T>(i));
+	}
+
+
+	// most attrs can just copy range normally
+	template<class T, threadsafe threadsafety, typename enable_if< !is_enum<T>::value && !is_color<T>::value, int>::type = 0>
 	void range_copy_helper(attribute<T,threadsafety>* attr) {
 		for (const auto& a : attr->get_range_args())
 			attr->range_ref().push_back(a);

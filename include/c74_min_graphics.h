@@ -50,34 +50,6 @@ namespace ui {
 	};
 
 
-	class color {
-	public:
-
-		enum colors {
-			black,
-			white,
-			gray
-		};
-
-		color(max::t_jrgba a_color)
-		: m_color { a_color }
-		{}
-
-		color(colors a_color) {
-			switch (a_color) {
-				case black	: m_color = { 0.0, 0.0, 0.0, 1.0}; break;
-				case white	: m_color = { 1.0, 1.0, 1.0, 1.0}; break;
-				case gray	: m_color = { 0.7, 0.7, 0.7, 1.0}; break;
-			}
-		}
-
-		void operator()(target& g) {
-			max::jgraphics_set_source_jrgba(g, &m_color);
-		}
-
-	private:
-		max::t_jrgba m_color;
-	};
 
 
 	class position {
@@ -194,7 +166,7 @@ namespace ui {
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, color>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-			const_cast<argument_type&>(arg)( const_cast<target&>(*m_target) );
+			m_color = arg;
 		}
 
 		/// constructor utility: position
@@ -262,11 +234,14 @@ namespace ui {
 				m_rect.width = m_target->width() + m_rect.width;
 			if (m_rect.height <= 0.0)
 				m_rect.height = m_target->height() + m_rect.height;
+
+			max::jgraphics_set_source_jrgba(*m_target, m_color);
 		}
 
 
 		std::unique_ptr<target>		m_target;
 		max::t_rect					m_rect {};
+		color						m_color;
 		string						m_text;
 	};
 

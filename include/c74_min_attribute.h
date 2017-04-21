@@ -38,7 +38,8 @@ namespace min {
 		rect,
 		font,
 		file,
-		time
+		time,
+		color
 	};
 
 
@@ -52,6 +53,7 @@ namespace min {
 			{ style::rect, "rect"},
 			{ style::font, "font"},
 			{ style::file, "file"},
+			{ style::color, "rgba"},
 	};
 
 

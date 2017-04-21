@@ -386,7 +386,7 @@ namespace min {
 	/// @param	container	The container instance whose values will be copied
 	/// @return				A vector of atoms
 	
-	template<class T, typename enable_if< !is_symbol<T>::value && !is_time_value<T>::value && is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !is_symbol<T>::value && !is_time_value<T>::value && !is_color<T>::value && is_class<T>::value, int>::type = 0>
 	atoms to_atoms(const T& container) {
 		atoms	as(container.size());
 		size_t	index = 0;
@@ -395,6 +395,18 @@ namespace min {
 			as[index] = item;
 			++index;
 		}
+		return as;
+	}
+
+
+	/// Copy values from a color to a vector of atoms of size=4.
+	/// @tparam	T	The type of the input value.
+	/// @param	v	The value to be copied.
+	/// @return		A vector of atoms
+
+	template<class T, typename enable_if< is_color<T>::value, int>::type = 0>
+	atoms to_atoms(const T& v) {
+		atoms as {v.red(), v.green(), v.blue(), v.alpha()};
 		return as;
 	}
 
@@ -416,7 +428,7 @@ namespace min {
 	/// @param	as	The vector atoms containing the desired data
 	/// @return		The container of the values
 	
-	template<class T, typename enable_if< !is_symbol<T>::value && !is_time_value<T>::value && is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !is_symbol<T>::value && !is_time_value<T>::value && !is_color<T>::value && is_class<T>::value, int>::type = 0>
 	T from_atoms(const atoms& as) {
 		T container;
 		
@@ -425,7 +437,19 @@ namespace min {
 			container.push_back(a);
 		return container;
 	}
-	
+
+
+	/// Copy values out from a vector of atoms to the desired color type
+	/// @tparam	T	The type of the destination (a ui::color)
+	/// @param	as	The vector atoms containing the desired data
+	/// @return		The color
+
+	template<class T, typename enable_if< is_color<T>::value, int>::type = 0>
+	T from_atoms(const atoms& as) {
+		ui::color c { as[0], as[1], as[2], as[3] };		// TODO: bounds-checking
+		return c;
+	}
+
 	
 	/// Copy a value out from a vector of atoms to the desired type
 	/// @tparam	T	The type of the destination variable
