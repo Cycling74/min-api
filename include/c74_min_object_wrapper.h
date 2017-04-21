@@ -311,7 +311,7 @@ namespace min {
 								   0);
 
 		// wrapping as ui *must* occur immediately after class_new() or notifications will be broken
-		wrap_as_max_external_ui<min_class_type>(c);
+		wrap_as_max_external_ui<min_class_type>(c, instance);
 
 		// messages
 
@@ -372,8 +372,9 @@ namespace min {
 			// Attribute Metadata
 			CLASS_ATTR_LABEL(c,	attr_name.c_str(), 0, attr.label_string());
 
-            if (attr.editor_style() != style::none)
-                CLASS_ATTR_STYLE(c, attr_name.c_str(), 0, style_symbols[attr.editor_style()]);
+			if (attr.editor_style() != style::none) {
+				CLASS_ATTR_STYLE(c, attr_name.c_str(), 0, style_symbols[attr.editor_style()]);
+			}
 
             if (!(attr.editor_category() == k_sym__empty)) {
                 atom category_atom(attr.editor_category());
@@ -409,7 +410,7 @@ namespace min {
 	type_enable_if_not_audio_class<min_class_type> wrap_as_max_external_audio(max::t_class*) {}
 
 	template<class min_class_type>
-	type_enable_if_not_ui_class<min_class_type> wrap_as_max_external_ui(max::t_class*) {}
+	type_enable_if_not_ui_class<min_class_type> wrap_as_max_external_ui(max::t_class*, min_class_type&) {}
 
 
 	template<class min_class_type>

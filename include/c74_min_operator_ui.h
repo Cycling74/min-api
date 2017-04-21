@@ -13,7 +13,7 @@ namespace min {
 	class ui_operator_base {};
 	
 
-	//template<class min_class_type>
+	template<int default_width_type = 20, int default_height_type = 20>
 	class ui_operator : public ui_operator_base {
 	public:
 		explicit ui_operator(object_base* instance, const atoms& args)
@@ -61,10 +61,20 @@ namespace min {
 		}
 
 
+		int default_width() const {
+			return default_width_type;
+		}
+
+
+		int default_height() const {
+			return default_height_type;
+		}
+
+
 	private:
 		object_base* m_instance;
 
-		c74::max::t_jbox* box() {
+		c74::max::t_jbox* box() const {
 			return reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj());
 		}
 	};
@@ -76,14 +86,21 @@ namespace min {
 
 	template<class min_class_type>
 	typename enable_if< is_base_of<ui_operator_base, min_class_type>::value >::type
-	wrap_as_max_external_ui(max::t_class* c) {
+	wrap_as_max_external_ui(max::t_class* c, min_class_type& instance) {
 		long flags {};
 
 		// flags |= c74::max::JBOX_TEXTFIELD;
 		jbox_initclass(c, flags);
 		c->c_flags |= c74::max::CLASS_FLAG_NEWDICTIONARY; // to specify dictionary constructor
 
-		// CLASS_ATTR_DEFAULT(c, "patching_rect", 0, "0. 0. 160. 20.");
+		string default_patching_rect {"0. 0. "};
+		default_patching_rect += std::to_string(instance.default_width());
+		default_patching_rect += " ";
+		default_patching_rect += std::to_string(instance.default_height());
+
+		auto attr = (c74::max::t_object*)c74::max::class_attr_get(c, c74::max::gensym("patching_rect"));
+		auto attr_type = (c74::max::t_symbol*)object_method(attr, c74::max::gensym("gettype"));
+		c74::max::class_attr_addattr_parse(c, "patching_rect", "default", attr_type, 0, default_patching_rect.c_str());
 	}
 
 }} // namespace c74::min
