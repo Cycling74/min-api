@@ -217,8 +217,11 @@ namespace min {
 #include "c74_min_path.h"				// Wrapper class for accessing the Max path system
 #include "c74_min_texteditor.h"			// Wrapper for text editor window
 
-#include "c74_min_accessories.h"		// Library of miscellaneous helper functions and widgets
-#include "c74_min_accessories_easing.h"	// Library of easing functions
+#include "c74_lib_misc.h"				// Library of miscellaneous helper functions (e.g. range clipping)
+#include "c74_lib_string.h"				// String utility functions
+#include "c74_lib_easing.h"				// Library of easing functions
+#include "c74_lib_filters.h"			// Library of filter functions and helpers
+
 #include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 
 
