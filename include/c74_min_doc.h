@@ -289,21 +289,27 @@ namespace min {
 		const auto& attributes = instance.attributes();
 
 		for (const auto& p: attributes) {
-			const auto& attr_object	= *p.second;
-			const auto& description	= doc_format(attr_object.description_string());
-			const auto& attr_type = attr_object.datatype();
+			try {
+				const auto& attr_object	= *p.second;
+				const auto& description	= doc_format(attr_object.description_string());
+				const auto& attr_type = attr_object.datatype();
 
-			strncpy(digest, description.c_str(), digest_length_max);
-			char *c = strstr(digest, ". ");
-			if (!c)
-				c = strchr(digest, '.');
-			if (c)
-				*c = 0;
+				strncpy(digest, description.c_str(), digest_length_max);
+				char *c = strstr(digest, ". ");
+				if (!c)
+					c = strchr(digest, '.');
+				if (c)
+					*c = 0;
 
-			refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='"<< attr_object.writable() <<"' type='" << attr_type << "' size='1' >" << endl;
-			refpage_file << "			<digest>" << digest << "</digest>" << endl;
-			refpage_file << "			<description>" << description << "</description>" << endl;
-			refpage_file << "		</attribute>" << endl << endl;
+				refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='"<< attr_object.writable() <<"' type='" << attr_type << "' size='1' >" << endl;
+				refpage_file << "			<digest>" << digest << "</digest>" << endl;
+				refpage_file << "			<description>" << description << "</description>" << endl;
+				refpage_file << "		</attribute>" << endl << endl;
+			}
+			catch(...) {
+				// if an attr doesn't have a description or there is some other problem, just ignore this attribute
+
+			}
 		}
 
 		refpage_file << "	</attributelist>" << endl;
