@@ -132,6 +132,10 @@ namespace min {
 			return static_cast<long long>(atom_getlong(this));
 		}
 
+		operator size_t() const {
+			return static_cast<size_t>(atom_getlong(this));
+		}
+
 		operator bool() const {
 			return atom_getlong(this) != 0;
 		}
