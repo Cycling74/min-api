@@ -253,15 +253,15 @@ namespace ui {
 
 
 	template<draw_style style>
-	void draw(target& a_target);
+	inline void draw(target& a_target);
 
 	template<>
-	void draw<stroke>(target& a_target) {
+	inline void draw<stroke>(target& a_target) {
 		max::jgraphics_stroke(a_target);
 	}
 
 	template<>
-	void draw<fill>(target& a_target) {
+	inline void draw<fill>(target& a_target) {
 		max::jgraphics_fill(a_target);
 	}
 
