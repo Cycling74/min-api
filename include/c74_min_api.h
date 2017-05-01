@@ -35,6 +35,10 @@ namespace min {
 	
 	using uchar = unsigned char;
 	using string = std::string;
+	template<class T>
+	using vector = std::vector<T>;
+	template<class T>
+	using unique_ptr = std::unique_ptr<T>;
 
 	using number = double;
 	using sample = double;
