@@ -83,7 +83,7 @@ namespace min {
 
 			void set_drive(number drive_percentage) {
 				m_drive = drive_percentage;
-				auto f = drive_percentage / 100.0;
+				auto f = MIN_CLAMP(drive_percentage / 100.0, 0.001, 0.999);
 
 				m_z = M_PI * f;
 				m_s = 1.0 / sin(m_z);
