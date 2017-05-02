@@ -81,8 +81,13 @@ namespace min {
 			}
 		}
 
+
+		/// Copy an audio_bundle to another audio_bundle without resizing the destination
+		/// If the destination does not have enough channels to copy the entire source
+		/// the extra channels will be dropped.
+
 		audio_bundle& operator = (const audio_bundle& other) {
-			assert(m_channelcount == other.m_channelcount);
+			assert(m_channelcount <= other.m_channelcount);
 			assert(m_framecount == other.m_framecount);
 
 			for (auto channel=0; channel < m_channelcount; ++channel) {
