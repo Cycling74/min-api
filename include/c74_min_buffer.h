@@ -42,6 +42,12 @@ namespace min {
 			else
 				buffer_ref_set(m_instance, name);
 		}
+
+
+		// does the buffer legitimately exist?
+		operator bool() {
+			return m_instance && max::buffer_ref_exists(m_instance);
+		}
 		
 		
 	private:
