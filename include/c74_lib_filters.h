@@ -107,6 +107,7 @@ namespace min {
 					// http://redmine.jamoma.org/issues/show/54
 					// It is insane, but on Windows sin() returns bad values
 					// if the argument is negative, so we have to do this crazy workaround.
+					number sign;
 					if (x < 0.0) {
 						x = -x;
 						sign = -1.0;
