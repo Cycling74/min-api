@@ -28,6 +28,8 @@
 
 #include "readerwriterqueue/readerwriterqueue.h"
 
+#include "murmur/Murmur3.h" // used for constexpr hash function
+
 namespace c74 {
 namespace min {
 

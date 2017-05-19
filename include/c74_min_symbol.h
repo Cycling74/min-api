@@ -10,7 +10,20 @@ namespace min {
 	
 	
 	class atom;
-	
+
+
+
+	/** A hash function using the Murmur3 algorithm ( https://en.wikipedia.org/wiki/MurmurHash ).
+		 This hash function is capable of being executed at compile time,
+		 meaning that the compiled binary will have a constant int value and no actually need to execute any code at runtime.
+		 @param	str		A c-string to be hashed into an int.
+		 @param	seed	An optional seed value.  For most uses you should not override the default.
+		 @return			An int (specifically a uint32_t) representing the hash of the string input.
+	 */
+	constexpr inline uint32_t hash(const char *const str, const uint32_t seed = 0xAED123FD) noexcept {
+		return Murmur3_32(str, _StringLength(str), seed);
+	}
+
 	
 	/// A Max symbol represents a string that is cached in a lookup table to speed up string comparisons / usage.
 	//	This is a lightweight wrapper for a Max t_symbol instance.
