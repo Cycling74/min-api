@@ -14,6 +14,7 @@
 
 
 // TODO: The use of __has_include on Windows requires VS version 15.3 which is not yet available
+// Alternatively, could configure this using CMake
 //#if __has_include("../../min-lib/include/c74_lib.h")
 	#include "../../min-lib/include/c74_lib.h"
 //#endif
