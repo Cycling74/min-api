@@ -44,38 +44,6 @@ namespace min {
 			return y;
 		}
 		
-
-
-
-
-
-
-
-
-
-
-
-		class dcblocker {
-		public:
-
-			void clear() {
-				x_1 = y_1 = 0.0;
-			}
-
-			sample operator()(sample x) {
-				auto y = x - x_1 + y_1 * 0.9997;
-				y_1 = y;
-				x_1 = x;
-				return y;
-			}
-
-		private:
-			sample	x_1 { 0.0 };	///< Input history
-			sample	y_1 { 0.0 };	///< Output history
-		};
-
-
-
 		
 
 		class saturation {
