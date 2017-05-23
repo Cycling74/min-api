@@ -13,11 +13,11 @@
 #include "c74_min_buffer_impl.h"
 
 
-// TODO: The use of __has_include on Windows requires VS version 15.3 which is not yet available
-// Alternatively, could configure this using CMake
-//#if __has_include("../../min-lib/include/c74_lib.h")
+// The use of __has_include on Windows requires VS version 15.3 which is not yet available
+// Alternatively defined C74_USE_MIN_LIB using CMake
+#if defined( C74_USE_MIN_LIB ) || __has_include("../../min-lib/include/c74_lib.h")
 	#include "../../min-lib/include/c74_lib.h"
-//#endif
+#endif
 
 
 #undef C74_MIN_WITH_IMPLEMENTATION

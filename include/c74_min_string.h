@@ -11,9 +11,9 @@ namespace min {
 
 
 	
-	namespace string_utility {
-		using std::string;
-		using std::vector;
+//	namespace string_utility {
+//		using std::string;
+//		using std::vector;
 
 
 		/// Trim leading and trailing whitespace from a string
@@ -58,7 +58,7 @@ namespace min {
 			return output;
 		}
 
-	} // namespace string_utility
+//	} // namespace string_utility
 	
 	
 

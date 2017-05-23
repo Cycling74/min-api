@@ -36,9 +36,13 @@ namespace min {
 	// types
 	
 	using uchar = unsigned char;
-	using string = std::string;
-	template<class T>
-	using vector = std::vector<T>;
+
+	//	using string = std::string;
+//	template<class T>
+//	using vector = std::vector<T>;
+	using std::string;
+	using std::vector;
+
 	template<class T>
 	using unique_ptr = std::unique_ptr<T>;
 
