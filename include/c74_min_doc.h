@@ -58,7 +58,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< has_class_tags<min_class_type>::value>::type
 	doc_get_tags(tags& returned_tags) {
-		returned_tags = string_utility::split(min_class_type::class_tags, ',');
+		returned_tags = str::split(min_class_type::class_tags, ',');
 	}
 
 	template<class min_class_type>
@@ -89,7 +89,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< has_class_related<min_class_type>::value>::type
 		doc_get_related(strings& returned_tags) {
-		returned_tags = string_utility::split(min_class_type::class_related, ',');
+		returned_tags = str::split(min_class_type::class_related, ',');
 	}
 
 	template<class min_class_type>
@@ -117,9 +117,7 @@ namespace min {
 
 
 	inline std::string doc_format(const std::string& input) {
-		using std::string;
-
-		strings tokens = string_utility::split(input, ' ');
+		strings tokens = str::split(input, ' ');
 
 		for (auto& token : tokens) {
 			if (token[0] == '@') {										// attribute
@@ -136,7 +134,7 @@ namespace min {
 			}
 		}
 
-		return string_utility::join(tokens);
+		return str::join(tokens);
 	}
 
 	template<class min_class_type>
@@ -213,7 +211,7 @@ namespace min {
 		refpage_file << "	<metadatalist>" << endl;
 		refpage_file << "		<metadata name='author'>" << doc_format(author) << "</metadata>" << endl;
 		for (auto i=0; i<class_tags.size(); ++i)
-			refpage_file << "		<metadata name='tag'>" << string_utility::trim(class_tags[i]) << "</metadata>" << endl;
+			refpage_file << "		<metadata name='tag'>" << str::trim(class_tags[i]) << "</metadata>" << endl;
 		refpage_file << "	</metadatalist>" << endl;
 		refpage_file << endl << endl;
 
@@ -322,7 +320,7 @@ namespace min {
 		strings related;
 		doc_get_related<min_class_type>(related);
 		for (auto i = 0; i<related.size(); ++i)
-			refpage_file << "		<seealso name='" << string_utility::trim(related[i]) << "' />" << endl;
+			refpage_file << "		<seealso name='" << str::trim(related[i]) << "' />" << endl;
 		refpage_file << "	</seealsolist>" << endl;
 		refpage_file << endl << endl;
 
