@@ -7,51 +7,10 @@
 
 namespace c74 {
 namespace min {
-		
-	class vector_operator_base {};
-	class vector_operator : public vector_operator_base {
-	public:
 
-		void samplerate_set(double a_samplerate) {
-			m_samplerate = a_samplerate;
-		}
 
-		double samplerate() {
-			return m_samplerate;
-		}
-
-	private:
-		double m_samplerate { c74::max::sys_getsr() };
-	};
-	
-	
-	template<class min_class_type>
-	struct minwrap <min_class_type, type_enable_if_audio_class<min_class_type> > {
-		maxobject_base	max_base;
-		min_class_type	min_object;
-		
-		void setup() {
-			max::dsp_setup(max_base, (long)min_object.inlets().size());
-
-			max::t_pxobject* x = max_base;
-			x->z_misc |= max::Z_NO_INPLACE;
-			
-			min_object.create_outlets();
-		}
-		
-		void cleanup() {
-			max::dsp_free(max_base);
-		}
-
-		max::t_object* maxobj() {
-			return max_base;
-		}
-	};
-	
-	
-	
 	struct audio_bundle {
-		
+
 		audio_bundle(double** samples, long channelcount, long framecount)
 		: m_samples			{ samples }
 		, m_channelcount	{ channelcount }
@@ -61,15 +20,15 @@ namespace min {
 		double** samples() {
 			return m_samples;
 		}
-		
+
 		double* samples(size_t channel) {
 			return m_samples[channel];
 		}
-		
+
 		long channelcount() {
 			return m_channelcount;
 		}
-		
+
 		long framecount() {
 			return m_framecount;
 		}
@@ -101,7 +60,55 @@ namespace min {
 		long		m_channelcount = 0;
 		long		m_framecount = 0;
 	};
+	
 
+	class vector_operator_base {};
+	class vector_operator : public vector_operator_base {
+	public:
+
+		void samplerate_set(double a_samplerate) {
+			m_samplerate = a_samplerate;
+		}
+
+		double samplerate() {
+			return m_samplerate;
+		}
+
+		sample operator()(sample x);
+
+		virtual void operator()(audio_bundle input, audio_bundle output) = 0;
+
+
+	private:
+		double m_samplerate { c74::max::sys_getsr() };
+	};
+	
+	
+	template<class min_class_type>
+	struct minwrap <min_class_type, type_enable_if_audio_class<min_class_type> > {
+		maxobject_base	max_base;
+		min_class_type	min_object;
+		
+		void setup() {
+			max::dsp_setup(max_base, (long)min_object.inlets().size());
+
+			max::t_pxobject* x = max_base;
+			x->z_misc |= max::Z_NO_INPLACE;
+			
+			min_object.create_outlets();
+		}
+		
+		void cleanup() {
+			max::dsp_free(max_base);
+		}
+
+		max::t_object* maxobj() {
+			return max_base;
+		}
+	};
+	
+	
+	
 
 	// the partial specialization of A is enabled via a template parameter
 	template<class min_class_type, class Enable = void>

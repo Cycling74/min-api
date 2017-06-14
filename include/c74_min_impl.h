@@ -110,5 +110,21 @@ namespace min {
 		return true;
 	};
 
-	
+
+	// vector_operator
+
+	sample vector_operator::operator()(sample x) {
+		sample			input_storage[1] {x};
+		sample			output_storage[1] {};
+		sample*			input {input_storage};
+		sample*			output { output_storage };
+		audio_bundle	input_bundle { &input, 1, 1 };
+		audio_bundle	output_bundle { &output, 1, 1 };
+
+		(*this)(input_bundle, output_bundle);
+
+		return output[0];
+	}
+
+
 }} // namespace c74::min
