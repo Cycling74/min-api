@@ -96,6 +96,16 @@ namespace max {
 		return 0;
 	}
 
+
+	MOCK_EXPORT void attr_dictionary_check(void* x, t_dictionary* d) {}
+
+
+	MOCK_EXPORT t_dictionary* object_dictionaryarg(long ac, t_atom* av) {
+		return nullptr;
+	}
+
+
+
 	MOCK_EXPORT method object_getmethod(void* x, t_symbol* s) {
 		return nullptr;
 	}
@@ -174,6 +184,22 @@ namespace max {
 	MOCK_EXPORT t_max_err class_addtypedwrapper(t_class *x, method m, const char *name, ...) {
 		return 0;
 	}
+
+
+
+
+
+	using t_jbox = t_object;
+
+
+	MOCK_EXPORT void jbox_ready(t_jbox* b) {}
+
+
+
+
+
+
+
 
 	MOCK_EXPORT void max_jit_obex_gimmeback_dumpout(void *x, t_symbol *s, long ac, t_atom *av) {
 		return;
