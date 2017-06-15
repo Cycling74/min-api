@@ -97,8 +97,9 @@ namespace max {
 	}
 
 
-	MOCK_EXPORT void attr_dictionary_check(void* x, t_dictionary* d) {}
+	MOCK_EXPORT void attr_dictionary_process(void* x, t_dictionary* d) {}
 
+	MOCK_EXPORT void attr_dictionary_check(void* x, t_dictionary* d) {}
 
 	MOCK_EXPORT t_dictionary* object_dictionaryarg(long ac, t_atom* av) {
 		return nullptr;
