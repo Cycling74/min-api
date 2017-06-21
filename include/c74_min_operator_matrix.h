@@ -10,8 +10,33 @@
 namespace c74 {
 namespace min {
 
+
+	/// The base class for all template specializations of matrix_operator.
+
 	class matrix_operator_base {};
-	class matrix_operator : public matrix_operator_base {};
+
+
+	/// Inheriting from matrix_operator extends your class functionality to processing matrices.
+
+	class matrix_operator : public matrix_operator_base {
+	public:
+
+		/// @param	enable_parallel_breakup Allow the matrix processing engine to break apart the processing into smaller submatrices.
+		///									This can improve the speed calculating your matrix processing, but in some cases may have
+		///									undesired consequences.
+
+		explicit matrix_operator(bool enable_parallel_breakup = true)
+		: m_enable_parallel_breakup { enable_parallel_breakup }
+		{}
+
+		bool parallel_breakup_enabled() {
+			return m_enable_parallel_breakup;
+		}
+
+	private:
+		bool m_enable_parallel_breakup;
+	};
+
 
 	using pixel = std::array<uchar,4>;
 
@@ -406,13 +431,19 @@ namespace min {
 						dim[i] = in_minfo.dim[i];
 					}
 				}
-				
-				max::jit_parallel_ndim_simplecalc2(
+
+				if (self->min_object.parallel_breakup_enabled()) {
+					max::jit_parallel_ndim_simplecalc2(
 												   reinterpret_cast<max::method>(jit_calculate_ndim<min_class_type>),
 												   self,
 												   dimcount, dim, planecount, &in_minfo, reinterpret_cast<char*>(in_bp), &out_minfo, reinterpret_cast<char*>(out_bp),
 												   0, 0
-				);
+												   );
+				}
+				else {
+					jit_calculate_ndim<min_class_type>(self, dimcount, dim, planecount, &in_minfo, reinterpret_cast<uchar*>(in_bp), &out_minfo, reinterpret_cast<uchar*>(out_bp));
+					
+				}
 			}
 
 			max::object_method(out_matrix, max::_jit_sym_lock, out_savelock);
