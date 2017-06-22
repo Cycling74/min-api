@@ -552,10 +552,27 @@ namespace min {
 		// add special messages to max class, and object messages to jitter class
 		// must happen pror to max_jit_class_wrap_standard call
 		for (auto& a_message : instance->messages()) {
-			MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
-			else MIN_WRAPPER_ADDMETHOD(c, notify,			self_sym_sym_ptr_ptr___err,			A_CANT)
-			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,	self_ptr_long_ptr_long_ptr_long,	A_CANT)
-			else MIN_WRAPPER_ADDMETHOD(c, fileusage,        ptr,                                A_CANT)
+			MIN_WRAPPER_ADDMETHOD(c, bang,					zero,								A_NOTHING)
+			else MIN_WRAPPER_ADDMETHOD(c, dblclick,				zero,								A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, okclose,				zero,								A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, edclose,				zero,								A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, loadbang,				zero,								A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, anything,				anything,							A_GIMME)
+			else MIN_WRAPPER_ADDMETHOD(c, int,					int,								A_LONG)
+			else MIN_WRAPPER_ADDMETHOD(c, float,				float,								A_FLOAT)
+			else MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
+			else MIN_WRAPPER_ADDMETHOD(c, appendtodictionary,	ptr,								A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, notify,				self_sym_sym_ptr_ptr___err,			A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,		self_ptr_long_ptr_long_ptr_long,	A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, fileusage,            ptr,                                A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, paint,				self_ptr,							A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mouseenter,			self_ptr_pt_long,					A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mouseleave,			self_ptr_pt_long,					A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mousedown,			self_ptr_pt_long,					A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mouseup,				self_ptr,							A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta,		self_ptr_pt_long,					A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick,		self_ptr_pt_long,					A_CANT)
+			else if (a_message.first == "dspsetup")				; // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup")	; // for min class construction only, do not add for exposure to max
 			else if (a_message.first == "jitclass_setup")	; // for min class construction only, do not add for exposure to max
 			else if (a_message.first == "mop_setup")        ; // for min class construction only, do not add for exposure to max
