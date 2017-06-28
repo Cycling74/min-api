@@ -29,12 +29,44 @@ namespace min {
 		: m_enable_parallel_breakup { enable_parallel_breakup }
 		{}
 
+
+		/// Find out if parallel processing of the matrix is enabled
+		///	@return	True if parallel breakup is enabled. Otherwise false.
+
 		bool parallel_breakup_enabled() {
 			return m_enable_parallel_breakup;
 		}
 
+
+		/// When the matrix is processed a call is made to the subclass calc_cell() method for each cell.
+		/// The order in which the cells are iterated will be one of the options provided here.
+
+		enum class iteration_direction {
+			forward,
+			reverse,
+			bidirectional,
+			enum_count
+		};
+
+		enum_map iteration_direction_info = {
+			"forward",
+			"reverse",
+			"bidirectional"
+		};
+
+
+		void direction(iteration_direction new_direction) {
+			m_direction = new_direction;
+		}
+
+
+		iteration_direction direction() {
+			return m_direction;
+		}
+
 	private:
-		bool m_enable_parallel_breakup;
+		bool				m_enable_parallel_breakup;
+		iteration_direction	m_direction {};
 	};
 
 
@@ -227,6 +259,7 @@ namespace min {
 	
 	// We are using a C++ template to process a vector of the matrix for any of the given types.
 	// Thus, we don't need to duplicate the code for each datatype.
+
 	template<class min_class_type, typename U, enable_if_matrix_operator<min_class_type> = 0>
 	void jit_calculate_vector(minwrap<min_class_type>* self, const matrix_info& info, long n, long i, max::t_jit_op_info* in, max::t_jit_op_info* out) {
 		auto		ip = in ? static_cast<U*>(in->p) : nullptr;
@@ -235,59 +268,161 @@ namespace min {
 		auto		os = out->stride;
 		const auto	step = os / info.planecount();
 		const bool	planematch = (info.m_in_info->planecount == info.m_out_info->planecount);
-        
+		auto		ip_last = ip + (is * (n-1));
+		auto		op_last = op + (os * (n-1));
+
 		if (planematch && info.planecount() == 1) {
-			for (auto j = 0; j < n; ++j) {
-				matrix_coord			position(j, i);
-                U						val = ip ? *(ip) : 0;
-                const std::array<U,1>	tmp = {{ val }};
-                const std::array<U,1>	out = self->min_object.calc_cell(tmp, info, position);
-                
-				*(op) = out[0];
-				if (ip)
-					ip += is;
-				op += os;
+			// forward or bidirectional
+			if (self->min_object.direction() != matrix_operator::iteration_direction::reverse) {
+				for (auto j = 0; j < n; ++j) {
+					matrix_coord			position(j, i);
+					U						val = ip ? *(ip) : 0;
+					const std::array<U,1>	tmp = {{ val }};
+					const std::array<U,1>	out = self->min_object.calc_cell(tmp, info, position);
+
+					*(op) = out[0];
+					if (ip)
+						ip += is;
+					op += os;
+				}
+			}
+
+			// reverse or bidirectional
+			if (self->min_object.direction() != matrix_operator::iteration_direction::forward) {
+				ip = ip_last;
+				op = op_last;
+
+				for (auto j = n-1; j >= 0; --j) {
+					matrix_coord	position(j, i);
+
+					if (self->min_object.direction() == matrix_operator::iteration_direction::bidirectional) {
+						const std::array<U,1>	tmp = {{ *op }};
+						const std::array<U,1>	out = self->min_object.calc_cell(tmp, info, position);
+						*op = out[0];
+					}
+					else {
+						const std::array<U,1>	tmp = {{ *ip }};
+						const std::array<U,1>	out = self->min_object.calc_cell(tmp, info, position);
+						*op = out[0];
+					}
+					if (ip)
+						ip -= is;
+					op -= os;
+				}
 			}
 		}
 		else if (planematch && info.planecount() == 4) {
-			for (auto j = 0; j < n; ++j) {
-				matrix_coord			position(j, i);
-				U						v1 = ip ? *(ip) : 0;
-				U						v2 = ip ? *(ip+step) : 0;
-				U						v3 = ip ? *(ip+step*2) : 0;
-				U						v4 = ip ? *(ip+step*3) : 0;
-                const std::array<U,4>	tmp = {{ v1, v2, v3, v4 }};
-                const std::array<U,4>	out = self->min_object.calc_cell(tmp, info, position);
-                
-				*(op) = out[0];
-				*(op+step) = out[1];
-				*(op+step*2) = out[2];
-				*(op+step*3) = out[3];
-				
-				if(ip) ip += is;
-				op += os;
+			if (self->min_object.direction() != matrix_operator::iteration_direction::reverse) {
+				for (auto j = 0; j < n; ++j) {
+					matrix_coord			position(j, i);
+					U						v1 = ip ? *(ip) : 0;
+					U						v2 = ip ? *(ip+step) : 0;
+					U						v3 = ip ? *(ip+step*2) : 0;
+					U						v4 = ip ? *(ip+step*3) : 0;
+					const std::array<U,4>	tmp = {{ v1, v2, v3, v4 }};
+					const std::array<U,4>	out = self->min_object.calc_cell(tmp, info, position);
+
+					*(op) = out[0];
+					*(op+step) = out[1];
+					*(op+step*2) = out[2];
+					*(op+step*3) = out[3];
+
+					if (ip)
+						ip += is;
+					op += os;
+				}
 			}
+
+			// reverse or bidirectional
+			if (self->min_object.direction() != matrix_operator::iteration_direction::forward) {
+				ip = ip_last;
+				op = op_last;
+
+				for (auto j = n-1; j >= 0; --j) {
+					matrix_coord			position(j, i);
+
+					if (self->min_object.direction() == matrix_operator::iteration_direction::bidirectional) {
+						U						v1 = ip ? *(op) : 0;
+						U						v2 = ip ? *(op+step) : 0;
+						U						v3 = ip ? *(op+step*2) : 0;
+						U						v4 = ip ? *(op+step*3) : 0;
+						const std::array<U,4>	tmp = {{ v1, v2, v3, v4 }};
+						const std::array<U,4>	out = self->min_object.calc_cell(tmp, info, position);
+						*(op) = out[0];
+						*(op+step) = out[1];
+						*(op+step*2) = out[2];
+						*(op+step*3) = out[3];
+
+					}
+					else {
+						U						v1 = ip ? *(ip) : 0;
+						U						v2 = ip ? *(ip+step) : 0;
+						U						v3 = ip ? *(ip+step*2) : 0;
+						U						v4 = ip ? *(ip+step*3) : 0;
+						const std::array<U,4>	tmp = {{ v1, v2, v3, v4 }};
+						const std::array<U,4>	out = self->min_object.calc_cell(tmp, info, position);
+						*(op) = out[0];
+						*(op+step) = out[1];
+						*(op+step*2) = out[2];
+						*(op+step*3) = out[3];
+
+					}
+					if (ip)
+						ip -= is;
+					op -= os;
+				}
+			}
+
 		}
 		else {
-			for (auto j=0; j<n; ++j) {
-                const auto instep = is / info.m_in_info->planecount;
-                const auto outstep = os / info.m_out_info->planecount;
-				std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT> tmp;// = { *(ip), *(ip+step), *(ip+step*2), *(ip+step*3) };
-				
-                if (ip) {
-                    for (auto k = 0; k < info.m_in_info->planecount; ++k)
-                        tmp[k] = *(ip+instep*k);
-                }
-				
-				matrix_coord position(j, i);
-				const std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT> out = self->min_object.calc_cell(tmp, info, position);
-				
-				for (auto k = 0; k < info.m_out_info->planecount; ++k)
-					*(op+outstep*k) = out[k];
-				
-				if (ip)
-					ip += is;
-				op += os;
+			const auto instep = is / info.m_in_info->planecount;
+			const auto outstep = os / info.m_out_info->planecount;
+
+			// forward or bidirectional
+			if (self->min_object.direction() != matrix_operator::iteration_direction::reverse) {
+				for (auto j=0; j<n; ++j) {
+					matrix_coord									position(j, i);
+					std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT>	tmp;
+					
+					if (ip) {
+						for (auto k = 0; k < info.m_in_info->planecount; ++k)
+							tmp[k] = *(ip+instep*k);
+					}
+					
+					const std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT> out = self->min_object.calc_cell(tmp, info, position);
+					
+					for (auto k = 0; k < info.m_out_info->planecount; ++k)
+						*(op+outstep*k) = out[k];
+					
+					if (ip)
+						ip += is;
+					op += os;
+				}
+			}
+
+			// reverse or bidirectional
+			if (self->min_object.direction() != matrix_operator::iteration_direction::forward) {
+				ip = ip_last;
+				op = op_last;
+
+				for (auto j = n-1; j >= 0; --j) {
+					matrix_coord									position(j, i);
+					std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT>	tmp;
+
+					if (ip) {
+						for (auto k = 0; k < info.m_in_info->planecount; ++k)
+							tmp[k] = *(ip+instep*k);
+					}
+
+					const std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT> out = self->min_object.calc_cell(tmp, info, position);
+
+					for (auto k = 0; k < info.m_out_info->planecount; ++k)
+						*(op+outstep*k) = out[k];
+
+					if (ip)
+						ip -= is;
+					op -= os;
+				}
 			}
 		}
 	}
@@ -296,6 +431,7 @@ namespace min {
 	// We also use a C+ template for the loop that wraps the call to jit_simple_vector(),
 	// further reducing code duplication in jit_simple_calculate_ndim().
 	// The calls into these templates should be inlined by the compiler, eliminating concern about any added function call overhead.
+
 	template<class min_class_type, typename U>
 	typename enable_if<is_base_of<matrix_operator, min_class_type>::value>::type
 	jit_calculate_ndim_loop(minwrap<min_class_type>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, uchar* bip, uchar* bop, long* dim, long planecount, long datasize) {
