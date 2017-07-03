@@ -106,6 +106,10 @@ namespace min {
 			return s->s_thing;
 		}
 
+		operator void*() const {
+			return s->s_thing;
+		}
+		
 		operator bool() const {
 			return s->s_thing != nullptr;
 		}
