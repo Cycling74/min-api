@@ -18,6 +18,12 @@ namespace min {
 		nobox	///< cannot create in a max box (i.e. it is an internal-use-only class)
 	};
 
+
+	enum class host_flags : int {
+		none,
+		no_live	///< do not make this object available in the live host
+	};
+
 	
 	class flags {
 	public:
@@ -29,9 +35,14 @@ namespace min {
 		: m_behavior {behavior}
 		{}
 
-		explicit constexpr flags(behavior_flags behavior, documentation_flags doc)
-		: m_documentation {doc}
-		, m_behavior {behavior}
+		explicit constexpr flags(host_flags host)
+		: m_host {host}
+		{}
+
+		explicit constexpr flags(behavior_flags behavior, documentation_flags doc, host_flags host = host_flags::none)
+		: m_documentation	{doc}
+		, m_behavior		{behavior}
+		, m_host			{host}
 		{}
 
 		constexpr operator documentation_flags() const {
@@ -42,9 +53,14 @@ namespace min {
 			return m_behavior;
 		}
 
+		constexpr operator host_flags() const {
+			return m_host;
+		}
+
 	private:
-		documentation_flags m_documentation { documentation_flags::none };
-		behavior_flags		m_behavior		{ behavior_flags::none };
+		documentation_flags m_documentation {};
+		behavior_flags		m_behavior		{};
+		host_flags			m_host			{};
 	};
 
 

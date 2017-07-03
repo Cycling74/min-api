@@ -445,8 +445,15 @@ namespace min {
 		if (!instance) {
 			dummy_instance = std::make_unique<min_class_type>();
 			instance = dummy_instance.get();
-		}	
-		
+		}
+
+		host_flags flags = host_flags::none;
+		class_get_flags<min_class_type>(*instance, flags);
+		if (flags == host_flags::no_live) {
+			if (max::object_attr_getlong(k_sym_max, symbol("islib")))
+				return; // we are being loaded in Live, and a flag to the class specifically prohibits that
+		}
+
 		auto c = wrap_as_max_external_common<min_class_type>(*instance, cppname, maxname, resources);
 
 		wrap_as_max_external_audio<min_class_type>(c);
