@@ -154,11 +154,10 @@ namespace ui {
 	class element {
 	protected:
 
-		/// constructor utility: context
+		/// constructor utility: target (graphics context)
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, target>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
-			//const_cast<symbol&>(m_title) = arg;
 			m_target = std::make_unique<target>(arg);
 		}
 
