@@ -79,6 +79,10 @@ namespace max {
 		return 0;
 	}
 
+	t_atom_long object_attr_getlong(void* x, t_symbol* s) {
+		return 0;
+	}
+
 	
 	MOCK_EXPORT t_object* attr_offset_new(const char* name, const t_symbol* type, long flags, const method mget, const method mset, long offset) {
 		return nullptr;
