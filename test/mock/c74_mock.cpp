@@ -79,7 +79,7 @@ namespace max {
 		return 0;
 	}
 
-	t_atom_long object_attr_getlong(void* x, t_symbol* s) {
+	MOCK_EXPORT t_atom_long object_attr_getlong(void* x, t_symbol* s) {
 		return 0;
 	}
 
