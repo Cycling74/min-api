@@ -6,9 +6,8 @@
 #pragma once
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "c74_min_catch.h"
 
-#include "c74_min.h"
 
 namespace c74 {
 	namespace min {

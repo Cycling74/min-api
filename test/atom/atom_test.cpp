@@ -3,8 +3,7 @@
 // Usage of this file and its contents is governed by the MIT License
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-#include "c74_min.h"
+#include "c74_min_catch.h"
 
 
 TEST_CASE( "Atom Class", "[atoms]" ) {
