@@ -97,7 +97,7 @@ namespace min {
 			return position[1];
 		}
 		
-		long position[max::JIT_MATRIX_MAX_DIMCOUNT];
+		long position[max::JIT_MATRIX_MAX_DIMCOUNT] {};
 	};
 	
 	class matrix_info {
