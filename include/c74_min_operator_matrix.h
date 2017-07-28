@@ -227,7 +227,7 @@ namespace min {
 		assert(this_class_name != nullptr); // required pre-condition
 
 		atom_reference		args(argc, argv);
-        long				attrstart	= attr_args_offset(args.size(), args.begin());
+        long				attrstart	= attr_args_offset(static_cast<short>(args.size()), args.begin());
         auto				cppname		= this_class_name;
 		auto				self		= static_cast<max_jit_wrapper*>(max::max_jit_object_alloc(this_class, cppname));
 		auto				o			= max::jit_object_new(cppname, s);
@@ -242,7 +242,7 @@ namespace min {
             max_jit_mop_setup_simple(self, o, args.size(), args.begin());
         }
         
-        max_jit_attr_args(self, args.size(), args.begin());
+        max_jit_attr_args(self, static_cast<short>(args.size()), args.begin());
         job->min_object.try_call("maxob_setup", atoms(args.begin(), args.begin()+attrstart));
         
 		return self;

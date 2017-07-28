@@ -149,7 +149,7 @@ namespace min {
 
 	protected:
 
-		long flags(bool isjitclass) {
+		std::size_t flags(bool isjitclass) {
 			auto attrflags = 0;
 
 			if (!writable()) {
@@ -289,7 +289,7 @@ namespace min {
 		template <typename FIRST_ARG, typename ...REMAINING_ARGS>
 		constexpr void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
 			assign_from_argument(first);
-			if (sizeof...(args))
+			if (sizeof...(args) > 0)
 				handle_arguments(args...); // recurse
 		}
 		
@@ -367,7 +367,7 @@ namespace min {
 		/// Set the attribute value
 		void set(const atoms& args, bool notify = true, bool override_readonly = false) {
 			if (notify && this_class)
-				max::object_attr_setvalueof(m_owner, m_name, args.size(), static_cast<const c74::max::t_atom*>(&args[0]));
+				max::object_attr_setvalueof(m_owner, m_name, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
 
 			if (!writable() && !override_readonly)
 				return; // we're all done... unless this is a readonly attr that we are forcing to update
@@ -404,8 +404,7 @@ namespace min {
 		operator const T&() const {
 			if (m_getter)
 				assert(false); // at the moment there is no easy way to support this
-			else
-				return m_value;
+			return m_value;
 		}
 
 		// getting a writable reference to the underlying data is of particular importance
@@ -414,8 +413,7 @@ namespace min {
 		operator T&() {
 			if (m_getter)
 				assert(false); // at the moment there is no easy way to support this
-			else
-				return m_value;
+			return m_value;
 		}
 
 

@@ -17,9 +17,9 @@ namespace min {
 			this->a_type = c74::max::A_NOTHING;
 			this->a_w.w_obj = nullptr;
 		}
-		
+
 		/// constructor with generic initializer
-		template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+		template<class T, typename enable_if< !std::is_enum<T>::value && !is_same<T,std::vector<atom>>::value, int>::type = 0>
 		atom(T initial_value) {
 			*this = initial_value;
 		}

@@ -25,7 +25,7 @@ namespace min {
 		
 		/// Create an unregistered dictionary from dict-syntax
 		dict(atoms content) {
-			max::dictobj_dictionaryfromatoms(&m_instance, content.size(), &content[0]);
+			max::dictobj_dictionaryfromatoms(&m_instance, static_cast<long>(content.size()), &content[0]);
 		}
 		
 		/// Create an unregistered dictionary

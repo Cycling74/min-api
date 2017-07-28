@@ -219,7 +219,7 @@ namespace ui {
 		template <typename FIRST_ARG, typename ...REMAINING_ARGS>
 		constexpr void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
 			assign_from_argument(first);
-			if (sizeof...(args))
+			if (sizeof...(args) > 0)
 				handle_arguments(args...); // recurse
 		}
 

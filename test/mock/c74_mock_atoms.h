@@ -121,7 +121,7 @@ namespace max {
 		if (a->a_type == A_FLOAT)
 			return a->a_w.w_float;
 		else if (a->a_type == A_LONG)
-			return a->a_w.w_long;
+			return static_cast<t_atom_float>(a->a_w.w_long);
 		else
 			throw std::runtime_error("not a number");
 	}

@@ -57,7 +57,7 @@ namespace min {
 	/// An object_base is a generic way to pass around a min::object as a min::object, while sharing common code,
 	/// is actually sepcific to the the user's defined class due to template specialization.
 	class object_base {
-		static const constexpr long k_magic = 19740011004791;
+		static const constexpr long k_magic = 1974004791;
 
 	public:
 		object_base()

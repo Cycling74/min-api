@@ -115,7 +115,7 @@ namespace min {
 		}
 		
 		
-		int channelcount() {
+		size_t channelcount() {
 			return max::buffer_getchannelcount(m_buffer_obj);
 		}
 		
@@ -125,7 +125,7 @@ namespace min {
 		}
 		
 		
-		float& lookup(size_t frame, int channel = 0) {
+		float& lookup(size_t frame, size_t channel = 0) {
 			if (frame >= framecount())
 				frame = framecount() - 1;
 			

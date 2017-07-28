@@ -60,12 +60,12 @@ std::basic_ostream <charT, traits>& operator<< (std::basic_ostream <charT, trait
 class t_mock_dspchain_item {
 	t_object			*m_obj;
 	t_perfroutine64		m_perf;
-	long				m_inputcount;
-	long				m_outputcount;
-	long				m_framecount;
+	size_t				m_inputcount;
+	size_t				m_outputcount;
+	size_t				m_framecount;
 	double				**m_ins;
 	double				**m_outs;
-	
+
 public:
 	t_mock_dspchain_item(void *x, t_mock_audiovectors& inputs, t_mock_audiovectors& outputs)
 	: m_perf(NULL)
@@ -114,7 +114,7 @@ public:
 	/**	Execute the perform routine. */
 	void tick()
 	{
-		m_perf(m_obj, NULL, m_ins, m_inputcount, m_outs, m_outputcount, m_framecount, 0, NULL);
+		m_perf(m_obj, NULL, m_ins, static_cast<long>(m_inputcount), m_outs, static_cast<long>(m_outputcount), static_cast<long>(m_framecount), 0, NULL);
 	}
 	
 	/**	Set the perform method that is to be used for this item. */
@@ -157,7 +157,7 @@ public:
 		short					*count;
 		int						i = 0;
 		double					sr = 44100;				// TODO: use sys_getsr()
-		long					vs = inputs[0].size();
+		size_t					vs = inputs[0].size();
 		t_mock_dspchain_item	item(x, inputs, outputs);
 		t_object				*o = (t_object*)x;
 		t_mock_inlets			*inlets = (t_mock_inlets*)o->o_inlet;
@@ -167,7 +167,7 @@ public:
 			vs = 64;			// TODO: use sys_getblksize()
 		
 		// use the number inlets, not the number of inputs -- they can differ
-		count = (short*)sysmem_newptrclear(sizeof(short) * (inletcount+outputs.size()));
+		count = (short*)sysmem_newptrclear(static_cast<long>( sizeof(short) * (inletcount+outputs.size()) ));
 		if (inputs_used) {
 			for (int j=0; j < inputs_used->size(); j++)
 				count[i++] = inputs_used->at(j);
@@ -187,7 +187,7 @@ public:
 		
 		m_current = &item;
 
-		object_method((t_object*)x, gensym("dsp64"), (void*)this, count, (void*)(long)sr, (void*)(long)vs, 0);
+		object_method((t_object*)x, gensym("dsp64"), (void*)this, count, (void*)(size_t)sr, (void*)(size_t)vs, 0);
 
 		m_current = NULL;
 		m_chainitems.push_back(item);

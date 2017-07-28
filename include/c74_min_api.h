@@ -37,9 +37,6 @@ namespace min {
 	
 	using uchar = unsigned char;
 
-	//	using string = std::string;
-//	template<class T>
-//	using vector = std::vector<T>;
 	using std::string;
 	using std::vector;
 

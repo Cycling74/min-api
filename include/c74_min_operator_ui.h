@@ -45,7 +45,7 @@ namespace min {
 			 //	| JBOX_FIXWIDTH			// 19
 			;
 
-			c74::max::jbox_new(box(), flags, args.size(), static_cast<const c74::max::t_atom*>(&args[0]));
+			c74::max::jbox_new(box(), flags, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
 			box()->b_firstin = m_instance->maxobj();
 		}
 

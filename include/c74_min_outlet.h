@@ -29,10 +29,10 @@ namespace min {
 	template<typename outlet_type>
 	inline void outlet_do_send(t_max_outlet maxoutlet, const outlet_type& value) {
 		if (value[0].a_type == max::A_LONG || value[0].a_type == max::A_FLOAT)
-			max::outlet_list(maxoutlet, nullptr, value.size(), static_cast<const max::t_atom*>(&value[0]));
+			max::outlet_list(maxoutlet, nullptr, static_cast<short>(value.size()), static_cast<const max::t_atom*>(&value[0]));
 		else {
 			if (value.size() > 1)
-				max::outlet_anything(maxoutlet, value[0], value.size()-1, static_cast<const max::t_atom*>(&value[1]));
+				max::outlet_anything(maxoutlet, value[0], static_cast<short>(value.size()-1), static_cast<const max::t_atom*>(&value[1]));
 			else
 				max::outlet_anything(maxoutlet, value[0], 0, nullptr);
 		}
@@ -49,7 +49,9 @@ namespace min {
 	}
 
 
+#ifdef MAC_VERSION
 #pragma mark -
+#endif
 
 
 	// Calls to send() on an outlet may deliver the data to the Max outlet in one of several ways.
@@ -177,7 +179,10 @@ namespace min {
 	};
 
 
+#ifdef MAC_VERSION
 #pragma mark -
+#endif
+
 
 	// Checks the currently executing thread at runtime against the thread specified as a template argument.
 	// Returns true if they are the same, otherwise returns false.
@@ -228,7 +233,9 @@ namespace min {
 	};
 
 
+#ifdef MAC_VERSION
 #pragma mark -
+#endif
 
 
 	// Represents any type of outlet.

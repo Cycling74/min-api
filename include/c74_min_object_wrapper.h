@@ -37,7 +37,7 @@ namespace min {
 	minwrap<min_class_type>* wrapper_new(max::t_symbol* name, long ac, max::t_atom* av) {
 		try {
 			atom_reference	args(ac, av);
-			long			attrstart = attr_args_offset(args.size(), args.begin());		// support normal arguments
+			long			attrstart = attr_args_offset(static_cast<short>(args.size()), args.begin());		// support normal arguments
 			auto			self = static_cast<minwrap<min_class_type>*>(max::object_alloc(this_class));
 			auto			self_ob = reinterpret_cast<max::t_object*>(self);
 
@@ -58,7 +58,7 @@ namespace min {
 			}
 			else {
 				max::object_attach_byptr_register(self, self, k_sym_box); // so that objects can get notifications about their own attributes
-				max::attr_args_process(self, args.size(), args.begin());
+				max::attr_args_process(self, static_cast<short>(args.size()), args.begin());
 			}
 			return self;
 		}

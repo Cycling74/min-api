@@ -352,7 +352,7 @@ namespace min {
 				refpage_file = path(refpage_fullpath);
 				refpage_date = refpage_file.date_modified();
 			}
-			catch (std::runtime_error& e) {}
+			catch (std::runtime_error&) {}
 
 			if (!refpage_file || refpage_date < extern_date) {
 				doc_generate(instance, refpage_fullpath, max_class_name, min_class_name);

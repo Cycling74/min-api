@@ -71,7 +71,7 @@ namespace min {
 			max::jit_class_addattr(c, jit_attr);
 		}
 		else {
-			auto max_attr = max::attr_offset_new(m_name, datatype(), flags(isjitclass), getter, setter, 0);
+			auto max_attr = max::attr_offset_new(m_name, datatype(), static_cast<long>(flags(isjitclass)), getter, setter, 0);
 			max::class_addattr(c, max_attr);
 		}
 	};
@@ -102,7 +102,7 @@ namespace min {
 			max::jit_class_addattr(c, jit_attr);
 		}
 		else {
-			auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, flags(isjitclass), getter, setter, size_offset(), 0);
+			auto max_attr = max::attr_offset_array_new(m_name, datatype(), 0xFFFF, static_cast<long>(flags(isjitclass)), getter, setter, static_cast<long>(size_offset()), 0);
 			max::class_addattr(c, max_attr);
 		}
 	};
