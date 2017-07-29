@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <cassert>
+
 namespace c74 {
 namespace max {
 
@@ -122,8 +124,10 @@ namespace max {
 			return a->a_w.w_float;
 		else if (a->a_type == A_LONG)
 			return static_cast<t_atom_float>(a->a_w.w_long);
-		else
-			throw std::runtime_error("not a number");
+		else {
+			assert(false); // not a number
+			return 0;
+		}
 	}
 	MOCK_EXPORT t_atom_long atom_getlong(const t_atom *a)	{ return a->a_w.w_long; }
 	MOCK_EXPORT t_symbol* atom_getsym(const t_atom *a)		{ return a->a_w.w_sym; }
