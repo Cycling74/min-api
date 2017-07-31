@@ -50,7 +50,7 @@ MOCK_EXPORT t_symbol* gensym(const char* string)
 		
 		symbol.s_name = new char[s.size()+1];
 		symbol.s_thing = 0;
-		strncpy_s((char*)symbol.s_name, s.size() + 1, s.c_str(), s.size()+1);
+		strncpy((char*)symbol.s_name, s.c_str(), s.size()+1);
 		
 		mock_symboltable[s] = symbol;
 		return &mock_symboltable[s];

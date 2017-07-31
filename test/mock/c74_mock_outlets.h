@@ -30,7 +30,7 @@ public:
 	{
 		m_type[0] = 0;
 		if (type)
-			strncpy_s(m_type, type, 256);
+			strncpy(m_type, type, 256);
 		m_id_counter++;
 		m_id = m_id_counter;
 	}
@@ -39,7 +39,7 @@ public:
 	t_mock_outlet(const t_mock_outlet& source):
 	m_owner(source.m_owner), m_id(source.m_id)
 	{
-		strncpy_s(m_type, source.m_type, 256);
+		strncpy(m_type, source.m_type, 256);
 	}
 	
 	
