@@ -346,7 +346,7 @@ namespace min {
 			std::string		refpage_fullpath = docs_folder;
 							refpage_fullpath += "/" + max_class_name + ".maxref.xml";
 			path			refpage_file;
-			path::filedate	refpage_date;
+			path::filedate	refpage_date {};
 
 			try {
 				refpage_file = path(refpage_fullpath);
