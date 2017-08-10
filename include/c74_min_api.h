@@ -119,7 +119,7 @@ namespace min {
 			};
 
 			color ()
-			: m_color { colors::black }
+			: color { colors::black }
 			{}
 
 			color(max::t_jrgba a_color)
