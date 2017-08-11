@@ -310,7 +310,7 @@ namespace min {
 #include "c74_min_texteditor.h"			// Wrapper for text editor window
 #include "c74_min_dataspace.h"			// Unit conversion routines (e.g. db-to-linear or hz-to-midi)
 
-#include "c74_lib_misc.h"				// Library of miscellaneous helper functions (e.g. range clipping)
+#include "c74_min_limit.h"				// Library of miscellaneous helper functions (e.g. range clipping)
 #include "c74_min_string.h"				// String helper functions
 #include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 
