@@ -10,17 +10,19 @@
 namespace c74 {
 namespace min {
 
-	/// Limit values to within a specified range.
-	///	@param	in	The value to constrain.
-	///	@param	lo	The low bound for the range.
-	///	@param	hi	The high bound for the range.
-	///	@return		Returns the value a constrained to the range specified by lo and hi.
-	/// @see		c74::max::clamp()
+	/// Limit values to within a specified range, clamping the values to the outer bounds of the range if neccessary.
+	///	@param	input		The value to constrain.
+	///	@param	low_bound	The low bound for the range.
+	///	@param	high_bound	The high bound for the range.
+	///	@return				Returns the value a constrained to the range specified by low_bound and high_bound.
+	/// @see				c74::max::clamp()
+	/// @see				wrap()
+	/// @see				fold()
 
 	#ifdef WIN_VERSION
-		#define MIN_CLAMP( in, lo, hi )		c74::max::clamp<std::remove_reference<decltype(in)>::type>(in, (decltype(in))lo, (decltype(in))hi)
+		#define MIN_CLAMP( input, low_bound, high_bound )		c74::max::clamp<std::remove_reference<decltype(input)>::type>(input, (decltype(input))low_bound, (decltype(input))high_bound)
 	#else
-		#define MIN_CLAMP( in, lo, hi )		c74::max::clamp<typeof(in)>(in, lo, hi)
+		#define MIN_CLAMP( input, low_bound, high_bound )		c74::max::clamp<typeof(input)>(input, low_bound, high_bound)
 	#endif
 
 
@@ -29,10 +31,10 @@ namespace min {
 	///	@param	value	The value to test.
 	///	@return			True if the input is a power of two, otherwise false.
 	///	@see			limit_to_power_of_two()
-	// TODO: static_assert is_integral
 
 	template<class T>
 	bool is_power_of_two(T value) {
+		// TODO: static_assert is_integral
 		return (value > 0) && ((value & (value-1)) == 0);
 	}
 
@@ -44,10 +46,10 @@ namespace min {
 	///	@param	value	The value to test.
 	///	@see			is_power_of_two
 	/// @seealso		 http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-	// TODO: static_assert correct type
 
 	template<class T>
-	void limit_to_power_of_two(T value) {
+	T limit_to_power_of_two(T value) {
+		// TODO: static_assert correct type
 		value--;
 		value |= value >> 1;
 		value |= value >> 2;
@@ -157,7 +159,19 @@ namespace min {
 	}
 
 
+	/// A utility for scaling one range of values onto another range of values.
+	/// @tparam	T			The data type of the number to be constrained.
+	///	@param	value		The value to constrain.
+	///	@param	in_low		The low bound for the range of the input.
+	///	@param	in_high		The high bound for the range of the input.
+	///	@param	out_low		The low bound for the range of the output.
+	///	@param	out_high	The high bound for the range of the output.
+	///	@return				Returns the scaled value.
 
+	template<class T>
+	static T scale(T value, T in_low, T in_high, T out_low, T out_high) {
+		number in_scale = 1 / (in_high - in_low);
+		number out_diff = out_high - out_low;
 
 		value = (value - in_low) * in_scale;
 		value = (value * out_diff) + out_low;
@@ -165,25 +179,32 @@ namespace min {
 	}
 
 
+	/// A utility for scaling one range of values onto another range of values with an exponential curve.
+	/// @tparam	T			The data type of the number to be constrained.
+	///	@param	value		The value to constrain.
+	///	@param	in_low		The low bound for the range of the input.
+	///	@param	in_high		The high bound for the range of the input.
+	///	@param	out_low		The low bound for the range of the output.
+	///	@param	out_high	The high bound for the range of the output.
+	///	@param	power		An exponent to be applied in the scaling.
+	///						This argument must be a greater than 0.
+	///						A value of 1.0 produces linear scaling,
+	///						higher values result in an exponential mapping and lower values of result in a logarithmic scaling.
+	///	@return				Returns the scaled value.
 
-
-
-
-
-
-
-
-	/// A utility for scaling one range of values onto another range of values.
 	template<class T>
-	static T scale(T value, T inlow, T inhigh, T outlow, T outhigh) {
-		double inscale, outdiff;
+	static T scale(T value, T in_low, T in_high, T out_low, T out_high, number power) {
+		// TODO: ensure that power is > 0.0
+		number in_scale = 1 / (in_high - in_low);
+		number out_diff = out_high - out_low;
 
-		inscale = 1 / (inhigh - inlow);
-		outdiff = outhigh - outlow;
-
-		value = (value - inlow) * inscale;
-		value = (value * outdiff) + outlow;
-		return(value);
+		value = (value - in_low) * in_scale;
+		if (value > 0.0)
+			value = pow(value, power);
+		else if (value < 0.0)
+			value = -pow(-value, power);
+		value = (value * out_diff) + out_low;
+		return value;
 	}
 
 
@@ -217,7 +238,7 @@ namespace min {
 
 
 		template <typename T>
-		class clip : public base<T> {
+		class clamp : public base<T> {
 		public:
 			static T apply(T input, T low, T high) {
 				return max::clamp<T>(input, low, high);
