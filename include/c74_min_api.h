@@ -25,6 +25,7 @@
 #include <vector>
 #include <functional>
 #include <unordered_map>
+#include <utility>
 
 #include "readerwriterqueue/readerwriterqueue.h"
 
