@@ -22,6 +22,8 @@ namespace min {
 		template<bool>
 		friend class buffer_lock;
 
+		static const constexpr int k_max_channels = 4096;
+
 		// takes a single arg, but cannot be marked explicit unless we are willing to decorate all using code with a cast to this type
 		// thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
 

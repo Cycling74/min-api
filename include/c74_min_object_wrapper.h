@@ -389,7 +389,7 @@ namespace min {
 				if (attr.datatype() == "symbol") {
 					CLASS_ATTR_ENUM(c, attr_name.c_str(), 0, range_string.c_str());
 				}
-				else if (attr.datatype() == "long") {
+				else if (attr.datatype() == "long" && attr.editor_style() == style::enum_index) {
 					CLASS_ATTR_ENUMINDEX(c, attr_name.c_str(), 0, range_string.c_str());
 				}
 			}
@@ -534,7 +534,7 @@ namespace min {
 				if (attr.datatype() == "symbol") {
 					CLASS_ATTR_ENUM(this_jit_class, attr_name.c_str(), 0, range_string.c_str());
 				}
-				else if (attr.datatype() == "long") {
+				else if (attr.datatype() == "long" && attr.editor_style() == style::enum_index) {
 					CLASS_ATTR_ENUMINDEX(this_jit_class, attr_name.c_str(), 0, range_string.c_str());
 				}
 			}

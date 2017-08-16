@@ -82,10 +82,11 @@ namespace min {
 
 
 		/// set the value of the attribute
-		virtual attribute_base& operator = (atoms args) = 0;
+		virtual attribute_base& operator = (atoms& args) = 0;
 		
 		/// set the value of the attribute
-		virtual void set(const atoms& args, bool notify = true, bool override_readonly = false) = 0;
+		/// note that args may be modified after this call due to range limiting behavior
+		virtual void set(atoms& args, bool notify = true, bool override_readonly = false) = 0;
 		
 		/// get the value of the attribute
 		virtual operator atoms() const = 0;
@@ -134,6 +135,7 @@ namespace min {
 
 		/// fetch the range in string format, values separated by spaces
 		virtual std::string range_string() = 0;
+
 		
 		/// Create the Max attribute and add it to the Max class
 		virtual void create(max::t_class* c, max::method getter, max::method setter, bool isjitclass = 0) = 0;
@@ -186,17 +188,21 @@ namespace min {
 
 
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety>
+	template<typename T, threadsafe threadsafety, class limit_type>
 	class attribute_threadsafe_helper;
 
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety>
-	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args);
+	template<typename T, threadsafe threadsafety, class limit_type>
+	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args);
+
+
+
+
 
 
 	/// default is `threadsafe::no`
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety>
+	template<typename T, threadsafe threadsafety, class limit_type>
 	class attribute : public attribute_base {
 	private:
 
@@ -315,8 +321,15 @@ namespace min {
 		}
 		
 		/// Set the attribute value using atoms.
-		attribute& operator = (atoms args) {
+		attribute& operator = (atoms& args) {
 			set(args);
+			return *this;
+		}
+
+		/// Set the attribute value using atoms.
+		attribute& operator = (const atoms& args) {
+			atoms as {args};
+			set(as);
 			return *this;
 		}
 
@@ -339,7 +352,16 @@ namespace min {
 		}
 
 
+		template<class U=T, typename enable_if< is_same<limit_type, limit::none<U>>::value, int>::type = 0>
+		void constrain(atoms& args) {
+			// no limiting, so do nothing
+		}
 
+		template<class U=T, typename enable_if< !is_same<limit_type, limit::none<U>>::value, int>::type = 0>
+		void constrain(atoms& args) {
+			// TODO: type checking on the above so that it is not applied to vectors or colors
+			args[0] = limit_type::apply(args[0], m_range[0], m_range[1]);
+		}
 
 
 		template<class U=T, typename enable_if< !is_enum<U>::value, int>::type = 0>
@@ -365,7 +387,8 @@ namespace min {
 
 		
 		/// Set the attribute value
-		void set(const atoms& args, bool notify = true, bool override_readonly = false) {
+
+		void set(atoms& args, bool notify = true, bool override_readonly = false) {
 			if (notify && this_class)
 				max::object_attr_setvalueof(m_owner, m_name, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
 
@@ -432,7 +455,7 @@ namespace min {
 
 
 		std::string range_string();
-		
+
 
 		enum_map get_enum_map() {
 			return m_enum_map;
@@ -459,11 +482,11 @@ namespace min {
 		atoms			m_range_args;	// the range/enum as provided by the subclass
 		std::vector<T>	m_range;		// the range/enum translated into the native datatype
 		enum_map		m_enum_map;		// the range/enum mapping for indexed enums (as opposed to symbol enums)
-		attribute_threadsafe_helper<T,threadsafety>	m_helper { this };
+		attribute_threadsafe_helper<T,threadsafety,limit_type>	m_helper { this };
 
 		void copy_range();				// copy m_range_args to m_range
 
-		friend void attribute_threadsafe_helper_do_set<T,threadsafety>(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args);
+		friend void attribute_threadsafe_helper_do_set<T,threadsafety,limit_type>(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args);
 	};
 
 /*	The setter/getter for the wrapper are below.
@@ -487,9 +510,11 @@ namespace min {
  */
 
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety>
-	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety>* helper, const atoms& args) {
+	template<typename T, threadsafe threadsafety, class limit_type>
+	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args) {
 		auto& attr = *helper->m_attribute;
+
+		attr.constrain(args);
 
 		if (attr.m_setter)
 			attr.m_value = from_atoms<T>(attr.m_setter(args));
@@ -498,48 +523,48 @@ namespace min {
 	}
 
 	/// @ingroup attributes
-	template<typename T>
-	class attribute_threadsafe_helper<T,threadsafe::yes> {
-		friend void attribute_threadsafe_helper_do_set<T,threadsafe::yes>(attribute_threadsafe_helper<T,threadsafe::yes>* helper, const atoms& args);
+	template<typename T, class limit_type>
+	class attribute_threadsafe_helper<T,threadsafe::yes,limit_type> {
+		friend void attribute_threadsafe_helper_do_set<T,threadsafe::yes,limit_type>(attribute_threadsafe_helper<T,threadsafe::yes,limit_type>* helper, atoms& args);
 	public:
-		explicit attribute_threadsafe_helper(attribute<T,threadsafe::yes>* an_attribute)
+		explicit attribute_threadsafe_helper(attribute<T,threadsafe::yes,limit_type>* an_attribute)
 		: m_attribute ( an_attribute )
 		{}
 
-		void set(const atoms& args) {
+		void set(atoms& args) {
 			attribute_threadsafe_helper_do_set(this, args);
 		}
 
 	private:
-		attribute<T,threadsafe::yes>*	m_attribute;
+		attribute<T,threadsafe::yes,limit_type>*	m_attribute;
 	};
 
 
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety>
-	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T,threadsafety>* helper) {
+	template<typename T, threadsafe threadsafety, class limit_type>
+	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper) {
 		static_assert(threadsafety == threadsafe::no, "helper function should not be called by threadsafe attrs");
-		attribute_threadsafe_helper_do_set<T,threadsafety>(helper, helper->m_value);
+		attribute_threadsafe_helper_do_set<T,threadsafety,limit_type>(helper, helper->m_value);
 	}
 
 
 	/// @ingroup attributes
-	template<typename T>
-	class attribute_threadsafe_helper<T,threadsafe::no> {
-		friend void attribute_threadsafe_helper_do_set<T,threadsafe::no>(attribute_threadsafe_helper<T,threadsafe::no>* helper, const atoms& args);
-		friend void attribute_threadsafe_helper_qfn<T,threadsafe::no>(attribute_threadsafe_helper<T,threadsafe::no>* helper);
+	template<typename T, class limit_type>
+	class attribute_threadsafe_helper<T,threadsafe::no,limit_type> {
+		friend void attribute_threadsafe_helper_do_set<T,threadsafe::no,limit_type>(attribute_threadsafe_helper<T,threadsafe::no,limit_type>* helper, atoms& args);
+		friend void attribute_threadsafe_helper_qfn<T,threadsafe::no,limit_type>(attribute_threadsafe_helper<T,threadsafe::no,limit_type>* helper);
 	public:
-		explicit attribute_threadsafe_helper(attribute<T,threadsafe::no>* an_attribute)
+		explicit attribute_threadsafe_helper(attribute<T,threadsafe::no,limit_type>* an_attribute)
 		: m_attribute ( an_attribute )
 		{
-			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)attribute_threadsafe_helper_qfn<T,threadsafe::no>);
+			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)attribute_threadsafe_helper_qfn<T,threadsafe::no,limit_type>);
 		}
 
 		~attribute_threadsafe_helper() {
 			max::qelem_free(m_qelem);
 		}
 
-		void set(const atoms& args) {
+		void set(atoms& args) {
 			if (max::systhread_ismainthread())
 				attribute_threadsafe_helper_do_set(this, args);
 			else {
@@ -549,9 +574,9 @@ namespace min {
 		}
 
 	private:
-		attribute<T,threadsafe::no>*	m_attribute;
-		max::t_qelem*					m_qelem;
-		atoms							m_value;
+		attribute<T,threadsafe::no,limit_type>*	m_attribute;
+		max::t_qelem*							m_qelem;
+		atoms									m_value;
 	};
 
 
@@ -584,8 +609,10 @@ namespace min {
 		symbol			attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
 		auto			attr		= self->min_object.attributes()[attr_name.c_str()];
 
-		if (attr)
-			attr->set( atoms(args.begin(), args.end()), false, false );
+		if (attr) {
+			atoms as(args.begin(), args.end());
+			attr->set(as, false, false);
+		}
 		return 0;
 	}
 	

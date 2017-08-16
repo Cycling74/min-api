@@ -220,7 +220,7 @@ namespace min {
 		template <typename T>
 		class base {
 		public:
-			base() = delete;
+			virtual T operator()(T input, T low, T high) = 0;
 		};
 
 
