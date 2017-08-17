@@ -198,6 +198,37 @@ attribute<symbol> mode = {
 };
 ```
 
+### Range Limiting
+
+Providing a range for the `bool` or  `enum` types automatically limits input to the options available. For other numeric types the provided range is a suggestion and is used to generate documentation.
+
+```c++
+attribute<number> foo = { this, "foo",0.5,
+	range { 0.0, 1.0 }
+};
+```
+
+To enforce the range to be limited you can specialize the attribute with a `limit` type.
+
+```c++
+attribute<number, threadsafe::no, limit::clamp> foo = { this, "foo",0.5,
+	range { 0.0, 1.0 }
+};
+```
+
+In this example values lower than zero will be "clamped" to zero and values greater than one will be clamped to one because the attribute is specialized with the `limit::clamp` parameter. 
+
+In order to specialized the limit type you also must specify the threadsafety of the attribute. By default this is `threadsafe::no` and you should choose `threadsafe::no` unless you have thoroughly read the [Guide To Theading](GuideToThreading.md) and you are confident that you are making the correct choice.
+
+The options for limiting are
+
+* `limit::none`: This is the default
+* `limit::clamp`: Values below the range are held at the bottom of the range, values above are held at the top of the range.
+* `limit::wrap`: Values that go out of range at the top wrap around to the bottom and keep increasing. Values that go out of range at the bottom wrap around to the top and keep decreasing.
+* `limit::fold` : Values that go out of range at the top start mirroring back down into the range from the top. If they then further exceed the bottom of the range they will fold again back up into the range. Values that go out of range at the bottom follow the same pattern.
+
+Boundary limit behaviours are applied prior to any custom setters being called.
+
 ### Custom Setters
 
 Custom setters use the same `MIN_FUNCTION` signature as messages above. This means it will take `const atoms&` as input and return `atoms` as output.  The input will be the value coming from the patcher and the value that is returned is what will be assigned to the attribute.
