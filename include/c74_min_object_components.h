@@ -14,7 +14,7 @@ namespace min {
 	class message_base;
 	class attribute_base;
 	
-	template<typename T, threadsafe threadsafety = threadsafe::no, class limit_type = limit::none<T>>
+	template<typename T, threadsafe threadsafety = threadsafe::no, template<typename> class limit_type = limit::none>
 	class attribute;
 
 

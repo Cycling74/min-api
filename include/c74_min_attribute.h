@@ -188,11 +188,11 @@ namespace min {
 
 
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety, class limit_type>
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	class attribute_threadsafe_helper;
 
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety, class limit_type>
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args);
 
 
@@ -202,7 +202,8 @@ namespace min {
 
 	/// default is `threadsafe::no`
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety, class limit_type>
+
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	class attribute : public attribute_base {
 	private:
 
@@ -352,15 +353,15 @@ namespace min {
 		}
 
 
-		template<class U=T, typename enable_if< is_same<limit_type, limit::none<U>>::value, int>::type = 0>
+		template<class U=T, typename enable_if< is_same<limit_type<U>, limit::none<U>>::value, int>::type = 0>
 		void constrain(atoms& args) {
 			// no limiting, so do nothing
 		}
 
-		template<class U=T, typename enable_if< !is_same<limit_type, limit::none<U>>::value, int>::type = 0>
+		template<class U=T, typename enable_if< !is_same<limit_type<U>, limit::none<U>>::value, int>::type = 0>
 		void constrain(atoms& args) {
 			// TODO: type checking on the above so that it is not applied to vectors or colors
-			args[0] = limit_type::apply(args[0], m_range[0], m_range[1]);
+			args[0] = limit_type<T>::apply(args[0], m_range[0], m_range[1]);
 		}
 
 
@@ -510,7 +511,7 @@ namespace min {
  */
 
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety, class limit_type>
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args) {
 		auto& attr = *helper->m_attribute;
 
@@ -523,7 +524,7 @@ namespace min {
 	}
 
 	/// @ingroup attributes
-	template<typename T, class limit_type>
+	template<typename T, template<typename> class limit_type>
 	class attribute_threadsafe_helper<T,threadsafe::yes,limit_type> {
 		friend void attribute_threadsafe_helper_do_set<T,threadsafe::yes,limit_type>(attribute_threadsafe_helper<T,threadsafe::yes,limit_type>* helper, atoms& args);
 	public:
@@ -541,7 +542,7 @@ namespace min {
 
 
 	/// @ingroup attributes
-	template<typename T, threadsafe threadsafety, class limit_type>
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper) {
 		static_assert(threadsafety == threadsafe::no, "helper function should not be called by threadsafe attrs");
 		attribute_threadsafe_helper_do_set<T,threadsafety,limit_type>(helper, helper->m_value);
@@ -549,7 +550,7 @@ namespace min {
 
 
 	/// @ingroup attributes
-	template<typename T, class limit_type>
+	template<typename T, template<typename> class limit_type>
 	class attribute_threadsafe_helper<T,threadsafe::no,limit_type> {
 		friend void attribute_threadsafe_helper_do_set<T,threadsafe::no,limit_type>(attribute_threadsafe_helper<T,threadsafe::no,limit_type>* helper, atoms& args);
 		friend void attribute_threadsafe_helper_qfn<T,threadsafe::no,limit_type>(attribute_threadsafe_helper<T,threadsafe::no,limit_type>* helper);
