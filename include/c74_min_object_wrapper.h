@@ -8,7 +8,7 @@
 namespace c74 {
 namespace min {
 
-
+	
 	// defined in c74_min_doc.h -- generates an updated maxref if needed
 	template<class T>
 	void doc_update(const T&, const std::string&, const std::string&);

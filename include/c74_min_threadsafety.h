@@ -24,7 +24,7 @@ namespace min {
 	};
 
 
-	/// The thread action is determines how a failure of a thread check is handled.
+	/// The thread action determines how a failure of a thread check is handled.
 	///
 	/// @seealso #thread_check
 	/// @seealso #outlet<>
@@ -63,6 +63,8 @@ namespace min {
 	template<class T, thread_check check>
 	class thread_trigger {
 	public:
+
+		// the baton is anything that will be handed off to be later handed back during the callback
 
 		explicit thread_trigger(T a_baton)
 		: m_baton { a_baton }

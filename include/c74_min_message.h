@@ -7,7 +7,7 @@
 
 namespace c74 {
 namespace min {
-	
+
 	
 	using function = std::function<atoms(const atoms&)>;
 	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms

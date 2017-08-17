@@ -10,6 +10,7 @@
 namespace c74 {
 namespace min {
 
+	
 	atoms object_base::try_call(const std::string& name, const atoms& args) {
 		auto found_message = m_messages.find(name);
 		if (found_message != m_messages.end())

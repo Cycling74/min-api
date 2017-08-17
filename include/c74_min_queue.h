@@ -5,13 +5,12 @@
 
 #pragma once
 
-
 namespace c74 {
 namespace min {
 
 
 	class queue;
-	extern "C" void queue_qfn_callback(queue* a_queue);
+	extern "C" void queue_qfn_callback(queue* a_queue);		// defined in c74_min_impl.h
 
 
 	/// The queue class allows you to defer the call of a function to the near future in Max's main (low-priority) thread.
@@ -19,7 +18,6 @@ namespace min {
 	/// @seealso	#timer
 	///	@seealso	#time_value
 	/// @seealso	#fifo
-
 
 	class queue {
 	public:
@@ -73,13 +71,12 @@ namespace min {
 		}
 
 
-
 		/// post information about the timer to the console
 		// also serves the purpose of eliminating warnings about m_owner being unused
+
 		void post() {
 			std::cout << m_instance << &m_function << m_owner << std::endl;
 		}
-
 
 	private:
 		object_base*	m_owner;

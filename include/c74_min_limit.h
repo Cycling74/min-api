@@ -6,10 +6,10 @@
 
 #pragma once
 
-
 namespace c74 {
 namespace min {
 
+	
 	/// Limit values to within a specified range, clamping the values to the outer bounds of the range if neccessary.
 	///	@param	input		The value to constrain.
 	///	@param	low_bound	The low bound for the range.
@@ -208,8 +208,10 @@ namespace min {
 	}
 
 
-	/// Defines several functions for constraining values within specified boundaries and preventing unwanted values.
-	/// A variety of behaviors are offered, including clipping, wrapping and folding.
+	/// Classes defined in the #limit namespace wrap available range-constraining functions
+	/// such that they are suitable for use in specializing other classes.
+	/// Most notably these range-constraining functions are used to specialize the min::attribute<> class.
+	///
 	/// Exercise caution when using the functions defined here with unsigned values.
 	/// Negative, signed integers have the potential to become very large numbers when casting to unsigned integers.
 	/// This can cause errors during a boundary check, such as values clipping to the high boundary instead of the
@@ -217,69 +219,136 @@ namespace min {
 
 	namespace limit {
 
+		/// The interface for all attribute range limiter classes
+		/// @tparam	The numerical type to be constrained.
+
 		template <typename T>
 		class base {
 		public:
+
+			/// Constrain input values to the specified range.
+			/// @param	input	The input value to constrain.
+			/// @param	low		The low boundary of the range.
+			/// @param	high	The high boundary of the range.
+			/// @return			The constrained value.
+
 			virtual T operator()(T input, T low, T high) = 0;
 		};
 
 
+		/// Attribute range limiter that does not constrain values.
+		/// @tparam	The numerical type to be constrained.
+
 		template <typename T>
 		class none : public base<T> {
 		public:
+
+			/// Constrain input values to the specified range.
+			/// @param	input	The input value to constrain.
+			/// @param	low		The low boundary of the range.
+			/// @param	high	The high boundary of the range.
+			/// @return			The constrained value.
+
 			static T apply(T input, T low, T high) {
 				return input;
 			}
 
+
+			/// Constrain input values to the specified range.
+			/// @param	input	The input value to constrain.
+			/// @param	low		The low boundary of the range.
+			/// @param	high	The high boundary of the range.
+			/// @return			The constrained value.
+
 			T operator()(T input, T low, T high) {
 				return apply(input, low, high);
 			}
 		};
 
+
+		/// Attribute range limiter that constrains values by clamping.
+		/// @tparam	The numerical type to be constrained.
 
 		template <typename T>
 		class clamp : public base<T> {
 		public:
+
+			/// Constrain input values to the specified range.
+			/// @param	input	The input value to constrain.
+			/// @param	low		The low boundary of the range.
+			/// @param	high	The high boundary of the range.
+			/// @return			The constrained value.
+
 			static T apply(T input, T low, T high) {
 				return max::clamp<T>(input, low, high);
 			}
 
+
+			/// Constrain input values to the specified range.
+			/// @param	input	The input value to constrain.
+			/// @param	low		The low boundary of the range.
+			/// @param	high	The high boundary of the range.
+			/// @return			The constrained value.
+
 			T operator()(T input, T low, T high) {
 				return apply(input, low, high);
 			}
 		};
 
+
+		/// Attribute range limiter that constrains values by wrapping.
+		/// @tparam	The numerical type to be constrained.
 
 		template <typename T>
 		class wrap : public base<T> {
 		public:
+
+			/// Constrain input values to the specified range.
+			/// @param	input	The input value to constrain.
+			/// @param	low		The low boundary of the range.
+			/// @param	high	The high boundary of the range.
+			/// @return			The constrained value.
+
 			static T apply(T input, T low, T high) {
 				return min::wrap(input, low, high);
 			}
 
-			T operator()(T input, T low, T high) {
-				return apply(input, low, high);
-			}
-		};
 
-		template <typename T>
-		class wrap_once : public base<T> {
-		public:
-			static T apply(T input, T low, T high) {
-				return min::wrap_once(input, low, high);
-			}
+			/// Constrain input values to the specified range.
+			/// @param	input	The input value to constrain.
+			/// @param	low		The low boundary of the range.
+			/// @param	high	The high boundary of the range.
+			/// @return			The constrained value.
 
 			T operator()(T input, T low, T high) {
 				return apply(input, low, high);
 			}
 		};
+
+
+		/// Attribute range limiter that constrains values by folding.
+		/// @tparam	The numerical type to be constrained.
 
 		template <typename T>
 		class fold : public base<T> {
 		public:
+
+			/// Constrain input values to the specified range.
+			/// @param	input	The input value to constrain.
+			/// @param	low		The low boundary of the range.
+			/// @param	high	The high boundary of the range.
+			/// @return			The constrained value.
+
 			static T apply(T input, T low, T high) {
 				return min::fold(input, low, high);
 			}
+
+
+			/// Constrain input values to the specified range.
+			/// @param	input	The input value to constrain.
+			/// @param	low		The low boundary of the range.
+			/// @param	high	The high boundary of the range.
+			/// @return			The constrained value.
 
 			T operator()(T input, T low, T high) {
 				return apply(input, low, high);

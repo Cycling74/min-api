@@ -265,7 +265,6 @@ inline uint16_t byteorder_swap(uint16_t x) {
 
 #include "c74_min_symbol.h"
 #include "c74_min_atom.h"
-#include "c74_min_map.h"
 #include "c74_min_dictionary.h"
 #include "c74_min_limit.h"				// Library of miscellaneous helper functions (e.g. range clipping)
 

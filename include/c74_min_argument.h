@@ -7,7 +7,7 @@
 
 namespace c74 {
 namespace min {
-	
+
 	
 	using argument_function = std::function<void(const atom&)>;
 	#define MIN_ARGUMENT_FUNCTION [this](const c74::min::atom& arg)

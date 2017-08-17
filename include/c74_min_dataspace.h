@@ -6,10 +6,10 @@
 
 #pragma once
 
-
 namespace c74 {
 namespace min {
 namespace dataspace {
+
 
 	const double k_gain_midi_power		{ log(pow(10.0, 10.0/20.0)) / log(127.0/100.0) };
 	const double k_gain_midi_power_r	{ 1.0 / k_gain_midi_power };
@@ -25,8 +25,6 @@ namespace dataspace {
 
 }}} // namespace c74::min::dataspace
 
-
 #include "c74_min_dataspace_gain.h"
 #include "c74_min_dataspace_none.h"
 #include "c74_min_dataspace_time.h"
-

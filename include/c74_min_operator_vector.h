@@ -8,7 +8,7 @@
 namespace c74 {
 namespace min {
 
-
+	
 	struct audio_bundle {
 
 		audio_bundle(double** samples, long channelcount, long framecount)

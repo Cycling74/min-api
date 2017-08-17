@@ -68,7 +68,7 @@ The message will be passed two arguments: the sample rate and the vector size.
 To access a **buffer~** object from your class all you need is to create an instance of a `buffer_reference`, initializing it with a pointer to an instance of your class.
 
 ```c++
-buffer_reference my_buffer = { this };
+buffer_reference my_buffer { this };
 ```
 
 All of the neccessary methods (e.g. `set` and `dblclick`), notification handling, etc. will be provided for you automatically.
@@ -76,7 +76,7 @@ All of the neccessary methods (e.g. `set` and `dblclick`), notification handling
 If you wish to receive notifications when the **buffer~** content changes you can provide an optional callback to be triggered when a change occurs.
 
 ```c++
-buffer_reference my_buffer = { this, MIN_FUNCTION {
+buffer_reference my_buffer { this, MIN_FUNCTION {
   // do something in response to the change...
   return {};
 }};

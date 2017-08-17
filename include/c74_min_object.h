@@ -8,6 +8,7 @@
 namespace c74 {
 namespace min {
 
+	
 	// Finally, we define the min::object
 	// Has to happen last because it includes code that does lazy initialization of the above class definitions
 	// in the event that it hasn't occurred.

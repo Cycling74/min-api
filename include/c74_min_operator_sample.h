@@ -8,7 +8,7 @@
 namespace c74 {
 namespace min {
 
-
+	
 	/// The base class for all template specializations of sample_operator.
 
 	class sample_operator_base {};

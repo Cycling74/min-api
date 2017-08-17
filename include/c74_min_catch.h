@@ -8,7 +8,6 @@
 #include "catch.hpp"    // The Catch header must come first -- otherwise some C++ includes will tangle with it and cause problems.
 #include "c74_min.h"    // The standard Min header
 
-
 /// Compare a container (e.g. a vector) of floats in a Catch unit test.
 /// If there is a failure, not only will the return value be false, but a Catch REQUIRE will fail.
 ///

@@ -8,7 +8,7 @@
 namespace c74 {
 namespace min {
 
-
+	
 	/// @defgroup buffers Buffer Objects
 
 	

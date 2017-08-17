@@ -8,7 +8,7 @@
 namespace c74 {
 namespace min {
 
-
+	
 	// Type definition for what the legacy C Max SDK uses to represent an outlet.
 
 	using t_max_outlet = void*;
@@ -267,19 +267,22 @@ namespace min {
 	template<thread_check check, thread_action action>
 	class outlet : public outlet_base {
 
-		/// utility: queue an argument of any type for output
+		// utility: queue an argument of any type for output
+
 		template<typename argument_type>
 		void queue_argument(const argument_type& arg) noexcept {
 			m_accumulated_output.push_back(arg);
 		}
 		
-		/// utility: empty argument handling (required for all recursive variadic templates)
+		// utility: empty argument handling (required for all recursive variadic templates)
+
 		void handle_arguments() noexcept {
 			;
 		}
 		
-		/// utility: handle N arguments of any type by recursively working through them
-		///	and matching them to the type-matched routine above.
+		// utility: handle N arguments of any type by recursively working through them
+		//	and matching them to the type-matched routine above.
+
 		template <typename FIRST_ARG, typename ...REMAINING_ARGS>
 		void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
 			queue_argument(first);

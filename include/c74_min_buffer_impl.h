@@ -10,6 +10,7 @@
 namespace c74 {
 namespace min {
 
+	
 	template<>
 	buffer_lock<true>::buffer_lock(buffer_reference& a_buffer_ref)
 	: m_buffer_ref { a_buffer_ref }

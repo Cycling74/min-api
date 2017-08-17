@@ -7,7 +7,7 @@
 
 namespace c74 {
 namespace min {	
-	
+
 	
 	class path {
 	public:

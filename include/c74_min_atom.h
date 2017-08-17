@@ -7,8 +7,8 @@
 
 namespace c74 {
 namespace min {
-	
 
+	
 	class atom : public max::t_atom {
 	public:
 		

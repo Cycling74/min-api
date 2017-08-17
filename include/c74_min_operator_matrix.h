@@ -10,7 +10,7 @@
 namespace c74 {
 namespace min {
 
-
+	
 	/// The base class for all template specializations of matrix_operator.
 
 	class matrix_operator_base {};

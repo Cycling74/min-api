@@ -5,11 +5,11 @@
 
 #pragma once
 
-
 namespace c74 {
 namespace min {
 namespace str {
 
+	
 	/// Trim leading and trailing whitespace from a string
 	/// @param	s	The string to trim
 	/// @return		The trimmed string

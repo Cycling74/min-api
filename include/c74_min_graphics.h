@@ -5,12 +5,11 @@
 
 #pragma once
 
-
 namespace c74 {
 namespace min {
 namespace ui {
 
-
+	
 	class target {
 	public:
 		explicit target(const atoms& args) {

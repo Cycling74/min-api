@@ -6,11 +6,11 @@
 
 #pragma once
 
-
 namespace c74 {
 namespace min {
 namespace dataspace {
 
+	
 	class none : public dataspace_base {
 	public:
 

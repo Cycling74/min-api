@@ -8,6 +8,7 @@
 namespace c74 {
 namespace min {
 
+	
 	class inlet_base;
 	class outlet_base;
 	class argument_base;

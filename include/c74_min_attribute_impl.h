@@ -10,6 +10,7 @@
 namespace c74 {
 namespace min {
 
+	
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	template<typename ...ARGS>
 	attribute<T,threadsafety,limit_type>::attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)

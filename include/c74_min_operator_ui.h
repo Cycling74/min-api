@@ -10,6 +10,7 @@
 namespace c74 {
 namespace min {
 
+	
 	class ui_operator_base {};
 	
 

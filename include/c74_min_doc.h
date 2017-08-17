@@ -8,6 +8,7 @@
 namespace c74 {
 namespace min {
 
+	
 	#define MIN_AUTHOR		static constexpr const char* class_author
 
 	template<typename min_class_type>

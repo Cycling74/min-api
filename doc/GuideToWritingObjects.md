@@ -68,8 +68,8 @@ The first thing you will want to define for your new class are inlets and outlet
 ```c++
 class my_object : public object<my_object> {
 public:
-	inlet<>		input	= { this, "(list) values to convolve" };
-	outlet<>	output	= { this, "(list) result of convolution" };
+	inlet<>		input	{ this, "(list) values to convolve" };
+	outlet<>	output	{ this, "(list) result of convolution" };
 
 	/// ...
 ```
@@ -77,9 +77,9 @@ public:
 Inlets and outlets may be generic, as above, or they may be specific to a type. Below, the left inlet is generic but the right inlet and the outlet both have the optional type defined for "dictionary". Audio objects will typically have outlets defined with the "signal" type and Jitter objects will typically use the "matrix" type.
 
 ```c++
-inlet<>		left	= { this, "dict to combine with dict at right inlet" };
-inlet<>		right	= { this, "dict to combine with dict at left inlet", "dictionary" };
-outlet<>	output	= { this, "dictionary of entries combined from both inlets", "dictionary" };
+inlet<>		left	{ this, "dict to combine with dict at right inlet" };
+inlet<>		right	{ this, "dict to combine with dict at left inlet", "dictionary" };
+outlet<>	output	{ this, "dictionary of entries combined from both inlets", "dictionary" };
 ```
 
 Both inlets and outlets are defined in left to right order.
@@ -126,7 +126,7 @@ clone(const atoms& args = {}) {
 The basic work of most Max objects is done by messages. All messages take a single `const atoms&` parameter just as constructors. If you don't need arguments for your message then you can simply ignore it as in this example message:
 
 ```c++
-message<> bang = { this, "bang", "Post something to the Max console."
+message<> bang { this, "bang", "Post something to the Max console."
 	MIN_FUNCTION {
 		cout << "Hello World" << endl;
 		return {};
@@ -140,7 +140,7 @@ The signature of `MIN_FUNCTION` says that it will take `const atoms&` as input a
 If you wish to access the arguments to your message, do so the same way as described for the constructor as in this example:
 
 ```c++
-message<> number = { this, "number", MIN_FUNCTION {
+message<> number { this, "number", MIN_FUNCTION {
 	position = args[0];
 	return {};
 }};
@@ -155,8 +155,8 @@ Attributes are simply variables that are exposed to Max. To do this you create a
 Attributes have 3 required arguments: a pointer to the owning instance of your class (`this`), a string for the attribute name in Max, and a default value for initialization.
 
 ```c++
-attribute<double> min = { this, "minimum", 0.0 };
-attribute<double> max = { this, "maximum", 1.0 };
+attribute<double> min { this, "minimum", 0.0 };
+attribute<double> max { this, "maximum", 1.0 };
 ```
 
 Following the 3 required arguments, attributes may have any number of optional arguments, which may also be in any order:
@@ -171,7 +171,7 @@ Following the 3 required arguments, attributes may have any number of optional a
 An attribute that uses just the `setter` might look like this:
 
 ```c++
-attribute<bool> on = { this, "on", false,
+attribute<bool> on { this, "on", false,
 	setter { MIN_FUNCTION {
 		if (args[0] == true)
 			metro.delay(0.0);	// fire the first one straight-away
@@ -185,7 +185,7 @@ attribute<bool> on = { this, "on", false,
 And an example the uses multiple of these optional arguments might look like this:
 
 ```c++
-attribute<symbol> mode = {
+attribute<symbol> mode {
 	this,
 	"mode",
 	"fast",
@@ -203,7 +203,7 @@ attribute<symbol> mode = {
 Providing a range for the `bool` or  `enum` types automatically limits input to the options available. For other numeric types the provided range is a suggestion and is used to generate documentation.
 
 ```c++
-attribute<number> foo = { this, "foo",0.5,
+attribute<number> foo { this, "foo",0.5,
 	range { 0.0, 1.0 }
 };
 ```
@@ -211,7 +211,7 @@ attribute<number> foo = { this, "foo",0.5,
 To enforce the range to be limited you can specialize the attribute with a `limit` type.
 
 ```c++
-attribute<number, threadsafe::no, limit::clamp> foo = { this, "foo",0.5,
+attribute<number, threadsafe::no, limit::clamp> foo { this, "foo",0.5,
 	range { 0.0, 1.0 }
 };
 ```
@@ -240,7 +240,7 @@ Often, as in the examples above, the setter is used to produce a side effect. An
 Array/Vector attributes are defined by using a specialization of `std::vector` for the attribute type. Here is an example from the **min.convolve** object in the Min-DevKit.
 
 ```c++
-attribute< vector<double> > kernel = { this, "kernel", {1.0, 0.0} };
+attribute< vector<double> > kernel { this, "kernel", {1.0, 0.0} };
 ```
 
 Note that the initialization of the attribute must be wrapped in curly braces.
@@ -251,7 +251,7 @@ Note that the initialization of the attribute must be wrapped in curly braces.
 To post to the Max console use `cout` (normal messages) and `cerr` (error messages).  Your message will not post until `endl` is received by the stream.
 
 ```c++
-method anything = { this, "anything", MIN_FUNCTION {
+method anything { this, "anything", MIN_FUNCTION {
 	cout << "Message Received: " << args << " !" << endl;
 	// ...
 	return {};
@@ -263,7 +263,7 @@ method anything = { this, "anything", MIN_FUNCTION {
 To schedule an event to happen at some point in the future use a `min::timer`. Timers use a pattern that hopefully is becoming familiar: you create an instance of timer and initialize it with a pointer to an instance of your class (`this`) and function (typically a lambda function) that will be executed when the timer fires.
 
 ```c++
-timer metro = { this, MIN_FUNCTION {		
+timer metro { this, MIN_FUNCTION {		
 	bang_out.send("bang");
 	metro.delay(interval);
 	return {};
@@ -277,7 +277,7 @@ In the example above `bang_out` is an outlet. After sending the "bang" the timer
 A `min::queue` creates a an element that, when set, will be executed by Max's low-priority queue. This provides a mechanism for transferring or deferring events from other threads (such as the scheduler or audio thread) to Max's main thread.
 
 ```c++
-queue deferrer = { this, MIN_FUNCTION {		
+queue deferrer { this, MIN_FUNCTION {		
 	bang_out.send("bang");
 	return {};
 }};
@@ -294,7 +294,7 @@ To add a text editor window to your object simply add a `texteditor` instance to
 Note that the lambda is *not* a `MIN_FUNCTION` but rather a special lambda that passes in the text content of the editor window.
 
 ```c++
-texteditor editor = { this, [this](const char* text) {
+texteditor editor { this, [this](const char* text) {
 	// do something with the text...
 }};
 ```
@@ -309,7 +309,7 @@ Dictionaries are Max's implementation of an associative array container mapping 
 To respond to a dictionary coming into an inlet, define a message named "dictionary". It' first argument will be an atom containing a dictionary.
 
 ``` c++
-message<> dictionary = { this, "dictionary", MIN_FUNCTION {
+message<> dictionary { this, "dictionary", MIN_FUNCTION {
 	dict d { args[0] };
 	sequence = d["pattern"];
 	return {};
@@ -322,7 +322,7 @@ Next, a variable named "sequence" is assigned a value from the dictionary that i
 If "pattern" doesn't exist it will be created and sequence will be assigned an empty set of atoms. If you wish to use bounds checking and have an error thrown then use the `at()` method of `dict` instead of the `[]` operator as in the following example:
 
 ```c++
-message<> dictionary = { this, "dictionary", MIN_FUNCTION {
+message<> dictionary { this, "dictionary", MIN_FUNCTION {
 	dict d { args[0] };
 	try {
 		sequence = d.at("pattern");
@@ -339,7 +339,7 @@ message<> dictionary = { this, "dictionary", MIN_FUNCTION {
 Most state saving in Max is handled automatically via the attribute system. If you need to save additional custom state define a 'savestate' message. This message will receive an atom containing a dictionary as input. Write your data into this dictionary to have it saved with the patcher
 
 ```c++
-message<> savestate = { this, "savestate", MIN_FUNCTION {
+message<> savestate { this, "savestate", MIN_FUNCTION {
 	dict d { args[0] };
 	d["my_custom_data"] = some_data;
 	return {};
@@ -364,7 +364,7 @@ In some cases you may wish to do some advanced class setup. The example below co
 ```c++
 // the "maxclass_setup" method is called when the class is created
 // it is not called on an instance at what we think of in Max as "runtime"
-message<> maxclass_setup = { this, "maxclass_setup", MIN_FUNCTION {
+message<> maxclass_setup { this, "maxclass_setup", MIN_FUNCTION {
 	c74::max::t_class* c = args[0];
 
 	CLASS_ATTR_ENUM(c,	"shape", 0, "linear equal_power square_root");

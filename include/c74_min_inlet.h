@@ -8,7 +8,7 @@
 namespace c74 {
 namespace min {
 
-
+	
 	// Type definition for what the legacy C Max SDK uses to represent an outlet.
 
 	using t_max_inlet = void*;

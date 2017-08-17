@@ -8,6 +8,7 @@
 namespace c74 {
 namespace min {
 
+	
 	enum class documentation_flags : int {
 		none,
 		do_not_generate

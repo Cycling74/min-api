@@ -10,8 +10,8 @@ namespace min {
 	
 	
 	class timer;
-	extern "C" void timer_tick_callback(timer* an_owner);
-	extern "C" void timer_qfn_callback(timer* a_timer);
+	extern "C" void timer_tick_callback(timer* an_owner);	// defined in c74_min_impl.h
+	extern "C" void timer_qfn_callback(timer* a_timer);		// defined in c74_min_impl.h
 
 	
 	/// The timer class allows you to schedule a function to be called in the future using Max's scheduler.
@@ -24,7 +24,6 @@ namespace min {
 	
 	class timer {
 	public:
-
 
 		/// Options that control the behavior of the timer.
 
@@ -111,10 +110,10 @@ namespace min {
 
 		/// post information about the timer to the console
 		// also serves the purpose of eliminating warnings about m_owner being unused
+		
 		void post() {
 			std::cout << m_instance << &m_function << m_owner << std::endl;
 		}
-		
 		
 	private:
 		object_base*	m_owner;
