@@ -10,12 +10,29 @@
 namespace c74 {
 namespace min {
 
+
+	#ifdef __APPLE__
+	#pragma mark object_base
+	#endif
+
+
+	// implemented out-of-line because of bi-directional dependency of min::message<> and min::object_base
 	
 	atoms object_base::try_call(const std::string& name, const atoms& args) {
 		auto found_message = m_messages.find(name);
 		if (found_message != m_messages.end())
 			return (*found_message->second)(args);
 		return {};
+	}
+
+
+	// implemented out-of-line because of bi-directional dependency of min::argument<> and min::object_base
+
+	void object_base::process_arguments(const atoms& args) {
+		auto argcount = std::min(args.size(), m_arguments.size());
+
+		for (auto i=0; i<argcount; ++i)
+			(*m_arguments[i])(args[i]);
 	}
 
 
@@ -40,6 +57,14 @@ namespace min {
 	}
 
 
+	#ifdef __APPLE__
+	#pragma mark -
+	#pragma mark c-style callbacks
+	#endif
+
+
+	// c-style callback from the max kernel (clock for the min::timer class)
+
 	void timer_tick_callback(timer* a_timer) {
 		if (a_timer->should_defer())
 			a_timer->defer();
@@ -47,37 +72,46 @@ namespace min {
 			a_timer->tick();
 	}
 
+
+	// c-style callback from the max kernel (qelem for the min::timer class)
+
 	void timer_qfn_callback(timer* a_timer) {
 		a_timer->tick();
 	}
+
+
+	// c-style callback from the max kernel (qelem for the min::queue class)
 
 	void queue_qfn_callback(queue* a_queue) {
 		a_queue->qfn();
 	}
 
 
-	// part of the symbol class but must be defined after atom is defined
+	#ifdef __APPLE__
+	#pragma mark -
+	#pragma mark symbol
+	#endif
+
+	// parts of the symbol class but must be defined after atom is defined
 
 	symbol::symbol(const atom& value) {
 		s = value;
 	}
 
 
-	// part of the symbol class but must be defined after atom is defined
-
 	symbol& symbol::operator = (const atom& value) {
 		s = value;
 		return *this;
 	}
 
-	
-	void object_base::process_arguments(const atoms& args) {
-		auto argcount = std::min(args.size(), m_arguments.size());
 
-		for (auto i=0; i<argcount; ++i)
-			(*m_arguments[i])(args[i]);
-	}
+	#ifdef __APPLE__
+	#pragma mark -
+	#pragma mark outlet_call_is_safe
+	#endif
 
+
+	// specialized implementations of outlet_call_is_safe() used by outlet<> implementation
 
 	template<>
 	bool outlet_call_is_safe<thread_check::main>() {
@@ -112,7 +146,13 @@ namespace min {
 	};
 
 
-	// vector_operator
+	#ifdef __APPLE__
+	#pragma mark -
+	#pragma mark vector_operator
+	#endif
+	
+
+	// implementation of sample_operator-style calls made to a vector_operator
 
 	sample vector_operator::operator()(sample x) {
 		sample			input_storage[1] {x};
