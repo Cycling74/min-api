@@ -33,7 +33,8 @@ namespace min {
 			//
 			// This could occur if a class uses another class directly or in the case of unit testing.
 			// In such cases we need to do something reasonable so that our invariants can be held true.
-			
+
+/*
 			if (m_initializing) {							// we are being initialized externally via placement new
 				;
 			}
@@ -50,7 +51,8 @@ namespace min {
 					m_maxobj = static_cast<max::t_object*>(max::object_alloc(this_class));	// allocate
 					postinitialize();														// update flags to say we are done
 				}
-			}			
+			}
+ */
 		}
 
 		/// Destructor.

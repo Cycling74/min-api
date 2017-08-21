@@ -163,7 +163,6 @@ namespace min {
 
 		void postinitialize() {
 			m_initialized = true;
-			m_initializing = false;
 		}
 		
 		bool initialized() {
@@ -207,7 +206,6 @@ namespace min {
 	protected:
 		max::t_object*										m_maxobj;		// initialized prior to placement new
 		long												m_min_magic;	// should be valid if m_maxobj has been assigned
-		bool												m_initializing = true;
 		bool												m_initialized = false;
 		std::vector<inlet_base*>							m_inlets;
 		std::vector<outlet_base*>							m_outlets;
