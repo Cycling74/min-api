@@ -583,15 +583,12 @@ namespace min {
 
 
 
-	/*	Native Max methods for the wrapper class
-		to perform getting /setting attributes
-	 */
+	//	Native Max methods for the wrapper class to perform getting of attribute values
 
-	/// @ingroup attributes
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
 		symbol	attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
-		auto&	attr		= self->min_object.attributes()[attr_name.c_str()];
+		auto&	attr		= self->m_min_object.attributes()[attr_name.c_str()];
 		atoms	rvals		= *attr;
 		
 		*ac = (long)rvals.size();
@@ -603,13 +600,14 @@ namespace min {
 		return 0;
 	}
 	
-	
-	/// @ingroup attributes
+
+	//	Native Max methods for the wrapper class to perform setting of attribute values
+
 	template<class T>
 	max::t_max_err min_attr_setter(minwrap<T>* self, max::t_object* maxattr, long ac, max::t_atom* av) {
 		atom_reference	args(ac,av);
 		symbol			attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
-		auto			attr		= self->min_object.attributes()[attr_name.c_str()];
+		auto			attr		= self->m_min_object.attributes()[attr_name.c_str()];
 
 		if (attr) {
 			atoms as(args.begin(), args.end());

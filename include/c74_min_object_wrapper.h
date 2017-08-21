@@ -10,26 +10,27 @@ namespace min {
 
 	
 	// defined in c74_min_doc.h -- generates an updated maxref if needed
+	
 	template<class T>
 	void doc_update(const T&, const std::string&, const std::string&);
 
 
-	// All objects use A_GIMME signature for construction
-	// However, all <in classes may not define a constructor to handle those arguments.
+	// All objects use A_GIMME signature for construction.
+	// However, all Min classes may not define a constructor to handle those arguments.
 
 	// Class has constructor -- The arguments will be handled manually
 
 	template<class min_class_type, typename enable_if< std::is_constructible<min_class_type,atoms>::value, int>::type = 0>
 	void min_ctor(minwrap<min_class_type>* self, const atoms& args) {
-		new(&self->min_object) min_class_type(args); // placement new
+		new(&self->m_min_object) min_class_type(args); // placement new
 	}
 
 	// Class has no constructor -- Handle the arguments automatically
 	
 	template<class min_class_type, typename enable_if< !std::is_constructible<min_class_type,atoms>::value, int>::type = 0>
 	void min_ctor(minwrap<min_class_type>* self, const atoms& args) {
-		new(&self->min_object) min_class_type; // placement new
-		self->min_object.process_arguments(args);
+		new(&self->m_min_object) min_class_type; // placement new
+		self->m_min_object.process_arguments(args);
 	}
 	
 	
@@ -41,15 +42,15 @@ namespace min {
 			auto			self = static_cast<minwrap<min_class_type>*>(max::object_alloc(this_class));
 			auto			self_ob = reinterpret_cast<max::t_object*>(self);
 
-			self->min_object.assign_instance(self_ob); // maxobj needs to be set prior to placement new
+			self->m_min_object.assign_instance(self_ob); // maxobj needs to be set prior to placement new
 
 			min_ctor<min_class_type>(self, atoms(args.begin(), args.begin()+attrstart));
-			self->min_object.postinitialize();
-			self->min_object.set_classname(name);
+			self->m_min_object.postinitialize();
+			self->m_min_object.set_classname(name);
 
 			self->setup();
 
-			if (self->min_object.is_ui_class()) {
+			if (self->m_min_object.is_ui_class()) {
 				max::t_dictionary* d = object_dictionaryarg(ac, av);
 				if (d) {
 					max::attr_dictionary_process(self, d);
@@ -72,19 +73,19 @@ namespace min {
 	template<class min_class_type>
 	void wrapper_free(minwrap<min_class_type>* self) {
 		self->cleanup();					// cleanup routine specific to each type of object (e.g. to call dsp_free() for audio objects)
-		self->min_object.~min_class_type();	// placement delete
+		self->m_min_object.~min_class_type();	// placement delete
 	}
 
 
 	template<class min_class_type>
 	void wrapper_method_assist(minwrap<min_class_type>* self, void *b, long m, long a, char *s) {
 		if (m == 2) {
-			const auto& outlet = self->min_object.outlets()[a];
+			const auto& outlet = self->m_min_object.outlets()[a];
 			strncpy(s, outlet->description().c_str(), 256);
 		}
 		else {
-            if ( !self->min_object.inlets().empty() ) {
-                const auto& inlet = self->min_object.inlets()[a];
+            if ( !self->m_min_object.inlets().empty() ) {
+                const auto& inlet = self->m_min_object.inlets()[a];
                 strncpy(s, inlet->description().c_str(), 256);
             }
 		}
@@ -111,7 +112,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_zero(max::t_object* o) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		
 		meth();
 	}
@@ -119,7 +120,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_int(max::t_object* o, long v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as = {v};
 		
 		meth(as);
@@ -128,7 +129,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_float(max::t_object* o, double v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as = {v};
 		
 		meth(as);
@@ -137,7 +138,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_symbol(max::t_object* o, max::t_symbol* v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as = {symbol(v)};
 		
 		meth(as);
@@ -146,7 +147,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_anything(max::t_object* o, max::t_symbol *s, long ac, max::t_atom* av) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as(ac+1);
 		
 		as[0] = s;
@@ -158,7 +159,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_ptr(max::t_object* o, void* v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as = {v};
 		
 		meth(as);
@@ -167,7 +168,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_self_ptr(max::t_object* o, void* arg1) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as { o, arg1 };
 
 		meth(as);
@@ -176,7 +177,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_self_ptr_pt_long(max::t_object* o, void* arg1, max::t_pt arg2, long arg3) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as { o, arg1, arg2.x, arg2.y, arg3 };
 
 		meth(as);
@@ -185,7 +186,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as { o, s1, s2, p1, p2 };	// NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is always the correct `self` for box operations
 
 		return static_cast<long>( meth(as).at(0) );
@@ -194,7 +195,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, void* arg1, long arg2, void* arg3, long arg4, void* arg5, long arg6) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as { o, arg1, arg2, arg3, arg4, arg5, arg6 };	// NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is always the correct `self` for box operations
 		
 		meth(as);
@@ -204,7 +205,7 @@ namespace min {
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_dictionary(max::t_object* o, max::t_symbol *s) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[message_name_type::name];
+		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		auto	d = dictobj_findregistered_retain(s);
 		atoms	as = { atom(d) };
 		
@@ -217,7 +218,7 @@ namespace min {
 	template<class min_class_type>
 	void wrapper_method_generic(max::t_object* o, max::t_symbol *s, long ac, max::t_atom* av) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[s->s_name];
+		auto&	meth = *self->m_min_object.messages()[s->s_name];
 		atoms	as(ac);
 		
 		for (auto i=0; i<ac; ++i)
@@ -229,7 +230,7 @@ namespace min {
 	template<class min_class_type>
 	void wrapper_method_generic_typed(max::t_object* o, max::t_symbol* s, long ac, max::t_atom* av, max::t_atom* rv) {
 		auto	self = wrapper_find_self<min_class_type>(o);
-		auto&	meth = *self->min_object.messages()[s->s_name];
+		auto&	meth = *self->m_min_object.messages()[s->s_name];
 		atoms	as(ac);
 		
 		for (auto i=0; i<ac; ++i)

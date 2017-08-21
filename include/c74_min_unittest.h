@@ -38,7 +38,7 @@ namespace c74 {
 			/// @return	A reference to your object.
 
 			operator min_class_type&() {
-				return m_minwrap_obj->min_object;
+				return m_minwrap_obj->m_min_object;
 			}
 
 		private:

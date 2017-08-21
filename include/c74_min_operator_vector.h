@@ -86,24 +86,24 @@ namespace min {
 	
 	template<class min_class_type>
 	struct minwrap <min_class_type, type_enable_if_audio_class<min_class_type> > {
-		maxobject_base	max_base;
-		min_class_type	min_object;
+		maxobject_header	m_max_header;
+		min_class_type		m_min_object;
 		
 		void setup() {
-			max::dsp_setup(max_base, (long)min_object.inlets().size());
+			max::dsp_setup(m_max_header, (long)m_min_object.inlets().size());
 
-			max::t_pxobject* x = max_base;
+			max::t_pxobject* x = m_max_header;
 			x->z_misc |= max::Z_NO_INPLACE;
 			
-			min_object.create_outlets();
+			m_min_object.create_outlets();
 		}
 		
 		void cleanup() {
-			max::dsp_free(max_base);
+			max::dsp_free(m_max_header);
 		}
 
 		max::t_object* maxobj() {
-			return max_base;
+			return m_max_header;
 		}
 	};
 	
@@ -117,7 +117,7 @@ namespace min {
 		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			audio_bundle input = {in_chans, numins, sampleframes};
 			audio_bundle output = {out_chans, numouts, sampleframes};
-			self->min_object(input, output);
+			self->m_min_object(input, output);
 		}
 	}; // primary template
 	
@@ -143,12 +143,12 @@ namespace min {
 	void min_dsp64_io(minwrap<min_class_type>* self, short* count) {
 		int i = 0;
 		
-		while (i < self->min_object.inlets().size()) {
-			self->min_object.inlets()[i]->update_signal_connection(count[i]!=0);
+		while (i < self->m_min_object.inlets().size()) {
+			self->m_min_object.inlets()[i]->update_signal_connection(count[i]!=0);
 			++i;
 		}
-		while (i < self->min_object.outlets().size()) {
-			self->min_object.outlets()[i - self->min_object.inlets().size()]->update_signal_connection(count[i]!=0);
+		while (i < self->m_min_object.outlets().size()) {
+			self->m_min_object.outlets()[i - self->m_min_object.inlets().size()]->update_signal_connection(count[i]!=0);
 			++i;
 		}
 	}
@@ -167,13 +167,13 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< has_dspsetup<min_class_type>::value && is_base_of<vector_operator_base, min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
-		self->min_object.samplerate_set(samplerate);
+		self->m_min_object.samplerate_set(samplerate);
 		min_dsp64_io(self, count);
 
 		atoms args;
 		args.push_back(atom(samplerate));
 		args.push_back(atom(maxvectorsize));
-		self->min_object.dspsetup(args);
+		self->m_min_object.dspsetup(args);
 		
 		min_dsp64_add_perform(self, dsp64);
 	}
@@ -181,7 +181,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< !has_dspsetup<min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
-		self->min_object.samplerate_set(samplerate);
+		self->m_min_object.samplerate_set(samplerate);
 		min_dsp64_io(self, count);
 		min_dsp64_add_perform(self, dsp64);
 	}

@@ -8,7 +8,9 @@
 namespace c74 {
 namespace min {
 
-	
+
+	// forward declarations
+
 	class inlet_base;
 	class outlet_base;
 	class argument_base;
@@ -19,8 +21,13 @@ namespace min {
 	class attribute;
 
 
-	class maxobject_base {
+	// The header of instance's C-style struct. This is always a max::t_object.
+	// It is sized such that it can accomodate the other extensions of a max::t_object as well.
+
+	class maxobject_header {
 	public:
+
+		// allow casting the header to any of the struct types without errors/warnings
 		
 		operator max::t_object*() {
 			return &m_objstorage.maxobj;
@@ -41,7 +48,6 @@ namespace min {
 		operator void*() {
 			return &m_objstorage.maxobj;
 		}
-
 		
 	private:
 		union storage {
@@ -236,18 +242,18 @@ namespace min {
 		&& !is_base_of< sample_operator_base, min_class_type>::value
 		&& !is_base_of< gl_operator_base, min_class_type>::value
 	>::type > {
-		maxobject_base	max_base;
-		min_class_type	min_object;
+		maxobject_header	m_max_header;
+		min_class_type		m_min_object;
 		
 		void setup() {
-			min_object.create_inlets();
-			min_object.create_outlets();
+			m_min_object.create_inlets();
+			m_min_object.create_outlets();
 		}
 		
 		void cleanup() {}
 
 		max::t_object* maxobj() {
-			return max_base;
+			return m_max_header;
 		}
 	};
 	

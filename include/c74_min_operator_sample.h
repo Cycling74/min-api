@@ -87,7 +87,7 @@ namespace min {
 
 			for (auto i=0; i<sampleframes; ++i) {
 				auto in = in_samps[i];
-				self->min_object(in);
+				self->m_min_object(in);
 			}
 		}
 	};
@@ -132,7 +132,7 @@ namespace min {
 
 		template<int... Is>
 		auto call(detail::seq<Is...>) {
-			return self->min_object(data[Is]...);
+			return self->m_min_object(data[Is]...);
 		}
 
 		samples<count>				data;
@@ -145,7 +145,7 @@ namespace min {
 
 	template<class min_class_type, typename type_returned_from_call_operator>
 	void perform_copy_output(minwrap<min_class_type>* self, size_t index, double** out_chans, type_returned_from_call_operator vals) {
-		for (auto chan=0; chan < self->min_object.outputcount(); ++chan)
+		for (auto chan=0; chan < self->m_min_object.outputcount(); ++chan)
 			out_chans[chan][index] = vals[chan];
 	}
 
@@ -165,7 +165,7 @@ namespace min {
 			for (auto i=0; i<sampleframes; ++i) {
 				callable_samples<min_class_type, min_class_type::inputcount()> ins(self);
 
-				for (auto chan=0; chan < self->min_object.inputcount(); ++chan)
+				for (auto chan=0; chan < self->m_min_object.inputcount(); ++chan)
 					ins.set(chan, in_chans[chan][i]);
 
 				auto out = ins.call();
