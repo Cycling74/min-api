@@ -20,6 +20,11 @@ namespace min {
 	template<typename T, threadsafe threadsafety = threadsafe::no, template<typename> class limit_type = limit::none>
 	class attribute;
 
+	class sample_operator_base;
+	class vector_operator_base;
+	//	class matrix_operator_base;
+	class gl_operator_base;
+
 
 	// The header of instance's C-style struct. This is always a max::t_object.
 	// It is sized such that it can accomodate the other extensions of a max::t_object as well.
@@ -61,24 +66,31 @@ namespace min {
 	};
 	
 	
-	/// An object_base is a generic way to pass around a min::object as a min::object, while sharing common code,
-	/// is actually sepcific to the the user's defined class due to template specialization.
-	class object_base {
-		static const constexpr long k_magic = 1974004791;
+	/// An object_base is a generic way to pass around a min::object.
+	/// Required because a min::object<>, though sharing common code,
+	/// is actually specific to the the user's defined class due to template specialization.
 
-	public:
+	class object_base {
+		static const constexpr long k_magic = 1974004791; // magic number used internally for sanity checking on pointers to objects
+
+	protected:
+
+		// Constructor is only called when creating a min::object<>, and never created directly.
+		// The dictionary representing the object in the patcher is referenced (owned) by m_state.
+		// Inheriting classes can retrieve information from this dictionary using the state() method.
+
 		object_base()
 		: m_state { (max::t_dictionary*)k_sym__pound_d, false }
-		{
-			create_inlets();
-			create_outlets();
-		}
-		
-		
+		{}
+
+
+		// Destructor is only called when freeing a min::object<>, and never directly.
+
 		virtual ~object_base() {
 			// TODO: free proxy inlets!
 		}
 
+	public:
 
 		virtual bool is_jitter_class() = 0;
 		virtual bool is_ui_class() = 0;
@@ -180,24 +192,34 @@ namespace min {
         symbol classname() {
             return m_classname;
         }
-        
+
+
 		/// Try to call a named message.
 		/// @param	name	The name of the message to attempt to call.
 		/// @param	args	Any args you wish to pass to the message call.
 		/// @return			If the message doesn't exist an empty set of atoms.
 		///					Otherwise the results of the message.
+
 		atoms try_call(const std::string& name, const atoms& args = {});
+
 
 		/// Try to call a named message.
 		/// @param	name	The name of the message to attempt to call.
 		/// @param	arg		A single atom arg you wish to pass to the message call.
 		/// @return			If the message doesn't exist an empty set of atoms.
 		///					Otherwise the results of the message.
+
 		atoms try_call(const std::string& name, const atom& arg) {
 			atoms as = {arg};
 			return try_call(name, as);
 		}
-        
+
+
+		/// Find out if the object has a message with a specified name.
+		/// @param	name		The name of the message to lookup.
+		///	@return				True if the object has a message with that name. Otherwise false.
+		/// @see				try_call()
+
         bool has_call(const std::string& name) {
             auto found_message = m_messages.find(name);
             return (found_message != m_messages.end());
@@ -221,18 +243,18 @@ namespace min {
 
 	
 
-	class sample_operator_base;
-	class vector_operator_base;
-//	class matrix_operator_base;
-	class gl_operator_base;
-	
-	
+
 	// Wrap the C++ class together with the appropriate Max object header
 	// Max object header is selected automatically using the type of the base class.
 	
 	template<class min_class_type, class=void>
 	struct minwrap;
-	
+
+
+	// a normal max object, or a jitter matrix operator
+	// (not an audio object, open-gl object, or ui object)
+
+// TODO: open-gl and ui objects ... SANITY CHECK!!!!
 	
 	template<class min_class_type>
 	struct minwrap <min_class_type, typename enable_if<
@@ -255,28 +277,33 @@ namespace min {
 		}
 	};
 	
-	
-	// maxname may come in as an entire path because of use of the __FILE__ macro
+
+	/// Deduce the intended name of a Max object from the name of the c++ sourcecode file.
+	/// This is used internally via the #MIN_EXTERNAL macro when the max::t_class is created.
+	/// Thus the maxname parameter may come in as an entire path because of use of the __FILE__ macro that is invoked.
+	/// @param	maxname		The filename, possible the fullpath, of the c++ source file.
+	/// @return				A string with the deduced object name as it will be exposed to the Max environment.
+
 	inline std::string deduce_maxclassname(const char* maxname) {
 		std::string smaxname;
 		
-		const char* start = strrchr(maxname, '/');
+		const char* start = strrchr(maxname, '/');		// mac paths
 		if (start)
 			start += 1;
 		else {
-			start = strrchr(maxname, '\\');
+			start = strrchr(maxname, '\\');				// windows paths
 			if (start)
 				start += 1;
 			else
 				start = maxname;
 		}
 		
-		const char* end = strstr(start, "_tilde.cpp");
+		const char* end = strstr(start, "_tilde.cpp");	// audio objects
 		if (end) {
 			smaxname.assign(start, end-start);
 			smaxname += '~';
 		}
-		else {
+		else {											// all other objects
 			const char* end = strrchr(start, '.');
 			if (!end)
 				end = start + strlen(start);

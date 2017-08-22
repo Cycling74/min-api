@@ -36,7 +36,7 @@ namespace min {
 	}
 
 
-	// inlets have to be created as a separate step because
+	// inlets have to be created as a separate step (by the wrapper) because
 	// max creates them from right-to-left
 	// note that some objects will not call this function... i.e. dsp objects or other strongly-typed objects.
 
@@ -48,7 +48,7 @@ namespace min {
 	}
 
 	
-	// outlets have to be created as a separate step because
+	// outlets have to be created as a separate step (by the wrapper) because
 	// max creates them from right-to-left
 
 	void object_base::create_outlets() {

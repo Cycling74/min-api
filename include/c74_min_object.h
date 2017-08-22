@@ -27,32 +27,14 @@ namespace min {
 		object() {
 
 			// The way objects are created for the Max environment requires that memory be allocated first
-			// using object_alloc(), which is followed by the use of placement-new to contruct the C++ class.
+			// using object_alloc() or jit_object_alloc(), which is followed by the use of placement-new to contruct the C++ class.
+			//
 			// When this occurs the m_maxobj member is already set prior to the constructor being run.
 			// If there is no valid m_maxobj then that means this class was created outside of the Max environment.
 			//
 			// This could occur if a class uses another class directly or in the case of unit testing.
-			// In such cases we need to do something reasonable so that our invariants can be held true.
-
-/*
-			if (m_initializing) {							// we are being initialized externally via placement new
-				;
-			}
-			else {											// we need to initialize ourselves
-				if (!this_class_init) {						// if we aren't already in the process of initializing...
-					std::string maxname = typeid(min_class_type).name();
-					maxname += "_max";
-
-					// create the max::t_class for our object
-					wrap_as_max_external<min_class_type>( typeid(min_class_type).name(), maxname.c_str(), nullptr, static_cast<min_class_type*>(this) );
-				}
-
-				if (this_class) {
-					m_maxobj = static_cast<max::t_object*>(max::object_alloc(this_class));	// allocate
-					postinitialize();														// update flags to say we are done
-				}
-			}
- */
+			// In such cases we need to do something reasonable so that our invariants can be held true
+			
 		}
 
 		/// Destructor.

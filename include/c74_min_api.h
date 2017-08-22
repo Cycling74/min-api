@@ -109,6 +109,7 @@ namespace min {
 	class sample_operator_base;
 	class vector_operator_base;
 	class ui_operator_base;
+
 	namespace ui {
 		class color {
 		public:
@@ -241,6 +242,10 @@ inline void error(const std::string& description) {
 	throw std::runtime_error(description);
 }
 
+
+/// Throw a generic error.
+/// When possible you should specify a description string and pass as an argument instead of calling this variant.
+
 inline void error() {
 	throw std::runtime_error("unknown");
 }
@@ -255,12 +260,15 @@ inline void error(bool check, const std::string& description) {
 }
 
 
+/// Reverse the byte-ordering of an int.
+/// Meaning from Big Endian to Little or vice versa.
+/// @param x	The int to have its byte-ordering reversed.
+/// @return		The byte-swapped output of this function.
 
 inline uint16_t byteorder_swap(uint16_t x) {
 	return ((int16_t)(((((uint16_t)(x))>>8)&0x00ff)+
 					  ((((uint16_t)(x))<<8)&0xff00)));
 }
-
 
 
 #include "c74_min_symbol.h"
@@ -314,13 +322,27 @@ namespace min {
 #include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 
 
+/// Wrap a class that extends min::object for use in the Max environment.
+/// The name of your Max object will be the same as that of your *source file name* minus the ".cpp" suffix.
+/// If your filename ends with "_tilde" the name will be substituted with a "~" character at the end.
+/// @param	cpp_classname	The name of your class.
+/// @see					MIN_EXTERNAL_CUSTOM
+
 #define MIN_EXTERNAL(cpp_classname) \
 void ext_main (void* r) { \
 	c74::min::wrap_as_max_external< cpp_classname > ( #cpp_classname, __FILE__ , r ); \
 }
 
+
+/// Wrap a class that extends min::object for use in the Max environment.
+/// The recommended model is to name your file consistent with Min conventions and
+/// use the #MIN_EXTERNAL macro instead of this one.
+///
+/// @param	cpp_classname	The name of your class.
+/// @param	max_name		The name of your object as you will type it into a Max object box.
+/// @see					MIN_EXTERNAL
+
 #define MIN_EXTERNAL_CUSTOM(cpp_classname, max_name) \
 void ext_main (void* r) { \
 	c74::min::wrap_as_max_external< cpp_classname > ( #max_name, __FILE__ , r ); \
 }
-
