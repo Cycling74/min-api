@@ -20,10 +20,12 @@ namespace min {
 	template<typename T, threadsafe threadsafety = threadsafe::no, template<typename> class limit_type = limit::none>
 	class attribute;
 
-	class sample_operator_base;
-	class vector_operator_base;
-	//	class matrix_operator_base;
-	class gl_operator_base;
+
+	// Wrap the C++ class together with the appropriate Max object header
+	// Max object header is selected automatically using the type of the base class.
+
+	template<class min_class_type, class=void>
+	struct minwrap;
 
 
 	// The header of instance's C-style struct. This is always a max::t_object.
@@ -32,7 +34,7 @@ namespace min {
 	class maxobject_header {
 	public:
 
-		// allow casting the header to any of the struct types without errors/warnings
+		// allow casting the header to any of the max t_object struct types without errors/warnings
 		
 		operator max::t_object*() {
 			return &m_objstorage.maxobj;
@@ -90,19 +92,39 @@ namespace min {
 			// TODO: free proxy inlets!
 		}
 
+
 	public:
 
+		/// Is this class a Jitter class (e.g. a matrix_operator or gl_operator)?
+		/// @return	True if it is. Otherwise false.
+
 		virtual bool is_jitter_class() = 0;
+
+
+		/// Is this class a User Interface operator?
+		/// @return True if it is. Otherwise false.
+
 		virtual bool is_ui_class() = 0;
 		
+
+		/// Into which inlet did the current message call arrive?
+		/// @return The inlet number of the message call. The first inlet is inlet 0.
 
 		int current_inlet() {
 			return proxy_getinlet(static_cast<max::t_object*>(m_maxobj));
 		}
-		
+
+
+		/// Cast this object to it's corresponding t_object pointer as understood by the older C Max API.
+		/// @return The t_object pointer for this object.
+
 		operator max::t_object* () const {
 			return maxobj();
 		}
+
+
+		/// Explicitly fetch this object's corresponding t_object pointer as understood by the older C Max API.
+		/// @return The t_object pointer for this object.
 
 		max::t_object* maxobj() const {
 			if (m_min_magic == k_magic)
@@ -110,85 +132,85 @@ namespace min {
 			else
 				return nullptr;
 		}
-		
-		void assign_instance(max::t_object* instance) {
-			m_maxobj = instance;
 
-			// this very much not ideal...
-			// we have two ways objects are instantiated:
-			//
-			// 1. instantiated by Max (using placement new)
-			// 2. instantiated some other way (not using placement now)
-			//
-			// When created by Max we need to have the member set for the 
-			// max object prior to the call to the constructor.
-			// But, if we are instatiated directly then that memory is uninitialized.
-			//
-			// One option would be to use a global and access that during the construction.
-			// That solution is wrought with many obvious problems, so this solution was chosen
-			// despite some different problems 
-			// (e.g. the rare case where the magic number would be 
-			//  randomly initialized to the correct value.)
 
-			m_min_magic = k_magic;
-		}
-		
-		
+		/// Get a reference to this object's inlets.
+		/// @return	A reference to this object's inlets.
+
 		auto inlets() -> std::vector<inlet_base*>& {
 			return m_inlets;
 		}
-		
+
+
+		/// Get a reference to this object's outlets.
+		/// @return	A reference to this object's outlets.
+
 		auto outlets() -> std::vector<outlet_base*>& {
 			return m_outlets;
 		}
-		
-		void create_inlets();
-		void create_outlets();
 
 
-		void register_argument(argument_base* arg) {
-			m_arguments.push_back(arg);
-		}
-
-		// defined in c74_min_argument.h
-		void process_arguments(const atoms& args);
+		/// Get a reference to this object's argument declarations.
+		/// Note that to get the actual argument values you will need to call state() and parse the dictionary.
+		/// @return	A reference to this object's argument declarations.
 
 		auto arguments() const -> const std::vector<argument_base*>& {
 			return m_arguments;
 		}
 
 
+		/// Get a reference to this object's messages.
+		/// @return	A reference to this object's messages.
+
 		auto messages() -> std::unordered_map<std::string, message_base*>& {
 			return m_messages;
 		}
+
+		/// Get a reference to this object's messages.
+		/// @return	A reference to this object's messages.
+
 		auto messages() const -> const std::unordered_map<std::string, message_base*>& {
 			return m_messages;
 		}
 
 		
+		/// Get a reference to this object's attributes.
+		/// @return	A reference to this object's attributes.
+
 		auto attributes() -> std::unordered_map<std::string, attribute_base*>& {
 			return m_attributes;
 		}
+
+
+		/// Get a reference to this object's attributes.
+		/// @return	A reference to this object's attributes.
+
 		auto attributes() const -> const std::unordered_map<std::string, attribute_base*>& {
 			return m_attributes;
 		}
 
-		void postinitialize() {
-			m_initialized = true;
-		}
-		
+
+		/// Is this object done being initialized?
+		///	@return	True if it is done with initialization and construction. Otherwise false.
+
 		bool initialized() {
 			return m_initialized;
 		}
-		
+
+
+		/// Get the dictionary representing this object's state in the patcher.
+		/// @return	A dictionary with the object's state.
+		/// @see	"Saving State" in GuideToWritingObjects.md
+
 		dict state() {
 			return m_state;
 		}
-		
-        void set_classname(symbol s) {
-            m_classname = s;
-        }
-        
+
+
+		/// Return the name of the object as it was typed into the box to create this instance.
+		/// Useful in the case where there may be one class with several aliases that modify the behavior (e.g. metro and qmetro).
+		/// @return	The name of this class.
+
         symbol classname() {
             return m_classname;
         }
@@ -225,42 +247,118 @@ namespace min {
             return (found_message != m_messages.end());
         }
 
-	protected:
+	private:
 		max::t_object*										m_maxobj;		// initialized prior to placement new
 		long												m_min_magic;	// should be valid if m_maxobj has been assigned
-		bool												m_initialized = false;
+		bool												m_initialized { false };
 		std::vector<inlet_base*>							m_inlets;
 		std::vector<outlet_base*>							m_outlets;
 		std::vector<argument_base*>							m_arguments;
 		std::unordered_map<std::string, message_base*>		m_messages;
 		std::unordered_map<std::string, attribute_base*>	m_attributes;
 		dict												m_state;
-        symbol                                              m_classname; // what's typed in the max box
+        symbol                                              m_classname;	 // what's typed in the max box
+
+		friend class inlet_base;
+		friend class outlet_base;
+
+		friend class argument_base;
+
+		template<class min_class_type, class>
+		friend struct minwrap;
+
+		template<class min_class_type>
+		friend minwrap<min_class_type>* wrapper_new(max::t_symbol* name, long ac, max::t_atom* av);
+
+		template<class min_class_type>
+		friend max::t_object* jit_new(max::t_symbol* s);
+
+
+		// Internal method called by the wrapper when creating an instance.
+		// There are potentially two ways for objects to be instantiated:
+		//
+		// 1. instantiated by Max (using placement new in the wrapper code)
+		// 2. instantiated some other way (not using placement new)
+		//
+		// When created by Max we need to have the member set for the
+		// max object (m_maxobj) prior to the call to the constructor.
+		// But, if we are instatiated directly then that memory is uninitialized.
+		//
+		// One option would be to use a global and access that during the construction.
+		// That solution is wrought with many obvious problems.
+		// This solution was chosen despite some different problems
+		// (e.g. the rare case where the magic number would be randomly initialized to the correct value.)
+
+		void assign_instance(max::t_object* instance) {
+			m_maxobj = instance;
+			m_min_magic = k_magic;
+		}
+
+
+		// Called by the wrapper to create the Max counterparts to the Min inlets
+		// after the Min object construction is complete.
+
+		void create_inlets();
+
+
+		// Called by the wrapper to create the Max counterparts to the Min outlets
+		// after the Min object construction is complete.
+
+		void create_outlets();
+
+
+		// Called by the wrapper to indicate that it is done creating our instance.
+
+		void postinitialize() {
+			m_initialized = true;
+		}
+
+
+		// Called by the wrapper once the object is initialized so that it is possible to know what object name
+		// was used to create this instance.
+		// Useful in the case where there may be one class with several aliases that modify the behavior (e.g. metro and qmetro).
+
+		void set_classname(symbol s) {
+			m_classname = s;
+		}
+
+
+		// Called by the min::argument to add an argument to the object.
+
+		void register_argument(argument_base* arg) {
+			m_arguments.push_back(arg);
+		}
+
+	public:
+
+		// DO NOT USE
+		// Intended to be private but made public to avoid excessive contortions required to make min_ctor<> a friend function
+		// due to heavy use of templates, SFINAE, etc.
+		//
+		// Called by the wrapper to process all arguments after the object has been created
+		// (but prior to attributes being processed)
+		// defined in c74_min_argument.h
+
+		void process_arguments(const atoms& args);
+
 	};
-	
-	
-	
-
-	
 
 
-	// Wrap the C++ class together with the appropriate Max object header
-	// Max object header is selected automatically using the type of the base class.
-	
-	template<class min_class_type, class=void>
-	struct minwrap;
+	// The 'minwrap' is the struct for our Max object instance as we would think of it using the traditional Max SDK.
+	// The first member is one of the variants of a t_object (via the maxobject_header).
+	// Following that is a data member for an instance of our C++ Min class.
+	//
+	// All specializations of the minwrap struct must define how they are setup (when the instance is created)
+	// and how they are torn down (when the instance is freed).
+	// Much of this type of work is located elsewhere if it is possible to do so.
+	// For example, argument processing is the same for all cases and thus it is present outside of this struct because it needs to specialization.
+	//
+	// This (non-)specialization is a normal max object (which includes ui objects and jitter matrix operators).
 
-
-	// a normal max object, or a jitter matrix operator
-	// (not an audio object, open-gl object, or ui object)
-
-// TODO: open-gl and ui objects ... SANITY CHECK!!!!
-	
 	template<class min_class_type>
 	struct minwrap <min_class_type, typename enable_if<
 		   !is_base_of< vector_operator_base, min_class_type>::value
 		&& !is_base_of< sample_operator_base, min_class_type>::value
-		&& !is_base_of< gl_operator_base, min_class_type>::value
 	>::type > {
 		maxobject_header	m_max_header;
 		min_class_type		m_min_object;
