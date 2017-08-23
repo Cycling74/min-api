@@ -222,7 +222,7 @@ namespace min {
 
 		// The traditional Max audio "perform" callback routine
 
-		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+		static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
 			audio_bundle input = {in_chans, numins, sampleframes};
 			audio_bundle output = {out_chans, numouts, sampleframes};
 			self->m_min_object(input, output);

@@ -56,12 +56,10 @@ namespace min {
 	};
 
 
-
-
 	// To implement the performer class (below) generically we use std::array<sample> for both input and output.
 	// However, we wish to define the call operator in the Min class with each sample as a
 	// separate argument.
-	// To make this translation efficiently and without out lots of duplicated code we use a pattern whereby
+	// To make this translation compute efficiently and without out lots of duplicated code we use a pattern whereby
 	// the sequence of indices for std::array are generated at compile time and then used to make the call
 	// as a variadic template function.
 	//
@@ -79,6 +77,8 @@ namespace min {
 		struct gen_seq<0, Is...> : seq<Is...> { };
 	}
 
+
+	// A container of N samples, one for each inlet, that then makes a call to be processed by a sample_operator<>.
 
 	template<class min_class_type, int count>
 	struct callable_samples {
@@ -105,8 +105,7 @@ namespace min {
 	};
 
 
-	// perform_copy_output() copies the output sample(s) from a sample_operator's call operator.
-	// it does so in a way that the returned type can either be a single sample or an array of samples<N>
+	// version of perform_copy_output() for samples<N> returned by the sample_operator<>'s call operator in the performer below.
 
 	template<class min_class_type, typename type_returned_from_call_operator>
 	void perform_copy_output(minwrap<min_class_type>* self, size_t index, double** out_chans, type_returned_from_call_operator vals) {
@@ -114,15 +113,13 @@ namespace min {
 			out_chans[chan][index] = vals[chan];
 	}
 
+
+	// version of perform_copy_output() for a single sample returned by the sample_operator<>'s call operator in the performer below.
+
 	template<class min_class_type>
 	void perform_copy_output(minwrap<min_class_type>* self, size_t index, double** out_chans, sample val) {
 		out_chans[0][index] = val;
 	}
-
-
-
-
-
 
 
 	// The performer class wraps the C callback routine for a Max audio "perform" method.
@@ -140,7 +137,7 @@ namespace min {
 
 		// The traditional Max audio "perform" callback routine
 
-		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+		static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
 			auto in_samps = in_chans[0];
 			auto out_samps = out_chans[0];
 			
@@ -162,7 +159,7 @@ namespace min {
 
 		// The traditional Max audio "perform" callback routine
 
-		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+		static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
 			auto in_samps = in_chans[0];
 
 			for (auto i=0; i<sampleframes; ++i) {
@@ -178,9 +175,13 @@ namespace min {
 	// See above for other specializations.
 
 	template<class min_class_type>
-	class performer<min_class_type, typename enable_if< is_base_of<sample_operator_base, min_class_type >::value && !is_base_of<sample_operator<1,1>, min_class_type >::value && !is_base_of<sample_operator<1,0>, min_class_type >::value>::type> {
+	class performer<min_class_type,
+					typename enable_if< is_base_of<sample_operator_base, min_class_type >::value
+										&& !is_base_of<sample_operator<1,1>, min_class_type >::value
+										&& !is_base_of<sample_operator<1,0>, min_class_type >::value>
+							::type> {
 	public:
-		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+		static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
 			for (auto i=0; i<sampleframes; ++i) {
 				callable_samples<min_class_type, min_class_type::inputcount()> ins(self);
 
