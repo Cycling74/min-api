@@ -78,8 +78,8 @@ namespace min {
 
 	using pixel = std::array<uchar,4>;
 
-	template<class matrix_type, size_t planecount>
-	using cell = std::array<matrix_type, planecount>;
+	template<class matrix_type, size_t plane_count>
+	using cell = std::array<matrix_type, plane_count>;
 
 	enum {
 		alpha = 0,
@@ -116,11 +116,11 @@ namespace min {
 		{}
 
 		
-		long planecount() const {
+		long plane_count() const {
 			return m_in_info->planecount;
 		}
 
-		long dimcount() const {
+		long dim_count() const {
 			return m_in_info->dimcount;
 		}
 
@@ -134,25 +134,25 @@ namespace min {
 
 		
 		
-		template<class matrix_type, size_t planecount>
-		const std::array<matrix_type,planecount> in_cell(const matrix_coord& coord) const {
+		template<class matrix_type, size_t plane_count>
+		const std::array<matrix_type, plane_count> in_cell(const matrix_coord& coord) const {
 			auto p = m_bip;
 			
 			for (auto j=0; j < m_in_info->dimcount; ++j)
 				p += coord.position[j] * m_in_info->dimstride[j];
 			
-			std::array<matrix_type,planecount> pa;
+			std::array<matrix_type, plane_count> pa;
 			
 			auto p2 = reinterpret_cast<matrix_type*>(p);
-			for (auto plane = 0; plane < planecount; ++plane)
+			for (auto plane = 0; plane < plane_count; ++plane)
 				pa[plane] = *(p2+plane);
 			return pa;
 		}
 		
-		template<class matrix_type, size_t planecount>
-		const std::array<matrix_type,planecount> in_cell(int x, int y) const {
+		template<class matrix_type, size_t plane_count>
+		const std::array<matrix_type,plane_count> in_cell(int x, int y) const {
 			matrix_coord coord(x, y);
-			return in_cell<matrix_type,planecount>(coord);
+			return in_cell<matrix_type,plane_count>(coord);
 		}
 
 
@@ -272,12 +272,12 @@ namespace min {
 		auto		op = static_cast<U*>(out->p);
 		auto		is = in ? in->stride : 0;
 		auto		os = out->stride;
-		const auto	step = os / info.planecount();
+		const auto	step = os / info.plane_count();
 		const bool	planematch = (info.m_in_info->planecount == info.m_out_info->planecount);
 		auto		ip_last = ip + (is * (n-1));
 		auto		op_last = op + (os * (n-1));
 
-		if (planematch && info.planecount() == 1) {
+		if (planematch && info.plane_count() == 1) {
 			// forward or bidirectional
 			if (self->m_min_object.direction() != matrix_operator_base::iteration_direction::reverse) {
 				for (auto j = 0; j < n; ++j) {
@@ -317,7 +317,7 @@ namespace min {
 				}
 			}
 		}
-		else if (planematch && info.planecount() == 4) {
+		else if (planematch && info.plane_count() == 4) {
 			if (self->m_min_object.direction() != matrix_operator_base::iteration_direction::reverse) {
 				for (auto j = 0; j < n; ++j) {
 					matrix_coord			position(j, i);
@@ -440,7 +440,7 @@ namespace min {
 
 	template<class min_class_type, typename U>
 	typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value>::type
-	jit_calculate_ndim_loop(minwrap<min_class_type>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, uchar* bip, uchar* bop, long* dim, long planecount, long datasize) {
+	jit_calculate_ndim_loop(minwrap<min_class_type>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, uchar* bip, uchar* bop, long* dim, long plane_count, long datasize) {
 		matrix_info info((in_minfo ? in_minfo : out_minfo), (bip ? bip : bop), out_minfo, bop);
 		for (auto i=0; i<dim[1]; i++) {
 			if (in_opinfo)
@@ -452,75 +452,75 @@ namespace min {
 
 	
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
-	void jit_calculate_ndim(minwrap<min_class_type>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info *in_minfo, uchar* bip, max::t_jit_matrix_info* out_minfo, uchar* bop) {
-		if (dimcount < 1)
+	void jit_calculate_ndim(minwrap<min_class_type>* self, long dim_count, long* dim, long plane_count, max::t_jit_matrix_info *in_minfo, uchar* bip, max::t_jit_matrix_info* out_minfo, uchar* bop) {
+		if (dim_count < 1)
 			return; // safety
 
 		max::t_jit_op_info	in_opinfo;
 		max::t_jit_op_info	out_opinfo;
 		
-		switch (dimcount) {
+		switch (dim_count) {
 			case 1:
 				dim[1] = 1;
 				// (fall-through to next case is intentional)
 			case 2:
 				{
-					// if planecount is the same then flatten planes - treat as single plane data for speed
+					// if plane_count is the same then flatten planes - treat as single plane data for speed
 					auto n = dim[0];
 					in_opinfo.stride =  in_minfo->dim[0]>1  ? in_minfo->planecount  : 0;
 					out_opinfo.stride = out_minfo->dim[0]>1 ? out_minfo->planecount : 0;
 					
 					if (in_minfo->type == max::_jit_sym_char)
-						jit_calculate_ndim_loop<min_class_type, uchar>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, uchar>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, plane_count, 1);
 					else if (in_minfo->type == max::_jit_sym_long)
-						jit_calculate_ndim_loop<min_class_type, int>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 4);
+						jit_calculate_ndim_loop<min_class_type, int>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, plane_count, 4);
 					else if (in_minfo->type == max::_jit_sym_float32)
-						jit_calculate_ndim_loop<min_class_type, float>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 4);
+						jit_calculate_ndim_loop<min_class_type, float>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, plane_count, 4);
 					else if (in_minfo->type == max::_jit_sym_float64)
-						jit_calculate_ndim_loop<min_class_type, double>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, planecount, 8);
+						jit_calculate_ndim_loop<min_class_type, double>(self, n, &in_opinfo, &out_opinfo, in_minfo, out_minfo, bip, bop, dim, plane_count, 8);
 				}
 				break;
 			default:
-				for	(auto i=0; i<dim[dimcount-1]; i++) {
-					auto ip = bip + i * in_minfo->dimstride[dimcount-1];
-					auto op = bop + i * out_minfo->dimstride[dimcount-1];
-					jit_calculate_ndim(self, dimcount-1, dim, planecount, in_minfo, ip, out_minfo, op);
+				for	(auto i=0; i<dim[dim_count-1]; i++) {
+					auto ip = bip + i * in_minfo->dimstride[dim_count-1];
+					auto op = bop + i * out_minfo->dimstride[dim_count-1];
+					jit_calculate_ndim(self, dim_count-1, dim, plane_count, in_minfo, ip, out_minfo, op);
 				}
 		}
 	}
 
 
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
-	void jit_calculate_ndim_single(minwrap<min_class_type>* self, long dimcount, long* dim, long planecount, max::t_jit_matrix_info* out_minfo, uchar* bop) {
-		if (dimcount < 1)
+	void jit_calculate_ndim_single(minwrap<min_class_type>* self, long dim_count, long* dim, long plane_count, max::t_jit_matrix_info* out_minfo, uchar* bop) {
+		if (dim_count < 1)
 			return; // safety
         
 		max::t_jit_op_info	out_opinfo;
 		
-		switch (dimcount) {
+		switch (dim_count) {
 			case 1:
 				dim[1] = 1;
 				// (fall-through to next case is intentional)
 			case 2:
 				{
-					// if planecount is the same then flatten planes - treat as single plane data for speed
+					// if plane_count is the same then flatten planes - treat as single plane data for speed
 					auto n = dim[0];
 					out_opinfo.stride = out_minfo->dim[0]>1 ? out_minfo->planecount : 0;
 					
 					if (out_minfo->type == max::_jit_sym_char)
-						jit_calculate_ndim_loop<min_class_type, uchar>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, uchar>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, plane_count, 1);
 					else if (out_minfo->type == max::_jit_sym_long)
-						jit_calculate_ndim_loop<min_class_type, int>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, int>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, plane_count, 1);
 					else if (out_minfo->type == max::_jit_sym_float32)
-						jit_calculate_ndim_loop<min_class_type, float>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, float>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, plane_count, 1);
 					else if (out_minfo->type == max::_jit_sym_float64)
-						jit_calculate_ndim_loop<min_class_type, double>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, planecount, 1);
+						jit_calculate_ndim_loop<min_class_type, double>(self, n, NULL, &out_opinfo, NULL, out_minfo, NULL, bop, dim, plane_count, 1);
 				}
 				break;
 			default:
-				for	(auto i=0; i<dim[dimcount-1]; i++) {
-					auto op = bop + i * out_minfo->dimstride[dimcount-1];
-					jit_calculate_ndim_single(self, dimcount-1, dim, planecount, out_minfo, op);
+				for	(auto i=0; i<dim[dim_count-1]; i++) {
+					auto op = bop + i * out_minfo->dimstride[dim_count-1];
+					jit_calculate_ndim_single(self, dim_count-1, dim, plane_count, out_minfo, op);
 				}
 		}
 	}
@@ -562,10 +562,10 @@ namespace min {
 			
 			if (in_minfo.type == out_minfo.type && in_bp && out_bp) {
 				long dim[max::JIT_MATRIX_MAX_DIMCOUNT];
-				auto dimcount   = out_minfo.dimcount;
-				auto planecount = out_minfo.planecount;
+				auto dim_count   = out_minfo.dimcount;
+				auto plane_count = out_minfo.planecount;
 				
-				for (auto i = 0; i < dimcount; ++i) {
+				for (auto i = 0; i < dim_count; ++i) {
 					//if dimsize is 1, treat as infinite domain across that dimension.
 					//otherwise truncate if less than the output dimsize
 					dim[i] = out_minfo.dim[i];
@@ -578,12 +578,12 @@ namespace min {
 					max::jit_parallel_ndim_simplecalc2(
 												   reinterpret_cast<max::method>(jit_calculate_ndim<min_class_type>),
 												   self,
-												   dimcount, dim, planecount, &in_minfo, reinterpret_cast<char*>(in_bp), &out_minfo, reinterpret_cast<char*>(out_bp),
+												   dim_count, dim, plane_count, &in_minfo, reinterpret_cast<char*>(in_bp), &out_minfo, reinterpret_cast<char*>(out_bp),
 												   0, 0
 												   );
 				}
 				else {
-					jit_calculate_ndim<min_class_type>(self, dimcount, dim, planecount, &in_minfo, reinterpret_cast<uchar*>(in_bp), &out_minfo, reinterpret_cast<uchar*>(out_bp));
+					jit_calculate_ndim<min_class_type>(self, dim_count, dim, plane_count, &in_minfo, reinterpret_cast<uchar*>(in_bp), &out_minfo, reinterpret_cast<uchar*>(out_bp));
 					
 				}
 			}

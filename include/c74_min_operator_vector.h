@@ -17,13 +17,13 @@ namespace min {
 		/// This is used internally by Min when receiving the per-vector callback from Max for audio objects
 		/// to create an audio_bundle to pass to a vector_operator class.
 		/// @param	samples			A pointer to the first sample in the first channel in an array of channels of vectors of audio.
-		/// @param	channelcount	The number of channels in the memory pointed to by the samples parameter.
-		/// @param	framecount		The size (in samples) of the audio vectors for each channel.
+		/// @param	channel_count	The number of channels in the memory pointed to by the samples parameter.
+		/// @param	frame_count		The size (in samples) of the audio vectors for each channel.
 
-		audio_bundle(double** samples, long channelcount, long framecount)
+		audio_bundle(double** samples, long channel_count, long frame_count)
 		: m_samples			{ samples }
-		, m_channelcount	{ channelcount }
-		, m_framecount		{ framecount }
+		, m_channel_count	{ channel_count }
+		, m_frame_count		{ frame_count }
 		{}
 
 
@@ -52,24 +52,24 @@ namespace min {
 		// The return type is a long because that is what the callback from Max provides us.
 		// While it not ideal we also do not want to spend computational cycles casting it to a size_t either.
 
-		long channelcount() {
-			return m_channelcount;
+		long channel_count() {
+			return m_channel_count;
 		}
 
 
 		/// Determine the number of samples in each vector of an audio bundle.
 		/// @return		The number of frames in the audio bundle.
 
-		long framecount() {
-			return m_framecount;
+		long frame_count() {
+			return m_frame_count;
 		}
 
 
 		/// Zero-out the data in the entire audio bundle.
 
 		void clear() {
-			for (auto channel=0; channel < m_channelcount; ++channel) {
-				for (auto i=0; i < m_framecount; ++i)
+			for (auto channel=0; channel < m_channel_count; ++channel) {
+				for (auto i=0; i < m_frame_count; ++i)
 					m_samples[channel][i] = 0.0;
 			}
 		}
@@ -89,11 +89,11 @@ namespace min {
 		/// @return			The destination to which the contents of the audio bundle is copied.
 
 		audio_bundle& operator = (const audio_bundle& other) {
-			assert(m_channelcount <= other.m_channelcount);
-			assert(m_framecount == other.m_framecount);
+			assert(m_channel_count <= other.m_channel_count);
+			assert(m_frame_count == other.m_frame_count);
 
-			for (auto channel=0; channel < m_channelcount; ++channel) {
-				for (auto i=0; i < m_framecount; ++i)
+			for (auto channel=0; channel < m_channel_count; ++channel) {
+				for (auto i=0; i < m_frame_count; ++i)
 					m_samples[channel][i] = other.m_samples[channel][i];
 			}
 			return *this;
@@ -101,8 +101,8 @@ namespace min {
 
 	private:
 		double**	m_samples		{ nullptr };
-		long		m_channelcount	{};
-		long		m_framecount	{};
+		long		m_channel_count	{};
+		long		m_frame_count	{};
 	};
 
 

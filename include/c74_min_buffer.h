@@ -142,7 +142,7 @@ namespace min {
 		///	@return	The length of the buffer~ in samples.
 		/// @see	length_in_seconds()
 		
-		size_t framecount() {
+		size_t frame_count() {
 			return max::buffer_getframecount(m_buffer_obj);
 		}
 
@@ -150,7 +150,7 @@ namespace min {
 		/// Determine the number of channels in the buffer~.
 		///	@return	The number of channels in the buffer~.
 
-		size_t channelcount() {
+		size_t channel_count() {
 			return max::buffer_getchannelcount(m_buffer_obj);
 		}
 
@@ -172,13 +172,13 @@ namespace min {
 		///	@return			A reference to the sample data for reading and/or writing.
 		
 		float& lookup(size_t frame, size_t channel = 0) {
-			if (frame >= framecount())
-				frame = framecount() - 1;
+			if (frame >= frame_count())
+				frame = frame_count() - 1;
 			
 			auto index = frame;
 			
-			if (channelcount() > 1)
-				index = index * channelcount() + channel;
+			if (channel_count() > 1)
+				index = index * channel_count() + channel;
 
 			return m_tab[index];
 		}
@@ -197,10 +197,10 @@ namespace min {
 
 		/// Determine the length of the buffer~ in seconds.
 		/// @return	The length of the buffer~ in seconds.
-		/// @see	framecount()
+		/// @see	frame_count()
 
 		double length_in_seconds() {
-			return framecount() / samplerate();
+			return frame_count() / samplerate();
 		}
 
 

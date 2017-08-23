@@ -29,9 +29,9 @@ namespace min {
 	// implemented out-of-line because of bi-directional dependency of min::argument<> and min::object_base
 
 	void object_base::process_arguments(const atoms& args) {
-		auto argcount = std::min(args.size(), m_arguments.size());
+		auto arg_count = std::min(args.size(), m_arguments.size());
 
-		for (auto i=0; i<argcount; ++i)
+		for (auto i=0; i < arg_count; ++i)
 			(*m_arguments[i])(args[i]);
 	}
 

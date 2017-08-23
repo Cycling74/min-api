@@ -491,27 +491,27 @@ namespace min {
 																		sizeof(minwrap<min_class_type>),
 																		0) );
 		
-		size_t inletcount = 0;
+		size_t inlet_count = 0;
 		for (auto i: instance->inlets()) {
 			if (i->type() == "matrix")
-				inletcount++;
+				inlet_count++;
 		}
 		
-		size_t outletcount = 0;
+		size_t outlet_count = 0;
 		for (auto i: instance->outlets()) {
 			if (i->type() == "matrix")
-				outletcount++;
+				outlet_count++;
 		}
 		
 		// If no matrix inputs are declared, the mop is a generator
-		bool ownsinput = (inletcount==0);
+		bool ownsinput = (inlet_count==0);
 		
         if (instance->has_call("jitclass_setup")) {
             instance->try_call("jitclass_setup", this_jit_class);
         }
         else {
             // add mop
-            auto mop = max::jit_object_new(max::_jit_sym_jit_mop, inletcount, outletcount);
+            auto mop = max::jit_object_new(max::_jit_sym_jit_mop, inlet_count, outlet_count);
             max::jit_class_addadornment(this_jit_class, mop);
             
             // add methods
@@ -621,7 +621,7 @@ namespace min {
             // for generator mops, override jit_matrix and outputmatrix
             long flags = (ownsinput ? max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX | max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
             
-            max::max_jit_class_mop_wrap(c, this_jit_class, flags);	// attrs & methods for name, type, dim, planecount, bang, outputmatrix, etc
+            max::max_jit_class_mop_wrap(c, this_jit_class, flags);	// attrs & methods for name, type, dim, plane_count, bang, outputmatrix, etc
             max::max_jit_class_wrap_standard(c, this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
             
             if(ownsinput)

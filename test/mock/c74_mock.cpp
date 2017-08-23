@@ -88,7 +88,7 @@ namespace max {
 		return nullptr;
 	}
 	
-	MOCK_EXPORT t_object* attr_offset_array_new(const char* name, t_symbol* type, long size, long flags, method mget, method mset, long offsetcount, long offset) {
+	MOCK_EXPORT t_object* attr_offset_array_new(const char* name, t_symbol* type, long size, long flags, method mget, method mset, long offset_count, long offset) {
 		return nullptr;
 	}
 
@@ -265,15 +265,15 @@ namespace max {
 		long		size = 0;			///< in bytes (0xFFFFFFFF=UNKNOWN)
 		t_symbol*	type = nullptr;			///< primitifve type (char, long, float32, or float64)
 		long		flags = 0;			///< flags to specify data reference, handle, or tightly packed
-		long		dimcount = 0;		///< number of dimensions
+		long		dim_count = 0;		///< number of dimensions
 		long		dim[JIT_MATRIX_MAX_DIMCOUNT];		///< dimension sizes
 		long		dimstride[JIT_MATRIX_MAX_DIMCOUNT]; ///< stride across dimensions in bytes
-		long		planecount = 0;		///< number of planes
+		long		plane_count = 0;		///< number of planes
 	};
 
-	MOCK_EXPORT void jit_parallel_ndim_simplecalc1(method fn, void *data, long dimcount, long *dim, long planecount, t_jit_matrix_info *minfo1, char *bp1, long flags1)
+	MOCK_EXPORT void jit_parallel_ndim_simplecalc1(method fn, void *data, long dim_count, long *dim, long plane_count, t_jit_matrix_info *minfo1, char *bp1, long flags1)
 	{}
-	MOCK_EXPORT void jit_parallel_ndim_simplecalc2(method fn, void *data, long dimcount, long *dim, long planecount, t_jit_matrix_info *minfo1, char *bp1,
+	MOCK_EXPORT void jit_parallel_ndim_simplecalc2(method fn, void *data, long dim_count, long *dim, long plane_count, t_jit_matrix_info *minfo1, char *bp1,
 		t_jit_matrix_info *minfo2, char *bp2, long flags1, long flags2)
 	{}
 

@@ -62,14 +62,14 @@ namespace min {
 			strncpy(m_filename, name.c_str(), MAX_PATH_CHARS);
 
 			max::t_fourcc	types[max::TYPELIST_SIZE];
-			short			typecount = 0;
+			short			type_count = 0;
 
 			if (type == filetype::external)
-				max::typelist_make(types, max::TYPELIST_EXTERNS, &typecount);
+				max::typelist_make(types, max::TYPELIST_EXTERNS, &type_count);
 			else if (type == filetype::folder)
 				m_directory = true;
 
-			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, types, typecount);
+			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, types, type_count);
 			if (err) {
 				if (create) {
 					if (type == filetype::folder) {

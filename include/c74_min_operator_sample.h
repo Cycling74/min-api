@@ -27,16 +27,20 @@ namespace min {
 	/// @tparam input_count		The number of audio inputs for your object.
 	/// @tparam output_count	The number of audio outputs for your object.
 
-	template<size_t input_count, size_t output_count>
+	template<size_t input_count_param, size_t output_count_param>
 	class sample_operator : public sample_operator_base {
 	public:
-		static constexpr size_t inputcount() {
-			return m_inputcount;
+
+		// 
+
+		static constexpr size_t input_count() {
+			return input_count_param;
 		}
 
 
-		static constexpr size_t outputcount() {
-			return m_outputcount;
+		static constexpr size_t output_count() {
+//			return m_output_count;
+			return output_count_param;
 		}
 
 
@@ -50,8 +54,8 @@ namespace min {
 		}
 
 	private:
-		static constexpr size_t m_inputcount	{ input_count };
-		static constexpr size_t m_outputcount	{ output_count };
+//		static constexpr size_t m_input_count	{ input_count_param };
+//		static constexpr size_t m_output_count	{ output_count_param };
 		double					m_samplerate	{ c74::max::sys_getsr() };
 	};
 
@@ -109,7 +113,7 @@ namespace min {
 
 	template<class min_class_type, typename type_returned_from_call_operator>
 	void perform_copy_output(minwrap<min_class_type>* self, size_t index, double** out_chans, type_returned_from_call_operator vals) {
-		for (auto chan=0; chan < self->m_min_object.outputcount(); ++chan)
+		for (auto chan=0; chan < self->m_min_object.output_count(); ++chan)
 			out_chans[chan][index] = vals[chan];
 	}
 
@@ -183,9 +187,9 @@ namespace min {
 	public:
 		static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
 			for (auto i=0; i<sampleframes; ++i) {
-				callable_samples<min_class_type, min_class_type::inputcount()> ins(self);
+				callable_samples<min_class_type, min_class_type::input_count()> ins(self);
 
-				for (auto chan=0; chan < self->m_min_object.inputcount(); ++chan)
+				for (auto chan=0; chan < self->m_min_object.input_count(); ++chan)
 					ins.set(chan, in_chans[chan][i]);
 
 				auto out = ins.call();
