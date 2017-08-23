@@ -8,15 +8,15 @@ When you turn on the audio in Max (e.g. by clicking on an **ezdac~** object) it 
 
 With the signal chain completed, Max will now begin to receive callbacks from the operating system on an *audio thread*. This callback will copy a block (vector) of samples from Max to the audio output device for your system. The number of samples in the vector is determined by the *Input/Output Vector Size* in Max's Audio Settings. Max further divides this vector into smaller blocks determined by the setting simply named *Vector Size*. Max will call your vector audio processing routine on the audio thread once for each of these smaller blocks.
 
-Processing audio in vectors instead of one sample at a time yields tremendous gains in computational performance. The Min API offers the ability to process audio vectors by inheriting from the `vector_operator` class.
+Processing audio in vectors instead of one sample at a time yields tremendous gains in computational performance. The Min API offers the ability to process audio vectors by inheriting from the `vector_operator<>` class.
 
-Additionally, The Min API provides a simpler `sample_operator` class from which you may inherit. The `sample_operator` allows you to define an operation for a single sample. The boiler-plate code for dealing with vectors is implemented in template classes that are inlined at compile time.
+Additionally, The Min API provides a simpler `sample_operator<>` class from which you may inherit. The `sample_operator<>` allows you to define an operation for a single sample. The boiler-plate code for dealing with vectors is implemented in template classes that are inlined at compile time.
 
 ## Class Definition
 
-In addition to inheriting from the `min::object<>` class, your audio objects will now also inherit from `vector_operator` or `sample_operator`. The later of these requires two template arguments: the number of audio inputs and the number of audio outputs.
+In addition to inheriting from the `min::object<>` class, your audio objects will now also inherit from `vector_operator<>` or `sample_operator<>`. The later of these requires two template arguments: the number of audio inputs and the number of audio outputs.
 
-In many cases using `sample_operator` will be desirable as it simplifies the code. In cases where you need to obtain a shared resource, gain better control of how variables are cached, or work on an object with a dynamic number of inputs/outputs a `vector_operator` will provide that additional flexibility.
+In many cases using `sample_operator<>` will be desirable as it simplifies the code. In cases where you need to obtain a shared resource, gain better control of how variables are cached, or work on an object with a dynamic number of inputs/outputs a `vector_operator<>` will provide that additional flexibility.
 
 There are examples of both in the Min-DevKit.
 
@@ -28,7 +28,7 @@ public:
 ```
 
 ```c++
-class buffer_loop : public object<buffer_loop>, public vector_operator {
+class buffer_loop : public object<buffer_loop>, public vector_operator<> {
 public:
 	/// ...
 };
@@ -47,11 +47,11 @@ public:
 	/// ...
 ```
 
-Note that you define your inlets and outlets for both `vector_operator` and `sample_operator` classes even though`sample_operator` classes will have previously indicated the number of inputs and outputs.
+Note that you define your inlets and outlets for both `vector_operator<>` and `sample_operator<>` classes even though`sample_operator<>` classes will have previously indicated the number of inputs and outputs.
 
 ## Messages
 
-There are no required messages for either `vector_operator` or `sample_operator` classes. You may optionally define a 'dspsetup' message which will be called when Max is compiling the signal chain.
+There are no required messages for either `vector_operator<>` or `sample_operator<>` classes. You may optionally define a 'dspsetup' message which will be called when Max is compiling the signal chain.
 
 ```c++
 message<> dspsetup { this, "dspsetup", MIN_FUNCTION {
@@ -82,15 +82,15 @@ buffer_reference my_buffer { this, MIN_FUNCTION {
 }};
 ```
 
-To access the **buffer~** contents in your audio routine, see the example below for `vector_operator` function call implementation.
+To access the **buffer~** contents in your audio routine, see the example below for `vector_operator<>` function call implementation.
 
 ## Audio Operator Functions
 
-Your object must define a function call operator where the samples of audio will be calculated. The implementation of this will be different depending on whether your audio object is a `sample_operator` or a `vector_operator`.
+Your object must define a function call operator where the samples of audio will be calculated. The implementation of this will be different depending on whether your audio object is a `sample_operator<>` or a `vector_operator<>`.
 
 ### Sample Operators
 
-For `sample_operator` classes, the function call operator will take N `sample` arguments as input and return either a `sample` or a container `samples<>` as output.  
+For `sample_operator<>` classes, the function call operator will take N `sample` arguments as input and return either a `sample` or a container `samples<>` as output.  
 
 The **min.dcblocker~** example processes a single input and produces a single output.
 
@@ -128,11 +128,11 @@ The `samples<N>` container is a type alias of `std::array<sample,N>`. We constru
 
 ### Vector Operators
 
-For `vector_operator` classes, the function call operator will take two `audio_bundle` arguments, one each for input and output. 
+For `vector_operator<>` classes, the function call operator will take two `audio_bundle` arguments, one each for input and output. 
 
 The number of channels and the size of the vectors are properties of the `audio_bundle`.  Use the `channelcount()` and `framecount()` methods to access the dimensions and the `samples()` method to gain access to the vector data for a specified channel.
 
-The example below is from the **min.buffer.index~** example object. It demonstrates both access to a **buffer~** and implementation of a `vector_operator`. Remembering that buffer access is using a shared-resource and must perform atomic operations for threadsafety, the `vector_operator` is a much better choice than a `sample_operator` because the buffer only needs to be "locked" (and "unlocked") once for the entire vector instead of for each sample.
+The example below is from the **min.buffer.index~** example object. It demonstrates both access to a **buffer~** and implementation of a `vector_operator<>`. Remembering that buffer access is using a shared-resource and must perform atomic operations for threadsafety, the `vector_operator<>` is a much better choice than a `sample_operator<>` because the buffer only needs to be "locked" (and "unlocked") once for the entire vector instead of for each sample.
 
 ```c++
 void operator()(audio_bundle input, audio_bundle output) {
