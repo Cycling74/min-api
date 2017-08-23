@@ -154,7 +154,8 @@ namespace min {
 
 	// implementation of sample_operator-style calls made to a vector_operator
 
-	sample vector_operator::operator()(sample x) {
+	template<placeholder vector_operator_placeholder_type>
+	sample vector_operator<vector_operator_placeholder_type>::operator()(sample x) {
 		sample			input_storage[1] {x};
 		sample			output_storage[1] {};
 		sample*			input {input_storage};

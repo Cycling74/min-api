@@ -30,20 +30,13 @@ namespace min {
 	};
 
 
+	/// An inlet.
 	/// The actual inlet class is a templated type.
 	/// This is done for consistency of coding style with outlet<>, message<>, attribute<>, etc.
 	/// At the moment there is no actual function for the template parameter.
-	/// This enum thus represents a placeholder type that can be used in the future if need arises.
-
-	enum class inlet_placeholder {
-		none	///< No flags, functions, or other alterations to the inlet class.
-	};
-
-
-	/// An inlet.
 	/// @tparam	Unused. You should supply no arguments. For example, `inlet<>`.
 
-	template<inlet_placeholder inlet_placeholder_type = inlet_placeholder::none>
+	template<placeholder inlet_placeholder_type = placeholder::none>
 	class inlet : public inlet_base {
 	public:
 

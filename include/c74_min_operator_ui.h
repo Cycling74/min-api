@@ -83,7 +83,7 @@ namespace min {
 
 	// If you inherit from ui_operator then define this function to
 	// add ui support to the Max class.
-	// Will be called from define_min_external()
+	// Will be called from ___
 
 	template<class min_class_type>
 	typename enable_if< is_base_of<ui_operator_base, min_class_type>::value >::type

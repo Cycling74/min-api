@@ -56,44 +56,9 @@ namespace min {
 	};
 
 
-	// The min_performer class is used by the wrapper code to adapt the calls coming from the Max application
-	// to the call operator implemented in the Min class.
-	//
-	// There are two versions of this.
-	// This one is optimized for the most common case: a single input and a single output.
-	// The other version is generic for N inputs and N outputs.
-
-	template<class min_class_type>
-	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator<1,1>, min_class_type >::value>::type> {
-	public:
-		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
-			auto in_samps = in_chans[0];
-			auto out_samps = out_chans[0];
-			
-			for (auto i=0; i<sampleframes; ++i) {
-				auto in = in_samps[i];
-				auto out = self->min_object(in);
-				out_samps[i] = out;
-			}
-		}
-	};
 
 
-	template<class min_class_type>
-	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator<1,0>, min_class_type >::value>::type> {
-	public:
-		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
-			auto in_samps = in_chans[0];
-
-			for (auto i=0; i<sampleframes; ++i) {
-				auto in = in_samps[i];
-				self->m_min_object(in);
-			}
-		}
-	};
-
-
-	// To implement the min_performer class generically we use std::array<sample> for both input and output.
+	// To implement the performer class (below) generically we use std::array<sample> for both input and output.
 	// However, we wish to define the call operator in the Min class with each sample as a
 	// separate argument.
 	// To make this translation efficiently and without out lots of duplicated code we use a pattern whereby
@@ -106,10 +71,10 @@ namespace min {
 	namespace detail {
 		template<int... Is>
 		struct seq { };
-		
+
 		template<int N, int... Is>
 		struct gen_seq : gen_seq<N - 1, N - 1, Is...> { };
-		
+
 		template<int... Is>
 		struct gen_seq<0, Is...> : seq<Is...> { };
 	}
@@ -153,13 +118,67 @@ namespace min {
 	void perform_copy_output(minwrap<min_class_type>* self, size_t index, double** out_chans, sample val) {
 		out_chans[0][index] = val;
 	}
-	
-	
-	// The generic version of the min_performer class, for N inputs and N outputs.
-	// See above for the 1x1 optimized version.
+
+
+
+
+
+
+
+	// The performer class wraps the C callback routine for a Max audio "perform" method.
+	// It adapts the calls coming from the Max application to the call operator implemented in the Min class.
+	// The correct version of this enabled using SFINAE template enabling depending on whether this is a
+	// vector_operator<> or one of the sample_operator<> extending class.
+	//
+	// For sample_operator<> there are several versions of this wrapping/adapting callback.
+	// This one is optimized for the most common case: a single input and a single output.
+	// The other version is generic for N inputs and N outputs.
 
 	template<class min_class_type>
-	class min_performer<min_class_type, typename enable_if< is_base_of<sample_operator_base, min_class_type >::value && !is_base_of<sample_operator<1,1>, min_class_type >::value && !is_base_of<sample_operator<1,0>, min_class_type >::value>::type> {
+	class performer<min_class_type, typename enable_if< is_base_of<sample_operator<1,1>, min_class_type >::value>::type> {
+	public:
+
+		// The traditional Max audio "perform" callback routine
+
+		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+			auto in_samps = in_chans[0];
+			auto out_samps = out_chans[0];
+			
+			for (auto i=0; i<sampleframes; ++i) {
+				auto in = in_samps[i];
+				auto out = self->min_object(in);
+				out_samps[i] = out;
+			}
+		}
+	};
+
+
+	// The performer class wraps the C callback routine for a Max audio "perform" method.
+	// This specialization is for a single input with no outputs
+
+	template<class min_class_type>
+	class performer<min_class_type, typename enable_if< is_base_of<sample_operator<1,0>, min_class_type >::value>::type> {
+	public:
+
+		// The traditional Max audio "perform" callback routine
+
+		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
+			auto in_samps = in_chans[0];
+
+			for (auto i=0; i<sampleframes; ++i) {
+				auto in = in_samps[i];
+				self->m_min_object(in);
+			}
+		}
+	};
+
+
+	// The performer class wraps the C callback routine for a Max audio "perform" method.
+	// This is the generic version of the min_performer class, for N inputs and N outputs.
+	// See above for other specializations.
+
+	template<class min_class_type>
+	class performer<min_class_type, typename enable_if< is_base_of<sample_operator_base, min_class_type >::value && !is_base_of<sample_operator<1,1>, min_class_type >::value && !is_base_of<sample_operator<1,0>, min_class_type >::value>::type> {
 	public:
 		static void perform(minwrap<min_class_type>* self, max::t_object *dsp64, double **in_chans, long numins, double **out_chans, long numouts, long sampleframes, long flags, void *userparam) {
 			for (auto i=0; i<sampleframes; ++i) {
@@ -176,15 +195,4 @@ namespace min {
 		}
 	};
 
-	// If you inherit from sample_operator then define this function to
-	// add audio support to the Max class.
-	// Will be called from define_min_external()
-
-	template<class min_class_type, enable_if_sample_operator<min_class_type> = 0>
-	void wrap_as_max_external_audio(max::t_class* c) {
-		max::class_addmethod(c, reinterpret_cast<max::method>(min_dsp64<min_class_type>), "dsp64", max::A_CANT, 0);
-		max::class_dspinit(c);
-	}
 }} // namespace c74::min
-
-

@@ -13,11 +13,32 @@ namespace min {
 	
 	/// The base class for all template specializations of matrix_operator.
 
-	class matrix_operator_base {};
+	class matrix_operator_base {
+
+	public:
+		
+		/// When the matrix is processed a call is made to the subclass calc_cell() method for each cell.
+		/// The order in which the cells are iterated will be one of the options provided here.
+
+		enum class iteration_direction {
+			forward,
+			reverse,
+			bidirectional,
+			enum_count
+		};
+
+		enum_map iteration_direction_info = {
+			"forward",
+			"reverse",
+			"bidirectional"
+		};
+
+	};
 
 
 	/// Inheriting from matrix_operator extends your class functionality to processing matrices.
 
+	template<placeholder matrix_operator_placeholder_type = placeholder::none>
 	class matrix_operator : public matrix_operator_base {
 	public:
 
@@ -38,21 +59,6 @@ namespace min {
 		}
 
 
-		/// When the matrix is processed a call is made to the subclass calc_cell() method for each cell.
-		/// The order in which the cells are iterated will be one of the options provided here.
-
-		enum class iteration_direction {
-			forward,
-			reverse,
-			bidirectional,
-			enum_count
-		};
-
-		enum_map iteration_direction_info = {
-			"forward",
-			"reverse",
-			"bidirectional"
-		};
 
 
 		void direction(iteration_direction new_direction) {
@@ -273,7 +279,7 @@ namespace min {
 
 		if (planematch && info.planecount() == 1) {
 			// forward or bidirectional
-			if (self->m_min_object.direction() != matrix_operator::iteration_direction::reverse) {
+			if (self->m_min_object.direction() != matrix_operator_base::iteration_direction::reverse) {
 				for (auto j = 0; j < n; ++j) {
 					matrix_coord			position(j, i);
 					U						val = ip ? *(ip) : 0;
@@ -288,14 +294,14 @@ namespace min {
 			}
 
 			// reverse or bidirectional
-			if (self->m_min_object.direction() != matrix_operator::iteration_direction::forward) {
+			if (self->m_min_object.direction() != matrix_operator_base::iteration_direction::forward) {
 				ip = ip_last;
 				op = op_last;
 
 				for (auto j = n-1; j >= 0; --j) {
 					matrix_coord	position(j, i);
 
-					if (self->m_min_object.direction() == matrix_operator::iteration_direction::bidirectional) {
+					if (self->m_min_object.direction() == matrix_operator_base::iteration_direction::bidirectional) {
 						const std::array<U,1>	tmp = {{ *op }};
 						const std::array<U,1>	out = self->m_min_object.calc_cell(tmp, info, position);
 						*op = out[0];
@@ -312,7 +318,7 @@ namespace min {
 			}
 		}
 		else if (planematch && info.planecount() == 4) {
-			if (self->m_min_object.direction() != matrix_operator::iteration_direction::reverse) {
+			if (self->m_min_object.direction() != matrix_operator_base::iteration_direction::reverse) {
 				for (auto j = 0; j < n; ++j) {
 					matrix_coord			position(j, i);
 					U						v1 = ip ? *(ip) : 0;
@@ -334,14 +340,14 @@ namespace min {
 			}
 
 			// reverse or bidirectional
-			if (self->m_min_object.direction() != matrix_operator::iteration_direction::forward) {
+			if (self->m_min_object.direction() != matrix_operator_base::iteration_direction::forward) {
 				ip = ip_last;
 				op = op_last;
 
 				for (auto j = n-1; j >= 0; --j) {
 					matrix_coord			position(j, i);
 
-					if (self->m_min_object.direction() == matrix_operator::iteration_direction::bidirectional) {
+					if (self->m_min_object.direction() == matrix_operator_base::iteration_direction::bidirectional) {
 						U						v1 = ip ? *(op) : 0;
 						U						v2 = ip ? *(op+step) : 0;
 						U						v3 = ip ? *(op+step*2) : 0;
@@ -379,7 +385,7 @@ namespace min {
 			const auto outstep = os / info.m_out_info->planecount;
 
 			// forward or bidirectional
-			if (self->m_min_object.direction() != matrix_operator::iteration_direction::reverse) {
+			if (self->m_min_object.direction() != matrix_operator_base::iteration_direction::reverse) {
 				for (auto j=0; j<n; ++j) {
 					matrix_coord									position(j, i);
 					std::array<U,max::JIT_MATRIX_MAX_PLANECOUNT>	tmp;
@@ -401,7 +407,7 @@ namespace min {
 			}
 
 			// reverse or bidirectional
-			if (self->m_min_object.direction() != matrix_operator::iteration_direction::forward) {
+			if (self->m_min_object.direction() != matrix_operator_base::iteration_direction::forward) {
 				ip = ip_last;
 				op = op_last;
 
@@ -433,7 +439,7 @@ namespace min {
 	// The calls into these templates should be inlined by the compiler, eliminating concern about any added function call overhead.
 
 	template<class min_class_type, typename U>
-	typename enable_if<is_base_of<matrix_operator, min_class_type>::value>::type
+	typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value>::type
 	jit_calculate_ndim_loop(minwrap<min_class_type>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, uchar* bip, uchar* bop, long* dim, long planecount, long datasize) {
 		matrix_info info((in_minfo ? in_minfo : out_minfo), (bip ? bip : bop), out_minfo, bop);
 		for (auto i=0; i<dim[1]; i++) {

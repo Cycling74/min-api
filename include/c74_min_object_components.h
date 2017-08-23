@@ -362,13 +362,22 @@ namespace min {
 	>::type > {
 		maxobject_header	m_max_header;
 		min_class_type		m_min_object;
-		
+
+
+		// Setup is called at instantiation.
+
 		void setup() {
 			m_min_object.create_inlets();
 			m_min_object.create_outlets();
 		}
+
+
+		// Cleanup is called when the instance is freed.
 		
 		void cleanup() {}
+
+
+		// Enable passing the minwrap instance to Max C API calls without explicit casting or compiler warnings.
 
 		max::t_object* maxobj() {
 			return m_max_header;

@@ -68,6 +68,13 @@ namespace min {
 	};
 
 
+	/// This enum thus represents a placeholder type that is used in places where dummy template parameters are present.
+
+	enum class placeholder {
+		none	///< No flags, functions, or other alterations to the class.
+	};
+
+
 	enum class message_type : long {
 		nothing,
 		long_arg,
@@ -194,6 +201,9 @@ namespace min {
 
 	template<class min_class_type>
 	using enable_if_vector_operator = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value, int>::type;
+
+	template<class min_class_type>
+	using enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value, int >::type;
 
 	template<class min_class_type>
 	using type_enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value >::type;

@@ -431,7 +431,7 @@ namespace min {
 	}
 
 
-	// Note: Jitter Matrix Operators are significantly different enough that they overload define_min_external()
+	// Note: Jitter Matrix Operators are significantly different enough that they overload this function
 	// in c74_min_operator_matrix.h
 
 	template<class min_class_type>
