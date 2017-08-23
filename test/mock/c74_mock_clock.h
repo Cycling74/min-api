@@ -81,6 +81,12 @@ namespace mock {
 		
 		void tick() {
 			while (true) {
+#ifdef WIN_VERSION
+				// On Windows an exception will be thrown when we try to lock the mutex wihout some sort of time passage
+				// (either a console post or an explicit short delay)
+				// std::cout << c74::mock::clock::tick()" << std::endl;
+				std::this_thread::sleep_for(1ms);
+#endif
 				std::vector<event>				events_to_run;
 				std::unique_lock<std::mutex>	lock(mutex);	// locks mutex immediately, guarantees unlock on dtor
     
