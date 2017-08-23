@@ -31,32 +31,53 @@ namespace min {
 	class sample_operator : public sample_operator_base {
 	public:
 
-		// 
+		/// Return the number of audio inputs for this sample operator class.
+		/// @return The number of audio inputs.
 
 		static constexpr size_t input_count() {
 			return input_count_param;
 		}
 
 
+		/// Return the number of audio outputs for this sample operator class.
+		/// @return The number of audio outputs.
+
 		static constexpr size_t output_count() {
-//			return m_output_count;
 			return output_count_param;
 		}
 
+
+		///	Set a new samplerate.
+		/// You will not typically have any need to call this.
+		/// It is called internally any time the dsp chain containing your object is compiled.
+		/// @param	a_samplerate	A new samplerate with which your object will be updated.
 
 		void samplerate_set(double a_samplerate) {
 			m_samplerate = a_samplerate;
 		}
 
 
+		/// Return the current samplerate for this object's signal chain.
+		/// @return	The samplerate in hz.
+
 		double samplerate() {
 			return m_samplerate;
 		}
 
+
+		// Ideally we would also declare a pure virtual function call operator
+		// for the inheriting class to implement.
+		// That is impossible, however, because we can't generically prototype N arguments
+		// where N = output_count_param.
+		//
+		// Some example prototypes:
+		//
+		// sample operator() (sample input);
+		// samples<2> operator() (sample input1, sample input2, sample input3);
+		// void operator() (sample input1, sample input2);
+
 	private:
-//		static constexpr size_t m_input_count	{ input_count_param };
-//		static constexpr size_t m_output_count	{ output_count_param };
-		double					m_samplerate	{ c74::max::sys_getsr() };
+		double m_samplerate { c74::max::sys_getsr() };
 	};
 
 
