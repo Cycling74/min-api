@@ -22,11 +22,24 @@ namespace min {
 	/// @ingroup attributes
 	using setter = function;
 
-	/// @ingroup attributes
+
+
+	/// A callback function used by attributes the provide an optional customized "getter" routine.
+	/// Typically this is provided to argument as a lamba function using the #MIN_GETTER_FUNCTION macro.
+	/// @ingroup	attributes
+	/// @return		A vector of atoms that represent the current state of the attribute.
+	/// @see		MIN_GETTER_FUNCTION
+
 	using getter = std::function<atoms()>;
 
-	/// @ingroup attributes
+
+	/// Provide the correct lamba function prototype for a getter parameter to the min::attribute constructor.
+	/// @ingroup	attributes
+	/// @see		getter
+	/// @see		attribute
+
 	#define MIN_GETTER_FUNCTION [this]()->atoms
+
 
 	/// @ingroup attributes
 	enum class style {
