@@ -160,6 +160,7 @@ namespace min {
 
 		~deferred_message() {
 			max::qelem_free(m_qelem);
+			max::object_free(m_maxwrapper);
 		}
 
 		void push(std::unique_ptr<deferred_message>& m) {
