@@ -206,6 +206,13 @@ namespace min {
 	using enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value, int >::type;
 
 	template<class min_class_type>
+	using enable_if_jitter_class = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value || is_base_of<gl_operator_base, min_class_type>::value, int >::type;
+
+	template<class min_class_type>
+	using enable_if_not_jitter_class = typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value, int >::type;
+
+
+	template<class min_class_type>
 	using type_enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value >::type;
 
 	template<class min_class_type>
@@ -330,6 +337,13 @@ namespace min {
 
 #include "c74_min_string.h"				// String helper functions
 #include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
+
+
+// Prototype for the actual function that will wrap the Min class as a Max external
+// Don't use directly -- use the MIN_EXTERNAL macro instead.
+
+template<class min_class_type, class=void>
+void wrap_as_max_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr);
 
 
 /// Wrap a class that extends min::object for use in the Max environment.
