@@ -12,16 +12,13 @@ namespace c74 {
 namespace min {
 
 	
-	class inlet_base;
-	class outlet_base;
-	class message_base;
-	class attribute_base;
-
 	/// @defgroup attributes Attributes
 
-	/// @ingroup attributes
-	using setter = function;
 
+	/// A callback function used by attributes the provide an optional customized "setter" routine.
+	/// @ingroup attributes
+
+	using setter = function;
 
 
 	/// A callback function used by attributes the provide an optional customized "getter" routine.
@@ -41,35 +38,50 @@ namespace min {
 	#define MIN_GETTER_FUNCTION [this]()->atoms
 
 
+	/// A high-level meta-type that is associated with an attribute.
+	/// These are used to enhance the experience of editing the attribute value using the inspector or attr ui.
 	/// @ingroup attributes
+
 	enum class style {
-		none,
-        text,
-        onoff,
-        rgba,
-		enum_symbol,
-		enum_index,
-		rect,
-		font,
-		file,
-		time,
-		color
+		none,			/// No special style.
+        text,			/// Provide a text editor.
+        onoff,			/// Edit using an on/off switch or toggle.
+ 		enum_symbol,	/// Provide a list or menu of options, the actual stored attribute is a symbol.
+		enum_index,		/// Provide a list or menu of options, the actual stored attribute is an int.
+		rect,			/// Rectangular coordinate editor.
+		font,			/// Provide a font dialog.
+		file,			/// Provide a file chooser.
+		time,			/// ITM time attributes many also specify a type of time (e.g. notes, bars-beats-units, etc.)
+		color			/// Provide high-level color editors and swatches.
 	};
 
 
+	/// Symbolic names associated with the values of the enum min::style.
 	/// @ingroup attributes
+	/// @see style
+
 	static std::unordered_map<style, symbol> style_symbols {
-			{ style::text, "text"},
-			{ style::onoff, "onoff"},
-			{ style::rgba, "rgba"},
-			{ style::enum_symbol, "enum"},
-			{ style::enum_index, "enumindex"},
-			{ style::rect, "rect"},
-			{ style::font, "font"},
-			{ style::file, "file"},
-			{ style::color, "rgba"},
+			{ style::text,			"text"},
+			{ style::onoff,			"onoff"},
+			{ style::enum_symbol,	"enum"},
+			{ style::enum_index,	"enumindex"},
+			{ style::rect,			"rect"},
+			{ style::font,			"font"},
+			{ style::file,			"file"},
+			{ style::color,			"rgba"},
 	};
 
+
+	/// If the style of an attribute is one of the 'enum' types then an 'enum_map' maybe be
+	/// supplied which provides symbolic names for each of the enum options.
+	/// @ingroup attributes
+	/// @see style
+
+	using enum_map = std::vector<std::string>;
+
+
+	/// Declare an attribute's visibility to the user.
+	/// @ingroup attributes
 
 	enum class visibility {
 		show,	///< standard behavior: show the attribute to the user
@@ -78,92 +90,193 @@ namespace min {
 	};
 
 
+	/// Defines an attribute's category (group) in the inspector.
+	/// @ingroup attributes
+
 	using category = symbol;
+
+
+	/// Defines attribute ordering in the inspector.
+	/// A value zero means there is no special order and Max will take care of the ordering automatically.
+	/// @ingroup attributes
+
 	using order = long;
 
-	/// @ingroup attributes
-	class attribute_base {
 
-	public:
+	/// The range provides a definition of acceptable or 'normal' values for an attribute.
+	/// Unless specified as a template-parameter to the attribute, the range is only a suggestion to the user.
+	/// Ranges for numeric types will be two numbers (a low bound and a high bound).
+	/// For symbols or enums the range will provide the available options.
+	/// @ingroup attributes
+
+	using range = atoms;
+
+
+	/// Defines whether an attribute is readonly (true) or if it is also writable (false).
+	/// @ingroup attributes
+
+	using readonly = bool;
+
+
+	// Represents any type of attribute.
+	// Used internally to allow heterogenous containers of attributes for the Min class.
+	/// @ingroup attributes
+
+	class attribute_base {
+	protected:
+
+		// Constructor. See the constructor documention for min::attribute<> to get more details on the arguments.
+
 		attribute_base(object_base& an_owner, std::string a_name)
 		: m_owner	{ an_owner }
 		, m_name	{ a_name }
 		, m_title	{ a_name }
 		{}
 
+	public:
+
 		attribute_base(const deferred_message& other) = delete; // no copying allowed!
 		attribute_base(const deferred_message&& other) = delete; // no moving allowed!
 
 
-		/// set the value of the attribute
+		// All attributes must define what happens when you set their value.
+
 		virtual attribute_base& operator = (atoms& args) = 0;
-		
-		/// set the value of the attribute
-		/// note that args may be modified after this call due to range limiting behavior
+
+
+		// All attributes must define what happens when you set their value.
+		// NOTE: args may be modified after this call due to range limiting behavior
+
 		virtual void set(atoms& args, bool notify = true, bool override_readonly = false) = 0;
-		
-		/// get the value of the attribute
+
+
+		// All attributes must define what happens when you get their value.
+
 		virtual operator atoms() const = 0;
 
-		/// fetch the name of the datatype
+
+		// All attributes must define what happens when asked for their range of values.
+		// The range must be in string format, values separated by spaces.
+
+		virtual std::string range_string() = 0;
+
+
+		// All attributes must define what happens in the Max wrapper to
+		// create the Max attribute and add it to the Max class.
+		// Not intended for public use, but made a public member due to the
+		// difficulty of making friends of the heavily templated SFINAE wrapper code.
+
+		virtual void create(max::t_class* c, max::method getter, max::method setter, bool isjitclass = 0) = 0;
+
+
+		/// Determine the name of the datatype
+		/// @return	The name of the datatype of the attribute.
+
 		symbol datatype() const {
 			return m_datatype;
 		}
+
+
+		/// Determine the name of the attribute
+		/// @return	The name of the attribute.
 
 		symbol name() const {
 			return m_name;
 		}
 
+
+		/// Is the attribute writable (meaning settable)?
+		/// @return	True if it is writable. Otherwise false.
+
 		// note: cannot call it "readonly" because that is the name of a type and
 		// it thus confuses the variadic template parsing below
+
 		bool writable() const {
 			return !m_readonly;
 		}
 
+
+		/// Is the attribute visible?
+		/// @return The attribute's current visibility flag.
 
 		visibility visible() {
 			return m_visibility;
 		}
 
 
-		/// fetch the title/label as a string
+		/// Fetch the title/label as a string.
+		/// This is how the name appears in the inspector.
+		/// @return The attribute's label.
+		///			If the attribute has no label then the name of the object is used as the default.
+
 		const char* label_string() {
 			return m_title;
 		}
+
+
+		/// Return the provided description for use in documentation generation, auto-complete, etc.
+		/// @return	The description string supplied when the attribute was created.
 
 		std::string description_string() const {
 			return m_description;
 		}
 
+
+		/// Return the style that is to be used for attribute editors such as the attrui object and the Max inspector.
+		/// @return	The style supplied when the attribute was created.
+
 		style editor_style() const {
 			return m_style;
 		}
+
+
+		/// Return the category under which the attribute should appear in the Max inspector.
+		/// @return	The category supplied when the attribute was created.
 
 		symbol editor_category() const {
 			return m_category;
 		}
 
+
+		/// Return the ordering priority for the attribute when listed in the inspector.
+		/// @return	The order priority supplied when the attribute was created.
+
 		long editor_order() const {
 			return m_order;
 		}
 
-		/// fetch the range in string format, values separated by spaces
-		virtual std::string range_string() = 0;
 
-		
-		/// Create the Max attribute and add it to the Max class
-		virtual void create(max::t_class* c, max::method getter, max::method setter, bool isjitclass = 0) = 0;
-		
-		/// calculate the offset of the size member as required for array/vector attributes
-		size_t size_offset() {
-			return (&m_size) - reinterpret_cast<size_t*>(&m_owner);
-		}
+		/// Touch the attribute to force an update and notification of its value to any listeners.
 
 		void touch() {
 			max::object_attr_touch(m_owner, m_name);
 		}
 
 	protected:
+		object_base&	m_owner;
+		symbol			m_name;
+		symbol			m_title;
+		symbol			m_datatype;
+		setter			m_setter;
+		getter			m_getter;
+		bool			m_readonly { false };
+		visibility		m_visibility { visibility::show };
+		description		m_description;
+		size_t			m_size;			// size of array/vector if attr is array/vector
+
+		style			m_style;		// display style in Max
+		symbol			m_category;		// Max inspector category
+		long 			m_order { 0 };	// Max inspector ordering
+
+
+		// calculate the offset of the size member as required for array/vector attributes
+
+		size_t size_offset() {
+			return (&m_size) - reinterpret_cast<size_t*>(&m_owner);
+		}
+
+
+		// return flags required by the max/obex attribute to get the correct behavior
 
 		std::size_t flags(bool isjitclass) {
 			auto attrflags = 0;
@@ -178,32 +291,13 @@ namespace min {
 			}
 			return attrflags;
 		}
-
-		object_base&	m_owner;
-		symbol			m_name;
-        symbol			m_title;
-		symbol			m_datatype;
-		setter			m_setter;
-		getter			m_getter;
-		bool			m_readonly { false };
-		visibility		m_visibility { visibility::show };
-		size_t			m_size;		/// size of array/vector if attr is array/vector
-		description		m_description;
-
-		style			m_style;		// display style in Max
-		symbol			m_category;		// Max inspector category
-		long 			m_order { 0 };	// Max inspector ordering
 	};
-	
-	
-	using range = atoms;
-	using enum_map = std::vector<std::string>;
-	using readonly = bool;
 
 
 	/// @ingroup attributes
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	class attribute_threadsafe_helper;
+
 
 	/// @ingroup attributes
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
