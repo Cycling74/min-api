@@ -294,99 +294,128 @@ namespace min {
 	};
 
 
-	/// @ingroup attributes
+	// forward declarations of stuff implemented and documented further below...
+
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	class attribute_threadsafe_helper;
 
-
-	/// @ingroup attributes
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args);
 
 
-
-
-
-
-	/// default is `threadsafe::no`
-	/// @ingroup attributes
+	/// An Attribute.
+	/// Attributes in Max are how you create members whose state is addressable, queryable, and saveable.
+	///
+	/// @ingroup	attributes
+	/// @tparam		T				The type of the data saved in the attribute.
+	///								For example, `attribute<int>` will allocate and manage access to an int.
+	/// @tparam		threadsafety	An optional parameter.
+	///								If your object has been written specifically and carefully to be threadsafe then
+	///								you may pass the option parameter threadsafe::yes.
+	///								The default is threadsafe::no, which is the correct choice in most cases.
+	/// @param		limit_type		An optional parameter.
+	///								If your attribute is a numeric type (e.g. number or int), and it defines a range,
+	///								the class type you specify here will be used to limit the input values to that range.
+	///								The available options are the template classes defined in the #c74::min::limit namespace.
+	///								Namely: none, clamp, fold, and wrap.
+	/// @see						buffer_index example object.
 
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	class attribute : public attribute_base {
 	private:
 
-		/// constructor utility: handle an argument defining an attribute's title / label
+		// constructor utility: handle an argument defining an attribute's title / label
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, title>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<symbol&>(m_title) = arg;
 		}
-		
-		/// constructor utility: handle an argument defining an attribute's description
+
+
+		// constructor utility: handle an argument defining an attribute's description
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, description>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_description) = arg;
 		}
 
-		/// constructor utility: handle an argument defining a attribute's range
+
+		// constructor utility: handle an argument defining a attribute's range
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, range>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_range_args) = arg;
 		}
 
-		/// constructor utility: handle an argument defining an enum mapping to associate strings with enum constants
-		/// this is used in place of the range for index enum attributes.
+
+		// constructor utility: handle an argument defining an enum mapping to associate strings with enum constants
+		// this is used in place of the range for index enum attributes.
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, enum_map>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_enum_map) = arg;
 		}
-		
-		/// constructor utility: handle an argument defining a attribute's setter function
+
+
+		// constructor utility: handle an argument defining a attribute's setter function
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, setter>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_setter) = arg;
 		}
 
-		/// constructor utility: handle an argument defining a attribute's getter function
+		// constructor utility: handle an argument defining a attribute's getter function
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, getter>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_getter) = arg;
 		}
-		
-		/// constructor utility: handle an argument defining a attribute's readonly property
+
+
+		// constructor utility: handle an argument defining a attribute's readonly property
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, readonly>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_readonly) = arg;
 		}
 
-		/// constructor utility: handle an argument defining a attribute's visibility property
+
+		// constructor utility: handle an argument defining a attribute's visibility property
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, visibility>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_visibility) = arg;
 		}
 
-		/// constructor utility: handle an argument defining a attribute's style property
+
+		// constructor utility: handle an argument defining a attribute's style property
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, style>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_style) = arg;
 		}
 
-		/// constructor utility: handle an argument defining a attribute's category property
+
+		// constructor utility: handle an argument defining a attribute's category property
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, category>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
 			const_cast<argument_type&>(m_category) = arg;
 		}
 
-		/// constructor utility: handle an argument defining a attribute's order property
+
+		// constructor utility: handle an argument defining a attribute's order property
+
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, order>::value>::type
 		assign_from_argument(const argument_type& arg) noexcept {
@@ -394,13 +423,16 @@ namespace min {
 		}
 
 
-		/// constructor utility: empty argument handling (required for recursive variadic templates)
+		// constructor utility: empty argument handling (required for handling recursive variadic templates)
+
 		constexpr void handle_arguments() noexcept {
 			;
 		}
-		
-		/// constructor utility: handle N arguments of any type by recursively working through them
-		///	and matching them to the type-matched routine above.
+
+
+		// constructor utility: handle N arguments of any type by recursively working through them
+		//	and matching them to the type-matched routine above.
+
 		template <typename FIRST_ARG, typename ...REMAINING_ARGS>
 		constexpr void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
 			assign_from_argument(first);
@@ -408,41 +440,62 @@ namespace min {
 				handle_arguments(args...); // recurse
 		}
 		
-		
 	public:
-		/// Constructor
+
+		/// Create an attribute.
 		/// @param an_owner			The instance pointer for the owning C++ class, typically you will pass 'this'
 		/// @param a_name			A string specifying the name of the attribute when dynamically addressed or inspected.
 		/// @param a_default_value	The default value of the attribute, which will be set when the instance is created.
 		/// @param ...args			N arguments specifying optional properties of an attribute such as setter, label, style, etc.
+
 		template<typename ...ARGS>
 		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args);
+
 
 		attribute(const deferred_message& other) = delete; // no copying allowed!
 		attribute(const deferred_message&& other) = delete; // no moving allowed!
 
+
+		// DO NOT USE
+		// This is an internal method used to
+		// create the peer Max attribute and add it to the Max class.
+		// It is made 'public' due to the trickiness of the SFINAE-enabled templated functions which call this from the wrapper.
+
+		void create(max::t_class* c, max::method getter, max::method setter, bool isjitclass = 0);
+
 		
 		/// Set the attribute value using the native type of the attribute.
+		/// @param	arg		The new value to be assigned to the attribute.
+
 		attribute& operator = (const T arg) {
 			atoms as = { atom(arg) };
 			*this = as;
 			return *this;
 		}
-		
+
+
 		/// Set the attribute value using atoms.
+		/// @param	args	The new value to be assigned to the attribute.
+
 		attribute& operator = (atoms& args) {
 			set(args);
 			return *this;
 		}
 
+
 		/// Set the attribute value using atoms.
+		/// @param	args	The new value to be assigned to the attribute.
+
 		attribute& operator = (const atoms& args) {
 			atoms as {args};
 			set(as);
 			return *this;
 		}
 
+
 		// special setter for enum attributes
+		// converts from the name to the index and then calls the above assignment operator
+
 		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
 		attribute& operator = (symbol arg) {
 			for (auto i=0; i<m_enum_map.size(); ++i) {
@@ -453,30 +506,16 @@ namespace min {
 			}
 			return *this;
 		}
-		
-		
-
-		friend bool operator == (const attribute& lhs, const T& rhs) {
-			return lhs.m_value == rhs;
-		}
 
 
-		template<class U=T, typename enable_if< is_same<limit_type<U>, limit::none<U>>::value, int>::type = 0>
-		void constrain(atoms& args) {
-			// no limiting, so do nothing
-		}
-
-		template<class U=T, typename enable_if< !is_same<limit_type<U>, limit::none<U>>::value, int>::type = 0>
-		void constrain(atoms& args) {
-			// TODO: type checking on the above so that it is not applied to vectors or colors
-			args[0] = limit_type<T>::apply(args[0], m_range[0], m_range[1]);
-		}
-
-
-		template<class U=T, typename enable_if< !is_enum<U>::value, int>::type = 0>
-		void assign(const atoms& args) {
-			m_value = from_atoms<T>(args);
-		}
+		/// Set the attribute value using atoms.
+		/// Permits additional control as compared with using the assignment operators.
+		/// @param	args				The new value to be assigned to the attribute.
+		/// @param	notify				Notify the Max environment when the attribute is set.
+		///								This is performed by setting the attribute value using the standard Max API call.
+		///								If you are setting the value internally to your class you may wish to turn this off to reduce computational costs.
+		/// @param	override_readonly	Normally a readonly attribute cannot be written (assigned a value).
+		///								Setting this to true will allow you to override the readonly flag and set the attribute value anyway.
 
 		void set(atoms& args, bool notify = true, bool override_readonly = false) {
 			if (!writable() && !override_readonly)
@@ -500,24 +539,21 @@ namespace min {
 		}
 
 
-			// currently all jitter attributes bypass the defer mechanism here opting to instead use the default jitter handling
-			// were we to simply call `m_helper.set(args);` then our defer mechanism would be called **in addition to** jitter's deferring
+		/// Compare a value against the attribute's current value.
+		/// @param	lhs		The attribute
+		/// @param	rhs		The value to compare against the attribute
+		/// @return			True if they are the same. Otherwise false.
 
-			if (m_owner.is_jitter_class())
-				attribute_threadsafe_helper_do_set<T,threadsafety>(&m_helper, args);
-			else
-				m_helper.set(args);
+		friend bool operator == (const attribute& lhs, const T& rhs) {
+			return lhs.m_value == rhs;
 		}
+
 
 
 		// Apply range limiting, if any, to input
 		T range_apply(const T& value);
 		
-		
-		/// Create the Max attribute and add it to the Max class
-		void create(max::t_class* c, max::method getter, max::method setter, bool isjitclass = 0);
-		
-		
+
 		operator atoms() const {
 			if (m_getter)
 				return m_getter();
@@ -583,6 +619,8 @@ namespace min {
         }
 
 	private:
+		friend void attribute_threadsafe_helper_do_set<T,threadsafety,limit_type>(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args);
+
 		T				m_value;
 		atoms			m_range_args;	// the range/enum as provided by the subclass
 		std::vector<T>	m_range;		// the range/enum translated into the native datatype
@@ -591,7 +629,41 @@ namespace min {
 
 		void copy_range();				// copy m_range_args to m_range
 
-		friend void attribute_threadsafe_helper_do_set<T,threadsafety,limit_type>(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args);
+
+
+		template<class U=T, typename enable_if< is_same<limit_type<U>, limit::none<U>>::value, int>::type = 0>
+		void constrain(atoms& args) {
+			// no limiting, so do nothing
+		}
+
+		template<class U=T, typename enable_if< !is_same<limit_type<U>, limit::none<U>>::value, int>::type = 0>
+		void constrain(atoms& args) {
+			// TODO: type checking on the above so that it is not applied to vectors or colors
+			args[0] = limit_type<T>::apply(args[0], m_range[0], m_range[1]);
+		}
+
+
+		template<class U=T, typename enable_if< !is_enum<U>::value, int>::type = 0>
+		void assign(const atoms& args) {
+			m_value = from_atoms<T>(args);
+		}
+
+		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
+		void assign(const atoms& args) {
+			const atom& a = args[0];
+
+			if (a.a_type == max::A_SYM) {
+				for (auto i=0; i<m_enum_map.size(); ++i) {
+					if (a == m_enum_map[i]) {
+						m_value = static_cast<T>(i);
+						break;
+					}
+				}
+			}
+			else
+				m_value = from_atoms<T>(args);
+		}
+
 	};
 
 /*	The setter/getter for the wrapper are below.
