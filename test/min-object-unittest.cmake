@@ -12,6 +12,10 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.cpp")
 		"${C74_MIN_API_DIR}/test/catch/include"
 		# "${C74_MIN_API_DIR}/test/mock"
 	)
+    
+	add_definitions(
+		-DMIN_TEST
+	)
 
 	set(TEST_SOURCE_FILES "")
 	FOREACH(SOURCE_FILE ${SOURCE_FILES})

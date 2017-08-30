@@ -19,6 +19,10 @@ if (APPLE)
 	set(CMAKE_OSX_ARCHITECTURES x86_64;i386)
 endif ()
 
+add_definitions(
+	-DMIN_TEST
+)
+
 add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp)
 
 target_link_libraries(${PROJECT_NAME} "mock_kernel")

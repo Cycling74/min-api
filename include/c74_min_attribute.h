@@ -478,31 +478,27 @@ namespace min {
 			m_value = from_atoms<T>(args);
 		}
 
-		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
-		void assign(const atoms& args) {
-			const atom& a = args[0];
-
-			if (a.a_type == max::A_SYM) {
-				for (auto i=0; i<m_enum_map.size(); ++i) {
-					if (a == m_enum_map[i]) {
-						m_value = static_cast<T>(i);
-						break;
-					}
-				}
-			}
-			else
-				m_value = from_atoms<T>(args);
-		}
-
-		
-		/// Set the attribute value
-
 		void set(atoms& args, bool notify = true, bool override_readonly = false) {
-			if (notify && this_class)
-				max::object_attr_setvalueof(m_owner, m_name, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
-
 			if (!writable() && !override_readonly)
 				return; // we're all done... unless this is a readonly attr that we are forcing to update
+
+#ifndef MIN_TEST // At this time the Mock Kernel does not implement object_attr_setvalueof(), so we can't use it for unit tests
+			if (notify && this_class) {		// Use the Max API to set the attribute value
+				max::object_attr_setvalueof(m_owner, m_name, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
+			}
+			else
+#endif // !MIN_TEST
+			{								// Set the value ourselves
+				// currently all jitter attributes bypass the defer mechanism here opting to instead use the default jitter handling
+				// were we to simply call `m_helper.set(args);` then our defer mechanism would be called **in addition to** jitter's deferring
+
+				if (m_owner.is_jitter_class())
+					attribute_threadsafe_helper_do_set<T,threadsafety>(&m_helper, args);
+				else
+					m_helper.set(args);
+			}
+		}
+
 
 			// currently all jitter attributes bypass the defer mechanism here opting to instead use the default jitter handling
 			// were we to simply call `m_helper.set(args);` then our defer mechanism would be called **in addition to** jitter's deferring
