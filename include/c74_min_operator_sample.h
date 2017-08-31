@@ -168,7 +168,7 @@ namespace min {
 			
 			for (auto i=0; i<sampleframes; ++i) {
 				auto in = in_samps[i];
-				auto out = self->min_object(in);
+				auto out = self->m_min_object(in);
 				out_samps[i] = out;
 			}
 		}
