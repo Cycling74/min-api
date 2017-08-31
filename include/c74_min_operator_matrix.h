@@ -10,7 +10,122 @@
 namespace c74 {
 namespace min {
 
+
+	using pixel = std::array<uchar,4>;
+
+	template<class matrix_type, size_t plane_count>
+	using cell = std::array<matrix_type, plane_count>;
+
+	enum {
+		alpha = 0,
+		red,
+		green,
+		blue
+	};
+
+
+	class matrix_coord {
+	public:
+		matrix_coord(long x, long y) {
+			position[0] = x;
+			position[1] = y;
+		}
+
+		long x() const {
+			return position[0];
+		}
+
+		long y() const {
+			return position[1];
+		}
+
+		long position[max::JIT_MATRIX_MAX_DIMCOUNT] {};
+	};
+
+
+
+	class matrix_info {
+	public:
+		matrix_info(max::t_jit_matrix_info* a_in_info, uchar* ip, max::t_jit_matrix_info* a_out_info, uchar* op)
+		: m_in_info		{ a_in_info }
+		, m_bip			{ ip }
+		, m_out_info	{ a_out_info }
+		, m_bop			{ op }
+		{}
+
+
+		long plane_count() const {
+			return m_in_info->planecount;
+		}
+
+		long dim_count() const {
+			return m_in_info->dimcount;
+		}
+
+		long width() const {
+			return m_in_info->dim[0];
+		}
+
+		long height() const {
+			return m_in_info->dim[1];
+		}
+
+
+
+		template<class matrix_type, size_t plane_count>
+		const std::array<matrix_type, plane_count> in_cell(const matrix_coord& coord) const {
+			auto p = m_bip;
+
+			for (auto j=0; j < m_in_info->dimcount; ++j)
+				p += coord.position[j] * m_in_info->dimstride[j];
+
+			std::array<matrix_type, plane_count> pa;
+
+			auto p2 = reinterpret_cast<matrix_type*>(p);
+			for (auto plane = 0; plane < plane_count; ++plane)
+				pa[plane] = *(p2+plane);
+			return pa;
+		}
+
+		template<class matrix_type, size_t plane_count>
+		const std::array<matrix_type,plane_count> in_cell(int x, int y) const {
+			matrix_coord coord(x, y);
+			return in_cell<matrix_type,plane_count>(coord);
+		}
+
+
+
+		const pixel in_pixel(const matrix_coord& coord) const {
+			auto p = m_bip;
+
+			for (auto j=0; j < m_in_info->dimcount; ++j)
+				p += coord.position[j] * m_in_info->dimstride[j];
+
+			const pixel pa = {{ *(p), *(p+1), *(p+2), *(p+3) }};
+			return pa;
+		}
+
+
+		const pixel in_pixel(int x, int y) const {
+			matrix_coord coord(x, y);
+			return in_pixel(coord);
+		}
+
+
+		pixel out_pixel(const matrix_coord&) {
+			// TODO: implement
+			pixel a;
+			return a;
+		}
+
+
+		max::t_jit_matrix_info*	m_in_info;
+		uchar*					m_bip;
+		max::t_jit_matrix_info*	m_out_info;
+		uchar*					m_bop;
+	};
 	
+
 	/// The base class for all template specializations of matrix_operator.
 
 	class matrix_operator_base {
@@ -50,6 +165,9 @@ namespace min {
 		: m_enable_parallel_breakup { enable_parallel_breakup }
 		{}
 
+		template<class matrix_type, size_t planecount>
+		friend cell<matrix_type,planecount> calc_cell(cell<matrix_type,planecount> input, const matrix_info& info, matrix_coord& position);
+
 
 		/// Find out if parallel processing of the matrix is enabled
 		///	@return	True if parallel breakup is enabled. Otherwise false.
@@ -75,119 +193,6 @@ namespace min {
 		iteration_direction	m_direction {};
 	};
 
-
-	using pixel = std::array<uchar,4>;
-
-	template<class matrix_type, size_t plane_count>
-	using cell = std::array<matrix_type, plane_count>;
-
-	enum {
-		alpha = 0,
-		red,
-		green,
-		blue
-	};
-	
-	class matrix_coord {
-	public:
-		matrix_coord(long x, long y) {
-			position[0] = x;
-			position[1] = y;
-		}
-		
-		long x() const {
-			return position[0];
-		}
-		
-		long y() const {
-			return position[1];
-		}
-		
-		long position[max::JIT_MATRIX_MAX_DIMCOUNT] {};
-	};
-	
-	class matrix_info {
-	public:
-		matrix_info(max::t_jit_matrix_info* a_in_info, uchar* ip, max::t_jit_matrix_info* a_out_info, uchar* op)
-		: m_in_info		{ a_in_info }
-		, m_bip			{ ip }
-		, m_out_info	{ a_out_info }
-		, m_bop			{ op }
-		{}
-
-		
-		long plane_count() const {
-			return m_in_info->planecount;
-		}
-
-		long dim_count() const {
-			return m_in_info->dimcount;
-		}
-
-		long width() const {
-			return m_in_info->dim[0];
-		}
-
-		long height() const {
-			return m_in_info->dim[1];
-		}
-
-		
-		
-		template<class matrix_type, size_t plane_count>
-		const std::array<matrix_type, plane_count> in_cell(const matrix_coord& coord) const {
-			auto p = m_bip;
-			
-			for (auto j=0; j < m_in_info->dimcount; ++j)
-				p += coord.position[j] * m_in_info->dimstride[j];
-			
-			std::array<matrix_type, plane_count> pa;
-			
-			auto p2 = reinterpret_cast<matrix_type*>(p);
-			for (auto plane = 0; plane < plane_count; ++plane)
-				pa[plane] = *(p2+plane);
-			return pa;
-		}
-		
-		template<class matrix_type, size_t plane_count>
-		const std::array<matrix_type,plane_count> in_cell(int x, int y) const {
-			matrix_coord coord(x, y);
-			return in_cell<matrix_type,plane_count>(coord);
-		}
-
-
-	
-		const pixel in_pixel(const matrix_coord& coord) const {
-			auto p = m_bip;
-			
-			for (auto j=0; j < m_in_info->dimcount; ++j)
-				p += coord.position[j] * m_in_info->dimstride[j];
-
-			const pixel pa = {{ *(p), *(p+1), *(p+2), *(p+3) }};
-			return pa;
-		}
-		
-		
-		const pixel in_pixel(int x, int y) const {
-			matrix_coord coord(x, y);
-			return in_pixel(coord);
-		}
-		
-
-		pixel out_pixel(const matrix_coord&) {
-			// TODO: implement
-			pixel a;
-			return a;
-		}
-
-		
-		max::t_jit_matrix_info*	m_in_info;
-		uchar*					m_bip;
-		max::t_jit_matrix_info*	m_out_info;
-		uchar*					m_bop;
-	};
-	
-	
 	
 	// this is for the jitter object (the normal one is used for the max wrapper of that)
 	static max::t_class* this_jit_class = nullptr;
