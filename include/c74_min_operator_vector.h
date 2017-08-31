@@ -287,7 +287,6 @@ namespace min {
 	// A specialization of min_dsp64_sel for classes that have a custom "dspsetup" message.
 
 	template<class min_class_type>
-//	typename enable_if< has_dspsetup<min_class_type>::value && is_base_of<vector_operator_base, min_class_type>::value>::type
 	typename enable_if< has_dspsetup<min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
 		self->m_min_object.samplerate_set(samplerate);

@@ -463,6 +463,45 @@ namespace min {
 
 		void create(max::t_class* c, max::method getter, max::method setter, bool isjitclass = 0);
 
+
+		/// Get the range of the attribute.
+		/// @return	For numeric types return the low and high bounds.
+		///			For enums return the names of each of the options.
+
+		std::vector<T>& range_ref() {
+			return m_range;
+		}
+
+
+		// DO NOT USE
+		// This is an internal method used to fetch the range in string format when creating the peer Max attribute.
+		// It is made 'public' due to the trickiness of the SFINAE-enabled templated functions which call this from the wrapper.
+
+		std::string range_string();
+
+
+		// DO NOT USE
+		// This is an internal method used to fetch the range as provided to the attribute declaration in the Min object.
+		// It will be copied out using a SFINAE-enabled templated helper.
+		// You can the range after it is copied using the range_ref() method.
+
+		atoms get_range_args() {
+			return m_range_args;
+		}
+
+
+		// Returns the strings associated with an enum attribute.
+		// Only available for enum attributes.
+		// @return A copy of the enum_map.
+		//
+		// This is used by the range copying at setup.
+		// It isn't clear that it is actually useful outside of this context, so not officially documenting it.
+
+		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
+		enum_map get_enum_map() {
+			return m_enum_map;
+		}
+
 		
 		/// Set the attribute value using the native type of the attribute.
 		/// @param	arg		The new value to be assigned to the attribute.
@@ -549,10 +588,8 @@ namespace min {
 		}
 
 
-
-		// Apply range limiting, if any, to input
-		T range_apply(const T& value);
-		
+		/// Get the attribute value as a vector of atoms.
+		/// @return	The value of the attribute.
 
 		operator atoms() const {
 			if (m_getter)
@@ -562,8 +599,10 @@ namespace min {
 		}
 
 
-		// we need to return by const reference due to cases where the type of the attribute is a class
-		// for example, a time_value attribute cannot be copy constructed
+		/// Get the attribute value as a const reference to the native datatype.
+		/// We need to return by const reference in cases where the type of the attribute is a class.
+		/// For example, a #time_value attribute cannot be copy constructed.
+		/// @return	The value of the attribute.
 
 		operator const T&() const {
 			if (m_getter)
@@ -571,8 +610,11 @@ namespace min {
 			return m_value;
 		}
 
-		// getting a writable reference to the underlying data is of particular importance
-		// for e.g. vector<number> attributes
+
+		/// Get the attribute value as a reference to the native datatype.
+		/// Getting a writable reference to the underlying data is of particular importance
+		/// for e.g. vector<number> attributes.
+		/// @return	The value of the attribute.
 
 		operator T&() {
 			if (m_getter)
@@ -588,53 +630,61 @@ namespace min {
 			return m_value;
 		}
 
-		
+
+		/// Get a component of an attribute value when that attribute is a vector of numbers.
+		/// @param	index	The index of the item in the vector to access.
+		/// @return			A writable reference to the value at an index of the attribute.
+
 		template<class U=T, typename enable_if< is_same<U, numbers>::value, int>::type = 0>
 		double& operator[](size_t index) {
 			return m_value[index];
 		}
 
 
-		std::string range_string();
+		/// Is the attribute currently disabled?
+		/// @return	True if it is disabled. False if it is active.
 
-
-		enum_map get_enum_map() {
-			return m_enum_map;
-		}
-
-		atoms get_range_args() {
-			return m_range_args;
-		}
-
-		std::vector<T>& range_ref() {
-			return m_range;
-		}
-        
         bool disabled() const {
             return c74::max::object_attr_getdisabled(m_owner, m_name);
         }
+
+
+		/// Disable the attribute.
+		/// This will result in the attribute being "grayed-out" in the inspector.
+		/// @param	value	Pass true to disable the attribute. Otherwise pass false to make it active.
         
         void disable(bool value) {
             c74::max::object_attr_setdisabled(m_owner, m_name, value);
         }
 
+
 	private:
+		T						m_value;											// The actual data wrapped by this attribute.
+		atoms					m_range_args;										// The range/enum as provided by the owning Min object.
+		std::vector<T>			m_range;											// The range/enum translated into the native datatype.
+		enum_map				m_enum_map;											// The enum mapping for indexed enums (as opposed to symbol enums).
+		attribute_threadsafe_helper<T,threadsafety,limit_type>	m_helper { this };	// Attribute setting implementation for the specified threadsafety.
+
 		friend void attribute_threadsafe_helper_do_set<T,threadsafety,limit_type>(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args);
 
-		T				m_value;
-		atoms			m_range_args;	// the range/enum as provided by the subclass
-		std::vector<T>	m_range;		// the range/enum translated into the native datatype
-		enum_map		m_enum_map;		// the range/enum mapping for indexed enums (as opposed to symbol enums)
-		attribute_threadsafe_helper<T,threadsafety,limit_type>	m_helper { this };
 
-		void copy_range();				// copy m_range_args to m_range
+		// Copy m_range_args to m_range when the attribute is created.
+		// Implemented in c74_min_attribute_impl.h.
+
+		void copy_range();
 
 
+		// Apply range limiting to all numerical types.
+		// Optimization for the most common case: no limiting at all.
 
 		template<class U=T, typename enable_if< is_same<limit_type<U>, limit::none<U>>::value, int>::type = 0>
 		void constrain(atoms& args) {
 			// no limiting, so do nothing
 		}
+
+
+		// Apply range limiting to all numerical types (except enums).
+		// Note that enums are already range-limited within the min::atom.
 
 		template<class U=T, typename enable_if< !is_same<limit_type<U>, limit::none<U>>::value, int>::type = 0>
 		void constrain(atoms& args) {
@@ -643,10 +693,18 @@ namespace min {
 		}
 
 
+		// Assign the value to the internal data storage member.
+		// Occurs after the limits are constrained, the setter is called, etc.
+
 		template<class U=T, typename enable_if< !is_enum<U>::value, int>::type = 0>
 		void assign(const atoms& args) {
 			m_value = from_atoms<T>(args);
 		}
+
+
+		// Assign the value to the internal data storage member
+		// when the attribute type is an enum.
+		// Allows users to specify the symbolic name and maps it to the underlying int.
 
 		template<class U=T, typename enable_if< is_enum<U>::value, int>::type = 0>
 		void assign(const atoms& args) {
@@ -666,27 +724,34 @@ namespace min {
 
 	};
 
-/*	The setter/getter for the wrapper are below.
-	Regarding thread-safety...
 
-	First, lets just consider the getter.
-	We can't defer here -- it must happen at a higher level.  Like in Max somewhere.  
-	Or we lock Max with a critical region?  Ick?
-	This is because we are required to return the value syncronously.
-	So getters are out of our control.
- 
-	Second, let's consider the setter.
-	We can defer this (and should if the setter is not threadsafe).
-	
-	If we defer, we need to do it in the attribut<>::set() method
-	because it is common to set the attr value from calls other than just the outside Max call.
-	Unfortunately, we cannot do a partial template specialization for a member function in C++.
-	So the set method is then required to call a templated class (which can be partially specialized) as a functor.
+#ifdef MAC_VERSION
+#pragma mark -
+#pragma mark Threadsafe Helper
+#endif
 
-	That is what we have here:
- */
+	// Regarding thread-safety...
+	//
+	// First, lets just consider the getter.
+	// We can't defer here -- it must happen at a higher level (in Max somewhere).
+	// Perhaps we could lock Max with a critical region but that is fraught with risks and hazards.
+	// This is because we are required to return the value syncronously.
+	// So getters are out of our control.
+	//
+	// Second, let's consider the setter.
+	// We can defer this (and should if the setter is not threadsafe).
+	//
+	// If we defer, we need to do it in the attribut<>::set() method
+	// because it is common to set the attr value from calls other than just the outside Max call.
+	// Unfortunately, we cannot do a partial template specialization for a member function in C++.
+	// So the set method is then required to call a templated class (which can be partially specialized) as a functor.
+	//
+	// That is what we have in attribute_threadsafe_helper.
 
-	/// @ingroup attributes
+
+	// Shared code used by all of the various incarnations of attribute_threadsafe_helper
+	// to set an attribute.
+
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper, atoms& args) {
 		auto& attr = *helper->m_attribute;
@@ -699,7 +764,12 @@ namespace min {
 			attr.assign(args);
 	}
 
-	/// @ingroup attributes
+
+	// A version of attribute_threadsafe_helper<> for attributes which are threadsafe.
+	// This is the simplest case:
+	// the author of the owning object told us it is threadsafe and so we trust them that we
+	// don't need to do anything special.
+
 	template<typename T, template<typename> class limit_type>
 	class attribute_threadsafe_helper<T,threadsafe::yes,limit_type> {
 		friend void attribute_threadsafe_helper_do_set<T,threadsafe::yes,limit_type>(attribute_threadsafe_helper<T,threadsafe::yes,limit_type>* helper, atoms& args);
@@ -717,7 +787,9 @@ namespace min {
 	};
 
 
-	/// @ingroup attributes
+	// C-callback for the qelem used to defer attribute setting to the main thread
+	// for thread-unsafe attributes.
+
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper) {
 		static_assert(threadsafety == threadsafe::no, "helper function should not be called by threadsafe attrs");
@@ -725,7 +797,10 @@ namespace min {
 	}
 
 
-	/// @ingroup attributes
+	// A version of attribute_threadsafe_helper<> for attributes which are not known to be threadsafe.
+	// These will check all setter calls to ensure that they are on the main thread.
+	// If they are not then defer the setter calls to the main thread using a qelem.
+
 	template<typename T, template<typename> class limit_type>
 	class attribute_threadsafe_helper<T,threadsafe::no,limit_type> {
 		friend void attribute_threadsafe_helper_do_set<T,threadsafe::no,limit_type>(attribute_threadsafe_helper<T,threadsafe::no,limit_type>* helper, atoms& args);
@@ -756,6 +831,11 @@ namespace min {
 		atoms									m_value;
 	};
 
+
+#ifdef MAC_VERSION
+#pragma mark -
+#pragma mark Wrapper methods
+#endif
 
 
 	//	Native Max methods for the wrapper class to perform getting of attribute values
