@@ -8,6 +8,7 @@ See Also:
 
 * [Guide To Theading](GuideToThreading.md)
 * [Guide To Audio](GuideToAudio.md)
+* [Guide To Initialization](GuideToInitialization.md)
 * [Special Messages](SpecialMethods.md)
 * [Where To Look...](WhereToLook.md)
 
