@@ -157,10 +157,12 @@ The signature of `MIN_FUNCTION` says that it will take `const atoms&` as input a
 If you wish to access the arguments to your message, do so the same way as described for the constructor as in this example:
 
 ```c++
-message<> number { this, "number", MIN_FUNCTION {
-	position = args[0];
-	return {};
-}};
+message<> number { this, "number", 
+    MIN_FUNCTION {
+		position = args[0];
+		return {};
+	}
+};
 ```
 A "number" message will be called for either "float" or "int" input.
 
@@ -268,11 +270,13 @@ Note that the initialization of the attribute must be wrapped in curly braces.
 To post to the Max console use `cout` (normal messages) and `cerr` (error messages).  Your message will not post until `endl` is received by the stream.
 
 ```c++
-method anything { this, "anything", MIN_FUNCTION {
-	cout << "Message Received: " << args << " !" << endl;
-	// ...
-	return {};
-}};
+method anything { this, "anything", 
+    MIN_FUNCTION {
+		cout << "Message Received: " << args << " !" << endl;
+		// ...
+		return {};
+	}
+};
 ```
 
 ## Timers
@@ -280,11 +284,13 @@ method anything { this, "anything", MIN_FUNCTION {
 To schedule an event to happen at some point in the future use a `min::timer`. Timers use a pattern that hopefully is becoming familiar: you create an instance of timer and initialize it with a pointer to an instance of your class (`this`) and function (typically a lambda function) that will be executed when the timer fires.
 
 ```c++
-timer metro { this, MIN_FUNCTION {
-	bang_out.send("bang");
-	metro.delay(interval);
-	return {};
-}};
+timer metro { this, 
+    MIN_FUNCTION {
+		bang_out.send("bang");
+		metro.delay(interval);
+		return {};
+	}
+};
 ```
 
 In the example above `bang_out` is an outlet. After sending the "bang" the timer schedules itself to run again at an interval in milliseconds.
@@ -294,10 +300,12 @@ In the example above `bang_out` is an outlet. After sending the "bang" the timer
 A `min::queue` creates a an element that, when set, will be executed by Max's low-priority queue. This provides a mechanism for transferring or deferring events from other threads (such as the scheduler or audio thread) to Max's main thread.
 
 ```c++
-queue deferrer { this, MIN_FUNCTION {		
-	bang_out.send("bang");
-	return {};
-}};
+queue deferrer { this, 
+    MIN_FUNCTION {		
+		bang_out.send("bang");
+		return {};
+	}
+};
 
 // elsewhere in your code call this to fire the queue element:
 // deferrer.set()
@@ -311,10 +319,12 @@ To add a text editor window to your object simply add a `texteditor` instance to
 Note that the lambda is *not* a `MIN_FUNCTION` but rather a special lambda that passes in the text content of the editor window.
 
 ```c++
-texteditor editor { this, [this](const char* text) {
-	// do something with the text...
-	// e.g. save it in a member variable, turn it into atoms, etc.
-}};
+texteditor editor { this, 
+    [this](const char* text) {
+		// do something with the text...
+		// e.g. save it in a member variable, turn it into atoms, etc.
+	}
+};
 ```
 
 
@@ -327,11 +337,13 @@ Dictionaries are Max's implementation of an associative array container mapping 
 To respond to a dictionary coming into an inlet, define a message named "dictionary". It' first argument will be an atom containing a dictionary.
 
 ``` c++
-message<> dictionary { this, "dictionary", MIN_FUNCTION {
-	dict d { args[0] };
-	sequence = d["pattern"];
-	return {};
-}};
+message<> dictionary { this, "dictionary", 
+    MIN_FUNCTION {
+		dict d { args[0] };
+		sequence = d["pattern"];
+		return {};
+	}
+};
 ```
 In this example the dict "d" is constructed using an atom containing a dictionary. It is important to understand that this dictionary is *not* a copy of the dictionary, but rather a reference. As long as "d" is in scope the reference will be valid.
 
@@ -340,16 +352,18 @@ Next, a variable named "sequence" is assigned a value from the dictionary that i
 If "pattern" doesn't exist it will be created and sequence will be assigned an empty set of atoms. If you wish to use bounds checking and have an error thrown then use the `at()` method of `dict` instead of the `[]` operator as in the following example:
 
 ```c++
-message<> dictionary { this, "dictionary", MIN_FUNCTION {
-	dict d { args[0] };
-	try {
-		sequence = d.at("pattern");
+message<> dictionary { this, "dictionary", 
+    MIN_FUNCTION {
+		dict d { args[0] };
+		try {
+			sequence = d.at("pattern");
+		}
+		catch (std::runtime_error& e) {
+			cerr << "could not fetch key called 'pattern'" << endl;
+		}
+		return {};
 	}
-	catch (std::runtime_error& e) {
-		cerr << "could not fetch key called 'pattern'" << endl;
-	}
-	return {};
-}};
+};
 ```
 
 ## Saving State
@@ -357,11 +371,13 @@ message<> dictionary { this, "dictionary", MIN_FUNCTION {
 Most state saving in Max is handled automatically via the attribute system. If you need to save additional custom state define a 'savestate' message. This message will receive an atom containing a dictionary as input. Write your data into this dictionary to have it saved with the patcher
 
 ```c++
-message<> savestate { this, "savestate", MIN_FUNCTION {
-	dict d { args[0] };
-	d["my_custom_data"] = some_data;
-	return {};
-}};
+message<> savestate { this, "savestate", 
+    MIN_FUNCTION {
+		dict d { args[0] };
+		d["my_custom_data"] = some_data;
+		return {};
+	}
+};
 ```
 
 To recall your saved state when the patcher is loaded, the object is pasted into another patcher, etc. you call the inherited `state()` method to get your instance's dictionary from the patcher.
@@ -382,14 +398,16 @@ In some cases you may wish to do some advanced class setup. The example below co
 ```c++
 // the "maxclass_setup" method is called when the class is created
 // it is not called on an instance at what we think of in Max as "runtime"
-message<> maxclass_setup { this, "maxclass_setup", MIN_FUNCTION {
-	c74::max::t_class* c = args[0];
+message<> maxclass_setup { this, "maxclass_setup", 
+    MIN_FUNCTION {
+		c74::max::t_class* c = args[0];
 
-	CLASS_ATTR_ENUM(c,	"shape", 0, "linear equal_power square_root");
-	CLASS_ATTR_LABEL(c,	"shape", 0, "Shape of the crossfade function");
+		CLASS_ATTR_ENUM(c,	"shape", 0, "linear equal_power square_root");
+		CLASS_ATTR_LABEL(c,	"shape", 0, "Shape of the crossfade function");
 
-	return {};
-}};
+		return {};
+	}
+};
 ```
 
 

@@ -11,10 +11,12 @@
 * `dspsetup` : called when the Max audio signal graph is being compiled (i.e. when a user turns on the DSP for a patcher). **Important**: while for most messages the important name is the symbol you pass as the second argument (in this case "dspsetup"), in this case you must also ensure that the C++ identifier used to name the message is also `dspsetup` as in this example:
 
   ```	c++
-  	message<> dspsetup { this, "dspsetup", MIN_FUNCTION {
-  		m_one_over_samplerate = 1.0 / samplerate();
-  		return {};
-  	}};
+  	message<> dspsetup { this, "dspsetup", 
+          MIN_FUNCTION {
+  			m_one_over_samplerate = 1.0 / samplerate();
+  			return {};
+  		}
+      };
   ```
 
   This message will be passed two arguments: the samplerate and the vector size.	

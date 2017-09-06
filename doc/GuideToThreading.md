@@ -93,13 +93,15 @@ public:
 	outlet<>	output_true		{ this, "(bang) input is non-zero" };
 	outlet<>	output_false	{ this, "(bang) input is zero" };
 
-	timer deliverer { this, MIN_FUNCTION {
-		if (state)
-			output_true.send("bang");
-		else
-			output_false.send("bang");
-		return {};
-	}};
+	timer deliverer { this, 
+        MIN_FUNCTION {
+			if (state)
+				output_true.send("bang");
+			else
+				output_false.send("bang");
+			return {};
+		}
+    };
 
 	void operator()(sample x) {
 		if (x != 0.0 && prev == 0.0) { // change from zero to non-zero
@@ -133,16 +135,18 @@ public:
 	outlet<>	output_true		{ this, "(bang) input is non-zero" };
 	outlet<>	output_false	{ this, "(bang) input is zero" };
 
-	timer deliverer { this, MIN_FUNCTION {
-		bool state;
-		while (transitions.try_dequeue(state)) {
-			if (state)
-				output_true.send("bang");
-			else
-				output_false.send("bang");
+	timer deliverer { this, 
+        MIN_FUNCTION {
+			bool state;
+			while (transitions.try_dequeue(state)) {
+				if (state)
+					output_true.send("bang");
+				else
+					output_false.send("bang");
+			}
+			return {};
 		}
-		return {};
-	}};
+    };
 
 	void operator()(sample x) {
 		if (x != 0.0 && prev == 0.0) { // change from zero to non-zero
@@ -202,7 +206,7 @@ public:
 	}
 
 private:
-	sample		prev { 0.0 };
+	sample prev { 0.0 };
 };
 ```
 

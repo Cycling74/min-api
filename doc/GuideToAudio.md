@@ -54,12 +54,14 @@ Note that you define your inlets and outlets for both `vector_operator<>` and `s
 There are no required messages for either `vector_operator<>` or `sample_operator<>` classes. You may optionally define a 'dspsetup' message which will be called when Max is compiling the signal chain.
 
 ```c++
-message<> dspsetup { this, "dspsetup", MIN_FUNCTION {
-	double samplerate = args[0];
+message<> dspsetup { this, "dspsetup", 
+    MIN_FUNCTION {
+		double samplerate = args[0];
 
-	m_one_over_samplerate = 1.0 / samplerate;
-	return {};
-}};
+		m_one_over_samplerate = 1.0 / samplerate;
+		return {};
+	}
+};
 ```
 The message will be passed two arguments: the sample rate and the vector size.
 
@@ -76,10 +78,12 @@ All of the neccessary methods (e.g. `set` and `dblclick`), notification handling
 If you wish to receive notifications when the **buffer~** content changes you can provide an optional callback to be triggered when a change occurs.
 
 ```c++
-buffer_reference my_buffer { this, MIN_FUNCTION {
-  // do something in response to the change...
-  return {};
-}};
+buffer_reference my_buffer { this, 
+	MIN_FUNCTION {
+	  // do something in response to the change...
+	  return {};
+	}
+};
 ```
 
 To access the **buffer~** contents in your audio routine, see the example below for `vector_operator<>` function call implementation.
