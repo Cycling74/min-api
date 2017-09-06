@@ -25,7 +25,7 @@ public:
 MIN_EXTERNAL(my_object);
 ```
 
-Note that the `object` which you are extending is itself specialized with the type of your class. This idiom provides a means of achieving [static polymorphism](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism).
+Note that the `object` which you are extending is itself specialized with the type of your class. This idiom provides a means of achieving [static polymorphism](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism) which is important for efficiency in Min.
 
 
 ## Constructors
@@ -83,13 +83,27 @@ inlet<>		right	{ this, "dict to combine with dict at left inlet", "dictionary" }
 outlet<>	output	{ this, "dictionary of entries combined from both inlets", "dictionary" };
 ```
 
-Both inlets and outlets are defined in left to right order.
+Both inlets and outlets are defined in left to right order (for users of the traditional Max-SDK in C this is the opposite of what you may be used to).
+
+### Inlet Types
+
+Inlet "types" are actually the name of the message which is received by your object in Max. Integer messages have an invisible message name `int`, floats an invisible message name `float` and lists starting with a number have an invible message name `list`.  All other messages are the name of the symbol that begins the message. For example, if you send a "bang" message to your object the message type is "bang".
+
+In most cases you will likely use generic inlets and outlets that accept (and produce) any type. Some common types are:
+
+* int
+* float
+* list
+* bang
+* signal
+* dictionary
+* matrix
 
 ### Configuring Inlets and Outlets at Runtime
 
-In most cases configuring inlets and outlets at compile time is the ideal solution. There are cases, however, where you may wish to define the inlets and outlets at runtime based on the arguments passed to your object's constructor.
+In most cases configuring inlets and outlets at compile time is the ideal solution. There are cases, however, where you may wish to define the inlets and outlets at runtime based on the arguments passed to your object's constructor. 
 
-(note: you cannot define the number of inlets and outlets at runtime for classes inheriting from `sample_operator<>` , you must instead inherit from `perform_operator<>`)
+(note: you cannot define the number of inlets and outlets at runtime for classes inheriting from `sample_operator<>` , you must instead inherit from `perform_operator<>` as is done in the *min.dcblocker~* example code in the Min-DevKit.)
 
 In an example where you wish to define both the inlets and the outlets at runtime, you will need to create a place in your class to store the inlet/outlet instances. A convenient way to store the instances is in a vector.
 
@@ -127,7 +141,7 @@ clone(const atoms& args = {}) {
 The basic work of most Max objects is done by messages. All messages take a single `const atoms&` parameter just as constructors. If you don't need arguments for your message then you can simply ignore it as in this example message:
 
 ```c++
-message<> bang { this, "bang", "Post something to the Max console."
+message<> bang { this, "bang", "Post something to the Max console.",
 	MIN_FUNCTION {
 		cout << "Hello World" << endl;
 		return {};
@@ -135,6 +149,8 @@ message<> bang { this, "bang", "Post something to the Max console."
 };
 ```
 When you define a message you are creating an instance of a `min::message<>` and initializing it with a pointer to the owning instance of your class (`this`), a string for the message name in Max, a description string for documentation, and a function to be executed when the message is called. Typically the function is defined using a C++ lambda, whose verbose signature is tucked-away in the `MIN_FUNCTION` macro. 
+
+(A lambda is an anonymous callback function that is triggered in response to an event — a message being received by your object. You can also define a function and then pass that function to the constructor. The *min.threadcheck* example code in the Min-Devkit uses this latter method.)
 
 The signature of `MIN_FUNCTION` says that it will take `const atoms&` as input and return `atoms` as output.  Most messages won't have a return value so you can just return an empty set of atoms as in the example above.
 
@@ -160,7 +176,7 @@ attribute<double> min { this, "minimum", 0.0 };
 attribute<double> max { this, "maximum", 1.0 };
 ```
 
-Following the 3 required arguments, attributes may have any number of optional arguments, which may also be in any order:
+Following the 3 required arguments, attributes may have any number of optional arguments, which may be in any order:
 
 * `title`: this is a human-friendly label for your attribute shown in the inspector
 * `description`: a documention string describing the attribute
@@ -183,7 +199,7 @@ attribute<bool> on { this, "on", false,
 };
 ```
 
-And an example the uses multiple of these optional arguments might look like this:
+And an example that uses multiple of these optional arguments might look like this:
 
 ```c++
 attribute<symbol> mode {
@@ -219,7 +235,7 @@ attribute<number, threadsafe::no, limit::clamp> foo { this, "foo",0.5,
 
 In this example values lower than zero will be "clamped" to zero and values greater than one will be clamped to one because the attribute is specialized with the `limit::clamp` parameter. 
 
-In order to specialized the limit type you also must specify the threadsafety of the attribute. By default this is `threadsafe::no` and you should choose `threadsafe::no` unless you have thoroughly read the [Guide To Theading](GuideToThreading.md) and you are confident that you are making the correct choice.
+In order to specialize the limit type you also must specify the threadsafety of the attribute. By default this is `threadsafe::no` and you should choose `threadsafe::no` unless you have thoroughly read the [Guide To Theading](GuideToThreading.md) and you are confident that you are making the correct choice.
 
 The options for limiting are
 
@@ -264,7 +280,7 @@ method anything { this, "anything", MIN_FUNCTION {
 To schedule an event to happen at some point in the future use a `min::timer`. Timers use a pattern that hopefully is becoming familiar: you create an instance of timer and initialize it with a pointer to an instance of your class (`this`) and function (typically a lambda function) that will be executed when the timer fires.
 
 ```c++
-timer metro { this, MIN_FUNCTION {		
+timer metro { this, MIN_FUNCTION {
 	bang_out.send("bang");
 	metro.delay(interval);
 	return {};
@@ -283,7 +299,7 @@ queue deferrer { this, MIN_FUNCTION {
 	return {};
 }};
 
-// in some other code call this to fire the queue element:
+// elsewhere in your code call this to fire the queue element:
 // deferrer.set()
 ```
 
@@ -297,6 +313,7 @@ Note that the lambda is *not* a `MIN_FUNCTION` but rather a special lambda that 
 ```c++
 texteditor editor { this, [this](const char* text) {
 	// do something with the text...
+	// e.g. save it in a member variable, turn it into atoms, etc.
 }};
 ```
 
