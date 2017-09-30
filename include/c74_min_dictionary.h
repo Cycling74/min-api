@@ -106,6 +106,12 @@ namespace min {
 			return at(key);
 		};
 
+		atom_reference operator[](int key){
+			symbol skey {key};
+			return (*this)[skey];
+		};
+
+
 		
 		symbol name() {
 			return dictobj_namefromptr(m_instance);
