@@ -121,6 +121,11 @@ namespace min {
 		bool valid() {
 			return m_instance != nullptr;
 		}
+
+
+		void clear() {
+			dictionary_clear(m_instance);
+		}
 		
 		
 		void copyunique(const dict& source) {
