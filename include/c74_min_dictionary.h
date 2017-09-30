@@ -73,7 +73,20 @@ namespace min {
 				m_instance = static_cast<max::t_dictionary*>(max::atom_getobj(a));
 			return *this;
 		}
-		
+
+
+		/// Cast the dictionary to a Max t_object so that, e.g., it can be used with the C Max API.
+		/// Be exceedingly careful with this!
+		/// When you pass the pointer out are you pointing the instance without incrementing the reference count?
+
+		//  TODO: We need copy (retain) and move (don't retain) semantics ????
+		// TODO: we don't have a copy constructor!
+
+		operator max::t_object*() const {
+			max::object_retain(m_instance);
+			return static_cast<max::t_object*>(m_instance);
+		}
+
 		
 		// bounds check: if key doesn't exist, throw
 		atom_reference at(symbol key){
