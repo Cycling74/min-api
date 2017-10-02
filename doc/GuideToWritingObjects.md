@@ -23,7 +23,7 @@ You will need to include one header file to write a Min object.
 
 ## Class Definition
 
-To create a Min object you define a class that inherits from a specialization of the `min::object` class. You then wrap this class with a macro that exposes the class to Max.
+To create a Min object you define a class that inherits from a specialization of the `min::object` class. You then wrap this class with the `MIN_EXTERNAL` macro that exposes the class to Max.
 
 ```c++
 class my_object : public object<my_object> {
