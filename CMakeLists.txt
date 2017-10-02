@@ -4,7 +4,7 @@ project(MinAPI)
 
 if (${CMAKE_GENERATOR} MATCHES "Xcode")
  		if (${XCODE_VERSION} VERSION_LESS 7)
-  			message(STATUS "Xcode 7 is required. Please install from the Mac App Store.")
+  			message(STATUS "Xcode 7 or later is required. Please install from the Mac App Store.")
 			return ()
 		endif ()
 endif ()
@@ -41,7 +41,7 @@ endforeach()
 
 
 
-find_package (Doxygen)
+find_package (Doxygen QUIET)
 option (BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 if (BUILD_DOCUMENTATION)
