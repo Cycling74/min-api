@@ -12,6 +12,15 @@ See Also:
 * [Special Messages](SpecialMethods.md)
 * [Where To Look...](WhereToLook.md)
 
+
+## Includes
+
+You will need to include one header file to write a Min object.
+
+```c++
+#include "c74_min.h"
+```
+
 ## Class Definition
 
 To create a Min object you define a class that inherits from a specialization of the `min::object` class. You then wrap this class with a macro that exposes the class to Max.
