@@ -23,6 +23,7 @@ bool require_vector_approx(T source, T reference) {
 		return false;
 
 	for (auto i=0; i<source.size(); ++i) {
+		INFO("when i == " << i);
 		REQUIRE( source[i] == Approx(reference[i]) );
 		if (source[i] != Approx(reference[i]))
 			return false;
