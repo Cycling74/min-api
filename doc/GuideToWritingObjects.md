@@ -288,6 +288,8 @@ method anything { this, "anything",
 };
 ```
 
+To post to the system console instead of the Max console use `std::cout`, `std::cerr`, and `std::endl` as is typical in C++ rather than the variants implemented in the `c74::min` namespace.
+
 ## Timers
 
 To schedule an event to happen at some point in the future use a `min::timer`. Timers use a pattern that hopefully is becoming familiar: you create an instance of timer and initialize it with a pointer to an instance of your class (`this`) and function (typically a lambda function) that will be executed when the timer fires.
