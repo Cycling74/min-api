@@ -173,7 +173,7 @@ message<> number { this, "number",
 	}
 };
 ```
-A "number" message will be called for either "float" or "int" input.
+A "number" message will be called for either "float" or "int" input. If you want to only handle ints then define an "int" message; if you want to only handle floats then define a "float" message.
 
 
 ## Attributes
