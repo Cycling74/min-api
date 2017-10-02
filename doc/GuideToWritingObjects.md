@@ -163,7 +163,7 @@ When you define a message you are creating an instance of a `min::message<>` and
 
 The signature of `MIN_FUNCTION` says that it will take `const atoms&` as input and return `atoms` as output.  Most messages won't have a return value so you can just return an empty set of atoms as in the example above.
 
-If you wish to access the arguments to your message, do so the same way as described for the constructor as in this example:
+If you wish to access the arguments to your message, do so the same way as described for the constructor as in the example that follows. Any `MIN_FUNCTION` can access it's arguments as a vector of atoms named `args`.
 
 ```c++
 message<> number { this, "number", 
