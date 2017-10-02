@@ -86,4 +86,7 @@ Most of the referenced example code is distributed as a part of the [Min-DevKit 
 * `min.xfade~` 
 * `min.function`
 
-  ​
+## Using DLLs/Dylibs/Libraries from other 3rd-parties
+
+* Link Package
+* Sensel Package
