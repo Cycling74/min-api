@@ -116,6 +116,10 @@ namespace min {
 			return static_cast<T>(atom_getlong(this));
 		}
 
+		operator float() const {
+			return atom_getfloat(this);
+		}
+
 		operator double() const {
 			return atom_getfloat(this);
 		}
