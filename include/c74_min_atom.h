@@ -309,7 +309,32 @@ namespace min {
 			atom_setsym(m_av, value);
 			return *this;
 		}
+
+		atom_reference& operator = (int value) {
+			m_ac = 1;
+			atom_setlong(m_av, value);
+			return *this;
+		}
+
+		atom_reference& operator = (long value) {
+			m_ac = 1;
+			atom_setlong(m_av, value);
+			return *this;
+		}
 		
+		atom_reference& operator = (double value) {
+			m_ac = 1;
+			atom_setfloat(m_av, value);
+			return *this;
+		}
+
+		atom_reference& operator = (max::t_object* value) {
+			m_ac = 1;
+			atom_setobj(m_av, value);
+			return *this;
+		}
+
+
 		operator atom() const {
 			if (empty())
 				throw std::out_of_range("atomref is empty");

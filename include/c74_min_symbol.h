@@ -66,6 +66,14 @@ namespace min {
 		}
 
 
+		/// Constructor with an integer value that will be turned into a symbol.
+		/// @param value	Initial value that will be stringified.
+
+		symbol(int number_to_be_symbolized)
+		: symbol(std::to_string(number_to_be_symbolized))
+		{}
+
+
 		/// Constructor with an initial value (of any assignable type)
 		/// @param value	Value of an assignable type (e.g. some sort of string or symbol)
 
