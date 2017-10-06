@@ -173,8 +173,8 @@ namespace min {
 		number in_scale = 1 / (in_high - in_low);
 		number out_diff = out_high - out_low;
 
-		value = (value - in_low) * in_scale;
-		value = (value * out_diff) + out_low;
+		value = static_cast<T>((value - in_low) * in_scale);
+		value = static_cast<T>((value * out_diff) + out_low);
 		return value;
 	}
 

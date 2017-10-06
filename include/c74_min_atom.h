@@ -117,7 +117,7 @@ namespace min {
 		}
 
 		operator float() const {
-			return atom_getfloat(this);
+			return static_cast<float>(atom_getfloat(this));
 		}
 
 		operator double() const {
