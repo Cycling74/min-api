@@ -312,8 +312,10 @@ namespace min {
 						*op = out[0];
 					}
 					else {
-						const std::array<U,1>	tmp = {{ *ip }};
-						const std::array<U,1>	out = self->m_min_object.calc_cell(tmp, info, position);
+						std::array<U,1>	tmp;
+						if (ip)
+							tmp = {{ *ip }};
+						const std::array<U,1> out = self->m_min_object.calc_cell(tmp, info, position);
 						*op = out[0];
 					}
 					if (ip)
@@ -589,7 +591,6 @@ namespace min {
 				}
 				else {
 					jit_calculate_ndim<min_class_type>(self, dim_count, dim, plane_count, &in_minfo, reinterpret_cast<uchar*>(in_bp), &out_minfo, reinterpret_cast<uchar*>(out_bp));
-					
 				}
 			}
 
@@ -599,7 +600,9 @@ namespace min {
 		throw err;
 	}
 
-	
+
+	// This is the "matrix_calc" used for processors (both input matrix and an output matrix)
+
 	template<class min_class_type>
 	max::t_jit_err jit_matrix_calc(minwrap<min_class_type>* self, max::t_object* inputs, max::t_object* outputs) {
 		try {
@@ -611,6 +614,8 @@ namespace min {
 		}
 	}
 
+
+	// This is the "matrix_calc" used for generators (no input matrix, only an output matrix)
 
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
 	void min_jit_mop_outputmatrix(max_jit_wrapper* self) {
@@ -638,7 +643,8 @@ namespace min {
                 if (!out_bp)
                     err = max::JIT_ERR_INVALID_OUTPUT;
                 else {
-                    max::jit_parallel_ndim_simplecalc1(
+					if (jitob->m_min_object.parallel_breakup_enabled()) {
+						max::jit_parallel_ndim_simplecalc1(
                                                        reinterpret_cast<max::method>(jit_calculate_ndim_single<min_class_type>),
 													   jitob,
                                                        out_minfo.dimcount,
@@ -647,9 +653,12 @@ namespace min {
 													   &out_minfo,
 													   out_bp,
 													   0);
-                }
-
-                max::object_method(out_matrix, max::_jit_sym_lock, out_savelock);
+					}
+					else {
+						jit_calculate_ndim_single<min_class_type>(jitob, out_minfo.dimcount, out_minfo.dim, out_minfo.planecount, &out_minfo, reinterpret_cast<uchar*>(out_bp));
+					}
+					max::object_method(out_matrix, max::_jit_sym_lock, out_savelock);
+				}
             }
             max::max_jit_mop_outputmatrix(self);
         }
