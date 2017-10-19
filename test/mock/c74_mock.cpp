@@ -39,6 +39,10 @@ namespace max {
 		return 44100;
 	}
 
+	MOCK_EXPORT int sys_getblksize(void) {
+		return 32;
+	}
+
 
 	MOCK_EXPORT short locatefile_extended(char* name, short* outvol, t_fourcc* outtype, const t_fourcc* filetypelist, short numtypes) {
 		return 0;
