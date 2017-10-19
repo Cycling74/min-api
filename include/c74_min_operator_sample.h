@@ -52,7 +52,7 @@ namespace min {
 		/// It is called internally any time the dsp chain containing your object is compiled.
 		/// @param	a_samplerate	A new samplerate with which your object will be updated.
 
-		void samplerate_set(double a_samplerate) {
+		void samplerate(double a_samplerate) {
 			m_samplerate = a_samplerate;
 		}
 
@@ -62,6 +62,24 @@ namespace min {
 
 		double samplerate() {
 			return m_samplerate;
+		}
+
+
+		///	Set a new vector size.
+		/// You will not typically have any need to call this.
+		/// It is called internally any time the dsp chain containing your object is compiled.
+		/// @param	a_vector_size	A new vector size with which your object will be updated.
+
+		void vector_size(double a_vector_size) {
+			m_vector_size = a_vector_size;
+		}
+
+
+		/// Return the current vector size for this object's signal chain.
+		/// @return	The vector size in samples.
+
+		double vector_size() {
+			return m_vector_size;
 		}
 
 
@@ -77,7 +95,8 @@ namespace min {
 		// void operator() (sample input1, sample input2);
 
 	private:
-		double m_samplerate { c74::max::sys_getsr() };
+		double	m_samplerate	{ c74::max::sys_getsr() };		// initialized to the global samplerate, but updated to the local samplerate when the dsp chain is compiled.
+		int		m_vector_size	{ c74::max::sys_getblksize() };	// ...
 	};
 
 

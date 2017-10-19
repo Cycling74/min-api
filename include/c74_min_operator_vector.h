@@ -175,7 +175,7 @@ namespace min {
 		/// It is called internally any time the dsp chain containing your object is compiled.
 		/// @param	a_samplerate	A new samplerate with which your object will be updated.
 
-		void samplerate_set(double a_samplerate) {
+		void samplerate(double a_samplerate) {
 			m_samplerate = a_samplerate;
 		}
 
@@ -185,6 +185,24 @@ namespace min {
 
 		double samplerate() {
 			return m_samplerate;
+		}
+
+
+		///	Set a new vector size.
+		/// You will not typically have any need to call this.
+		/// It is called internally any time the dsp chain containing your object is compiled.
+		/// @param	a_vector_size	A new vector size with which your object will be updated.
+
+		void vector_size(double a_vector_size) {
+			m_vector_size = a_vector_size;
+		}
+
+
+		/// Return the current vector size for this object's signal chain.
+		/// @return	The vector size in samples.
+
+		double vector_size() {
+			return m_vector_size;
 		}
 
 
@@ -205,7 +223,8 @@ namespace min {
 		virtual void operator()(audio_bundle input, audio_bundle output) = 0;
 
 	private:
-		double m_samplerate { c74::max::sys_getsr() };	// initialized to the global samplerate, but updated to the local samplerate when the dsp chain is compiled.
+		double	m_samplerate	{ c74::max::sys_getsr() };		// initialized to the global samplerate, but updated to the local samplerate when the dsp chain is compiled.
+		int		m_vector_size	{ c74::max::sys_getblksize() };	// ...
 	};
 
 
@@ -289,7 +308,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< has_dspsetup<min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
-		self->m_min_object.samplerate_set(samplerate);
+		self->m_min_object.samplerate(samplerate);
 		min_dsp64_io(self, count);
 
 		atoms args;
@@ -307,7 +326,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< !has_dspsetup<min_class_type>::value>::type
 	min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
-		self->m_min_object.samplerate_set(samplerate);
+		self->m_min_object.samplerate(samplerate);
 		min_dsp64_io(self, count);
 		min_dsp64_add_perform(self, dsp64);
 	}
