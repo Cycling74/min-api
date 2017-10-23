@@ -26,6 +26,7 @@ namespace min {
 			folder,
 			external,
 			patcher,
+			audio
 		};
 
 
@@ -106,7 +107,7 @@ namespace min {
 		}
 
 
-		operator std::string() const {
+		operator string() const {
 			char pathname[MAX_PATH_CHARS];
 
 			max::path_toabsolutesystempath(m_path, m_filename, pathname);
