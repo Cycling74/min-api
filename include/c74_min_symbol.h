@@ -81,6 +81,10 @@ namespace min {
 
 
 
+		symbol& operator = (max::t_object* value) {
+			s->s_thing = value;
+			return *this;
+		}
 
 		symbol& operator = (max::t_symbol* value) {
 			s = value;
