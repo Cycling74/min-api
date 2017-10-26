@@ -62,15 +62,12 @@ namespace min {
 		path(const std::string& name, filetype type = filetype::any, bool create = false) {
 			strncpy(m_filename, name.c_str(), MAX_PATH_CHARS);
 
-			max::t_fourcc	types[max::TYPELIST_SIZE];
-			short			type_count = 0;
+			auto types = typelist(type);
 
-			if (type == filetype::external)
-				max::typelist_make(types, max::TYPELIST_EXTERNS, &type_count);
-			else if (type == filetype::folder)
+			if (type == filetype::folder)
 				m_directory = true;
 
-			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, types, type_count);
+			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, &types[0], types.size());
 			if (err) {
 				if (create) {
 					if (type == filetype::folder) {
@@ -104,6 +101,44 @@ namespace min {
 					error("file not found");
 				}
 			}
+
+			if (m_directory) {
+				auto err = max::path_getpath(m_path, m_filename, &m_path);
+				if (err)
+					assert(false);
+			}
+		}
+
+
+		std::vector<max::t_fourcc> typelist(filetype type) {
+			std::vector<max::t_fourcc>	list;
+			max::t_fourcc				types[max::TYPELIST_SIZE];
+			short						type_count = 0;
+
+			if (type == filetype::any)
+				;
+			if (type == filetype::external)
+				max::typelist_make(types, max::TYPELIST_EXTERNS, &type_count);
+			else if (type == filetype::audio) {
+				types[type_count++] = 'WAVE';
+				types[type_count++] = 'AIFF';
+				types[type_count++] = 'FLAC';
+				types[type_count++] = 'Mp3 ';
+				types[type_count++] = 'M4a ';
+				types[type_count++] = 'CAF ';
+			}
+			else if (type == filetype::folder) {
+				types[0] = 'fold';
+				type_count = 1;
+			}
+			else if (type == filetype::patcher) {
+				max::typelist_make(types, max::TYPELIST_MAXFILES, &type_count);
+			}
+
+			for (auto i=0; i<type_count; ++i)
+				list.push_back(types[i]);
+
+			return list; // TODO: std::move ?
 		}
 
 
@@ -137,7 +172,47 @@ namespace min {
 			return date;
 		}
 
-				
+
+		using enumerate_function = std::function<void(string)>;
+
+		void enumerate(filetype a_type, enumerate_function a_callback) {
+			if (!m_directory)
+				return;
+			if (!m_path)
+				return;
+
+			char fullpath_to_this_folder[MAX_PATH_CHARS];
+			max::path_topathname(m_path, m_filename, fullpath_to_this_folder);
+			// TODO: error checking
+
+			auto fold = max::path_openfolder(m_path);
+			if (!fold)
+				return;
+
+			auto			types = typelist(a_type);
+			max::t_fourcc	type;
+			char			name[256];
+
+			while (max::path_foldernextfile(fold, &type, name, false)) {
+				bool match { false };
+
+				if (types.empty())
+					match = true;
+				else {
+					for (auto& i_type : types) {
+						if (type == i_type) {
+							match = true;
+							break;
+						}
+					}
+				}
+				if (match) {
+					a_callback(name);
+				}
+			}
+			max::path_closefolder(fold);
+		}
+
 	private:
 		short			m_path = 0;
 		char			m_filename[MAX_PATH_CHARS] = {};
