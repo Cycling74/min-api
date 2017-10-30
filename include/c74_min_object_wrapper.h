@@ -311,9 +311,6 @@ namespace min {
 								   max::A_GIMME,
 								   0);
 
-		// wrapping as ui *must* occur immediately after class_new() or notifications will be broken
-		wrap_as_max_external_ui<min_class_type>(c, instance);
-
 		// messages
 
 		for (auto& a_message : instance.messages()) {
@@ -409,9 +406,6 @@ namespace min {
 
 	template<class min_class_type>
 	type_enable_if_not_audio_class<min_class_type> wrap_as_max_external_audio(max::t_class*) {}
-
-	template<class min_class_type>
-	type_enable_if_not_ui_class<min_class_type> wrap_as_max_external_ui(max::t_class*, min_class_type&) {}
 
 
 	template<class min_class_type>
