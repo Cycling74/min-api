@@ -317,6 +317,14 @@ namespace min {
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"	// Jitter MOP add-ins
 
+// UI Object Support requires Visual Studio 2017 or higher when on Windows
+#if !defined(_MSC_VER) || ( _MSC_VER > 1900 )
+#include "c74_min_operator_ui.h"		// User Interface add-ins
+#include "c74_min_graphics.h"			// Graphics classes for UI objects
+#else
+#pragma message( "Building UI Objects Not Supported: Requires Visual Studio 2017 or higher." )   
+#endif
+
 #include "c74_min_object_wrapper.h"		// Max wrapper for Min objects
 #include "c74_min_object.h"				// The Min object class that glues it all together
 
