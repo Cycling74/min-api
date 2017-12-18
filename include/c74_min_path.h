@@ -110,6 +110,18 @@ namespace min {
 		}
 
 
+		path(const atoms& optional_name, filetype type = filetype::any) {
+			if (!optional_name.empty())
+				*this = path(static_cast<string>(optional_name[0]));
+			else {
+				auto types = typelist(type);
+
+				if (max::open_dialog(m_filename, &m_path, &m_type, &types[0], types.size()))
+					error("file not chosen");
+			}
+		}
+
+
 		std::vector<max::t_fourcc> typelist(filetype type) {
 			std::vector<max::t_fourcc>	list;
 			max::t_fourcc				types[max::TYPELIST_SIZE];
