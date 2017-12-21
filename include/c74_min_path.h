@@ -101,6 +101,11 @@ namespace min {
 					error("file not found");
 				}
 			}
+			else {
+				if (m_type == 'fold')
+					m_directory = true;
+			}
+
 
 			if (m_directory) {
 				auto err = max::path_getpath(m_path, m_filename, &m_path);
@@ -223,6 +228,30 @@ namespace min {
 				}
 			}
 			max::path_closefolder(fold);
+		}
+
+
+		string name() {
+			if (m_directory) {
+				char pathname[MAX_PATH_CHARS];
+				max::path_toabsolutesystempath(m_path, m_filename, pathname);
+				char* last = strrchr(pathname, '/') + 1;
+				return last;
+			}
+			else
+				return m_filename;
+		}
+
+
+		/// Copy the file/folder represented by this path to a specified destination.
+		/// @param destination_folder The folder will be the folder containing the copy of this path
+
+		void copy(const path& destination_folder, const string& destination_name) {
+			short newpath {};
+			if (m_directory)
+				c74::max::path_copyfolder(m_path, destination_folder.m_path, (char*)destination_name.c_str(), true, &newpath);
+			else
+				c74::max::path_copyfile(m_path, m_filename, destination_folder.m_path, (char*)destination_name.c_str());
 		}
 
 	private:
