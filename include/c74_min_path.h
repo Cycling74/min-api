@@ -63,11 +63,14 @@ namespace min {
 			strncpy(m_filename, name.c_str(), MAX_PATH_CHARS);
 
 			auto types = typelist(type);
+			max::t_fourcc* first_type { nullptr };
+			if (types.size())
+				first_type = &types[0];
 
 			if (type == filetype::folder)
 				m_directory = true;
 
-			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, &types[0], static_cast<short>(types.size()));
+			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, first_type, static_cast<short>(types.size()));
 			if (err) {
 				if (create) {
 					if (type == filetype::folder) {
@@ -152,13 +155,8 @@ namespace min {
 				max::typelist_make(types, max::TYPELIST_MAXFILES, &type_count);
 			}
 
-			if (type_count == 0) {
-				list.push_back(0);
-			}
-			else {
-				for (auto i = 0; i < type_count; ++i)
-					list.push_back(types[i]);
-			}
+			for (auto i = 0; i < type_count; ++i)
+				list.push_back(types[i]);
 
 			return list; // TODO: std::move ?
 		}
