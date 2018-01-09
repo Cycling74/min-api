@@ -113,7 +113,7 @@ namespace min {
 		auto result = x + low_bound;
 		if (result >= high_bound)
 			result -= range;
-		return result;
+		return static_cast<T>(result);
 	}
 
 

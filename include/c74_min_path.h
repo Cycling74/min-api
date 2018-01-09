@@ -67,7 +67,7 @@ namespace min {
 			if (type == filetype::folder)
 				m_directory = true;
 
-			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, &types[0], types.size());
+			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, &types[0], static_cast<short>(types.size()));
 			if (err) {
 				if (create) {
 					if (type == filetype::folder) {
@@ -121,7 +121,7 @@ namespace min {
 			else {
 				auto types = typelist(type);
 
-				if (max::open_dialog(m_filename, &m_path, &m_type, &types[0], types.size()))
+				if (max::open_dialog(m_filename, &m_path, &m_type, &types[0], static_cast<short>(types.size())))
 					error("file not chosen");
 			}
 		}
@@ -132,8 +132,8 @@ namespace min {
 			max::t_fourcc				types[max::TYPELIST_SIZE];
 			short						type_count = 0;
 
-			if (type == filetype::any)
-				;
+			// if (type == filetype::any) we don't need to do anything at all
+			
 			if (type == filetype::external)
 				max::typelist_make(types, max::TYPELIST_EXTERNS, &type_count);
 			else if (type == filetype::audio) {

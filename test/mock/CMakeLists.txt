@@ -18,6 +18,7 @@ if (WIN32)
 	add_definitions(
 		-DWIN_VERSION
 		-D_USE_MATH_DEFINES
+		-D_CRT_SECURE_NO_WARNINGS
 	)
 endif ()
 
