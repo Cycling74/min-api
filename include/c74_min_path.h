@@ -152,8 +152,13 @@ namespace min {
 				max::typelist_make(types, max::TYPELIST_MAXFILES, &type_count);
 			}
 
-			for (auto i=0; i<type_count; ++i)
-				list.push_back(types[i]);
+			if (type_count == 0) {
+				list.push_back(0);
+			}
+			else {
+				for (auto i = 0; i < type_count; ++i)
+					list.push_back(types[i]);
+			}
 
 			return list; // TODO: std::move ?
 		}
