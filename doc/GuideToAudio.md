@@ -51,20 +51,19 @@ Note that you define your inlets and outlets for both `vector_operator<>` and `s
 
 ## Messages
 
-There are no required messages for either `vector_operator<>` or `sample_operator<>` classes. You may optionally define a 'dspsetup' message which will be called when Max is compiling the signal chain.
+There are no required messages for either `vector_operator<>` or `sample_operator<>` classes. You may optionally define a 'dspsetup' message which will be called when Max is compiling the signal chain. The message will be passed two arguments: the sample rate and the vector size.
 
 ```c++
 message<> dspsetup { this, "dspsetup", 
     MIN_FUNCTION {
-		double samplerate = args[0];
+		number samplerate = args[0];
+		int vectorsize = args[1];
 
 		m_one_over_samplerate = 1.0 / samplerate;
 		return {};
 	}
 };
 ```
-The message will be passed two arguments: the sample rate and the vector size.
-
 ## Buffers
 
 To access a **buffer~** object from your class all you need is to create an instance of a `buffer_reference`, initializing it with a pointer to an instance of your class.
