@@ -100,6 +100,13 @@ namespace min {
 		}
 
 
+		/// Execute the timer's function immediately / synchronously.
+
+		void operator()() {
+			tick();
+		}
+
+
 		/// Determine if the timer executes it's function by deferring.
 		/// @return		True if the timer defers to the main thread. Otherwise false.
 
