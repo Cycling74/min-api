@@ -50,6 +50,12 @@ namespace max {
 
 	MOCK_EXPORT void typelist_make(t_fourcc *types, long include, short *numtypes) {}
 
+
+	MOCK_EXPORT short path_getpath(short path, const char *name, short *outpath) {
+		return 0;
+	}
+
+
 	MOCK_EXPORT short path_createfolder(const short path, const char* name, short* newpath) {
 		return 0;
 	}

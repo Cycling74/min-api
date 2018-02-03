@@ -15,14 +15,14 @@ namespace min {
 	///	@param	low_bound	The low bound for the range.
 	///	@param	high_bound	The high bound for the range.
 	///	@return				Returns the value a constrained to the range specified by low_bound and high_bound.
-	/// @see				c74::max::clamp()
+	/// @see				clamp()
 	/// @see				wrap()
 	/// @see				fold()
 
 	#ifdef WIN_VERSION
-		#define MIN_CLAMP( input, low_bound, high_bound )		c74::max::clamp<std::remove_reference<decltype(input)>::type>(input, (decltype(input))low_bound, (decltype(input))high_bound)
+		#define MIN_CLAMP( input, low_bound, high_bound )		clamp<std::remove_reference<decltype(input)>::type>(input, (decltype(input))low_bound, (decltype(input))high_bound)
 	#else
-		#define MIN_CLAMP( input, low_bound, high_bound )		c74::max::clamp<typeof(input)>(input, low_bound, high_bound)
+		#define MIN_CLAMP( input, low_bound, high_bound )		clamp<typeof(input)>(input, low_bound, high_bound)
 	#endif
 
 
@@ -58,6 +58,12 @@ namespace min {
 		value |= value >> 16;
 		++value;
 		return value;
+	}
+
+
+	template <typename T>
+	T clamp(T input, T low, T high) {
+		return std::min(std::max(input, low), high);
 	}
 
 
@@ -107,7 +113,7 @@ namespace min {
 		auto result = x + low_bound;
 		if (result >= high_bound)
 			result -= range;
-		return result;
+		return static_cast<T>(result);
 	}
 
 
@@ -280,7 +286,7 @@ namespace min {
 			/// @return			The constrained value.
 
 			static T apply(T input, T low, T high) {
-				return max::clamp<T>(input, low, high);
+				return min::clamp<T>(input, low, high);
 			}
 
 

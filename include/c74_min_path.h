@@ -63,11 +63,14 @@ namespace min {
 			strncpy(m_filename, name.c_str(), MAX_PATH_CHARS);
 
 			auto types = typelist(type);
+			max::t_fourcc* first_type { nullptr };
+			if (types.size())
+				first_type = &types[0];
 
 			if (type == filetype::folder)
 				m_directory = true;
 
-			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, &types[0], types.size());
+			auto err = max::locatefile_extended(m_filename, &m_path, &m_type, first_type, static_cast<short>(types.size()));
 			if (err) {
 				if (create) {
 					if (type == filetype::folder) {
@@ -101,6 +104,11 @@ namespace min {
 					error("file not found");
 				}
 			}
+			else {
+				if (m_type == 'fold')
+					m_directory = true;
+			}
+
 
 			if (m_directory) {
 				auto err = max::path_getpath(m_path, m_filename, &m_path);
@@ -110,13 +118,25 @@ namespace min {
 		}
 
 
+		path(const atoms& optional_name, filetype type = filetype::any) {
+			if (!optional_name.empty())
+				*this = path(static_cast<string>(optional_name[0]));
+			else {
+				auto types = typelist(type);
+
+				if (max::open_dialog(m_filename, &m_path, &m_type, &types[0], static_cast<short>(types.size())))
+					error("file not chosen");
+			}
+		}
+
+
 		std::vector<max::t_fourcc> typelist(filetype type) {
 			std::vector<max::t_fourcc>	list;
 			max::t_fourcc				types[max::TYPELIST_SIZE];
 			short						type_count = 0;
 
-			if (type == filetype::any)
-				;
+			// if (type == filetype::any) we don't need to do anything at all
+			
 			if (type == filetype::external)
 				max::typelist_make(types, max::TYPELIST_EXTERNS, &type_count);
 			else if (type == filetype::audio) {
@@ -135,7 +155,7 @@ namespace min {
 				max::typelist_make(types, max::TYPELIST_MAXFILES, &type_count);
 			}
 
-			for (auto i=0; i<type_count; ++i)
+			for (auto i = 0; i < type_count; ++i)
 				list.push_back(types[i]);
 
 			return list; // TODO: std::move ?
@@ -211,6 +231,30 @@ namespace min {
 				}
 			}
 			max::path_closefolder(fold);
+		}
+
+
+		string name() {
+			if (m_directory) {
+				char pathname[MAX_PATH_CHARS];
+				max::path_toabsolutesystempath(m_path, m_filename, pathname);
+				char* last = strrchr(pathname, '/') + 1;
+				return last;
+			}
+			else
+				return m_filename;
+		}
+
+
+		/// Copy the file/folder represented by this path to a specified destination.
+		/// @param destination_folder The folder will be the folder containing the copy of this path
+
+		void copy(const path& destination_folder, const string& destination_name) {
+			short newpath {};
+			if (m_directory)
+				c74::max::path_copyfolder(m_path, destination_folder.m_path, (char*)destination_name.c_str(), true, &newpath);
+			else
+				c74::max::path_copyfile(m_path, m_filename, destination_folder.m_path, (char*)destination_name.c_str());
 		}
 
 	private:
