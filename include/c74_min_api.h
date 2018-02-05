@@ -131,7 +131,7 @@ namespace min {
 			: color { colors::black }
 			{}
 
-			color(max::t_jrgba a_color)
+			color(const max::t_jrgba a_color)
 			: m_color { a_color }
 			{}
 

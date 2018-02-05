@@ -845,11 +845,18 @@ namespace min {
 		symbol	attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
 		auto&	attr		= self->m_min_object.attributes()[attr_name.c_str()];
 		atoms	rvals		= *attr;
-		
-		*ac = (long)rvals.size();
-		if (!(*av)) // otherwise use memory passed in
-			*av = (max::t_atom*)max::sysmem_newptr(sizeof(max::t_atom) * *ac);
-		for (auto i=0; i<*ac; ++i)
+
+		if ((*ac) != rvals.size() || !(*av)) {		 // otherwise use memory passed in
+			if (*av) {
+				sysmem_freeptr(*av);
+				*av = NULL;
+			}
+			*ac = static_cast<long>(rvals.size());
+			*av = reinterpret_cast<max::t_atom*>( max::sysmem_newptr(sizeof(max::t_atom) * (*ac)) );
+			assert(*av);
+		}
+
+		for (auto i=0; i<(*ac); ++i)
 			(*av)[i] = rvals[i];
 		
 		return 0;
