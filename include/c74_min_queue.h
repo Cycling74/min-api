@@ -86,7 +86,7 @@ namespace min {
 		friend void queue_qfn_callback(queue* a_queue);
 		void qfn() {
 			atoms a;
-			m_function(a);
+			m_function(a,-1);
 		}
 	};
 

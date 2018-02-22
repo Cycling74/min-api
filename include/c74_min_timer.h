@@ -96,7 +96,7 @@ namespace min {
 		
 		void tick() {
 			atoms a;
-			m_function(a);
+			m_function(a,-1);
 		}
 
 

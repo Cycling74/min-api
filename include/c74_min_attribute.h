@@ -759,7 +759,7 @@ namespace min {
 		attr.constrain(args);
 
 		if (attr.m_setter)
-			attr.m_value = from_atoms<T>(attr.m_setter(args));
+			attr.m_value = from_atoms<T>(attr.m_setter(args, -1));
 		else
 			attr.assign(args);
 	}

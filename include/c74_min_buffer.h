@@ -93,11 +93,11 @@ namespace min {
 
 				if (m_notification_callback) {
 					if (msg == k_sym_globalsymbol_binding)
-						m_notification_callback( { k_sym_binding } );
+						m_notification_callback( { k_sym_binding }, -1 );
 					else if (msg == k_sym_globalsymbol_unbinding)
-						m_notification_callback( { k_sym_unbinding } );
+						m_notification_callback( { k_sym_unbinding }, -1 );
 					else if (msg == k_sym_buffer_modified)
-						m_notification_callback( { k_sym_modified } );
+						m_notification_callback( { k_sym_modified }, -1 );
 				}
 				return { max::buffer_ref_notify(m_instance, s, msg, sender, data) };
 			}

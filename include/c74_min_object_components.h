@@ -107,14 +107,6 @@ namespace min {
 		virtual bool is_ui_class() = 0;
 		
 
-		/// Into which inlet did the current message call arrive?
-		/// @return The inlet number of the message call. The first inlet is inlet 0.
-
-		int current_inlet() {
-			return proxy_getinlet(static_cast<max::t_object*>(m_maxobj));
-		}
-
-
 		/// Cast this object to it's corresponding t_object pointer as understood by the older C Max API.
 		/// @return The t_object pointer for this object.
 
