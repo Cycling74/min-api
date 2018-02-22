@@ -397,6 +397,31 @@ namespace min {
 
 			if (instance.is_ui_class()) {
 				CLASS_ATTR_SAVE(c, attr_name.c_str(), 0);
+
+				static std::unordered_map<string,symbol> attributes_associated_with_styles {
+					{ "fontname", k_sym_symbol },
+					{ "fontsize", symbol("double") },
+					{ "fontface", symbol("char") },
+					{ "textjustification", symbol("char") },
+					{ "centerjust", symbol("char") },
+					{ "color", symbol("rgba") },
+					{ "bgcolor", symbol("rgba") },
+					{ "bgfillcolor", symbol("rgba") },
+					{ "accentcolor", symbol("rgba") },
+					{ "gradientcolor", symbol("rgba") },
+					{ "textcolor_inverse", symbol("rgba") },
+					{ "textcolor", symbol("rgba") },
+					{ "bordercolor", symbol("rgba") },
+					{ "elementcolor", symbol("rgba") },
+					{ "accentcolor", symbol("rgba") },
+					{ "selectioncolor", symbol("rgba") },
+					{ "stripecolor", symbol("rgba") },
+					{ "patchlinecolor", symbol("rgba") },
+					{ "clearcolor", symbol("rgba") }
+				};
+				auto found = attributes_associated_with_styles.find(attr_name);
+				if (found != attributes_associated_with_styles.end())
+					c74::max::class_attr_setstyle(c, attr_name.c_str());
 			}
 		}
 
