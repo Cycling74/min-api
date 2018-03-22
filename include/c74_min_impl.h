@@ -169,4 +169,16 @@ namespace min {
 	}
 
 
+	#ifdef __APPLE__
+	#pragma mark -
+	#pragma mark message<>
+	#endif
+
+
+	void deferred_message::pop() {
+		m_owning_message->m_function(m_args, m_inlet);
+		m_owning_message->m_deferred_messages.pop();
+	}
+
+
 }} // namespace c74::min

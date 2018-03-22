@@ -135,8 +135,8 @@ namespace min {
 
 	public:
 
-		attribute_base(const deferred_message& other) = delete; // no copying allowed!
-		attribute_base(const deferred_message&& other) = delete; // no moving allowed!
+		attribute_base(const attribute_base& other) = delete; // no copying allowed!
+		attribute_base(const attribute_base&& other) = delete; // no moving allowed!
 
 
 		// All attributes must define what happens when you set their value.
@@ -452,8 +452,8 @@ namespace min {
 		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args);
 
 
-		attribute(const deferred_message& other) = delete; // no copying allowed!
-		attribute(const deferred_message&& other) = delete; // no moving allowed!
+		attribute(const attribute& other) = delete; // no copying allowed!
+ 		attribute(const attribute&& other) = delete; // no moving allowed!
 
 
 		// DO NOT USE

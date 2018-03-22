@@ -130,7 +130,34 @@ namespace min {
 	};
 	
 
-	class deferred_message;		// forward declaration (see below)
+	template<threadsafe threadsafety>
+	class message;
+
+
+	class deferred_message {
+	public:
+
+		deferred_message(message<threadsafe::no>* an_owning_message, const atoms& args, int inlet)
+		: m_owning_message { an_owning_message }
+		, m_args { args }
+		, m_inlet { inlet }
+		{}
+
+
+		deferred_message(const deferred_message& other) = delete; // no copying allowed -- only moving!
+
+
+		// call a message's action and remove it from the queue
+		// will free the deferred_message in the process
+
+		void pop();
+
+
+	private:
+		message<threadsafe::no>*	m_owning_message;
+		atoms						m_args;
+		int							m_inlet;
+	};
 
 
 	/// A message.
@@ -190,9 +217,15 @@ namespace min {
 				return m_function(args, inlet);
 			else {
 				auto m = std::make_unique<deferred_message>(this, args, inlet);
-				m->push(m);
+				m_deferred_messages.push( std::move(m) );				//m->push(m);
+				auto r = m_deferred_messages.back().get();
+				max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafety>::defer_callback), reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
 			}
 			return {};
+		}
+
+		static void defer_callback(max::t_object* self, deferred_message* m, long, max::t_atom*) {
+			m->pop();
 		}
 
 
@@ -211,97 +244,6 @@ namespace min {
 
 		friend class deferred_message;
 		std::queue< std::unique_ptr<deferred_message> >		m_deferred_messages;
-	};
-
-
-	// A wrapper for the deferred_message class that can be properly passed using the Max C API.
-
-	struct t_deferred_message {
-		max::t_object		obj;
-		deferred_message*	mess;
-	};
-
-	static max::t_class* s_deferred_message_class = nullptr;
-
-	inline void deferred_message_class_setup() {
-		if (!s_deferred_message_class) {
-
-			// this class has no 'new' or 'free' method.
-			// the memory allocation is instead managed in the deferred_message class rather than in this wrapper
-
-			s_deferred_message_class = max::class_new("min_deferred_message", nullptr, nullptr, sizeof(t_deferred_message), nullptr, 0, 0);
-		}
-	}
-
-
-	// The actual deferred_message implementation in C++
-
-	class deferred_message {
-	public:
-
-		// The constructor creates not only an instance of this deferred_message
-		// but also a wrapper that inherits from max::t_object so that we can
-		// put this object into a max::qelem.
-		//
-		// Each deferred message creates it's own qelem.
-		// This makes ownership unambiguous but if an object is expecting to have wild amounts of deferred messages
-		// then it would best off (from a computational efficiency standpoint) to implement a min::queue instead of using
-		// this automatic safety feature.
-
-		deferred_message(message<threadsafe::no>* an_owning_message, const atoms& args, int inlet)
-		: m_owning_message { an_owning_message }
-		, m_args { args }
-		, m_inlet { inlet }
-		{
-			deferred_message_class_setup(); // TODO: would be nice to avoid this lazy initialization?
-			m_maxwrapper = static_cast<t_deferred_message*>(max::object_alloc(s_deferred_message_class));
-			m_maxwrapper->mess = this;
-			m_qelem = max::qelem_new(reinterpret_cast<max::t_object*>(m_maxwrapper), reinterpret_cast<max::method>(deferred_message::callback));
-		}
-
-
-		deferred_message(const deferred_message& other) = delete; // no copying allowed -- only moving!
-
-
-		// destructor -- must also cleanup the Max wrapper around ourselves
-
-		~deferred_message() {
-			max::qelem_free(m_qelem);
-			max::object_free(m_maxwrapper);
-		}
-
-
-		// move a message onto the queue of deferred messages
-
-		void push(std::unique_ptr<deferred_message>& m) {
-			m_owning_message->m_deferred_messages.push( std::move(m) );
-			max::qelem_set(m_qelem);
-		}
-
-
-		// call a message's action and remove it from the queue
-		// will free the deferred message in the process
-
-		void pop() {
-			m_owning_message->m_function(m_args, m_inlet);
-			m_owning_message->m_deferred_messages.pop();
-		}
-
-
-	private:
-
-		message<threadsafe::no>*	m_owning_message;
-		atoms						m_args;
-		t_deferred_message*			m_maxwrapper;
-		max::t_qelem*				m_qelem;
-		int							m_inlet;
-
-
-		// C-api callback from the Max kernel when our qelem is serviced
-
-		static void callback(t_deferred_message* self) {
-			self->mess->pop();
-		}
 	};
 
 
