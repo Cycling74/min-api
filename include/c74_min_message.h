@@ -341,6 +341,7 @@ namespace min {
 
 		/// Call the message's action.
 		/// @param	args	Optional arguments to send to the message's action.
+		/// @param	inlet	Optional inlet number associated with the incoming message.
 		/// @return			Any return values will be returned as atoms.
 
 		atoms operator ()(atoms args = {}, int inlet = -1) override {
@@ -351,6 +352,7 @@ namespace min {
 
 		/// Call the message's action.
 		/// @param	arg		A single argument to send to the message's action.
+		/// @param	inlet	Optional inlet number associated with the incoming message.
 		/// @return			Any return values will be returned as atoms.
 
 		atoms operator ()(atom arg, int inlet = -1) override {
