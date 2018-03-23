@@ -144,7 +144,8 @@ namespace min {
 		{}
 
 
-		deferred_message(const deferred_message& other) = delete; // no copying allowed -- only moving!
+		deferred_message()
+		{}
 
 
 		// call a message's action and remove it from the queue
@@ -154,9 +155,9 @@ namespace min {
 
 
 	private:
-		message<threadsafe::no>*	m_owning_message;
-		atoms						m_args;
-		int							m_inlet;
+		message<threadsafe::no>*	m_owning_message { nullptr };
+		atoms						m_args {};
+		int							m_inlet { -1 };
 	};
 
 
@@ -216,9 +217,9 @@ namespace min {
 			if (max::systhread_ismainthread())
 				return m_function(args, inlet);
 			else {
-				auto m = std::make_unique<deferred_message>(this, args, inlet);
-				m_deferred_messages.push( std::move(m) );				//m->push(m);
-				auto r = m_deferred_messages.back().get();
+				deferred_message m { this, args, inlet };
+				m_deferred_messages.try_enqueue(m);
+				auto r = m_deferred_messages.peek();
 				max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafety>::defer_callback), reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
 			}
 			return {};
@@ -243,7 +244,7 @@ namespace min {
 		// Any messages received from outside the main thread will be deferred using the queue below.
 
 		friend class deferred_message;
-		std::queue< std::unique_ptr<deferred_message> >		m_deferred_messages;
+		fifo<deferred_message> m_deferred_messages { 2 };
 	};
 
 

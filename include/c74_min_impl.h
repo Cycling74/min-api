@@ -176,8 +176,9 @@ namespace min {
 
 
 	void deferred_message::pop() {
-		m_owning_message->m_function(m_args, m_inlet);
-		m_owning_message->m_deferred_messages.pop();
+		deferred_message x;
+		m_owning_message->m_deferred_messages.try_dequeue(x);
+		x.m_owning_message->m_function(m_args, m_inlet);
 	}
 
 
