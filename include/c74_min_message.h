@@ -1,7 +1,7 @@
-/// @file	
+/// @file
 ///	@ingroup 	minapi
-///	@copyright	Copyright (c) 2016, Cycling '74
-///	@license	Usage of this file and its contents is governed by the MIT License
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
@@ -11,17 +11,18 @@ namespace min {
 	
 	/// A standard callback function used throughout Min for various purposes.
 	/// Typically this is provided to argument as a lamba function using the #MIN_FUNCTION macro.
-	/// @param	as	A vector of atoms which may contain any arguments passed to your function.
+	/// @param	as		A vector of atoms which may contain any arguments passed to your function.
+	/// @param	inlet	The number (zero-based index) of the inlet at which the message was received, if relevant. Otherwise -1.
 	/// @see		MIN_FUNCTION
 
-	using function = std::function<atoms(const atoms& as)>;
+	using function = std::function<atoms(const atoms& as, int inlet)>;
 
 
 	/// Provide the correct lamba function prototype for the min::argument constructor.
 	/// @see argument
 	/// @see argument_function
 
-	#define MIN_FUNCTION [this](const c74::min::atoms& args) -> c74::min::atoms
+	#define MIN_FUNCTION [this](const c74::min::atoms& args, int inlet) -> c74::min::atoms
 
 
 	// Represents any type of message.
@@ -82,8 +83,8 @@ namespace min {
 
 		// All messages must define what happens when you call them.
 
-		virtual atoms operator ()(atoms args = {}) = 0;
-		virtual atoms operator ()(atom arg) = 0;
+		virtual atoms operator ()(atoms args = {}, int inlet = -1) = 0;
+		virtual atoms operator ()(atom arg, int inlet = -1) = 0;
 
 
 		/// Return the Max C API message type constant for this message.
@@ -117,10 +118,47 @@ namespace min {
 		description		m_description;
 
 		friend class object_base;
+
+		void update_inlet_number(int& inlet) {
+			if (inlet == -1) {
+				if (m_owner->inlets().size() > 1) // avoid this potentially expensive call if there is only one inlet
+					inlet = proxy_getinlet(static_cast<max::t_object*>(*m_owner));
+				else
+					inlet = 0;
+			}
+		}
 	};
 	
 
-	class deferred_message;		// forward declaration (see below)
+	template<threadsafe threadsafety>
+	class message;
+
+
+	class deferred_message {
+	public:
+
+		deferred_message(message<threadsafe::no>* an_owning_message, const atoms& args, int inlet)
+		: m_owning_message { an_owning_message }
+		, m_args { args }
+		, m_inlet { inlet }
+		{}
+
+
+		deferred_message()
+		{}
+
+
+		// call a message's action and remove it from the queue
+		// will free the deferred_message in the process
+
+		void pop();
+
+
+	private:
+		message<threadsafe::no>*	m_owning_message { nullptr };
+		atoms						m_args {};
+		int							m_inlet { -1 };
+	};
 
 
 	/// A message.
@@ -172,15 +210,23 @@ namespace min {
 		/// @param	args	Optional arguments to send to the message's action.
 		/// @return			Any return values will be returned as atoms.
 
-		atoms operator ()(atoms args = {}) override {
+		atoms operator ()(atoms args = {}, int inlet = -1) override {
+			update_inlet_number(inlet);
+
 			// this is the same as what happens in a defer() call
 			if (max::systhread_ismainthread())
-				return m_function(args);
+				return m_function(args, inlet);
 			else {
-				auto m = std::make_unique<deferred_message>(this, args);
-				m->push(m);
+				deferred_message m { this, args, inlet };
+				m_deferred_messages.try_enqueue(m);
+				auto r = m_deferred_messages.peek();
+				max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafety>::defer_callback), reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
 			}
 			return {};
+		}
+
+		static void defer_callback(max::t_object* self, deferred_message* m, long, max::t_atom*) {
+			m->pop();
 		}
 
 
@@ -188,9 +234,9 @@ namespace min {
 		/// @param	arg		A single argument to send to the message's action.
 		/// @return			Any return values will be returned as atoms.
 
-		atoms operator ()(atom arg) override {
+		atoms operator ()(atom arg, int inlet = -1) override {
 			atoms as { arg };
-			return (*this)(as);
+			return (*this)(as, inlet);
 		}
 
 	private:
@@ -198,96 +244,7 @@ namespace min {
 		// Any messages received from outside the main thread will be deferred using the queue below.
 
 		friend class deferred_message;
-		std::queue< std::unique_ptr<deferred_message> >		m_deferred_messages;
-	};
-
-
-	// A wrapper for the deferred_message class that can be properly passed using the Max C API.
-
-	struct t_deferred_message {
-		max::t_object		obj;
-		deferred_message*	mess;
-	};
-
-	static max::t_class* s_deferred_message_class = nullptr;
-
-	inline void deferred_message_class_setup() {
-		if (!s_deferred_message_class) {
-
-			// this class has no 'new' or 'free' method.
-			// the memory allocation is instead managed in the deferred_message class rather than in this wrapper
-
-			s_deferred_message_class = max::class_new("min_deferred_message", nullptr, nullptr, sizeof(t_deferred_message), nullptr, 0, 0);
-		}
-	}
-
-
-	// The actual deferred_message implementation in C++
-
-	class deferred_message {
-	public:
-
-		// The constructor creates not only an instance of this deferred_message
-		// but also a wrapper that inherits from max::t_object so that we can
-		// put this object into a max::qelem.
-		//
-		// Each deferred message creates it's own qelem.
-		// This makes ownership unambiguous but if an object is expecting to have wild amounts of deferred messages
-		// then it would best off (from a computational efficiency standpoint) to implement a min::queue instead of using
-		// this automatic safety feature.
-
-		deferred_message(message<threadsafe::no>* an_owning_message, const atoms& args)
-		: m_owning_message { an_owning_message }
-		, m_args { args }
-		{
-			deferred_message_class_setup(); // TODO: would be nice to avoid this lazy initialization?
-			m_maxwrapper = static_cast<t_deferred_message*>(max::object_alloc(s_deferred_message_class));
-			m_maxwrapper->mess = this;
-			m_qelem = max::qelem_new(reinterpret_cast<max::t_object*>(m_maxwrapper), reinterpret_cast<max::method>(deferred_message::callback));
-		}
-
-
-		deferred_message(const deferred_message& other) = delete; // no copying allowed -- only moving!
-
-
-		// destructor -- must also cleanup the Max wrapper around ourselves
-
-		~deferred_message() {
-			max::qelem_free(m_qelem);
-			max::object_free(m_maxwrapper);
-		}
-
-
-		// move a message onto the queue of deferred messages
-
-		void push(std::unique_ptr<deferred_message>& m) {
-			m_owning_message->m_deferred_messages.push( std::move(m) );
-			max::qelem_set(m_qelem);
-		}
-
-
-		// call a message's action and remove it from the queue
-		// will free the deferred message in the process
-
-		void pop() {
-			m_owning_message->m_function(m_args);
-			m_owning_message->m_deferred_messages.pop();
-		}
-
-
-	private:
-
-		message<threadsafe::no>*	m_owning_message;
-		atoms						m_args;
-		t_deferred_message*			m_maxwrapper;
-		max::t_qelem*				m_qelem;
-
-
-		// C-api callback from the Max kernel when our qelem is serviced
-
-		static void callback(t_deferred_message* self) {
-			self->mess->pop();
-		}
+		fifo<deferred_message> m_deferred_messages { 2 };
 	};
 
 
@@ -327,19 +284,22 @@ namespace min {
 
 		/// Call the message's action.
 		/// @param	args	Optional arguments to send to the message's action.
+		/// @param	inlet	Optional inlet number associated with the incoming message.
 		/// @return			Any return values will be returned as atoms.
 
-		atoms operator ()(atoms args = {}) override {
-			return m_function(args);
+		atoms operator ()(atoms args = {}, int inlet = -1) override {
+			update_inlet_number(inlet);
+			return m_function(args, inlet);
 		}
 
 
 		/// Call the message's action.
 		/// @param	arg		A single argument to send to the message's action.
+		/// @param	inlet	Optional inlet number associated with the incoming message.
 		/// @return			Any return values will be returned as atoms.
 
-		atoms operator ()(atom arg) override {
-			return m_function( { arg } );
+		atoms operator ()(atom arg, int inlet = -1) override {
+			return m_function( { arg }, inlet );
 		}
 
 	};

@@ -1,5 +1,7 @@
-//	Copyright 2013 - Cycling '74
-//	Timothy Place, tim@cycling74.com	
+/// @file
+///	@ingroup 	minapi
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 

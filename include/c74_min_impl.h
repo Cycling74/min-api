@@ -1,7 +1,7 @@
-/// @file	
+/// @file
 ///	@ingroup 	minapi
-///	@copyright	Copyright (c) 2016, Cycling '74
-///	@license	Usage of this file and its contents is governed by the MIT License
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
@@ -166,6 +166,19 @@ namespace min {
 		(*this)(input_bundle, output_bundle);
 
 		return output[0];
+	}
+
+
+	#ifdef __APPLE__
+	#pragma mark -
+	#pragma mark message<>
+	#endif
+
+
+	void deferred_message::pop() {
+		deferred_message x;
+		m_owning_message->m_deferred_messages.try_dequeue(x);
+		x.m_owning_message->m_function(m_args, m_inlet);
 	}
 
 

@@ -1,7 +1,7 @@
 /// @file
 ///	@ingroup 	minapi
-///	@copyright	Copyright (c) 2017, Cycling '74
-///	@license	Usage of this file and its contents is governed by the MIT License
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 

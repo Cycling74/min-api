@@ -1,7 +1,7 @@
-/// @file	
+/// @file
 ///	@ingroup 	minapi
-///	@copyright	Copyright (c) 2016, Cycling '74
-///	@license	Usage of this file and its contents is governed by the MIT License
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
@@ -106,14 +106,6 @@ namespace min {
 
 		virtual bool is_ui_class() = 0;
 		
-
-		/// Into which inlet did the current message call arrive?
-		/// @return The inlet number of the message call. The first inlet is inlet 0.
-
-		int current_inlet() {
-			return proxy_getinlet(static_cast<max::t_object*>(m_maxobj));
-		}
-
 
 		/// Cast this object to it's corresponding t_object pointer as understood by the older C Max API.
 		/// @return The t_object pointer for this object.

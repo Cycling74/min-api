@@ -1,3 +1,6 @@
+# Copyright 2018 The Min-API Authors. All rights reserved.
+# Use of this source code is governed by the MIT License found in the License.md file.
+
 cmake_minimum_required(VERSION 3.0)
 project(MinAPI)
 

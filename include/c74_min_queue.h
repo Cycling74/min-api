@@ -1,7 +1,7 @@
-/// @file	
+/// @file
 ///	@ingroup 	minapi
-///	@copyright	Copyright (c) 2016, Cycling '74
-///	@license	Usage of this file and its contents is governed by the MIT License
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
@@ -86,7 +86,7 @@ namespace min {
 		friend void queue_qfn_callback(queue* a_queue);
 		void qfn() {
 			atoms a;
-			m_function(a);
+			m_function(a,-1);
 		}
 	};
 

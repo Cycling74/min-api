@@ -1,7 +1,7 @@
-/// @file	
+/// @file
 ///	@ingroup 	minapi
-///	@copyright	Copyright (c) 2016, Cycling '74
-///	@license	Usage of this file and its contents is governed by the MIT License
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
@@ -135,8 +135,8 @@ namespace min {
 
 	public:
 
-		attribute_base(const deferred_message& other) = delete; // no copying allowed!
-		attribute_base(const deferred_message&& other) = delete; // no moving allowed!
+		attribute_base(const attribute_base& other) = delete; // no copying allowed!
+		attribute_base(const attribute_base&& other) = delete; // no moving allowed!
 
 
 		// All attributes must define what happens when you set their value.
@@ -452,8 +452,8 @@ namespace min {
 		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args);
 
 
-		attribute(const deferred_message& other) = delete; // no copying allowed!
-		attribute(const deferred_message&& other) = delete; // no moving allowed!
+		attribute(const attribute& other) = delete; // no copying allowed!
+ 		attribute(const attribute&& other) = delete; // no moving allowed!
 
 
 		// DO NOT USE
@@ -759,7 +759,7 @@ namespace min {
 		attr.constrain(args);
 
 		if (attr.m_setter)
-			attr.m_value = from_atoms<T>(attr.m_setter(args));
+			attr.m_value = from_atoms<T>(attr.m_setter(args, -1));
 		else
 			attr.assign(args);
 	}
