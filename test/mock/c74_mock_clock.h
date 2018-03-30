@@ -1,10 +1,7 @@
-//
-//  qax_clock.h
-//  qax
-//
-//  Created by Timothy Place on 5/19/15.
-//  Copyright (c) 2015 Cycling74. All rights reserved.
-//
+/// @file
+///	@ingroup 	minapi
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
