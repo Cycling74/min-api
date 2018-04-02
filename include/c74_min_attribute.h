@@ -100,7 +100,7 @@ namespace min {
 	/// A value zero means there is no special order and Max will take care of the ordering automatically.
 	/// @ingroup attributes
 
-	using order = long;
+	using order = int;
 
 
 	/// The range provides a definition of acceptable or 'normal' values for an attribute.
@@ -241,7 +241,7 @@ namespace min {
 		/// Return the ordering priority for the attribute when listed in the inspector.
 		/// @return	The order priority supplied when the attribute was created.
 
-		long editor_order() const {
+		int editor_order() const {
 			return m_order;
 		}
 
@@ -266,7 +266,7 @@ namespace min {
 
 		style			m_style;		// display style in Max
 		symbol			m_category;		// Max inspector category
-		long 			m_order { 0 };	// Max inspector ordering
+		int 			m_order { 0 };	// Max inspector ordering
 
 
 		// calculate the offset of the size member as required for array/vector attributes

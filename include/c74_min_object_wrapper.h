@@ -118,7 +118,7 @@ namespace min {
 	}
 	
 	template<class min_class_type, class message_name_type>
-	void wrapper_method_int(max::t_object* o, long v) {
+	void wrapper_method_int(max::t_object* o, max::t_atom_long v) {
 		auto	self = wrapper_find_self<min_class_type>(o);
 		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as = {v};
@@ -183,7 +183,7 @@ namespace min {
 	}
 
 	template<class min_class_type, class message_name_type>
-	void wrapper_method_self_ptr_pt_long(max::t_object* o, void* arg1, max::t_pt arg2, long arg3) {
+	void wrapper_method_self_ptr_pt_long(max::t_object* o, void* arg1, max::t_pt arg2, max::t_atom_long arg3) {
 		auto	self = wrapper_find_self<min_class_type>(o);
 		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as { o, arg1, arg2.x, arg2.y, arg3 };
@@ -201,7 +201,7 @@ namespace min {
 	}
 	
 	template<class min_class_type, class message_name_type>
-	void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, void* arg1, long arg2, void* arg3, long arg4, void* arg5, long arg6) {
+	void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, void* arg1, max::t_atom_long arg2, max::t_atom_long* arg3, max::t_atom_long arg4, max::t_atom_long* arg5, max::t_atom_long arg6) {
 		auto	self = wrapper_find_self<min_class_type>(o);
 		auto&	meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms	as { o, arg1, arg2, arg3, arg4, arg5, arg6 };	// NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is always the correct `self` for box operations
