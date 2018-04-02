@@ -9,8 +9,10 @@ namespace c74 {
 namespace min {
 
 
+	template<placeholder inlet_placeholder_type = placeholder::none>
 	class queue;
-	extern "C" void queue_qfn_callback(queue* a_queue);		// defined in c74_min_impl.h
+
+	extern "C" void queue_qfn_callback(queue<>* a_queue);		// defined in c74_min_impl.h
 
 
 	/// The queue class allows you to defer the call of a function to the near future in Max's main (low-priority) thread.
@@ -19,6 +21,7 @@ namespace min {
 	///	@seealso	#time_value
 	/// @seealso	#fifo
 
+	template<placeholder queue_placeholder_type>
 	class queue {
 	public:
 

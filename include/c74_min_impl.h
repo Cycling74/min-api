@@ -82,7 +82,7 @@ namespace min {
 
 	// c-style callback from the max kernel (qelem for the min::queue class)
 
-	void queue_qfn_callback(queue* a_queue) {
+	void queue_qfn_callback(queue<>* a_queue) {
 		a_queue->qfn();
 	}
 
