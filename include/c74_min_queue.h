@@ -48,7 +48,7 @@ namespace min {
 		// Queues cannot be copied.
 		// If they are then the ownership of the internal t_qelem becomes ambiguous.
 
-		queue(const timer&) = delete;
+		queue(const queue&) = delete;
 		queue& operator = (const queue& value) = delete;
 
 

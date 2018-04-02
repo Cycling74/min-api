@@ -65,7 +65,7 @@ namespace min {
 
 	// c-style callback from the max kernel (clock for the min::timer class)
 
-	void timer_tick_callback(timer* a_timer) {
+	void timer_tick_callback(timer<>* a_timer) {
 		if (a_timer->should_defer())
 			a_timer->defer();
 		else
@@ -75,7 +75,7 @@ namespace min {
 
 	// c-style callback from the max kernel (qelem for the min::timer class)
 
-	void timer_qfn_callback(timer* a_timer) {
+	void timer_qfn_callback(timer<>* a_timer) {
 		a_timer->tick();
 	}
 
