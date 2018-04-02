@@ -165,6 +165,14 @@ namespace min {
 		meth(as);
 	}
 
+	template<class min_class_type>
+	void wrapper_method_savestate(max::t_object* o, max::t_dictionary* d) {
+		auto	self = wrapper_find_self<min_class_type>(o);
+		auto&	meth = *self->m_min_object.messages()["savestate"];
+		atoms	as = {d};
+		meth(as);
+	}
+
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_self_ptr(max::t_object* o, void* arg1) {
 		auto	self = wrapper_find_self<min_class_type>(o);
@@ -261,7 +269,6 @@ namespace min {
 #endif
 
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(anything)
-	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(appendtodictionary)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(bang)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(dblclick)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(dictionary)
@@ -323,7 +330,6 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, int,					int,								A_LONG)
 			else MIN_WRAPPER_ADDMETHOD(c, float,				float,								A_FLOAT)
 			else MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
-			else MIN_WRAPPER_ADDMETHOD(c, appendtodictionary,	ptr,								A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, notify,				self_sym_sym_ptr_ptr___err,			A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,		self_ptr_long_ptr_long_ptr_long,	A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, fileusage,            ptr,                                A_CANT)
@@ -336,6 +342,9 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick,		self_ptr_pt_long,					A_CANT)
 			else if (a_message.first == "dspsetup")				; // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup")		; // for min class construction only, do not add for exposure to max
+			else if (a_message.first == "savestate") {
+				max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
+			}
 			else {
 				max::class_addmethod(c,
 									 reinterpret_cast<method>(wrapper_method_generic<min_class_type>),
@@ -564,7 +573,6 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, int,					int,								A_LONG)
 			else MIN_WRAPPER_ADDMETHOD(c, float,				float,								A_FLOAT)
 			else MIN_WRAPPER_ADDMETHOD(c, dictionary,			dictionary,							A_SYM)
-			else MIN_WRAPPER_ADDMETHOD(c, appendtodictionary,	ptr,								A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, notify,				self_sym_sym_ptr_ptr___err,			A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate,		self_ptr_long_ptr_long_ptr_long,	A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, fileusage,            ptr,                                A_CANT)
@@ -575,6 +583,9 @@ namespace min {
 			else MIN_WRAPPER_ADDMETHOD(c, mouseup,				self_ptr,							A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta,		self_ptr_pt_long,					A_CANT)
 			else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick,		self_ptr_pt_long,					A_CANT)
+			else if (a_message.first == "savestate") {
+				max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
+			}
 			else if (a_message.first == "dspsetup")				; // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup")	; // for min class construction only, do not add for exposure to max
 			else if (a_message.first == "jitclass_setup")	; // for min class construction only, do not add for exposure to max
