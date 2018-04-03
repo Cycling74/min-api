@@ -8,6 +8,6 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if (APPLE)
     # enforce a strict warning policy
-    set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_ATTRIBUTE_WARNING_CFLAGS "-Wall -Werror -Wmissing-field-initializers -Wno-unused-lambda-capture")    
+    set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_ATTRIBUTE_WARNING_CFLAGS "-Wall -Werror -Wmissing-field-initializers -Wno-unused-lambda-capture -Wno-unknown-warning-option")    
     # -Wmost -Wno-four-char-constants -Wno-unknown-pragmas $(inherited)
 endif ()
