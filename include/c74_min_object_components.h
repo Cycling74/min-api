@@ -246,8 +246,8 @@ namespace min {
 		std::vector<inlet_base*>							m_inlets;
 		std::vector<outlet_base*>							m_outlets;
 		std::vector<argument_base*>							m_arguments;
-		std::unordered_map<std::string, message_base*>		m_messages;
-		std::unordered_map<std::string, attribute_base*>	m_attributes;
+		std::unordered_map<std::string, message_base*>		m_messages;		// written at class init -- readonly thereafter
+		std::unordered_map<std::string, attribute_base*>	m_attributes;	// written at class init -- readonly thereafter
 		dict												m_state;
         symbol                                              m_classname;	 // what's typed in the max box
 
