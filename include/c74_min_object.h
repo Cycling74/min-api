@@ -17,8 +17,9 @@ namespace min {
 	/// such as when unit testing or embedding an object inside of another object.
 	///
 	/// @tparam min_class_type	The name of your class that is extenting min::object.
+	/// @tparam threadsafety	The default threadsafety assumption for all messages and attributes in this class.
 
-	template<class min_class_type>
+	template<class min_class_type, threadsafe threadsafety = threadsafe::no>
 	class object : public object_base {
 	public:
 
@@ -48,6 +49,10 @@ namespace min {
 
 		bool is_ui_class() {
 			return is_base_of<ui_operator_base, min_class_type>::value;
+		}
+
+		bool is_assumed_threadsafe() {
+			return threadsafety == threadsafe::yes;
 		}
 
 

@@ -17,7 +17,7 @@ namespace min {
 	class message_base;
 	class attribute_base;
 	
-	template<typename T, threadsafe threadsafety = threadsafe::no, template<typename> class limit_type = limit::none>
+	template<typename T, threadsafe threadsafety = threadsafe::undefined, template<typename> class limit_type = limit::none>
 	class attribute;
 
 
@@ -105,6 +105,12 @@ namespace min {
 		/// @return True if it is. Otherwise false.
 
 		virtual bool is_ui_class() = 0;
+
+
+		/// Is this class assumed to have threadsafe attribute accessors and messages?
+		/// @return True if it is. Otherwise false (the default).
+
+		virtual bool is_assumed_threadsafe() = 0;
 		
 
 		/// Cast this object to it's corresponding t_object pointer as understood by the older C Max API.

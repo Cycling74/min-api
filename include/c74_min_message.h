@@ -174,8 +174,84 @@ namespace min {
 	///								threadsafe::yes.
 	///								Otherwise you should just accept the default and let Min handle the threadsafety for you.
 
-	template<threadsafe threadsafety = threadsafe::no>
+	template<threadsafe threadsafety = threadsafe::undefined>
 	class message : public message_base {
+	public:
+
+		/// Create a new message for a Min class.
+		///
+		/// @param	an_owner		The Min object instance that owns this outlet. Typically you should pass 'this'.
+		/// @param	a_name			The name of the message. This is how users in Max will trigger the message action.
+		/// @param	a_function		The function to be called when the message is received by your object.
+		///							This is typically provided as a lamba function using the #MIN_FUNCTION definition.
+		/// @param	a_description	Optional, but highly encouraged, description string to document the message.
+		/// @param	a_type			Optional message type determines what kind of messages Max can send.
+		///							In most cases you should _not_ pass anything here and accept the default.
+
+		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type type = message_type::gimme)
+		: message_base(an_owner, a_name, a_function, a_description)
+		{}
+
+
+		/// Create a new message for a Min class.
+		///
+		/// @param	an_owner		The Min object instance that owns this outlet. Typically you should pass 'this'.
+		/// @param	a_name			The name of the message. This is how users in Max will trigger the message action.
+		/// @param	a_description	Optional, but highly encouraged, description string to document the message.
+		/// @param	a_function		The function to be called when the message is received by your object.
+		///							This is typically provided as a lamba function using the #MIN_FUNCTION definition.
+
+		message(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
+		: message_base(an_owner, a_name, a_function, a_description)
+		{}
+
+
+		/// Call the message's action.
+		/// @param	args	Optional arguments to send to the message's action.
+		/// @return			Any return values will be returned as atoms.
+
+		atoms operator ()(atoms args = {}, int inlet = -1) override {
+			update_inlet_number(inlet);
+
+			// this is the same as what happens in a defer() call
+			if (m_owner->is_assumed_threadsafe() || max::systhread_ismainthread())
+				return m_function(args, inlet);
+			else {
+				deferred_message m { reinterpret_cast<message<threadsafe::no>*>(this), args, inlet };
+				m_deferred_messages.try_enqueue(m);
+				auto r = m_deferred_messages.peek();
+				max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafety>::defer_callback), reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
+			}
+			return {};
+		}
+
+		static void defer_callback(max::t_object* self, deferred_message* m, long, max::t_atom*) {
+			m->pop();
+		}
+
+
+		/// Call the message's action.
+		/// @param	arg		A single argument to send to the message's action.
+		/// @return			Any return values will be returned as atoms.
+
+		atoms operator ()(atom arg, int inlet = -1) override {
+			atoms as { arg };
+			return (*this)(as, inlet);
+		}
+
+	private:
+
+		// Any messages received from outside the main thread will be deferred using the queue below.
+
+		friend class deferred_message;
+		fifo<deferred_message> m_deferred_messages { 2 };
+	};
+
+
+	// specialization of message for messages which declare themselves to be not threadsafe
+
+	template<>
+	class message<threadsafe::no> : public message_base {
 	public:
 
 		/// Create a new message for a Min class.
@@ -220,7 +296,7 @@ namespace min {
 				deferred_message m { this, args, inlet };
 				m_deferred_messages.try_enqueue(m);
 				auto r = m_deferred_messages.peek();
-				max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafety>::defer_callback), reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
+				max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafe::no>::defer_callback), reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
 			}
 			return {};
 		}
