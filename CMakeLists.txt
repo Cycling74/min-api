@@ -1,10 +1,13 @@
+# Copyright 2018 The Min-API Authors. All rights reserved.
+# Use of this source code is governed by the MIT License found in the License.md file.
+
 cmake_minimum_required(VERSION 3.0)
 project(MinAPI)
 
 
 if (${CMAKE_GENERATOR} MATCHES "Xcode")
  		if (${XCODE_VERSION} VERSION_LESS 7)
-  			message(STATUS "Xcode 7 is required. Please install from the Mac App Store.")
+  			message(STATUS "Xcode 7 or later is required. Please install from the Mac App Store.")
 			return ()
 		endif ()
 endif ()
@@ -41,7 +44,7 @@ endforeach()
 
 
 
-find_package (Doxygen)
+find_package (Doxygen QUIET)
 option (BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 if (BUILD_DOCUMENTATION)

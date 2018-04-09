@@ -1,3 +1,6 @@
+# Copyright 2018 The Min-API Authors. All rights reserved.
+# Use of this source code is governed by the MIT License found in the License.md file.
+
 cmake_minimum_required(VERSION 3.0)
 
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../min-api)
@@ -18,6 +21,7 @@ if (WIN32)
 	add_definitions(
 		-DWIN_VERSION
 		-D_USE_MATH_DEFINES
+		-D_CRT_SECURE_NO_WARNINGS
 	)
 endif ()
 
@@ -53,4 +57,7 @@ add_library(
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
-
+if (WIN32)
+#	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/ignore:4099")
+	set_property(TARGET ${PROJECT_NAME} PROPERTY LINK_FLAGS  "/ignore:4197")
+endif()

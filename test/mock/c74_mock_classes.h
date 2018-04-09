@@ -1,5 +1,7 @@
-//	Copyright 2013 - Cycling '74
-//	Timothy Place, tim@cycling74.com	
+/// @file
+///	@ingroup 	minapi
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
@@ -223,6 +225,11 @@ MOCK_EXPORT t_symbol *object_classname(t_object *x)
 	t_class			*c = (t_class *) ((*mock_messlist)["###CLASS###"]);
 	
 	return c->c_sym;
+}
+
+
+MOCK_EXPORT long object_classname_compare(void* x, t_symbol* name) {
+	return false;
 }
 
 

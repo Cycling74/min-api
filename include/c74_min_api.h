@@ -1,11 +1,13 @@
-/// @file	
+/// @file
 ///	@ingroup 	minapi
-///	@copyright	Copyright (c) 2016, Cycling '74
-///	@license	Usage of this file and its contents is governed by the MIT License
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
 #include "c74_max.h"
+#include "c74_ui.h"
+#include "c74_ui_graphics.h"
 #include "c74_msp.h"
 
 #include <array>
@@ -23,8 +25,11 @@
 #include <vector>
 #include <functional>
 #include <unordered_map>
+#include <utility>
 
 #include "readerwriterqueue/readerwriterqueue.h"
+
+#include "murmur/Murmur3.h" // used for constexpr hash function
 
 namespace c74 {
 namespace min {
@@ -32,6 +37,12 @@ namespace min {
 	// types
 	
 	using uchar = unsigned char;
+
+	using std::string;
+	using std::vector;
+
+	template<class T>
+	using unique_ptr = std::unique_ptr<T>;
 
 	using number = double;
 	using sample = double;
@@ -54,6 +65,13 @@ namespace min {
 
 	class description : public std::string {
 		using std::string::string; // inherit constructors
+	};
+
+
+	/// This enum thus represents a placeholder type that is used in places where dummy template parameters are present.
+
+	enum class placeholder {
+		none	///< No flags, functions, or other alterations to the class.
 	};
 
 
@@ -96,7 +114,66 @@ namespace min {
 	class matrix_operator_base;
 	class gl_operator_base;
 	class sample_operator_base;
-	class perform_operator_base;
+	class vector_operator_base;
+	class ui_operator_base;
+
+	namespace ui {
+		class color {
+		public:
+
+			enum colors {
+				black,
+				white,
+				gray
+			};
+
+			color ()
+			: color { colors::black }
+			{}
+
+			color(max::t_jrgba a_color)
+			: m_color { a_color }
+			{}
+
+			color(double red, double green, double blue, double alpha)
+			: m_color { red, green, blue, alpha }
+			{}
+
+			color(colors a_color) {
+				switch (a_color) {
+					case black	: m_color = { 0.0, 0.0, 0.0, 1.0}; break;
+					case white	: m_color = { 1.0, 1.0, 1.0, 1.0}; break;
+					case gray	: m_color = { 0.7, 0.7, 0.7, 1.0}; break;
+				}
+			}
+
+
+			operator c74::max::t_jrgba*() {
+				return &m_color;
+			}
+
+
+
+			double red() const {
+				return m_color.red;
+			}
+
+			double green() const {
+				return m_color.green;
+			}
+
+			double blue() const {
+				return m_color.blue;
+			}
+
+			double alpha() const {
+				return m_color.alpha;
+			}
+			
+		private:
+			max::t_jrgba m_color;
+		};
+	}
 	
 	template<class T>
 	using is_class = std::is_class<T>;
@@ -106,6 +183,9 @@ namespace min {
 
 	template<class T>
 	using is_time_value = is_same<T, time_value>;
+
+	template<class T>
+	using is_color = is_same<T, ui::color>;
 
 	template<class min_class_type>
 	using enable_if_matrix_operator = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
@@ -120,18 +200,41 @@ namespace min {
 	using enable_if_sample_operator = typename enable_if<is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using enable_if_perform_operator = typename enable_if<is_base_of<perform_operator_base, min_class_type>::value, int>::type;
+	using enable_if_vector_operator = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using type_enable_if_audio_class = typename enable_if<is_base_of<perform_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value >::type;
+	using enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value, int >::type;
 
 	template<class min_class_type>
-	using type_enable_if_not_audio_class = typename enable_if<!is_base_of<perform_operator_base, min_class_type>::value && !is_base_of<sample_operator_base, min_class_type>::value >::type;
+	using enable_if_jitter_class = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value || is_base_of<gl_operator_base, min_class_type>::value, int >::type;
+
+	template<class min_class_type>
+	using enable_if_not_jitter_class = typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value, int >::type;
+
+
+	template<class min_class_type>
+	using type_enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value >::type;
+
+	template<class min_class_type>
+	using type_enable_if_not_audio_class = typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value && !is_base_of<sample_operator_base, min_class_type>::value >::type;
 
 	template<class min_class_type>
 	using type_enable_if_not_jitter_class = typename enable_if< !is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value >::type;
 
+
+	template<class min_class_type>
+	using enable_if_ui_operator			= typename enable_if<is_base_of<ui_operator_base, min_class_type>::value, int>::type;
+
+	template<class min_class_type>
+	using enable_if_not_ui_operator		= typename enable_if<!is_base_of<ui_operator_base, min_class_type>::value, int>::type;
+
+	template<class min_class_type>
+	using type_enable_if_not_ui_class	= typename enable_if< !is_base_of<ui_operator_base, min_class_type>::value >::type;
+
+
+
 	enum class threadsafe {
+		undefined,
 		no,
 		yes
 	};
@@ -157,22 +260,39 @@ inline void error(const std::string& description) {
 	throw std::runtime_error(description);
 }
 
+
+/// Throw a generic error.
+/// When possible you should specify a description string and pass as an argument instead of calling this variant.
+
 inline void error() {
 	throw std::runtime_error("unknown");
 }
 
+
+/// @param	check	The condition which triggers the error.
+///					In other words "true" will cause an exception to throw while "false" will not.
+
 inline void error(bool check, const std::string& description) {
-	if (!check)
+	if (check)
 		throw std::runtime_error(description);
 }
 
 
+/// Reverse the byte-ordering of an int.
+/// Meaning from Big Endian to Little or vice versa.
+/// @param x	The int to have its byte-ordering reversed.
+/// @return		The byte-swapped output of this function.
+
+inline uint16_t byteorder_swap(uint16_t x) {
+	return ((int16_t)(((((uint16_t)(x))>>8)&0x00ff)+
+					  ((((uint16_t)(x))<<8)&0xff00)));
+}
+
 
 #include "c74_min_symbol.h"
 #include "c74_min_atom.h"
-#include "c74_min_map.h"
 #include "c74_min_dictionary.h"
-
+#include "c74_min_limit.h"				// Library of miscellaneous helper functions (e.g. range clipping)
 
 namespace c74 { 
 namespace min {
@@ -194,9 +314,10 @@ namespace min {
 #include "c74_min_message.h"			// Messages to objects
 #include "c74_min_attribute.h"			// Attributes of objects
 #include "c74_min_logger.h"				// Console / Max Window output
-#include "c74_min_operator_perform.h"	// Perform-based MSP object add-ins
+#include "c74_min_operator_vector.h"	// Vector-based MSP object add-ins
 #include "c74_min_operator_sample.h"	// Sample-based MSP object add-ins
-#include "c74_min_operator_matrix.h"	// Jitter MOP
+#include "c74_min_operator_matrix.h"	// Jitter MOP add-ins
+
 #include "c74_min_object_wrapper.h"		// Max wrapper for Min objects
 #include "c74_min_object.h"				// The Min object class that glues it all together
 
@@ -205,19 +326,40 @@ namespace min {
 #include "c74_min_buffer.h"				// Wrapper for MSP buffers
 #include "c74_min_path.h"				// Wrapper class for accessing the Max path system
 #include "c74_min_texteditor.h"			// Wrapper for text editor window
+#include "c74_min_dataspace.h"			// Unit conversion routines (e.g. db-to-linear or hz-to-midi)
 
-#include "c74_min_accessories.h"		// Library of miscellaneous helper functions and widgets
-#include "c74_min_accessories_easing.h"	// Library of easing functions
+#include "c74_min_string.h"				// String helper functions
 #include "c74_min_doc.h"				// Instrumentation and tools for generating documentation from Min classes
 
+
+// Prototype for the actual function that will wrap the Min class as a Max external
+// Don't use directly -- use the MIN_EXTERNAL macro instead.
+
+template<class min_class_type, class=void>
+void wrap_as_max_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr);
+
+
+/// Wrap a class that extends min::object for use in the Max environment.
+/// The name of your Max object will be the same as that of your *source file name* minus the ".cpp" suffix.
+/// If your filename ends with "_tilde" the name will be substituted with a "~" character at the end.
+/// @param	cpp_classname	The name of your class.
+/// @see					MIN_EXTERNAL_CUSTOM
 
 #define MIN_EXTERNAL(cpp_classname) \
 void ext_main (void* r) { \
 	c74::min::wrap_as_max_external< cpp_classname > ( #cpp_classname, __FILE__ , r ); \
 }
 
+
+/// Wrap a class that extends min::object for use in the Max environment.
+/// The recommended model is to name your file consistent with Min conventions and
+/// use the #MIN_EXTERNAL macro instead of this one.
+///
+/// @param	cpp_classname	The name of your class.
+/// @param	max_name		The name of your object as you will type it into a Max object box.
+/// @see					MIN_EXTERNAL
+
 #define MIN_EXTERNAL_CUSTOM(cpp_classname, max_name) \
 void ext_main (void* r) { \
 	c74::min::wrap_as_max_external< cpp_classname > ( #max_name, __FILE__ , r ); \
 }
-

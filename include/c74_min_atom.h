@@ -1,14 +1,14 @@
-/// @file	
+/// @file
 ///	@ingroup 	minapi
-///	@copyright	Copyright (c) 2016, Cycling '74
-///	@license	Usage of this file and its contents is governed by the MIT License
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
 namespace c74 {
 namespace min {
-	
 
+	
 	class atom : public max::t_atom {
 	public:
 		
@@ -17,9 +17,9 @@ namespace min {
 			this->a_type = c74::max::A_NOTHING;
 			this->a_w.w_obj = nullptr;
 		}
-		
+
 		/// constructor with generic initializer
-		template<class T, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+		template<class T, typename enable_if< !std::is_enum<T>::value && !is_same<T,std::vector<atom>>::value, int>::type = 0>
 		atom(T initial_value) {
 			*this = initial_value;
 		}
@@ -27,7 +27,7 @@ namespace min {
 		/// constructor with enum initializer
 		template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 		atom(T initial_value) {
-			*this = static_cast<long>(initial_value);
+			*this = static_cast<max::t_atom_long>(initial_value);
 		}
 
 
@@ -49,15 +49,17 @@ namespace min {
 			return *this;
 		}
 
+#ifdef C74_X64
 		atom& operator = (const long long value) {
 			atom_setlong(this, value);
 			return *this;
 		}
-
+#else
 		atom& operator = (const long value) {
 			atom_setlong(this, value);
 			return *this;
 		}
+#endif
 
 		atom& operator = (const int value) {
 			atom_setlong(this, value);
@@ -116,6 +118,10 @@ namespace min {
 			return static_cast<T>(atom_getlong(this));
 		}
 
+		operator float() const {
+			return static_cast<float>(atom_getfloat(this));
+		}
+
 		operator double() const {
 			return atom_getfloat(this);
 		}
@@ -130,6 +136,10 @@ namespace min {
 
 		operator long long() const {
 			return static_cast<long long>(atom_getlong(this));
+		}
+
+		operator size_t() const {
+			return static_cast<size_t>(atom_getlong(this));
 		}
 
 		operator bool() const {
@@ -305,7 +315,32 @@ namespace min {
 			atom_setsym(m_av, value);
 			return *this;
 		}
+
+		atom_reference& operator = (int value) {
+			m_ac = 1;
+			atom_setlong(m_av, value);
+			return *this;
+		}
+
+		atom_reference& operator = (long value) {
+			m_ac = 1;
+			atom_setlong(m_av, value);
+			return *this;
+		}
 		
+		atom_reference& operator = (double value) {
+			m_ac = 1;
+			atom_setfloat(m_av, value);
+			return *this;
+		}
+
+		atom_reference& operator = (max::t_object* value) {
+			m_ac = 1;
+			atom_setobj(m_av, value);
+			return *this;
+		}
+
+
 		operator atom() const {
 			if (empty())
 				throw std::out_of_range("atomref is empty");
@@ -386,7 +421,7 @@ namespace min {
 	/// @param	container	The container instance whose values will be copied
 	/// @return				A vector of atoms
 	
-	template<class T, typename enable_if< !is_symbol<T>::value && !is_time_value<T>::value && is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !is_symbol<T>::value && !is_time_value<T>::value && !is_color<T>::value && is_class<T>::value, int>::type = 0>
 	atoms to_atoms(const T& container) {
 		atoms	as(container.size());
 		size_t	index = 0;
@@ -395,6 +430,18 @@ namespace min {
 			as[index] = item;
 			++index;
 		}
+		return as;
+	}
+
+
+	/// Copy values from a color to a vector of atoms of size=4.
+	/// @tparam	T	The type of the input value.
+	/// @param	v	The value to be copied.
+	/// @return		A vector of atoms
+
+	template<class T, typename enable_if< is_color<T>::value, int>::type = 0>
+	atoms to_atoms(const T& v) {
+		atoms as {v.red(), v.green(), v.blue(), v.alpha()};
 		return as;
 	}
 
@@ -416,7 +463,7 @@ namespace min {
 	/// @param	as	The vector atoms containing the desired data
 	/// @return		The container of the values
 	
-	template<class T, typename enable_if< !is_symbol<T>::value && !is_time_value<T>::value && is_class<T>::value, int>::type = 0>
+	template<class T, typename enable_if< !is_symbol<T>::value && !is_time_value<T>::value && !is_color<T>::value && is_class<T>::value, int>::type = 0>
 	T from_atoms(const atoms& as) {
 		T container;
 		
@@ -425,7 +472,19 @@ namespace min {
 			container.push_back(a);
 		return container;
 	}
-	
+
+
+	/// Copy values out from a vector of atoms to the desired color type
+	/// @tparam	T	The type of the destination (a ui::color)
+	/// @param	as	The vector atoms containing the desired data
+	/// @return		The color
+
+	template<class T, typename enable_if< is_color<T>::value, int>::type = 0>
+	T from_atoms(const atoms& as) {
+		ui::color c { as[0], as[1], as[2], as[3] };		// TODO: bounds-checking
+		return c;
+	}
+
 	
 	/// Copy a value out from a vector of atoms to the desired type
 	/// @tparam	T	The type of the destination variable

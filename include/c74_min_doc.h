@@ -1,13 +1,14 @@
-/// @file	
+/// @file
 ///	@ingroup 	minapi
-///	@copyright	Copyright (c) 2016, Cycling '74
-///	@license	Usage of this file and its contents is governed by the MIT License
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
 
 namespace c74 {
 namespace min {
 
+	
 	#define MIN_AUTHOR		static constexpr const char* class_author
 
 	template<typename min_class_type>
@@ -58,7 +59,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< has_class_tags<min_class_type>::value>::type
 	doc_get_tags(tags& returned_tags) {
-		returned_tags = string_utility::split(min_class_type::class_tags, ',');
+		returned_tags = str::split(min_class_type::class_tags, ',');
 	}
 
 	template<class min_class_type>
@@ -89,7 +90,7 @@ namespace min {
 	template<class min_class_type>
 	typename enable_if< has_class_related<min_class_type>::value>::type
 		doc_get_related(strings& returned_tags) {
-		returned_tags = string_utility::split(min_class_type::class_related, ',');
+		returned_tags = str::split(min_class_type::class_related, ',');
 	}
 
 	template<class min_class_type>
@@ -117,9 +118,7 @@ namespace min {
 
 
 	inline std::string doc_format(const std::string& input) {
-		using std::string;
-
-		strings tokens = string_utility::split(input, ' ');
+		strings tokens = str::split(input, ' ');
 
 		for (auto& token : tokens) {
 			if (token[0] == '@') {										// attribute
@@ -136,7 +135,7 @@ namespace min {
 			}
 		}
 
-		return string_utility::join(tokens);
+		return str::join(tokens);
 	}
 
 	template<class min_class_type>
@@ -213,7 +212,7 @@ namespace min {
 		refpage_file << "	<metadatalist>" << endl;
 		refpage_file << "		<metadata name='author'>" << doc_format(author) << "</metadata>" << endl;
 		for (auto i=0; i<class_tags.size(); ++i)
-			refpage_file << "		<metadata name='tag'>" << string_utility::trim(class_tags[i]) << "</metadata>" << endl;
+			refpage_file << "		<metadata name='tag'>" << str::trim(class_tags[i]) << "</metadata>" << endl;
 		refpage_file << "	</metadatalist>" << endl;
 		refpage_file << endl << endl;
 
@@ -289,21 +288,27 @@ namespace min {
 		const auto& attributes = instance.attributes();
 
 		for (const auto& p: attributes) {
-			const auto& attr_object	= *p.second;
-			const auto& description	= doc_format(attr_object.description_string());
-			const auto& attr_type = attr_object.datatype();
+			try {
+				const auto& attr_object	= *p.second;
+				const auto& description	= doc_format(attr_object.description_string());
+				const auto& attr_type = attr_object.datatype();
 
-			strncpy(digest, description.c_str(), digest_length_max);
-			char *c = strstr(digest, ". ");
-			if (!c)
-				c = strchr(digest, '.');
-			if (c)
-				*c = 0;
+				strncpy(digest, description.c_str(), digest_length_max);
+				char *c = strstr(digest, ". ");
+				if (!c)
+					c = strchr(digest, '.');
+				if (c)
+					*c = 0;
 
-			refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='"<< attr_object.writable() <<"' type='" << attr_type << "' size='1' >" << endl;
-			refpage_file << "			<digest>" << digest << "</digest>" << endl;
-			refpage_file << "			<description>" << description << "</description>" << endl;
-			refpage_file << "		</attribute>" << endl << endl;
+				refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='"<< attr_object.writable() <<"' type='" << attr_type << "' size='1' >" << endl;
+				refpage_file << "			<digest>" << digest << "</digest>" << endl;
+				refpage_file << "			<description>" << description << "</description>" << endl;
+				refpage_file << "		</attribute>" << endl << endl;
+			}
+			catch(...) {
+				// if an attr doesn't have a description or there is some other problem, just ignore this attribute
+
+			}
 		}
 
 		refpage_file << "	</attributelist>" << endl;
@@ -316,7 +321,7 @@ namespace min {
 		strings related;
 		doc_get_related<min_class_type>(related);
 		for (auto i = 0; i<related.size(); ++i)
-			refpage_file << "		<seealso name='" << string_utility::trim(related[i]) << "' />" << endl;
+			refpage_file << "		<seealso name='" << str::trim(related[i]) << "' />" << endl;
 		refpage_file << "	</seealsolist>" << endl;
 		refpage_file << endl << endl;
 
@@ -342,13 +347,13 @@ namespace min {
 			std::string		refpage_fullpath = docs_folder;
 							refpage_fullpath += "/" + max_class_name + ".maxref.xml";
 			path			refpage_file;
-			path::filedate	refpage_date;
+			path::filedate	refpage_date {};
 
 			try {
 				refpage_file = path(refpage_fullpath);
 				refpage_date = refpage_file.date_modified();
 			}
-			catch (std::runtime_error& e) {}
+			catch (std::runtime_error&) {}
 
 			if (!refpage_file || refpage_date < extern_date) {
 				doc_generate(instance, refpage_fullpath, max_class_name, min_class_name);

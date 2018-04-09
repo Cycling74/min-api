@@ -1,6 +1,7 @@
-//	Copyright 2013 - Cycling '74
-//	Timothy Place, tim@cycling74.com	
-
+/// @file
+///	@ingroup 	minapi
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #include "c74_mock.h"
 
@@ -34,6 +35,18 @@ namespace max {
 		return false;
 	}
 
+	MOCK_EXPORT void* defer(void* ob,method fn,t_symbol* sym,short argc,t_atom* argv) {
+		return nullptr;
+	}
+
+
+	MOCK_EXPORT float sys_getsr(void) {
+		return 44100;
+	}
+
+	MOCK_EXPORT int sys_getblksize(void) {
+		return 32;
+	}
 
 
 	MOCK_EXPORT short locatefile_extended(char* name, short* outvol, t_fourcc* outtype, const t_fourcc* filetypelist, short numtypes) {
@@ -41,6 +54,12 @@ namespace max {
 	}
 
 	MOCK_EXPORT void typelist_make(t_fourcc *types, long include, short *numtypes) {}
+
+
+	MOCK_EXPORT short path_getpath(short path, const char *name, short *outpath) {
+		return 0;
+	}
+
 
 	MOCK_EXPORT short path_createfolder(const short path, const char* name, short* newpath) {
 		return 0;
@@ -75,12 +94,16 @@ namespace max {
 		return 0;
 	}
 
+	MOCK_EXPORT t_atom_long object_attr_getlong(void* x, t_symbol* s) {
+		return 0;
+	}
+
 	
 	MOCK_EXPORT t_object* attr_offset_new(const char* name, const t_symbol* type, long flags, const method mget, const method mset, long offset) {
 		return nullptr;
 	}
 	
-	MOCK_EXPORT t_object* attr_offset_array_new(const char* name, t_symbol* type, long size, long flags, method mget, method mset, long offsetcount, long offset) {
+	MOCK_EXPORT t_object* attr_offset_array_new(const char* name, t_symbol* type, long size, long flags, method mget, method mset, long offset_count, long offset) {
 		return nullptr;
 	}
 
@@ -92,12 +115,28 @@ namespace max {
 		return 0;
 	}
 
+
+	MOCK_EXPORT void attr_dictionary_process(void* x, t_dictionary* d) {}
+
+	MOCK_EXPORT void attr_dictionary_check(void* x, t_dictionary* d) {}
+
+	MOCK_EXPORT t_dictionary* object_dictionaryarg(long ac, t_atom* av) {
+		return nullptr;
+	}
+
+
+
 	MOCK_EXPORT method object_getmethod(void* x, t_symbol* s) {
 		return nullptr;
 	}
 
 	MOCK_EXPORT t_symbol* symbol_unique(void) {
 		return nullptr;
+	}
+
+
+	MOCK_EXPORT t_max_err object_attach_byptr_register(void* x, void* object_to_attach, const t_symbol* reg_name_space) {
+		return 0;
 	}
 
 
@@ -166,6 +205,22 @@ namespace max {
 		return 0;
 	}
 
+
+
+
+
+	using t_jbox = t_object;
+
+
+	MOCK_EXPORT void jbox_ready(t_jbox* b) {}
+
+
+
+
+
+
+
+
 	MOCK_EXPORT void max_jit_obex_gimmeback_dumpout(void *x, t_symbol *s, long ac, t_atom *av) {
 		return;
 	}
@@ -225,15 +280,15 @@ namespace max {
 		long		size = 0;			///< in bytes (0xFFFFFFFF=UNKNOWN)
 		t_symbol*	type = nullptr;			///< primitifve type (char, long, float32, or float64)
 		long		flags = 0;			///< flags to specify data reference, handle, or tightly packed
-		long		dimcount = 0;		///< number of dimensions
+		long		dim_count = 0;		///< number of dimensions
 		long		dim[JIT_MATRIX_MAX_DIMCOUNT];		///< dimension sizes
 		long		dimstride[JIT_MATRIX_MAX_DIMCOUNT]; ///< stride across dimensions in bytes
-		long		planecount = 0;		///< number of planes
+		long		plane_count = 0;		///< number of planes
 	};
 
-	MOCK_EXPORT void jit_parallel_ndim_simplecalc1(method fn, void *data, long dimcount, long *dim, long planecount, t_jit_matrix_info *minfo1, char *bp1, long flags1)
+	MOCK_EXPORT void jit_parallel_ndim_simplecalc1(method fn, void *data, long dim_count, long *dim, long plane_count, t_jit_matrix_info *minfo1, char *bp1, long flags1)
 	{}
-	MOCK_EXPORT void jit_parallel_ndim_simplecalc2(method fn, void *data, long dimcount, long *dim, long planecount, t_jit_matrix_info *minfo1, char *bp1,
+	MOCK_EXPORT void jit_parallel_ndim_simplecalc2(method fn, void *data, long dim_count, long *dim, long plane_count, t_jit_matrix_info *minfo1, char *bp1,
 		t_jit_matrix_info *minfo2, char *bp2, long flags1, long flags2)
 	{}
 

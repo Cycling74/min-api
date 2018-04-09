@@ -1,7 +1,11 @@
-//	Copyright 2013 - Cycling '74
-//	Timothy Place, tim@cycling74.com	
+/// @file
+///	@ingroup 	minapi
+///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
+///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
+
+#include <cassert>
 
 namespace c74 {
 namespace max {
@@ -121,9 +125,11 @@ namespace max {
 		if (a->a_type == A_FLOAT)
 			return a->a_w.w_float;
 		else if (a->a_type == A_LONG)
-			return a->a_w.w_long;
-		else
-			throw std::runtime_error("not a number");
+			return static_cast<t_atom_float>(a->a_w.w_long);
+		else {
+			assert(false); // not a number
+			return 0;
+		}
 	}
 	MOCK_EXPORT t_atom_long atom_getlong(const t_atom *a)	{ return a->a_w.w_long; }
 	MOCK_EXPORT t_symbol* atom_getsym(const t_atom *a)		{ return a->a_w.w_sym; }

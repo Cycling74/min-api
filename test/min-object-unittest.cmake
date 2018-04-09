@@ -1,3 +1,6 @@
+# Copyright 2018 The Min-API Authors. All rights reserved.
+# Use of this source code is governed by the MIT License found in the License.md file.
+
 cmake_minimum_required(VERSION 3.0)
 
 set(ORIGINAL_NAME "${PROJECT_NAME}")
@@ -11,6 +14,10 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.cpp")
 		"${C74_INCLUDES}"
 		"${C74_MIN_API_DIR}/test/catch/include"
 		# "${C74_MIN_API_DIR}/test/mock"
+	)
+    
+	add_definitions(
+		-DMIN_TEST
 	)
 
 	set(TEST_SOURCE_FILES "")
@@ -40,11 +47,10 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.cpp")
 	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
-	target_link_libraries(${PROJECT_NAME} "mock_kernel")
+    target_link_libraries(${PROJECT_NAME} PUBLIC "mock_kernel")
 
 	if (APPLE)
-		target_link_libraries(${PROJECT_NAME} "-weak_framework JitterAPI")
-		set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F'${C74_MAX_API_DIR}/lib/mac'")
+        set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F'${C74_MAX_API_DIR}/lib/mac', -weak_framework JitterAPI")
 	endif ()
 	if (WIN32)
 		# target_link_libraries(${PROJECT_NAME} ${MaxAPI_LIB})
