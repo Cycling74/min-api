@@ -114,8 +114,18 @@ namespace min {
 			return attr->get_enum_map()[i];
 	}
 	
-	// all non-enum values can just pass through
-	template<typename T, threadsafe threadsafety, template<typename> class limit_type, typename enable_if< !std::is_enum<T>::value, int>::type = 0>
+	// vectors cannot be passed directly to stringstream
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type, typename enable_if< std::is_same<T, std::vector<number>>::value, int>::type = 0>
+	std::string range_string_item(attribute<T, threadsafety, limit_type>* attr, const T& item) {
+		string str;
+		for (const auto& i : item) {
+			str += std::to_string(i);
+			str += " ";
+		}
+	}
+
+	// all non-enum non-vector values can just pass through
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type, typename enable_if< !std::is_enum<T>::value && !std::is_same<T, std::vector<number>>::value, int>::type = 0>
 	T range_string_item(attribute<T,threadsafety,limit_type>* attr, const T& item) {
 		return item;
 	}
