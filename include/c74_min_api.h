@@ -234,6 +234,7 @@ namespace min {
 
 
 	enum class threadsafe {
+		undefined,
 		no,
 		yes
 	};

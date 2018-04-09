@@ -228,6 +228,11 @@ MOCK_EXPORT t_symbol *object_classname(t_object *x)
 }
 
 
+MOCK_EXPORT long object_classname_compare(void* x, t_symbol* name) {
+	return false;
+}
+
+
 
 MOCK_EXPORT method zgetfn(t_object *op, t_symbol *msg)
 {

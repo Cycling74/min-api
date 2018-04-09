@@ -15,13 +15,13 @@ namespace min {
 	/// @defgroup attributes Attributes
 
 
-	/// A callback function used by attributes the provide an optional customized "setter" routine.
+	/// A callback function used by attributes that provide an optional customized "setter" routine.
 	/// @ingroup attributes
 
 	using setter = function;
 
 
-	/// A callback function used by attributes the provide an optional customized "getter" routine.
+	/// A callback function used by attributes that provide an optional customized "getter" routine.
 	/// Typically this is provided to argument as a lamba function using the #MIN_GETTER_FUNCTION macro.
 	/// @ingroup	attributes
 	/// @return		A vector of atoms that represent the current state of the attribute.
@@ -100,7 +100,7 @@ namespace min {
 	/// A value zero means there is no special order and Max will take care of the ordering automatically.
 	/// @ingroup attributes
 
-	using order = long;
+	using order = int;
 
 
 	/// The range provides a definition of acceptable or 'normal' values for an attribute.
@@ -177,6 +177,14 @@ namespace min {
 		}
 
 
+		/// Return the owner of the attribute
+		/// @return	The owner of the attribute.
+
+		object_base& owner() const {
+			return m_owner;
+		}
+
+
 		/// Determine the name of the attribute
 		/// @return	The name of the attribute.
 
@@ -241,7 +249,7 @@ namespace min {
 		/// Return the ordering priority for the attribute when listed in the inspector.
 		/// @return	The order priority supplied when the attribute was created.
 
-		long editor_order() const {
+		int editor_order() const {
 			return m_order;
 		}
 
@@ -266,7 +274,7 @@ namespace min {
 
 		style			m_style;		// display style in Max
 		symbol			m_category;		// Max inspector category
-		long 			m_order { 0 };	// Max inspector ordering
+		int 			m_order { 0 };	// Max inspector ordering
 
 
 		// calculate the offset of the size member as required for array/vector attributes
@@ -792,7 +800,7 @@ namespace min {
 
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
 	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T,threadsafety,limit_type>* helper) {
-		static_assert(threadsafety == threadsafe::no, "helper function should not be called by threadsafe attrs");
+		static_assert(threadsafety != threadsafe::yes, "helper function should not be called by threadsafe attrs");
 		attribute_threadsafe_helper_do_set<T,threadsafety,limit_type>(helper, helper->m_value);
 	}
 
@@ -830,6 +838,42 @@ namespace min {
 		max::t_qelem*							m_qelem;
 		atoms									m_value;
 	};
+
+
+	// A version of attribute_threadsafe_helper<> for attributes which inherit the threadsafety declaration from thier owning class.
+	// These will check all setter calls to ensure that they are on the main thread -- or that they are declared as threadsafe.
+	// If they are not then defer the setter calls to the main thread using a qelem.
+
+	template<typename T, template<typename> class limit_type>
+	class attribute_threadsafe_helper<T,threadsafe::undefined,limit_type> {
+		friend void attribute_threadsafe_helper_do_set<T,threadsafe::undefined,limit_type>(attribute_threadsafe_helper<T,threadsafe::undefined,limit_type>* helper, atoms& args);
+		friend void attribute_threadsafe_helper_qfn<T,threadsafe::undefined,limit_type>(attribute_threadsafe_helper<T,threadsafe::undefined,limit_type>* helper);
+	public:
+		explicit attribute_threadsafe_helper(attribute<T,threadsafe::undefined,limit_type>* an_attribute)
+		: m_attribute ( an_attribute )
+		{
+			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)attribute_threadsafe_helper_qfn<T,threadsafe::no,limit_type>);
+		}
+
+		~attribute_threadsafe_helper() {
+			max::qelem_free(m_qelem);
+		}
+
+		void set(atoms& args) {
+			if (m_attribute->owner().is_assumed_threadsafe() || max::systhread_ismainthread())
+				attribute_threadsafe_helper_do_set(this, args);
+			else {
+				m_value = args;
+				max::qelem_set(m_qelem);
+			}
+		}
+
+	private:
+		attribute<T,threadsafe::undefined,limit_type>*	m_attribute;
+		max::t_qelem*									m_qelem;
+		atoms											m_value;
+	};
+
 
 
 #ifdef MAC_VERSION

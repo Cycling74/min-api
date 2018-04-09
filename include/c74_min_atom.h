@@ -27,7 +27,7 @@ namespace min {
 		/// constructor with enum initializer
 		template<class T, typename enable_if< std::is_enum<T>::value, int>::type = 0>
 		atom(T initial_value) {
-			*this = static_cast<long>(initial_value);
+			*this = static_cast<max::t_atom_long>(initial_value);
 		}
 
 
@@ -49,15 +49,17 @@ namespace min {
 			return *this;
 		}
 
+#ifdef C74_X64
 		atom& operator = (const long long value) {
 			atom_setlong(this, value);
 			return *this;
 		}
-
+#else
 		atom& operator = (const long value) {
 			atom_setlong(this, value);
 			return *this;
 		}
+#endif
 
 		atom& operator = (const int value) {
 			atom_setlong(this, value);

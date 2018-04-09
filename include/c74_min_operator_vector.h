@@ -313,7 +313,7 @@ namespace min {
 
 		atoms args;
 		args.push_back(atom(samplerate));
-		args.push_back(atom(maxvectorsize));
+		args.push_back(atom(max::t_atom_long(maxvectorsize)));
 		self->m_min_object.dspsetup(args);
 		
 		min_dsp64_add_perform(self, dsp64);

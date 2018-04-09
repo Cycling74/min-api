@@ -7,56 +7,48 @@
 
 namespace c74 {
 namespace min {
-	
-	
+
+
+	/// Options that control the behavior of the timer.
+
+	enum class timer_options {
+		deliver_on_scheduler,	///< The default behavior delivers events on Max's scheduler thread
+		defer_delivery			///< Defers events from the scheduler to Max's main thread
+	};
+
+	template<timer_options options = timer_options::deliver_on_scheduler>
 	class timer;
-	extern "C" void timer_tick_callback(timer* an_owner);	// defined in c74_min_impl.h
-	extern "C" void timer_qfn_callback(timer* a_timer);		// defined in c74_min_impl.h
+
+	extern "C" void timer_tick_callback(timer<>* an_owner);		// defined in c74_min_impl.h
+	extern "C" void timer_qfn_callback(timer<>* a_timer);		// defined in c74_min_impl.h
 
 	
 	/// The timer class allows you to schedule a function to be called in the future using Max's scheduler.
 	/// Note: the name `timer` was chosen instead of `clock` because of the use of the type is `clock` is ambiguous on the Mac OS
 	/// when not explicitly specifying the `c74::min` namespace.
+	/// @tparam		options		Optional argument to alter the delivery from the scheduler thread to the main thread.
 	///
 	///	@seealso	#time_value
 	/// @seealso	#queue
 	/// @seealso	#fifo
 	
+	template<timer_options options>
 	class timer {
 	public:
-
-		/// Options that control the behavior of the timer.
-
-		enum class options {
-			deliver_on_scheduler,	///< The default behavior delivers events on Max's scheduler thread
-			defer_delivery			///< Defers events from the scheduler to Max's main thread
-		};
-
 
 		/// Create a timer.
 		/// @param	an_owner	The owning object for the timer. Typically you will pass `this`.
 		/// @param	a_function	A function to be executed when the timer is called.
 		///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
-		/// @param	options		Optional argument to alter the delivery from the scheduler thread to the main thread.
 
-		timer(object_base* an_owner, function a_function, options options = options::deliver_on_scheduler)
+		timer(object_base* an_owner, function a_function)
 		: m_owner		{ an_owner }
 		, m_function	{ a_function }
 		{
 			m_instance = max::clock_new(this, reinterpret_cast<max::method>(timer_tick_callback));
-			if (options == options::defer_delivery)
+			if (options == timer_options::defer_delivery)
 				m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(timer_qfn_callback));
 		}
-
-		/// Create a timer.
-		/// @param	an_owner	The owning object for the timer. Typically you will pass `this`.
-		/// @param	options		Optional argument to alter the delivery from the scheduler thread to the main thread.
-		/// @param	a_function	A function to be executed when the timer is called.
-		///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
-
-		timer(object_base* an_owner, options options, function a_function)
-		: timer(an_owner, a_function, options)
-		{}
 
 
 		/// Destroy a timer.

@@ -35,6 +35,10 @@ namespace max {
 		return false;
 	}
 
+	MOCK_EXPORT void* defer(void* ob,method fn,t_symbol* sym,short argc,t_atom* argv) {
+		return nullptr;
+	}
+
 
 	MOCK_EXPORT float sys_getsr(void) {
 		return 44100;

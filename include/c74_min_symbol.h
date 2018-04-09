@@ -127,7 +127,13 @@ namespace min {
 		}
 
 		operator max::t_dictionary*() const {
-			return s->s_thing;
+			static max::t_symbol* ps_dictionary = nullptr;
+			if (!ps_dictionary)
+				ps_dictionary = max::gensym("dictionary");
+			if (object_classname_compare(s->s_thing, ps_dictionary))
+				return s->s_thing;
+			else
+				return nullptr;
 		}
 
 		operator void*() const {
