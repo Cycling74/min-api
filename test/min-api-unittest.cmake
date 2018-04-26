@@ -19,7 +19,8 @@ include_directories(
 #SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
 if (APPLE)
-	set(CMAKE_OSX_ARCHITECTURES x86_64;i386)
+	#set(CMAKE_OSX_ARCHITECTURES x86_64;i386)
+	set(CMAKE_OSX_ARCHITECTURES x86_64)
 endif ()
 
 add_definitions(
