@@ -17,6 +17,10 @@ file(GLOB_RECURSE C74_MIN_HEADERS ${CMAKE_CURRENT_LIST_DIR}/../include/*.h)
 
 add_definitions(-DC74_MIN_API)
 
+if (APPLE)
+	set(CMAKE_OSX_ARCHITECTURES x86_64)
+endif ()
+
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/../../min-lib")
     message(STATUS "Min-Lib found")
 	add_definitions(
