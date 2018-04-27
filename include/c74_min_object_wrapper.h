@@ -465,10 +465,6 @@ namespace min {
 	}
 
 
-	// Note: Jitter Matrix Operators are significantly different enough that they overload this function
-	// in c74_min_operator_matrix.h
-
-
 	template<class min_class_type, enable_if_not_jitter_class<min_class_type> = 0>
 	void wrap_as_max_external(const char* cppname, const char* maxname, void *resources, min_class_type* instance = nullptr) {
 		if (this_class != nullptr)
