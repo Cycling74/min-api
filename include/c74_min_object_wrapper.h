@@ -626,7 +626,7 @@ namespace min {
             max::max_jit_class_mop_wrap(c, this_jit_class, flags);	// attrs & methods for name, type, dim, plane_count, bang, outputmatrix, etc
             max::max_jit_class_wrap_standard(c, this_jit_class, 0);		// attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
             
-            if(ownsinput)
+            if (ownsinput)
                 max::max_jit_class_addmethod_usurp_low(c, reinterpret_cast<method>(min_jit_mop_outputmatrix<min_class_type>), (char*)"outputmatrix");
                 
             max::class_addmethod(c, reinterpret_cast<method>(max::max_jit_mop_assist), "assist", max::A_CANT, 0);	// standard matrix-operator (mop) assist fn

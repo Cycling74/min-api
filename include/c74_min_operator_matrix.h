@@ -244,7 +244,7 @@ namespace min {
 		auto				o			= max::jit_object_new(cppname, s);
 		auto                job			= reinterpret_cast<minwrap<min_class_type>*>(o);
         
-        if(job->m_min_object.has_call("mop_setup")) {
+        if (job->m_min_object.has_call("mop_setup")) {
             atoms atomargs(args.begin(), args.begin()+attrstart);
             atomargs.push_back(atom{self});
             job->m_min_object.try_call("mop_setup", atomargs);
