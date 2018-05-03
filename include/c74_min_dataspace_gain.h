@@ -5,14 +5,11 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
-namespace dataspace {
+namespace c74 { namespace min { namespace dataspace {
 
-	
+
 	class gain : public dataspace_base {
 	public:
-
 		// Linear is the neutral unit, so it is a pass-through
 		class linear {
 			friend class dataspace_base;
@@ -31,7 +28,7 @@ namespace dataspace {
 			friend class dataspace_base;
 
 			static inline number to_neutral(number input) {
-				return pow(input*0.01, k_gain_midi_power);
+				return pow(input * 0.01, k_gain_midi_power);
 			}
 
 			static inline number from_neutral(number input) {
@@ -50,13 +47,13 @@ namespace dataspace {
 			static inline number from_neutral(number input) {
 				number temp = log10(input) * 20.0;
 
-				// Output decibel range is limited to 24 bit range, avoids problems with singularities (-inf) when using dataspace in ramps
+				// Output decibel range is limited to 24 bit range, avoids problems with singularities (-inf) when using
+				// dataspace in ramps
 				if (temp < -144.49)
 					temp = -144.49;
 				return temp;
 			}
 		};
-
 	};
 
-}}}  // namespace c74::min::dataspace
+}}}    // namespace c74::min::dataspace
