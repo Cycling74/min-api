@@ -5,29 +5,15 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {	
+namespace c74 { namespace min {
 
-	
+
 	class path {
 	public:
-		
-		enum class system {
-			undefined = 0,
-			application,
-			desktop,
-			preferences,
-			temp
-		};
+		enum class system { undefined = 0, application, desktop, preferences, temp };
 
 
-		enum class filetype {
-			any = 0,
-			folder,
-			external,
-			patcher,
-			audio
-		};
+		enum class filetype { any = 0, folder, external, patcher, audio };
 
 
 		using filedate = max::t_ptr_uint;
@@ -39,31 +25,39 @@ namespace min {
 
 		// path initialized to a system directory
 		path(system initial)
-		: m_directory {true}
-		{
+		: m_directory{true} {
 			switch (initial) {
-				case system::application:	m_path = max::path_getapppath(); break;
-				case system::desktop: 		m_path = max::path_desktopfolder(); break;
-				case system::preferences: 	max::preferences_path(nullptr, true, &m_path); break;
-				case system::temp:		 	m_path = max::path_tempfolder(); break;
-				default:					m_path = 0; break;
+				case system::application:
+					m_path = max::path_getapppath();
+					break;
+				case system::desktop:
+					m_path = max::path_desktopfolder();
+					break;
+				case system::preferences:
+					max::preferences_path(nullptr, true, &m_path);
+					break;
+				case system::temp:
+					m_path = max::path_tempfolder();
+					break;
+				default:
+					m_path = 0;
+					break;
 			}
 		}
 
 
 		// path initialized to a user-supplied path id (discouraged, but might be provided by legacy Max API)
 		path(short path_id)
-		: m_path		{ path_id }
-		, m_directory	{true}
-		{}
+		: m_path{path_id}
+		, m_directory{true} {}
 
 
 		// path initialized by name
 		path(const std::string& name, filetype type = filetype::any, bool create = false) {
 			strncpy(m_filename, name.c_str(), MAX_PATH_CHARS);
 
-			auto types = typelist(type);
-			max::t_fourcc* first_type { nullptr };
+			auto           types = typelist(type);
+			max::t_fourcc* first_type{nullptr};
 			if (types.size())
 				first_type = &types[0];
 
@@ -74,12 +68,12 @@ namespace min {
 			if (err) {
 				if (create) {
 					if (type == filetype::folder) {
-						char	fullpath[MAX_PATH_CHARS];
-						char	filename[MAX_FILENAME_CHARS];
+						char fullpath[MAX_PATH_CHARS];
+						char filename[MAX_FILENAME_CHARS];
 						max::path_nameconform(name.c_str(), fullpath, max::PATH_STYLE_MAX, max::PATH_TYPE_ABSOLUTE);
 
-						char*	foldername = strrchr(fullpath, '/');
-						short	parent_folder_path = 0;
+						char* foldername         = strrchr(fullpath, '/');
+						short parent_folder_path = 0;
 
 						if (foldername) {
 							*foldername = 0;
@@ -131,12 +125,12 @@ namespace min {
 
 
 		std::vector<max::t_fourcc> typelist(filetype type) {
-			std::vector<max::t_fourcc>	list;
-			max::t_fourcc				types[max::TYPELIST_SIZE];
-			short						type_count = 0;
+			std::vector<max::t_fourcc> list;
+			max::t_fourcc              types[max::TYPELIST_SIZE];
+			short                      type_count = 0;
 
 			// if (type == filetype::any) we don't need to do anything at all
-			
+
 			if (type == filetype::external)
 				max::typelist_make(types, max::TYPELIST_EXTERNS, &type_count);
 			else if (type == filetype::audio) {
@@ -148,7 +142,7 @@ namespace min {
 				types[type_count++] = 'CAF ';
 			}
 			else if (type == filetype::folder) {
-				types[0] = 'fold';
+				types[0]   = 'fold';
 				type_count = 1;
 			}
 			else if (type == filetype::patcher) {
@@ -158,7 +152,7 @@ namespace min {
 			for (auto i = 0; i < type_count; ++i)
 				list.push_back(types[i]);
 
-			return list; // TODO: std::move ?
+			return list;    // TODO: std::move ?
 		}
 
 
@@ -178,8 +172,8 @@ namespace min {
 
 
 		filedate date_modified() const {
-			int			err;
-			filedate	date;
+			int      err;
+			filedate date;
 
 			if (m_directory)
 				err = max::path_getmoddate(m_path, &date);
@@ -209,12 +203,12 @@ namespace min {
 			if (!fold)
 				return;
 
-			auto			types = typelist(a_type);
-			max::t_fourcc	type;
-			char			name[256];
+			auto          types = typelist(a_type);
+			max::t_fourcc type;
+			char          name[256];
 
 			while (max::path_foldernextfile(fold, &type, name, false)) {
-				bool match { false };
+				bool match{false};
 
 				if (types.empty())
 					match = true;
@@ -250,7 +244,7 @@ namespace min {
 		/// @param destination_folder The folder will be the folder containing the copy of this path
 
 		void copy(const path& destination_folder, const string& destination_name) {
-			short newpath {};
+			short newpath{};
 			if (m_directory)
 				c74::max::path_copyfolder(m_path, destination_folder.m_path, (char*)destination_name.c_str(), true, &newpath);
 			else
@@ -258,10 +252,10 @@ namespace min {
 		}
 
 	private:
-		short			m_path = 0;
-		char			m_filename[MAX_PATH_CHARS] = {};
-		max::t_fourcc	m_type = 0;
-		bool			m_directory = false;
+		short         m_path                     = 0;
+		char          m_filename[MAX_PATH_CHARS] = {};
+		max::t_fourcc m_type                     = 0;
+		bool          m_directory                = false;
 	};
-	
-}} // namespace c74::min
+
+}}    // namespace c74::min

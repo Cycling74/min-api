@@ -5,11 +5,9 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
-namespace str {
+namespace c74 { namespace min { namespace str {
 
-	
+
 	/// Trim leading and trailing whitespace from a string
 	/// @param	s	The string to trim
 	/// @return		The trimmed string
@@ -17,7 +15,7 @@ namespace str {
 	inline string trim(string& s) {
 		if (!s.empty()) {
 			size_t first = s.find_first_not_of(' ');
-			size_t last = s.find_last_not_of(' ');
+			size_t last  = s.find_last_not_of(' ');
 			return s.substr(first, (last - first + 1));
 		}
 		else
@@ -30,10 +28,10 @@ namespace str {
 	/// @param	delim	The delimiter on which to split the string
 	/// @return			A vector of substrings
 
-	inline vector<string> split(const string &s, char delim) {
-		vector<string>		substrings;
-		string				substring;
-		std::stringstream	ss(s);
+	inline vector<string> split(const string& s, char delim) {
+		vector<string>    substrings;
+		string            substring;
+		std::stringstream ss(s);
 
 		while (getline(ss, substring, delim))
 			substrings.push_back(substring);
@@ -57,4 +55,4 @@ namespace str {
 		return output;
 	}
 
-}}} // namespace c74::min::str
+}}}    // namespace c74::min::str

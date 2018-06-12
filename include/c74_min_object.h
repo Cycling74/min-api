@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74 { namespace min {
 
 
 	/// The base class for all first-class objects that are to be exposed in the Max environment.
@@ -22,7 +21,6 @@ namespace min {
 	template<class min_class_type, threadsafe threadsafety = threadsafe::no>
 	class object : public object_base {
 	public:
-
 		/// Constructor.
 
 		object() {
@@ -35,7 +33,6 @@ namespace min {
 			//
 			// This could occur if a class uses another class directly or in the case of unit testing.
 			// In such cases we need to do something reasonable so that our invariants can be held true
-			
 		}
 
 		/// Destructor.
@@ -57,9 +54,8 @@ namespace min {
 
 
 	protected:
-		logger	cout { this, logger::type::message };
-		logger	cerr { this, logger::type::error };
+		logger cout{this, logger::type::message};
+		logger cerr{this, logger::type::error};
 	};
 
-}} // namespace c74::min
-
+}}    // namespace c74::min

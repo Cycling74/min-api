@@ -12,14 +12,14 @@ namespace c74 { namespace min {
 
 	enum class timer_options {
 		deliver_on_scheduler,    ///< The default behavior delivers events on Max's scheduler thread
-		defer_delivery    ///< Defers events from the scheduler to Max's main thread
+		defer_delivery           ///< Defers events from the scheduler to Max's main thread
 	};
 
 	template<timer_options options = timer_options::deliver_on_scheduler>
 	class timer;
 
 	extern "C" void timer_tick_callback(timer<>* an_owner);    // defined in c74_min_impl.h
-	extern "C" void timer_qfn_callback(timer<>* a_timer);    // defined in c74_min_impl.h
+	extern "C" void timer_qfn_callback(timer<>* a_timer);      // defined in c74_min_impl.h
 
 
 	/// The timer class allows you to schedule a function to be called in the future using Max's scheduler.

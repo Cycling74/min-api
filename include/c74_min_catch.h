@@ -14,17 +14,17 @@
 /// @tparam T           The type for comparisons. Should be an STL container of floats or doubles.
 /// @param  source      The values to compare
 /// @param  reference   The reference values against which to compare.
-/// @return             True if they are (approximately) the same. Otherwise false.        
+/// @return             True if they are (approximately) the same. Otherwise false.
 
 template<typename T>
 bool require_vector_approx(T source, T reference) {
-	REQUIRE( source.size() == reference.size() );
+	REQUIRE(source.size() == reference.size());
 	if (source.size() != reference.size())
 		return false;
 
-	for (auto i=0; i<source.size(); ++i) {
+	for (auto i = 0; i < source.size(); ++i) {
 		INFO("when i == " << i);
-		REQUIRE( source[i] == Approx(reference[i]) );
+		REQUIRE(source[i] == Approx(reference[i]));
 		if (source[i] != Approx(reference[i]))
 			return false;
 	}
@@ -38,6 +38,6 @@ bool require_vector_approx(T source, T reference) {
 /// @tparam T           The type for comparisons. Should be an STL container of floats or doubles.
 /// @param  source      The values to compare
 /// @param  reference   The reference values against which to compare.
-/// @return             True if they are (approximately) the same. Otherwise false.        
+/// @return             True if they are (approximately) the same. Otherwise false.
 
-#define REQUIRE_VECTOR_APPROX( source, reference ) require_vector_approx(source, reference)
+#define REQUIRE_VECTOR_APPROX(source, reference) require_vector_approx(source, reference)

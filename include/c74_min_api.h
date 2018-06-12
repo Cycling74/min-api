@@ -184,38 +184,33 @@ namespace c74 { namespace min {
 	using is_color = is_same<T, ui::color>;
 
 	template<class min_class_type>
-	using enable_if_matrix_operator =
-		typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
+	using enable_if_matrix_operator = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using enable_if_not_matrix_operator =
-		typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
+	using enable_if_not_matrix_operator = typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
 	using enable_if_gl_operator = typename enable_if<is_base_of<gl_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using enable_if_sample_operator =
-		typename enable_if<is_base_of<sample_operator_base, min_class_type>::value, int>::type;
+	using enable_if_sample_operator = typename enable_if<is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using enable_if_vector_operator =
-		typename enable_if<is_base_of<vector_operator_base, min_class_type>::value, int>::type;
+	using enable_if_vector_operator = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value
-			|| is_base_of<sample_operator_base, min_class_type>::value,
-		int>::type;
+	using enable_if_audio_class = typename enable_if<
+		is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using enable_if_jitter_class = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value
-			|| is_base_of<gl_operator_base, min_class_type>::value,
-		int>::type;
+	using enable_if_jitter_class =
+		typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value || is_base_of<gl_operator_base, min_class_type>::value,
+			int>::type;
 
 	template<class min_class_type>
-	using enable_if_not_jitter_class = typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value
-			&& !is_base_of<gl_operator_base, min_class_type>::value,
-		int>::type;
+	using enable_if_not_jitter_class =
+		typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value,
+			int>::type;
 
 
 	template<class min_class_type>
@@ -235,8 +230,7 @@ namespace c74 { namespace min {
 	using enable_if_ui_operator = typename enable_if<is_base_of<ui_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
-	using enable_if_not_ui_operator =
-		typename enable_if<!is_base_of<ui_operator_base, min_class_type>::value, int>::type;
+	using enable_if_not_ui_operator = typename enable_if<!is_base_of<ui_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
 	using type_enable_if_not_ui_class = typename enable_if<!is_base_of<ui_operator_base, min_class_type>::value>::type;
@@ -307,40 +301,39 @@ namespace c74 { namespace min {
 
 #include "c74_min_object_components.h"    // Shared components of Max objects
 #include "c74_jitter.h"
-#include "c74_min_flags.h"    // Class flags
-#include "c74_min_time.h"    // ITM Support
-#include "c74_min_port.h"    // Inlets and Outlets
-#include "c74_min_threadsafety.h"    // ...
-#include "c74_min_inlet.h"    // ...
-#include "c74_min_outlet.h"    // ...
-#include "c74_min_argument.h"    // Arguments to objects
-#include "c74_min_message.h"    // Messages to objects
-#include "c74_min_attribute.h"    // Attributes of objects
-#include "c74_min_logger.h"    // Console / Max Window output
+#include "c74_min_flags.h"              // Class flags
+#include "c74_min_time.h"               // ITM Support
+#include "c74_min_port.h"               // Inlets and Outlets
+#include "c74_min_threadsafety.h"       // ...
+#include "c74_min_inlet.h"              // ...
+#include "c74_min_outlet.h"             // ...
+#include "c74_min_argument.h"           // Arguments to objects
+#include "c74_min_message.h"            // Messages to objects
+#include "c74_min_attribute.h"          // Attributes of objects
+#include "c74_min_logger.h"             // Console / Max Window output
 #include "c74_min_operator_vector.h"    // Vector-based MSP object add-ins
 #include "c74_min_operator_sample.h"    // Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"    // Jitter MOP add-ins
 
 #include "c74_min_object_wrapper.h"    // Max wrapper for Min objects
-#include "c74_min_object.h"    // The Min object class that glues it all together
+#include "c74_min_object.h"            // The Min object class that glues it all together
 
-#include "c74_min_timer.h"    // Wrapper for clocks
-#include "c74_min_queue.h"    // Wrapper for qelems and fifos
-#include "c74_min_buffer.h"    // Wrapper for MSP buffers
-#include "c74_min_path.h"    // Wrapper class for accessing the Max path system
+#include "c74_min_timer.h"         // Wrapper for clocks
+#include "c74_min_queue.h"         // Wrapper for qelems and fifos
+#include "c74_min_buffer.h"        // Wrapper for MSP buffers
+#include "c74_min_path.h"          // Wrapper class for accessing the Max path system
 #include "c74_min_texteditor.h"    // Wrapper for text editor window
-#include "c74_min_dataspace.h"    // Unit conversion routines (e.g. db-to-linear or hz-to-midi)
+#include "c74_min_dataspace.h"     // Unit conversion routines (e.g. db-to-linear or hz-to-midi)
 
 #include "c74_min_string.h"    // String helper functions
-#include "c74_min_doc.h"    // Instrumentation and tools for generating documentation from Min classes
+#include "c74_min_doc.h"       // Instrumentation and tools for generating documentation from Min classes
 
 
 // Prototype for the actual function that will wrap the Min class as a Max external
 // Don't use directly -- use the MIN_EXTERNAL macro instead.
 
 template<class min_class_type, class = void>
-void wrap_as_max_external(
-	const char* cppname, const char* maxname, void* resources, min_class_type* instance = nullptr);
+void wrap_as_max_external(const char* cppname, const char* maxname, void* resources, min_class_type* instance = nullptr);
 
 
 /// Wrap a class that extends min::object for use in the Max environment.
@@ -349,9 +342,9 @@ void wrap_as_max_external(
 /// @param	cpp_classname	The name of your class.
 /// @see					MIN_EXTERNAL_CUSTOM
 
-#define MIN_EXTERNAL(cpp_classname)                                                                                    \
-	void ext_main(void* r) {                                                                                           \
-		c74::min::wrap_as_max_external<cpp_classname>(#cpp_classname, __FILE__, r);                                    \
+#define MIN_EXTERNAL(cpp_classname)                                                                                                        \
+	void ext_main(void* r) {                                                                                                               \
+		c74::min::wrap_as_max_external<cpp_classname>(#cpp_classname, __FILE__, r);                                                        \
 	}
 
 
@@ -363,7 +356,7 @@ void wrap_as_max_external(
 /// @param	max_name		The name of your object as you will type it into a Max object box.
 /// @see					MIN_EXTERNAL
 
-#define MIN_EXTERNAL_CUSTOM(cpp_classname, max_name)                                                                   \
-	void ext_main(void* r) {                                                                                           \
-		c74::min::wrap_as_max_external<cpp_classname>(#max_name, __FILE__, r);                                         \
+#define MIN_EXTERNAL_CUSTOM(cpp_classname, max_name)                                                                                       \
+	void ext_main(void* r) {                                                                                                               \
+		c74::min::wrap_as_max_external<cpp_classname>(#max_name, __FILE__, r);                                                             \
 	}

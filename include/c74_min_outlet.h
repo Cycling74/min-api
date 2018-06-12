@@ -5,10 +5,9 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74 { namespace min {
 
-	
+
 	// Type definition for what the legacy C Max SDK uses to represent an outlet.
 
 	using t_max_outlet = void*;
@@ -32,7 +31,7 @@ namespace min {
 			max::outlet_list(maxoutlet, nullptr, static_cast<short>(value.size()), static_cast<const max::t_atom*>(&value[0]));
 		else {
 			if (value.size() > 1)
-				max::outlet_anything(maxoutlet, value[0], static_cast<short>(value.size()-1), static_cast<const max::t_atom*>(&value[1]));
+				max::outlet_anything(maxoutlet, value[0], static_cast<short>(value.size() - 1), static_cast<const max::t_atom*>(&value[1]));
 			else
 				max::outlet_anything(maxoutlet, value[0], 0, nullptr);
 		}
@@ -77,11 +76,10 @@ namespace min {
 	// ASSERT: default thread_action is to assert, which means no queue at all...
 
 	template<thread_check check, thread_action action>
-	class outlet_queue : public thread_trigger<t_max_outlet,check> {
+	class outlet_queue : public thread_trigger<t_max_outlet, check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: thread_trigger<t_max_outlet,check> ( a_maxoutlet )
-		{}
+		: thread_trigger<t_max_outlet, check>(a_maxoutlet) {}
 
 		void callback() {}
 
@@ -92,11 +90,10 @@ namespace min {
 	// FIRST: store only the first value and discard additional values (opposite of usurp)
 
 	template<thread_check check>
-	class outlet_queue<check, thread_action::first> : public thread_trigger<t_max_outlet,check> {
+	class outlet_queue<check, thread_action::first> : public thread_trigger<t_max_outlet, check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: thread_trigger<t_max_outlet,check> ( a_maxoutlet )
-		{}
+		: thread_trigger<t_max_outlet, check>(a_maxoutlet) {}
 
 		void callback() {
 			outlet_do_send(m_value);
@@ -106,25 +103,24 @@ namespace min {
 		void push(message_type a_type, const atoms& as) {
 			if (!m_set) {
 				m_value = as;
-				m_set = true;
-				thread_trigger<t_max_outlet,check>::set();
+				m_set   = true;
+				thread_trigger<t_max_outlet, check>::set();
 			}
 		}
 
 	private:
-		atoms	m_value;
-		bool	m_set { false };
+		atoms m_value;
+		bool  m_set{false};
 	};
 
 
 	// LAST: store only the last value received (usurp)
 
 	template<thread_check check>
-	class outlet_queue<check, thread_action::last> : public thread_trigger<t_max_outlet,check> {
+	class outlet_queue<check, thread_action::last> : public thread_trigger<t_max_outlet, check> {
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: thread_trigger<t_max_outlet,check> ( a_maxoutlet )
-		{}
+		: thread_trigger<t_max_outlet, check>(a_maxoutlet) {}
 
 		void callback() {
 			outlet_do_send(this->m_maxoutlet, m_value);
@@ -132,28 +128,27 @@ namespace min {
 
 		void push(message_type a_type, const atoms& as) {
 			m_value = as;
-			thread_trigger<t_max_outlet,check>::set();
+			thread_trigger<t_max_outlet, check>::set();
 		}
 
 	private:
-		atoms	m_value;
+		atoms m_value;
 	};
 
 
 	// FIFO: defer all values
 
 	template<thread_check check>
-	class outlet_queue<check, thread_action::fifo> : public thread_trigger<t_max_outlet,check> {
+	class outlet_queue<check, thread_action::fifo> : public thread_trigger<t_max_outlet, check> {
 
 		struct tagged_atoms {
-			message_type	m_type;
-			atoms			m_as;
+			message_type m_type;
+			atoms        m_as;
 		};
 
 	public:
 		explicit outlet_queue(t_max_outlet a_maxoutlet)
-		: thread_trigger<t_max_outlet,check> ( a_maxoutlet )
-		{}
+		: thread_trigger<t_max_outlet, check>(a_maxoutlet) {}
 
 		void callback() {
 			tagged_atoms tas;
@@ -168,14 +163,14 @@ namespace min {
 		}
 
 		void push(message_type a_type, const atoms& as) {
-			tagged_atoms tas { a_type, as };
+			tagged_atoms tas{a_type, as};
 			m_values.enqueue(tas);
-			thread_trigger<t_max_outlet,check>::set();
+			thread_trigger<t_max_outlet, check>::set();
 		}
 
 
 	private:
-		fifo<tagged_atoms>	m_values;
+		fifo<tagged_atoms> m_values;
 	};
 
 
@@ -200,7 +195,7 @@ namespace min {
 #ifdef NDEBUG
 	template<thread_check check = thread_check::none, thread_action action = thread_action::assert>
 	class outlet;
-#else // DEBUG
+#else    // DEBUG
 	template<thread_check check = thread_check::any, thread_action action = thread_action::assert>
 	class outlet;
 #endif
@@ -211,12 +206,12 @@ namespace min {
 	template<thread_check check_type, thread_action action_type, typename outlet_type>
 	class handle_unsafe_outlet_send {
 	public:
-		handle_unsafe_outlet_send(outlet<check_type,thread_action::fifo>* an_outlet, const outlet_type& a_value) {
+		handle_unsafe_outlet_send(outlet<check_type, thread_action::fifo>* an_outlet, const outlet_type& a_value) {
 			if (typeid(outlet_type) == typeid(max::t_atom_long))
 				an_outlet->queue_storage().push(message_type::long_arg, a_value);
 			else if (typeid(outlet_type) == typeid(double))
 				an_outlet->queue_storage().push(message_type::float_arg, a_value);
-			else // atoms
+			else    // atoms
 				an_outlet->queue_storage().push(message_type::gimme, a_value);
 		}
 	};
@@ -227,7 +222,7 @@ namespace min {
 	template<thread_check check_type, typename outlet_type>
 	class handle_unsafe_outlet_send<check_type, thread_action::assert, outlet_type> {
 	public:
-		handle_unsafe_outlet_send(outlet<check_type,thread_action::assert>* an_outlet, const outlet_type& a_value) {
+		handle_unsafe_outlet_send(outlet<check_type, thread_action::assert>* an_outlet, const outlet_type& a_value) {
 			assert(false);
 		}
 	};
@@ -246,14 +241,13 @@ namespace min {
 
 	public:
 		outlet_base(object_base* an_owner, const std::string& a_description, const std::string& a_type)
-		: port ( an_owner, a_description, a_type )
-		{}
+		: port(an_owner, a_description, a_type) {}
 
 	private:
 		virtual void create() = 0;
 
 	protected:
-		t_max_outlet m_instance { nullptr };
+		t_max_outlet m_instance{nullptr};
 	};
 
 
@@ -273,25 +267,24 @@ namespace min {
 		void queue_argument(const argument_type& arg) noexcept {
 			m_accumulated_output.push_back(arg);
 		}
-		
+
 		// utility: empty argument handling (required for all recursive variadic templates)
 
 		void handle_arguments() noexcept {
 			;
 		}
-		
+
 		// utility: handle N arguments of any type by recursively working through them
 		//	and matching them to the type-matched routine above.
 
-		template <typename FIRST_ARG, typename ...REMAINING_ARGS>
-		void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const& ...args) noexcept {
+		template<typename FIRST_ARG, typename... REMAINING_ARGS>
+		void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const&... args) noexcept {
 			queue_argument(first);
 			if (sizeof...(args))
-				handle_arguments(args...); // recurse
+				handle_arguments(args...);    // recurse
 		}
-		
-	public:
 
+	public:
 		/// Create an outlet
 		/// @param an_owner			The Min object instance that owns this outlet. Typically you should pass 'this'.
 		/// @param a_description	Documentation string for this outlet.
@@ -300,8 +293,7 @@ namespace min {
 		///							When greater than 1, defining this allows memory to be pre-allocated to improve performance.
 
 		outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "", size_t an_atom_count = 1)
-		: outlet_base ( an_owner, a_description, a_type )
-		{
+		: outlet_base(an_owner, a_description, a_type) {
 			m_owner->outlets().push_back(this);
 			m_accumulated_output.reserve(an_atom_count);
 		}
@@ -315,8 +307,7 @@ namespace min {
 		/// @param a_type			Optional string defining the Max message type of the outlet for checking patch-cord connections.
 
 		outlet(object_base* an_owner, const std::string& a_description, size_t an_atom_count, const std::string& a_type = "")
-		: outlet ( an_owner, a_description, a_type, an_atom_count )
-		{}
+		: outlet(an_owner, a_description, a_type, an_atom_count) {}
 
 
 		/// Send a value out an outlet
@@ -326,68 +317,68 @@ namespace min {
 			if (outlet_call_is_safe<check>())
 				outlet_do_send(m_instance, (max::t_atom_long)value);
 			else
-				handle_unsafe_outlet_send<check,action,max::t_atom_long>(this, value);
+				handle_unsafe_outlet_send<check, action, max::t_atom_long>(this, value);
 		}
 
 
 		/// Send a value out an outlet
 		/// @param value The value to send.
-		
+
 		void send(int value) {
 			if (outlet_call_is_safe<check>())
 				outlet_do_send(m_instance, (max::t_atom_long)value);
 			else
-				handle_unsafe_outlet_send<check,action,max::t_atom_long>(this, value);
+				handle_unsafe_outlet_send<check, action, max::t_atom_long>(this, value);
 		}
 
 
 		/// Send a value out an outlet
 		/// @param value The value to send.
-		
+
 		void send(long value) {
 			if (outlet_call_is_safe<check>())
 				outlet_do_send(m_instance, (max::t_atom_long)value);
 			else
-				handle_unsafe_outlet_send<check,action,max::t_atom_long>(this, value);
+				handle_unsafe_outlet_send<check, action, max::t_atom_long>(this, value);
 		}
 
 
 		/// Send a value out an outlet
 		/// @param value The value to send.
-		
+
 		void send(size_t value) {
 			if (outlet_call_is_safe<check>())
 				outlet_do_send(m_instance, (max::t_atom_long)value);
 			else
-				handle_unsafe_outlet_send<check,action,max::t_atom_long>(this, value);
+				handle_unsafe_outlet_send<check, action, max::t_atom_long>(this, value);
 		}
 
 
 		/// Send a value out an outlet
 		/// @param value The value to send.
-		
+
 		void send(float value) {
 			if (outlet_call_is_safe<check>())
 				outlet_do_send(m_instance, (double)value);
 			else
-				handle_unsafe_outlet_send<check,action,double>(this, value);
+				handle_unsafe_outlet_send<check, action, double>(this, value);
 		}
 
 
 		/// Send a value out an outlet
 		/// @param value The value to send.
-		
+
 		void send(double value) {
 			if (outlet_call_is_safe<check>())
 				outlet_do_send(m_instance, (double)value);
 			else
-				handle_unsafe_outlet_send<check,action,double>(this, value);
+				handle_unsafe_outlet_send<check, action, double>(this, value);
 		}
-		
+
 
 		/// Send values out an outlet
 		/// @param value The values to send.
-		
+
 		void send(const atoms& value) {
 			if (value.empty())
 				return;
@@ -395,14 +386,14 @@ namespace min {
 			if (outlet_call_is_safe<check>())
 				outlet_do_send(m_instance, value);
 			else
-				handle_unsafe_outlet_send<check,action,atoms>(this, value);
+				handle_unsafe_outlet_send<check, action, atoms>(this, value);
 		}
 
 
 		/// Send values out an outlet
 		/// @param args The values to send.
 
-		template<typename ...ARGS>
+		template<typename... ARGS>
 		void send(ARGS... args) {
 			handle_arguments(args...);
 			send(m_accumulated_output);
@@ -410,8 +401,8 @@ namespace min {
 		}
 
 	private:
-		atoms						m_accumulated_output;
-		outlet_queue<check,action>	m_queue_storage { this->m_instance };
+		atoms                       m_accumulated_output;
+		outlet_queue<check, action> m_queue_storage{this->m_instance};
 
 
 		// called by object_base::create_outlets() when the owning object is constructed
@@ -430,10 +421,10 @@ namespace min {
 		template<thread_check check_type, thread_action action_type, typename outlet_type>
 		friend class handle_unsafe_outlet_send;
 
-		outlet_queue<check,action>& queue_storage() {
+		outlet_queue<check, action>& queue_storage() {
 			return m_queue_storage;
 		}
 	};
 
 
-}} // namespace c74::min
+}}    // namespace c74::min

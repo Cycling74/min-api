@@ -18,7 +18,7 @@ namespace c74 { namespace min {
 	/// @see				fold()
 
 #ifdef WIN_VERSION
-#define MIN_CLAMP(input, low_bound, high_bound)                                                                        \
+#define MIN_CLAMP(input, low_bound, high_bound)                                                                                            \
 	clamp<std::remove_reference<decltype(input)>::type>(input, (decltype(input))low_bound, (decltype(input))high_bound)
 #else
 #define MIN_CLAMP(input, low_bound, high_bound) clamp<typeof(input)>(input, low_bound, high_bound)
@@ -195,7 +195,7 @@ namespace c74 { namespace min {
 	///						This argument must be a greater than 0.
 	///						A value of 1.0 produces linear scaling,
 	///						higher values result in an exponential mapping and lower values of result in a logarithmic
-	///scaling.
+	/// scaling.
 	///	@return				Returns the scaled value.
 
 	template<class T>
