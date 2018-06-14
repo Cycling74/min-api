@@ -193,11 +193,31 @@ namespace c74 { namespace min {
 	template<class min_class_type, class message_name_type>
 	max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
 		auto  self = wrapper_find_self<min_class_type>(o);
-		auto& meth = *self->m_min_object.messages()[message_name_type::name];
-		atoms as{o, s1, s2, p1, p2};    // NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is
-										// always the correct `self` for box operations
 
-		return static_cast<long>(meth(as).at(0));
+		// This supports notify methods for UI objects which don't actually have a notify method member in the min class
+		if (self->m_min_object.messages().find(message_name_type::name) != self->m_min_object.messages().end()) {
+			auto& meth = *self->m_min_object.messages()[message_name_type::name];
+			atoms as{o, s1, s2, p1, p2};    // NOTE: self could be the jitter object rather than the max object -- so we pass `o` which is
+											// always the correct `self` for box operations
+			auto ret = meth(as);
+			if (!ret.empty())
+				return static_cast<long>(meth(as).at(0));
+		}
+		return 0;
+	}
+
+	template<class min_class_type, class message_name_type, c74::min::enable_if_not_ui_operator<min_class_type> = 0>
+	max::t_max_err wrapper_method_notify(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
+		return wrapper_method_self_sym_sym_ptr_ptr___err<min_class_type,message_name_type>(o, s1, s2, p1, p2);
+	}
+
+	template<class min_class_type, class message_name_type, c74::min::enable_if_ui_operator<min_class_type> = 0>
+	max::t_max_err wrapper_method_notify(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
+		auto err = wrapper_method_self_sym_sym_ptr_ptr___err<min_class_type,message_name_type>(o, s1, s2, p1, p2);
+		if (!err)
+			return c74::max::jbox_notify(reinterpret_cast<c74::max::t_jbox*>(o), s1, s2, p1, p2);
+		else
+			return err;
 	}
 
 	template<class min_class_type, class message_name_type>
@@ -314,8 +334,14 @@ namespace c74 { namespace min {
 		auto* c       = max::class_new(maxname.c_str(), reinterpret_cast<method>(wrapper_new<min_class_type>),
             reinterpret_cast<method>(wrapper_free<min_class_type>), sizeof(minwrap<min_class_type>), nullptr, max::A_GIMME, 0);
 
-		// wrapping as ui *must* occur immediately after class_new() or notifications will be broken
-		wrap_as_max_external_ui<min_class_type>(c, instance);
+		if (instance.is_ui_class()) {
+			// wrapping as ui *must* occur immediately after class_new() or notifications will be broken
+			wrap_as_max_external_ui<min_class_type>(c, instance);
+
+			// if there is no 'notify' message then provide the default
+			if (instance.messages().find("notify") == instance.messages().end())
+				max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_notify<min_class_type,wrapper_message_name_notify>), "notify", max::A_CANT, 0);
+		}
 
 		// messages
 
@@ -325,7 +351,7 @@ namespace c74 { namespace min {
 				c, okclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, anything, anything, A_GIMME) else MIN_WRAPPER_ADDMETHOD(c, int, int,
 				A_LONG) else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT) else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary,
-				A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, self_sym_sym_ptr_ptr___err, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
+				A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, notify, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
 				patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, self_ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown,
@@ -564,7 +590,7 @@ namespace c74 { namespace min {
 				c, okclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, anything, anything, A_GIMME) else MIN_WRAPPER_ADDMETHOD(c, int, int,
 				A_LONG) else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT) else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary,
-				A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, self_sym_sym_ptr_ptr___err, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
+				A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, notify, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
 				patchlineupdate, self_ptr_long_ptr_long_ptr_long,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, self_ptr,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave,
