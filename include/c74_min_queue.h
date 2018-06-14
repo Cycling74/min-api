@@ -5,14 +5,13 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74 { namespace min {
 
 
 	template<placeholder inlet_placeholder_type = placeholder::none>
 	class queue;
 
-	extern "C" void queue_qfn_callback(queue<>* a_queue);		// defined in c74_min_impl.h
+	extern "C" void queue_qfn_callback(queue<>* a_queue);    // defined in c74_min_impl.h
 
 
 	/// The queue class allows you to defer the call of a function to the near future in Max's main (low-priority) thread.
@@ -24,16 +23,14 @@ namespace min {
 	template<placeholder queue_placeholder_type>
 	class queue {
 	public:
-
 		/// Create a queue.
 		/// @param	an_owner	The owning object for the queue. Typically you will pass `this`.
 		/// @param	a_function	A function to be executed when the queue is serviced.
 		///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
 
 		queue(object_base* an_owner, function a_function)
-		: m_owner		{ an_owner }
-		, m_function	{ a_function }
-		{
+		: m_owner{an_owner}
+		, m_function{a_function} {
 			m_instance = max::qelem_new(this, reinterpret_cast<max::method>(queue_qfn_callback));
 		}
 
@@ -49,7 +46,7 @@ namespace min {
 		// If they are then the ownership of the internal t_qelem becomes ambiguous.
 
 		queue(const queue&) = delete;
-		queue& operator = (const queue& value) = delete;
+		queue& operator=(const queue& value) = delete;
 
 
 		/// Set the queue to fire the next time Max services main thread queues.
@@ -82,16 +79,16 @@ namespace min {
 		}
 
 	private:
-		object_base*	m_owner;
-		function		m_function;
-		max::t_qelem*	m_instance { nullptr };
+		object_base*  m_owner;
+		function      m_function;
+		max::t_qelem* m_instance{nullptr};
 
 		friend void queue_qfn_callback(queue* a_queue);
-		void qfn() {
-			atoms a;
-			m_function(a,-1);
+		void        qfn() {
+            atoms a;
+            m_function(a, -1);
 		}
 	};
 
 
-}} // namespace c74::min
+}}    // namespace c74::min

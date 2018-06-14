@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74 { namespace min {
 
 
 	/// A port represents a input or an output from an object.
@@ -20,11 +19,9 @@ namespace min {
 		port(object_base* an_owner, const std::string& a_description, const std::string& a_type)
 		: m_owner(an_owner)
 		, m_description(a_description)
-		, m_type(a_type)
-		{}
+		, m_type(a_type) {}
 
 	public:
-
 		/// Determine if an audio signal is currently connected to this port.
 		///	@return		True if a signal is connected. Otherwise false.
 
@@ -52,10 +49,10 @@ namespace min {
 		}
 
 	protected:
-		object_base*	m_owner;
-		std::string		m_description;
-		std::string		m_type;
-		bool			m_signal_connection { false };
+		object_base* m_owner;
+		std::string  m_description;
+		std::string  m_type;
+		bool         m_signal_connection{false};
 
 
 		// update_signal_connection() is called to update our audio signal connection state
@@ -70,4 +67,4 @@ namespace min {
 	};
 
 
-}} // namespace c74::min
+}}    // namespace c74::min

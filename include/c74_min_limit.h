@@ -5,10 +5,9 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74 { namespace min {
 
-	
+
 	/// Limit values to within a specified range, clamping the values to the outer bounds of the range if neccessary.
 	///	@param	input		The value to constrain.
 	///	@param	low_bound	The low bound for the range.
@@ -18,11 +17,12 @@ namespace min {
 	/// @see				wrap()
 	/// @see				fold()
 
-	#ifdef WIN_VERSION
-		#define MIN_CLAMP( input, low_bound, high_bound )		clamp<std::remove_reference<decltype(input)>::type>(input, (decltype(input))low_bound, (decltype(input))high_bound)
-	#else
-		#define MIN_CLAMP( input, low_bound, high_bound )		clamp<typeof(input)>(input, low_bound, high_bound)
-	#endif
+#ifdef WIN_VERSION
+#define MIN_CLAMP(input, low_bound, high_bound)                                                                                            \
+	clamp<std::remove_reference<decltype(input)>::type>(input, (decltype(input))low_bound, (decltype(input))high_bound)
+#else
+#define MIN_CLAMP(input, low_bound, high_bound) clamp<typeof(input)>(input, low_bound, high_bound)
+#endif
 
 
 	///	Determine if a value is a power-of-two. Only works for ints.
@@ -34,7 +34,7 @@ namespace min {
 	template<class T>
 	bool is_power_of_two(T value) {
 		// TODO: static_assert is_integral
-		return (value > 0) && ((value & (value-1)) == 0);
+		return (value > 0) && ((value & (value - 1)) == 0);
 	}
 
 
@@ -60,7 +60,7 @@ namespace min {
 	}
 
 
-	template <typename T>
+	template<typename T>
 	T clamp(T input, T low, T high) {
 		return std::min(std::max(input, low), high);
 	}
@@ -82,18 +82,18 @@ namespace min {
 		if (low_bound > high_bound)
 			std::swap(low_bound, high_bound);
 
-		double	x = input - low_bound;
-		auto	range = high_bound - low_bound;
+		double x     = input - low_bound;
+		auto   range = high_bound - low_bound;
 
 		if (range == 0)
-			return 0; //don't divide by zero
+			return 0;    // don't divide by zero
 
 		if (x > range) {
 			if (x > range * 2.0) {
-				double	d = x / range;
-				long	di = static_cast<long>(d);
-				d = d - di;
-				x = d * range;
+				double d  = x / range;
+				long   di = static_cast<long>(d);
+				d         = d - di;
+				x         = d * range;
 			}
 			else {
 				x -= range;
@@ -101,10 +101,10 @@ namespace min {
 		}
 		else if (x < 0.0) {
 			if (x < -range) {
-				double	d = x / range;
-				long	di = static_cast<long>(d);
-				d = d - di;
-				x = d * range;
+				double d  = x / range;
+				long   di = static_cast<long>(d);
+				d         = d - di;
+				x         = d * range;
 			}
 			x += range;
 		}
@@ -156,9 +156,9 @@ namespace min {
 			std::swap(low_bound, high_bound);
 
 		if ((input >= low_bound) && (input <= high_bound))
-			return input; //nothing to fold
+			return input;    // nothing to fold
 		else {
-			double fold_range = 2.0 * fabs( static_cast<double>(low_bound - high_bound));
+			double fold_range = 2.0 * fabs(static_cast<double>(low_bound - high_bound));
 			return fabs(remainder(input - low_bound, fold_range)) + low_bound;
 		}
 	}
@@ -194,7 +194,8 @@ namespace min {
 	///	@param	power		An exponent to be applied in the scaling.
 	///						This argument must be a greater than 0.
 	///						A value of 1.0 produces linear scaling,
-	///						higher values result in an exponential mapping and lower values of result in a logarithmic scaling.
+	///						higher values result in an exponential mapping and lower values of result in a logarithmic
+	/// scaling.
 	///	@return				Returns the scaled value.
 
 	template<class T>
@@ -227,10 +228,9 @@ namespace min {
 		/// The interface for all attribute range limiter classes
 		/// @tparam	The numerical type to be constrained.
 
-		template <typename T>
+		template<typename T>
 		class base {
 		public:
-
 			/// Constrain input values to the specified range.
 			/// @param	input	The input value to constrain.
 			/// @param	low		The low boundary of the range.
@@ -244,10 +244,9 @@ namespace min {
 		/// Attribute range limiter that does not constrain values.
 		/// @tparam	The numerical type to be constrained.
 
-		template <typename T>
+		template<typename T>
 		class none : public base<T> {
 		public:
-
 			/// Constrain input values to the specified range.
 			/// @param	input	The input value to constrain.
 			/// @param	low		The low boundary of the range.
@@ -274,10 +273,9 @@ namespace min {
 		/// Attribute range limiter that constrains values by clamping.
 		/// @tparam	The numerical type to be constrained.
 
-		template <typename T>
+		template<typename T>
 		class clamp : public base<T> {
 		public:
-
 			/// Constrain input values to the specified range.
 			/// @param	input	The input value to constrain.
 			/// @param	low		The low boundary of the range.
@@ -304,10 +302,9 @@ namespace min {
 		/// Attribute range limiter that constrains values by wrapping.
 		/// @tparam	The numerical type to be constrained.
 
-		template <typename T>
+		template<typename T>
 		class wrap : public base<T> {
 		public:
-
 			/// Constrain input values to the specified range.
 			/// @param	input	The input value to constrain.
 			/// @param	low		The low boundary of the range.
@@ -334,10 +331,9 @@ namespace min {
 		/// Attribute range limiter that constrains values by folding.
 		/// @tparam	The numerical type to be constrained.
 
-		template <typename T>
+		template<typename T>
 		class fold : public base<T> {
 		public:
-
 			/// Constrain input values to the specified range.
 			/// @param	input	The input value to constrain.
 			/// @param	low		The low boundary of the range.
@@ -360,7 +356,7 @@ namespace min {
 			}
 		};
 
-	} // namespace limit
+	}    // namespace limit
 
 
-}}  // namespace c74::min
+}}    // namespace c74::min

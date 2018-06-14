@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74 { namespace min {
 
 
 	/// There are several places where Min may check the thread of execution
@@ -17,10 +16,10 @@ namespace min {
 	/// @seealso #outlet<>
 
 	enum class thread_check {
-		main,					///< Thread must be the main thread.
-		scheduler,				///< Thread must be the scheduler thread.
-		any,					///< Thread may be either of the main or the scheduler threads.
-		none					///< Perform no checking.
+		main,         ///< Thread must be the main thread.
+		scheduler,    ///< Thread must be the scheduler thread.
+		any,          ///< Thread may be either of the main or the scheduler threads.
+		none          ///< Perform no checking.
 	};
 
 
@@ -31,10 +30,10 @@ namespace min {
 	/// @seealso #fifo
 
 	enum class thread_action {
-		assert,					///< Terminate execution
-		fifo,					///< Queue the operation(s) into a first-in-first-out buffer
-		first,					///< Queue the operation -- only queueing the first one if there are multiple
-		last					///< Queue the operation -- only queueing the last one if there are multiple
+		assert,    ///< Terminate execution
+		fifo,      ///< Queue the operation(s) into a first-in-first-out buffer
+		first,     ///< Queue the operation -- only queueing the first one if there are multiple
+		last       ///< Queue the operation -- only queueing the last one if there are multiple
 	};
 
 
@@ -47,7 +46,7 @@ namespace min {
 	// Forward declaration... See below.
 
 	template<class T, thread_check check>
-	void thread_trigger_callback(thread_trigger<T,check>* self);
+	void thread_trigger_callback(thread_trigger<T, check>* self);
 
 
 	// The thread_trigger is a base class that triggers an action to be performed
@@ -63,13 +62,11 @@ namespace min {
 	template<class T, thread_check check>
 	class thread_trigger {
 	public:
-
 		// the baton is anything that will be handed off to be later handed back during the callback
 
 		explicit thread_trigger(T a_baton)
-		: m_baton { a_baton }
-		{
-			m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(thread_trigger_callback<T,check>));
+		: m_baton{a_baton} {
+			m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(thread_trigger_callback<T, check>));
 		}
 
 
@@ -82,7 +79,7 @@ namespace min {
 		// If they are then the ownership of the internal t_clock/t_qelem becomes ambiguous.
 
 		thread_trigger(const thread_trigger&) = delete;
-		thread_trigger& operator = (const thread_trigger& value) = delete;
+		thread_trigger& operator=(const thread_trigger& value) = delete;
 
 
 		// The baton is passed back later as an argument to the callback
@@ -104,25 +101,23 @@ namespace min {
 		// callback() for when the trigger fires
 		// and a push() for handling new items.
 
-		virtual void callback() = 0;
+		virtual void callback()                                     = 0;
 		virtual void push(message_type a_type, const atoms& values) = 0;
 
 	protected:
-		T				m_baton;
-		max::t_qelem*	m_qelem;
+		T             m_baton;
+		max::t_qelem* m_qelem;
 	};
 
 
 	// A thread_trigger specialization for the scheduler thread
 
 	template<class T>
-	class thread_trigger<T,thread_check::scheduler> {
+	class thread_trigger<T, thread_check::scheduler> {
 	public:
-
 		explicit thread_trigger(T a_baton)
-		: m_baton { a_baton }
-		{
-			m_clock = max::clock_new(this, reinterpret_cast<max::method>(thread_trigger_callback<T,thread_check::scheduler>));
+		: m_baton{a_baton} {
+			m_clock = max::clock_new(this, reinterpret_cast<max::method>(thread_trigger_callback<T, thread_check::scheduler>));
 		}
 
 
@@ -135,7 +130,7 @@ namespace min {
 		// If they are then the ownership of the internal t_clock/t_qelem becomes ambiguous.
 
 		thread_trigger(const thread_trigger&) = delete;
-		thread_trigger& operator = (const thread_trigger& value) = delete;
+		thread_trigger& operator=(const thread_trigger& value) = delete;
 
 
 		// The baton is passed back later as an argument to the callback
@@ -157,12 +152,12 @@ namespace min {
 		// callback() for when the trigger fires
 		// and a push() for handling new items.
 
-		virtual void callback() = 0;
+		virtual void callback()                                     = 0;
 		virtual void push(message_type a_type, const atoms& values) = 0;
 
 	protected:
-		T				m_baton;
-		max::t_clock*	m_clock;
+		T             m_baton;
+		max::t_clock* m_clock;
 	};
 
 
@@ -170,8 +165,8 @@ namespace min {
 	// Simply forward the call back into the thread_trigger.
 
 	template<class T, thread_check check>
-	void thread_trigger_callback(thread_trigger<T,check>* self) {
+	void thread_trigger_callback(thread_trigger<T, check>* self) {
 		self->callback();
 	}
 
-}} // namespace c74::min
+}}    // namespace c74::min

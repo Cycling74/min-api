@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74 { namespace min {
 
 
 	// forward declarations
@@ -16,7 +15,7 @@ namespace min {
 	class argument_base;
 	class message_base;
 	class attribute_base;
-	
+
 	template<typename T, threadsafe threadsafety = threadsafe::undefined, template<typename> class limit_type = limit::none>
 	class attribute;
 
@@ -24,7 +23,7 @@ namespace min {
 	// Wrap the C++ class together with the appropriate Max object header
 	// Max object header is selected automatically using the type of the base class.
 
-	template<class min_class_type, class=void>
+	template<class min_class_type, class = void>
 	struct minwrap;
 
 
@@ -33,9 +32,8 @@ namespace min {
 
 	class maxobject_header {
 	public:
-
 		// allow casting the header to any of the max t_object struct types without errors/warnings
-		
+
 		operator max::t_object*() {
 			return &m_objstorage.maxobj;
 		}
@@ -55,35 +53,33 @@ namespace min {
 		operator void*() {
 			return &m_objstorage.maxobj;
 		}
-		
+
 	private:
 		union storage {
-			max::t_object	maxobj;
-			max::t_jbox		maxbox;
-			max::t_pxobject	mspobj;
-			max::t_pxjbox	mspbox;
+			max::t_object   maxobj;
+			max::t_jbox     maxbox;
+			max::t_pxobject mspobj;
+			max::t_pxjbox   mspbox;
 		};
-		
+
 		storage m_objstorage;
 	};
-	
-	
+
+
 	/// An object_base is a generic way to pass around a min::object.
 	/// Required because a min::object<>, though sharing common code,
 	/// is actually specific to the the user's defined class due to template specialization.
 
 	class object_base {
-		static const constexpr long k_magic = 1974004791; // magic number used internally for sanity checking on pointers to objects
+		static const constexpr long k_magic = 1974004791;    // magic number used internally for sanity checking on pointers to objects
 
 	protected:
-
 		// Constructor is only called when creating a min::object<>, and never created directly.
 		// The dictionary representing the object in the patcher is referenced (owned) by m_state.
 		// Inheriting classes can retrieve information from this dictionary using the state() method.
 
 		object_base()
-		: m_state { (max::t_dictionary*)k_sym__pound_d, false }
-		{}
+		: m_state{(max::t_dictionary*)k_sym__pound_d, false} {}
 
 
 		// Destructor is only called when freeing a min::object<>, and never directly.
@@ -94,7 +90,6 @@ namespace min {
 
 
 	public:
-
 		/// Is this class a Jitter class (e.g. a matrix_operator or gl_operator)?
 		/// @return	True if it is. Otherwise false.
 
@@ -111,12 +106,12 @@ namespace min {
 		/// @return True if it is. Otherwise false (the default).
 
 		virtual bool is_assumed_threadsafe() = 0;
-		
+
 
 		/// Cast this object to it's corresponding t_object pointer as understood by the older C Max API.
 		/// @return The t_object pointer for this object.
 
-		operator max::t_object* () const {
+		operator max::t_object*() const {
 			return maxobj();
 		}
 
@@ -171,7 +166,7 @@ namespace min {
 			return m_messages;
 		}
 
-		
+
 		/// Get a reference to this object's attributes.
 		/// @return	A reference to this object's attributes.
 
@@ -209,9 +204,9 @@ namespace min {
 		/// Useful in the case where there may be one class with several aliases that modify the behavior (e.g. metro and qmetro).
 		/// @return	The name of this class.
 
-        symbol classname() {
-            return m_classname;
-        }
+		symbol classname() {
+			return m_classname;
+		}
 
 
 		/// Try to call a named message.
@@ -240,22 +235,22 @@ namespace min {
 		///	@return				True if the object has a message with that name. Otherwise false.
 		/// @see				try_call()
 
-        bool has_call(const std::string& name) {
-            auto found_message = m_messages.find(name);
-            return (found_message != m_messages.end());
-        }
+		bool has_call(const std::string& name) {
+			auto found_message = m_messages.find(name);
+			return (found_message != m_messages.end());
+		}
 
 	private:
-		max::t_object*										m_maxobj;		// initialized prior to placement new
-		long												m_min_magic;	// should be valid if m_maxobj has been assigned
-		bool												m_initialized { false };
-		std::vector<inlet_base*>							m_inlets;
-		std::vector<outlet_base*>							m_outlets;
-		std::vector<argument_base*>							m_arguments;
-		std::unordered_map<std::string, message_base*>		m_messages;		// written at class init -- readonly thereafter
-		std::unordered_map<std::string, attribute_base*>	m_attributes;	// written at class init -- readonly thereafter
-		dict												m_state;
-        symbol                                              m_classname;	 // what's typed in the max box
+		max::t_object*                                   m_maxobj;       // initialized prior to placement new
+		long                                             m_min_magic;    // should be valid if m_maxobj has been assigned
+		bool                                             m_initialized{false};
+		std::vector<inlet_base*>                         m_inlets;
+		std::vector<outlet_base*>                        m_outlets;
+		std::vector<argument_base*>                      m_arguments;
+		std::unordered_map<std::string, message_base*>   m_messages;      // written at class init -- readonly thereafter
+		std::unordered_map<std::string, attribute_base*> m_attributes;    // written at class init -- readonly thereafter
+		dict                                             m_state;
+		symbol                                           m_classname;    // what's typed in the max box
 
 		friend class inlet_base;
 		friend class outlet_base;
@@ -288,7 +283,7 @@ namespace min {
 		// (e.g. the rare case where the magic number would be randomly initialized to the correct value.)
 
 		void assign_instance(max::t_object* instance) {
-			m_maxobj = instance;
+			m_maxobj    = instance;
 			m_min_magic = k_magic;
 		}
 
@@ -328,7 +323,6 @@ namespace min {
 		}
 
 	public:
-
 		// DO NOT USE
 		// Intended to be private but made public to avoid excessive contortions required to make min_ctor<> a friend function
 		// due to heavy use of templates, SFINAE, etc.
@@ -338,7 +332,6 @@ namespace min {
 		// defined in c74_min_argument.h
 
 		void process_arguments(const atoms& args);
-
 	};
 
 
@@ -349,17 +342,17 @@ namespace min {
 	// All specializations of the minwrap struct must define how they are setup (when the instance is created)
 	// and how they are torn down (when the instance is freed).
 	// Much of this type of work is located elsewhere if it is possible to do so.
-	// For example, argument processing is the same for all cases and thus it is present outside of this struct because it needs to specialization.
+	// For example, argument processing is the same for all cases and thus it is present outside of this struct because it needs to
+	// specialization.
 	//
 	// This (non-)specialization is a normal max object (which includes ui objects and jitter matrix operators).
 
 	template<class min_class_type>
-	struct minwrap <min_class_type, typename enable_if<
-		   !is_base_of< vector_operator_base, min_class_type>::value
-		&& !is_base_of< sample_operator_base, min_class_type>::value
-	>::type > {
-		maxobject_header	m_max_header;
-		min_class_type		m_min_object;
+	struct minwrap<min_class_type,
+		typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value
+			&& !is_base_of<sample_operator_base, min_class_type>::value>::type> {
+		maxobject_header m_max_header;
+		min_class_type   m_min_object;
 
 
 		// Setup is called at instantiation.
@@ -371,7 +364,7 @@ namespace min {
 
 
 		// Cleanup is called when the instance is freed.
-		
+
 		void cleanup() {}
 
 
@@ -381,7 +374,7 @@ namespace min {
 			return m_max_header;
 		}
 	};
-	
+
 
 	/// Deduce the intended name of a Max object from the name of the c++ sourcecode file.
 	/// This is used internally via the #MIN_EXTERNAL macro when the max::t_class is created.
@@ -391,33 +384,33 @@ namespace min {
 
 	inline std::string deduce_maxclassname(const char* maxname) {
 		std::string smaxname;
-		
-		const char* start = strrchr(maxname, '/');		// mac paths
+
+		const char* start = strrchr(maxname, '/');    // mac paths
 		if (start)
 			start += 1;
 		else {
-			start = strrchr(maxname, '\\');				// windows paths
+			start = strrchr(maxname, '\\');    // windows paths
 			if (start)
 				start += 1;
 			else
 				start = maxname;
 		}
-		
-		const char* end = strstr(start, "_tilde.cpp");	// audio objects
+
+		const char* end = strstr(start, "_tilde.cpp");    // audio objects
 		if (end) {
-			smaxname.assign(start, end-start);
+			smaxname.assign(start, end - start);
 			smaxname += '~';
 		}
-		else {											// all other objects
+		else {    // all other objects
 			const char* end = strrchr(start, '.');
 			if (!end)
 				end = start + strlen(start);
 			if (!strcmp(end, ".cpp"))
-				smaxname.assign(start, end-start);
+				smaxname.assign(start, end - start);
 			else
 				smaxname = start;
 		}
 		return smaxname;
 	}
-	
-}} // namespace c74::min
+
+}}    // namespace c74::min
