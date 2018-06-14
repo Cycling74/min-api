@@ -181,6 +181,17 @@ namespace c74 { namespace min {
 		meth(as);
 	}
 
+	template<class min_class_type, class message_name_type, c74::min::enable_if_ui_operator<min_class_type> = 0>
+	void wrapper_method_paint(max::t_object* o, void* arg1) {
+		auto  self = wrapper_find_self<min_class_type>(o);
+		auto& ui_op = const_cast<ui_operator_base&>( dynamic_cast<const ui_operator_base&>(self->m_min_object));
+		auto& meth = *self->m_min_object.messages()[message_name_type::name];
+		atoms as{o, arg1};
+
+		ui_op.update_colors();
+		meth(as);
+	}
+
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_self_ptr_pt_long(max::t_object* o, void* arg1, max::t_pt arg2, max::t_atom_long arg3) {
 		auto  self = wrapper_find_self<min_class_type>(o);
@@ -227,7 +238,6 @@ namespace c74 { namespace min {
 		auto& meth = *self->m_min_object.messages()[message_name_type::name];
 		atoms as{o, arg1, arg2, arg3, arg4, arg5, arg6};    // NOTE: self could be the jitter object rather than the max object -- so we
 															// pass `o` which is always the correct `self` for box operations
-
 		meth(as);
 	}
 
@@ -353,7 +363,7 @@ namespace c74 { namespace min {
 				A_LONG) else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT) else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary,
 				A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, notify, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
 				patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr,
-				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, self_ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long,
+				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, paint, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown,
 				self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
 				mousedragdelta, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long,
@@ -592,7 +602,7 @@ namespace c74 { namespace min {
 				A_LONG) else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT) else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary,
 				A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, notify, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
 				patchlineupdate, self_ptr_long_ptr_long_ptr_long,
-				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, self_ptr,
+				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, paint,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave,
 				self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
 				mouseup, self_ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long,

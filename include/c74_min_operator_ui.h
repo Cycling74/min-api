@@ -11,7 +11,11 @@ namespace c74 {
 namespace min {
 
 	
-	class ui_operator_base {};
+	class ui_operator_base {
+	public:
+		virtual void add_color_attribute(std::pair<symbol,attribute_base*> a_color_attr) = 0;
+		virtual void update_colors() = 0;
+	};
 	
 
 	template<int default_width_type = 20, int default_height_type = 20>
@@ -50,30 +54,50 @@ namespace min {
 			box()->b_firstin = m_instance->maxobj();
 		}
 
-
 		virtual ~ui_operator() {
 			if (box())  // box will be a nullptr when being dummy-constructed
 				jbox_free(box());
 		}
 
-
 		void redraw() {
 			jbox_redraw(box());
 		}
-
 
 		int default_width() const {
 			return default_width_type;
 		}
 
-
 		int default_height() const {
 			return default_height_type;
 		}
 
+		void add_color_attribute(std::pair<symbol,attribute_base*> a_color_attr) override {
+			m_color_attributes.push_back(a_color_attr);
+		}
+
+
+		// update all style-aware attrs
+		// must be done at the beginning of the Max object's "paint" method
+
+		void update_colors() override {
+			auto& self = *dynamic_cast<object_base*>(this);
+
+			for (const auto& color_attr : m_color_attributes) {
+				long              ac { 4};
+				c74::max::t_atom avs[4];
+				c74::max::t_atom* av = &avs[0];
+				attribute_base&	attr { *color_attr.second };
+				auto err = c74::max::object_attr_getvalueof(self, color_attr.first, &ac, &av);
+				if (!err) {
+					atoms a {av[0], av[1], av[2], av[3]};
+					attr.set(a);
+				}
+			}
+		}
 
 	private:
 		object_base* m_instance;
+		vector<std::pair<symbol,attribute_base*>> m_color_attributes;
 
 		c74::max::t_jbox* box() const {
 			return reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj());

@@ -888,7 +888,7 @@ namespace c74 { namespace min {
 		atoms	rvals		= *attr;
 
 		if ((*ac) != rvals.size() || !(*av)) {		 // otherwise use memory passed in
-			if (*av) {
+			if (*ac && *av) {
 				sysmem_freeptr(*av);
 				*av = NULL;
 			}
