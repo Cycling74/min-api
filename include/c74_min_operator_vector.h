@@ -120,9 +120,14 @@ namespace c74 { namespace min {
 		void setup() {
 			max::dsp_setup(m_max_header, (long)m_min_object.inlets().size());
 
-			max::t_pxobject* x = m_max_header;
-			x->z_misc |= max::Z_NO_INPLACE;
-
+			if (m_min_object.is_ui_class()) {
+				max::t_pxjbox* x = m_max_header;
+				x->z_misc |= max::Z_NO_INPLACE;
+			}
+			else {
+				max::t_pxobject* x = m_max_header;
+				x->z_misc |= max::Z_NO_INPLACE;
+			}
 			m_min_object.create_outlets();
 		}
 
@@ -130,7 +135,10 @@ namespace c74 { namespace min {
 		// Cleanup is called when the object is freed.
 
 		void cleanup() {
-			max::dsp_free(m_max_header);
+			if (m_min_object.is_ui_class())
+				max::dsp_freejbox(m_max_header);
+			else
+				max::dsp_free(m_max_header);
 		}
 
 
@@ -348,7 +356,10 @@ namespace c74 { namespace min {
 	template<class min_class_type, enable_if_audio_class<min_class_type> = 0>
 	void wrap_as_max_external_audio(max::t_class* c) {
 		max::class_addmethod(c, reinterpret_cast<max::method>(min_dsp64<min_class_type>), "dsp64", max::A_CANT, 0);
-		max::class_dspinit(c);
+		if (is_base_of<ui_operator_base, min_class_type>::value)
+			max::class_dspinitjbox(c);
+		else
+			max::class_dspinit(c);
 	}
 
 }}    // namespace c74::min
