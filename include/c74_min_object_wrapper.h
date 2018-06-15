@@ -181,20 +181,19 @@ namespace c74 { namespace min {
 		meth(as);
 	}
 
-	template<class min_class_type, class message_name_type, c74::min::enable_if_ui_operator<min_class_type> = 0>
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_paint(max::t_object* o, void* arg1) {
-		auto  self = wrapper_find_self<min_class_type>(o);
-		auto& ui_op = const_cast<ui_operator_base&>( dynamic_cast<const ui_operator_base&>(self->m_min_object));
-		auto& meth = *self->m_min_object.messages()[message_name_type::name];
-		atoms as{o, arg1};
+		if (is_base_of<ui_operator_base, min_class_type>::value) {
+			auto  self = wrapper_find_self<min_class_type>(o);
+			auto& ui_op = const_cast<ui_operator_base&>(dynamic_cast<const ui_operator_base&>(self->m_min_object));
+			auto& meth = *self->m_min_object.messages()[message_name_type::name];
+			atoms as{ o, arg1 };
 
-		ui_op.update_colors();
-		meth(as);
-	}
-
-	template<class min_class_type, class message_name_type, c74::min::enable_if_not_ui_operator<min_class_type> = 0>
-	void wrapper_method_paint(max::t_object* o, void* arg1) {
-		wrapper_method_self_ptr< min_class_type, message_name_type>(o, arg1);
+			ui_op.update_colors();
+			meth(as);
+		}
+		else
+			wrapper_method_self_ptr< min_class_type, message_name_type>(o, arg1);
 	}
 
 	template<class min_class_type, class message_name_type>
@@ -222,18 +221,17 @@ namespace c74 { namespace min {
 		return 0;
 	}
 
-	template<class min_class_type, class message_name_type, c74::min::enable_if_not_ui_operator<min_class_type> = 0>
+	template<class min_class_type, class message_name_type>
 	max::t_max_err wrapper_method_notify(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
-		return wrapper_method_self_sym_sym_ptr_ptr___err<min_class_type,message_name_type>(o, s1, s2, p1, p2);
-	}
-
-	template<class min_class_type, class message_name_type, c74::min::enable_if_ui_operator<min_class_type> = 0>
-	max::t_max_err wrapper_method_notify(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
-		auto err = wrapper_method_self_sym_sym_ptr_ptr___err<min_class_type,message_name_type>(o, s1, s2, p1, p2);
-		if (!err)
-			return c74::max::jbox_notify(reinterpret_cast<c74::max::t_jbox*>(o), s1, s2, p1, p2);
+		if (is_base_of<ui_operator_base, min_class_type>::value) {
+			auto err = wrapper_method_self_sym_sym_ptr_ptr___err<min_class_type, message_name_type>(o, s1, s2, p1, p2);
+			if (!err)
+				return c74::max::jbox_notify(reinterpret_cast<c74::max::t_jbox*>(o), s1, s2, p1, p2);
+			else
+				return err;
+		}
 		else
-			return err;
+			return wrapper_method_self_sym_sym_ptr_ptr___err<min_class_type, message_name_type>(o, s1, s2, p1, p2);
 	}
 
 	template<class min_class_type, class message_name_type>
