@@ -192,6 +192,11 @@ namespace c74 { namespace min {
 		meth(as);
 	}
 
+	template<class min_class_type, class message_name_type, c74::min::enable_if_not_ui_operator<min_class_type> = 0>
+	void wrapper_method_paint(max::t_object* o, void* arg1) {
+		wrapper_method_self_ptr< min_class_type, message_name_type>(o, arg1);
+	}
+
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_self_ptr_pt_long(max::t_object* o, void* arg1, max::t_pt arg2, max::t_atom_long arg3) {
 		auto  self = wrapper_find_self<min_class_type>(o);
