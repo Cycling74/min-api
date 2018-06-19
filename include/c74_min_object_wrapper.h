@@ -211,6 +211,18 @@ namespace c74 { namespace min {
 		meth(as);
 	}
 
+	template<class min_class_type, class message_name_type>
+	void wrapper_method_getplaystate(max::t_object* o, long* play, double* pos, long* loop) {
+		auto  self = wrapper_find_self<min_class_type>(o);
+		auto& meth = *self->m_min_object.messages()[message_name_type::name];
+		atoms as = meth();
+
+		assert(as.size() == 3);
+		*play = as[0];
+		*pos = as[1];
+		*loop = as[2];
+	}
+
 	// dictionary is a very special case because of the reference counting
 	template<class min_class_type, class message_name_type>
 	void wrapper_method_dictionary(max::t_object* o, max::t_symbol* s) {
@@ -280,6 +292,7 @@ namespace c74 { namespace min {
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(edclose)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(fileusage)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(float)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(getplaystate)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(int)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(loadbang)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseenter)
@@ -318,11 +331,16 @@ namespace c74 { namespace min {
 
 		for (auto& a_message : instance.messages()) {
 			MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
-			else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(
-				c, okclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero,
-				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, anything, anything, A_GIMME) else MIN_WRAPPER_ADDMETHOD(c, int, int,
-				A_LONG) else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT) else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary,
-				A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, self_sym_sym_ptr_ptr___err, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
+			else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero, A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, anything, anything, A_GIMME)
+			else MIN_WRAPPER_ADDMETHOD(c, int, int, A_LONG)
+			else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT)
+			else MIN_WRAPPER_ADDMETHOD(c, getplaystate, getplaystate, A_CANT)
+			else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary, A_SYM)
+			else MIN_WRAPPER_ADDMETHOD(c, notify, self_sym_sym_ptr_ptr___err, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
 				patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, self_ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown,
