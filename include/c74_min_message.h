@@ -167,8 +167,8 @@ namespace c74 { namespace min {
 		///							In most cases you should _not_ pass anything here and accept the default.
 
 		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {},
-			message_type type = message_type::gimme)
-		: message_base(an_owner, a_name, a_function, a_description) {}
+			message_type a_type = message_type::gimme)
+		: message_base(an_owner, a_name, a_function, a_description, a_type) {}
 
 
 		/// Create a new message for a Min class.
@@ -181,6 +181,19 @@ namespace c74 { namespace min {
 
 		message(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
 		: message_base(an_owner, a_name, a_function, a_description) {}
+
+
+		/// Create a new message for a Min class.
+		///
+		/// @param	an_owner		The Min object instance that owns this outlet. Typically you should pass 'this'.
+		/// @param	a_name			The name of the message. This is how users in Max will trigger the message action.
+		/// @param	a_description	Optional, but highly encouraged, description string to document the message.
+		/// @param	a_type			Optional message type determines what kind of messages Max can send.
+		/// @param	a_function		The function to be called when the message is received by your object.
+		///							This is typically provided as a lamba function using the #MIN_FUNCTION definition.
+
+		message(object_base* an_owner, const std::string& a_name, const description& a_description, message_type a_type, const function& a_function)
+		: message(an_owner, a_name, a_function, a_description, a_type) {}
 
 
 		/// Call the message's action.
