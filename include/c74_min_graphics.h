@@ -57,6 +57,10 @@ namespace ui {
 		: m_position {x,y}
 		{}
 
+		position(int x, int y)
+		: m_position {static_cast<double>(x), static_cast<double>(y)}
+		{}
+
 		void operator()(max::t_rect& r) {
 			r.x = m_position.x;
 			r.y = m_position.y;
@@ -65,6 +69,51 @@ namespace ui {
 	private:
 		max::t_pt m_position;
 	};
+
+
+	class origin {
+	public:
+		origin(double x, double y)
+		: m_position {x,y}
+		{}
+
+		origin(int x, int y)
+		: m_position {static_cast<double>(x), static_cast<double>(y)}
+		{}
+
+		void operator()(max::t_rect& r) {
+			r.x = m_position.x;
+			r.y = m_position.y;
+		}
+
+	private:
+		max::t_pt m_position;
+	};
+
+
+	class destination {
+	public:
+		destination(double x, double y)
+		: m_position {x,y}
+		{}
+
+		destination(int x, int y)
+		: m_position {static_cast<double>(x), static_cast<double>(y)}
+		{}
+
+		destination(int x, double y)
+		: m_position {static_cast<double>(x), y}
+		{}
+
+		void operator()(max::t_rect& r) {
+			r.x = m_position.x;
+			r.y = m_position.y;
+		}
+
+	private:
+		max::t_pt m_position;
+	};
+
 
 
 	class size {
@@ -181,6 +230,20 @@ namespace ui {
 			const_cast<argument_type&>(arg)(m_rect);
 		}
 
+		/// constructor utility: origin
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, origin>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(arg)(m_rect);
+		}
+
+		/// constructor utility: destination
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, destination>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(arg)(m_misc);
+		}
+
 		/// constructor utility: fontface
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, fontface>::value>::type
@@ -239,6 +302,7 @@ namespace ui {
 
 		std::unique_ptr<target>		m_target;
 		max::t_rect					m_rect {};
+		max::t_rect					m_misc {};
 		color						m_color;
 		string						m_text;
 	};
@@ -272,6 +336,20 @@ namespace ui {
 			handle_arguments(args...);
 			update();
 			max::jgraphics_rectangle(*m_target, m_rect.x, m_rect.y, m_rect.width, m_rect.height);
+			draw<style>(*m_target);
+		}
+	};
+
+
+	template<draw_style style = stroke>
+	class line : public element {
+	public:
+		template<typename ...ARGS>
+		line(ARGS... args) {
+			handle_arguments(args...);
+			update();
+			max::jgraphics_move_to(*m_target, m_rect.x, m_rect.y);
+			max::jgraphics_line_to(*m_target, m_misc.x, m_misc.y);
 			draw<style>(*m_target);
 		}
 	};
