@@ -342,6 +342,19 @@ namespace ui {
 
 
 	template<draw_style style = stroke>
+	class ellipse : public element {
+	public:
+		template<typename ...ARGS>
+		ellipse(ARGS... args) {
+			handle_arguments(args...);
+			update();
+			max::jgraphics_ellipse(*m_target, m_rect.x, m_rect.y, m_rect.width, m_rect.height);
+			draw<style>(*m_target);
+		}
+	};
+
+
+	template<draw_style style = stroke>
 	class line : public element {
 	public:
 		template<typename ...ARGS>
