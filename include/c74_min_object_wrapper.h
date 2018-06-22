@@ -182,6 +182,21 @@ namespace c74 { namespace min {
 	}
 
 	template<class min_class_type, class message_name_type>
+	void* wrapper_method_oksize(max::t_object* o, void* arg1) {
+		auto  self = wrapper_find_self<min_class_type>(o);
+
+		// this method can be called by the ctor before the object is actually constructed
+		if ( self->m_min_object.messages().empty() )
+			return 0;
+		else {
+			auto& meth = *self->m_min_object.messages()[message_name_type::name];
+			atoms as{arg1};
+			atoms r = meth(as);
+			return r[0];
+		}
+	}
+
+	template<class min_class_type, class message_name_type>
 	void wrapper_method_paint(max::t_object* o, void* arg1) {
 		if (is_base_of<ui_operator_base, min_class_type>::value) {
 			auto  self = wrapper_find_self<min_class_type>(o);
@@ -319,10 +334,12 @@ namespace c74 { namespace min {
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseleave)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedown)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseup)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousemove)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedragdelta)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedoubleclick)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(notify)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(okclose)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(oksize)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(paint)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(patchlineupdate)
 
@@ -368,7 +385,11 @@ namespace c74 { namespace min {
 				patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, paint, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown,
-				self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
+				self_ptr_pt_long, A_CANT)
+					else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT)
+						else MIN_WRAPPER_ADDMETHOD(c, mousemove, self_ptr_pt_long, A_CANT)
+							else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
+						else MIN_WRAPPER_ADDMETHOD(c,
 				mousedragdelta, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long,
 				A_CANT) else if (a_message.first == "dspsetup");    // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup");          // for min class construction only, do not add for exposure to max
@@ -607,8 +628,11 @@ namespace c74 { namespace min {
 				patchlineupdate, self_ptr_long_ptr_long_ptr_long,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, paint,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave,
-				self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
-				mouseup, self_ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long,
+				self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown, self_ptr_pt_long, A_CANT)
+					else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT)
+						else MIN_WRAPPER_ADDMETHOD(c, mousemove, self_ptr_pt_long, A_CANT)
+							else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
+						else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long,
 				A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long, A_CANT) else if (a_message.first == "savestate") {
 				max::class_addmethod(
 					c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
