@@ -400,6 +400,15 @@ namespace c74 { namespace min {
 			m_accumulated_output.clear();
 		}
 
+
+		/// Send values out an outlet
+		/// @param args The values to send.
+
+		template<typename... ARGS>
+		void operator()(ARGS... args) {
+			send(args...);
+		}
+
 	private:
 		atoms                       m_accumulated_output;
 		outlet_queue<check, action> m_queue_storage{this->m_instance};
