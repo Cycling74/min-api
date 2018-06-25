@@ -40,15 +40,15 @@ namespace c74 { namespace min {
 		virtual ~object() {}
 
 
-		bool is_jitter_class() {
+		bool is_jitter_class() override {
 			return is_base_of<matrix_operator_base, min_class_type>::value;
 		};
 
-		bool is_ui_class() {
+		bool is_ui_class() override {
 			return is_base_of<ui_operator_base, min_class_type>::value;
 		}
 
-		bool is_assumed_threadsafe() {
+		bool is_assumed_threadsafe() override {
 			return threadsafety == threadsafe::yes;
 		}
 
