@@ -133,7 +133,7 @@ public:
 	///	@return	True if the buffer~ is valid and possesses samples. Otherwise false.
 
 	bool valid() {
-		if (!m_tab)
+		if (!m_buffer_obj || !m_tab)
 			return false;
 		else
 			return true;
