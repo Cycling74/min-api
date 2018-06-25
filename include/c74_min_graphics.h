@@ -15,10 +15,20 @@ namespace ui {
 		explicit target(const atoms& args) {
 			assert(args.size() > 1);
 
-			m_box = (max::t_jbox*)(max::t_object*)args[0];
-			m_view = args[1];
-			m_graphics_context = (max::t_jgraphics*)max::patcherview_get_jgraphics(m_view);
-			jbox_get_rect_for_view((max::t_object*)m_box, m_view, &m_rect);
+			if (args.size() == 3) {
+				// if there are 3 args then the first arg is the graphics context itself
+				// this occurs in the case where we create an image (surface)
+				m_graphics_context = reinterpret_cast<max::t_jgraphics*>(static_cast<void*>(args[0]));
+				m_rect.width = args[1];
+				m_rect.height = args[2];
+			}
+			else {
+				// this is the typical case, where we need to get the context from the object's box
+				m_box = (max::t_jbox*)(max::t_object*)args[0];
+				m_view = args[1];
+				m_graphics_context = (max::t_jgraphics*)max::patcherview_get_jgraphics(m_view);
+				jbox_get_rect_for_view((max::t_object*)m_box, m_view, &m_rect);
+			}
 		}
 
 		operator max::t_jgraphics*() const {
@@ -45,7 +55,7 @@ namespace ui {
 		max::t_jbox*		m_box;
 		max::t_object*		m_view;
 		max::t_jgraphics*	m_graphics_context;
-		max::t_rect			m_rect;
+		max::t_rect			m_rect {};
 	};
 
 
@@ -377,6 +387,50 @@ namespace ui {
 			max::jgraphics_move_to(*m_target, m_rect.x, m_rect.y);
 			max::jgraphics_show_text(*m_target, m_text.c_str());
 		}
+	};
+
+
+
+
+
+
+	class image {
+	public:
+		image(object_base* an_owner, double width, double height, const function& a_function = nullptr)
+		: m_width{width}
+		, m_height{height}
+		, m_draw_callback{a_function} {}
+
+		~image() {
+			if (m_surface) {
+				c74::max::jgraphics_surface_destroy(m_surface);
+				m_surface = nullptr;
+			}
+		}
+
+		void redraw(int width, int height) {
+			auto old_surface = m_surface;
+			m_surface = c74::max::jgraphics_image_surface_create(c74::max::JGRAPHICS_FORMAT_ARGB32, width, height);
+			m_width = width;
+			m_height = height;
+			c74::max::t_jgraphics *ctx = jgraphics_create(m_surface);
+			atoms a {{ ctx, m_width, m_height }};
+			m_draw_callback(a,0);
+			c74::max::jgraphics_destroy(ctx);
+
+			if (old_surface)
+				c74::max::jgraphics_surface_destroy(old_surface);
+		}
+
+		void draw(ui::target& t, double x, double y, double width, double height) {
+			c74::max::jgraphics_image_surface_draw(t, m_surface, {0.0, 0.0, m_width, m_height}, {x, y, width, height});
+		}
+
+	private:
+		double					m_width;
+		double					m_height;
+		function        	  m_draw_callback;
+		c74::max::t_jsurface* m_surface{nullptr};
 	};
 
 
