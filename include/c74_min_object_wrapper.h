@@ -437,44 +437,37 @@ namespace c74 { namespace min {
 
 	template<class min_class_type, enable_if_not_jitter_class<min_class_type> = 0>
 	void wrap_as_max_external(const char* cppname, const char* maxname, void* resources, min_class_type* instance = nullptr) {
-        try{
-            if (this_class != nullptr)
-                return;
+		if (this_class != nullptr)
+			return;
 
-            this_class_init = true;
+		this_class_init = true;
 
-            std::unique_ptr<min_class_type> dummy_instance = nullptr;
+		std::unique_ptr<min_class_type> dummy_instance = nullptr;
 
-            if (!instance) {
-                dummy_instance = std::make_unique<min_class_type>();
-                instance       = dummy_instance.get();
-            }
+		if (!instance) {
+			dummy_instance = std::make_unique<min_class_type>();
+			instance       = dummy_instance.get();
+		}
 
-            host_flags flags = host_flags::none;
-            class_get_flags<min_class_type>(*instance, flags);
-            if (flags == host_flags::no_live) {
-                if (max::object_attr_getlong(k_sym_max, symbol("islib")))
-                    return;    // we are being loaded in Live, and a flag to the class specifically prohibits that
-            }
+		host_flags flags = host_flags::none;
+		class_get_flags<min_class_type>(*instance, flags);
+		if (flags == host_flags::no_live) {
+			if (max::object_attr_getlong(k_sym_max, symbol("islib")))
+				return;    // we are being loaded in Live, and a flag to the class specifically prohibits that
+		}
 
-            auto c = wrap_as_max_external_common<min_class_type>(*instance, cppname, maxname, resources);
+		auto c = wrap_as_max_external_common<min_class_type>(*instance, cppname, maxname, resources);
 
-            wrap_as_max_external_audio<min_class_type>(c);
+		wrap_as_max_external_audio<min_class_type>(c);
 
-            wrap_as_max_external_finish<min_class_type>(c, *instance);
-            this_class = c;
-            instance->try_call("maxclass_setup", c);
-        }
-        catch (std::runtime_error& e) {
-            max::object_error(nullptr, e.what());
-            return nullptr;
-        }
+		wrap_as_max_external_finish<min_class_type>(c, *instance);
+		this_class = c;
+		instance->try_call("maxclass_setup", c);
 	}
 
 
 	template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
 	void wrap_as_max_external(const char* cppname, const char* cmaxname, void* resources, min_class_type* instance = nullptr) {
-        try{
 		using c74::max::class_addmethod;
 		using c74::max::method;
 
@@ -624,11 +617,6 @@ namespace c74 { namespace min {
 
 		// documentation update (if neccessary)
 		doc_update<min_class_type>(*instance, maxname, cppname);
-        }
-        catch (std::runtime_error& e) {
-            max::object_error(nullptr, e.what());
-            return nullptr;
-        }
 	}
 
 #undef MIN_WRAPPER_ADDMETHOD
