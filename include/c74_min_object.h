@@ -51,11 +51,18 @@ namespace c74 { namespace min {
 		bool is_assumed_threadsafe() {
 			return threadsafety == threadsafe::yes;
 		}
+        
+        void object_error(const std::string& description) {
+            object_error_msg = description;
+        }
 
-
+        std::string get_object_error() {
+            return object_error_msg;
+        }
 	protected:
 		logger cout{this, logger::type::message};
 		logger cerr{this, logger::type::error};
+        std::string object_error_msg;
 	};
 
 }}    // namespace c74::min
