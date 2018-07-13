@@ -258,6 +258,18 @@ The options for limiting are
 
 Boundary limit behaviours are applied prior to any custom setters being called.
 
+### Repetition Filtering
+
+When input to your object repeatedly sets the attribute to the same value it can consume computational resources or result in other undesired behavior. It is possible to filter out such repeated setting of the same value using an optional fourth template argument.
+
+```c++
+attribute<number, threadsafe::no, limit::clamp, allow_repetitions::no> foo { this, "foo",0.5,
+	range { 0.0, 1.0 }
+};
+```
+
+By default repetitions are allowed. 
+
 ### Custom Setters
 
 Custom setters use the same `MIN_FUNCTION` signature as messages above. This means it will take `const atoms&` as input and return `atoms` as output.  The input will be the value coming from the patcher and the value that is returned is what will be assigned to the attribute.
