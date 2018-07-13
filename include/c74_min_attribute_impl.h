@@ -206,15 +206,32 @@ namespace c74 { namespace min {
 	};
 
 
-
-
-
-
 	template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
 	bool attribute<T, threadsafety, limit_type, repetitions>::compare_to_current_value(const atoms& args) {
-		return equivalent<T>(args[0], m_value);
+		return (args[0] == m_value);
 	}
 
+	template<>
+	bool attribute<number>::compare_to_current_value(const atoms& args) {
+		return equivalent<number>(args[0], m_value);
+	}
+
+	template<>
+	bool attribute<symbol>::compare_to_current_value(const atoms& args) {
+		return (args[0] == m_value);
+	}
+
+	template<>
+	bool attribute<vector<double>>::compare_to_current_value(const atoms& args) {
+		if (args.size() == m_value.size()) {
+			for (auto i=0; i<m_value.size(); ++i) {
+				if (!equivalent<double>(args[i], m_value[i]))
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
 
 	template<>
 	bool attribute<ui::color>::compare_to_current_value(const atoms& args) {
