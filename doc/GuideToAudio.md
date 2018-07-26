@@ -49,6 +49,15 @@ public:
 
 Note that you define your inlets and outlets for both `vector_operator<>` and `sample_operator<>` classes even though`sample_operator<>` classes will have previously indicated the number of inputs and outputs.
 
+### Attribute-Mapped Audio Inlets
+
+Audio inlets may optionally be mapped to attributes of your class. To do this, pass the member attribute as an argument following the description of the inlet. Now, if an audio signal is connected to that inlet then the attribute value will be set by the including audio.
+
+```c++
+	inlet<>  m_inlet_attack		{this, "(signal) attack",	m_attack_time};
+	inlet<>  m_inlet_release	{this, "(signal) release",	m_release_time};
+```
+
 ## Messages
 
 There are no required messages for either `vector_operator<>` or `sample_operator<>` classes. You may optionally define a 'dspsetup' message which will be called when Max is compiling the signal chain. The message will be passed two arguments: the sample rate and the vector size.
