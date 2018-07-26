@@ -300,6 +300,10 @@ namespace c74 { namespace min {
 	}
 
 
+	template<class min_class_type, enable_if_vector_operator<min_class_type> = 0>
+	void min_dsp64_attrmap(minwrap<min_class_type>* self, short* count) {}
+
+
 	// The min_dsp64_add_perform function handles adding the perform method to the signal chain (see performer class above)
 
 	template<class min_class_type>
@@ -317,6 +321,7 @@ namespace c74 { namespace min {
 		minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
 		self->m_min_object.samplerate(samplerate);
 		min_dsp64_io(self, count);
+		min_dsp64_attrmap(self, count);
 
 		atoms args;
 		args.push_back(atom(samplerate));
@@ -335,6 +340,7 @@ namespace c74 { namespace min {
 		minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
 		self->m_min_object.samplerate(samplerate);
 		min_dsp64_io(self, count);
+		min_dsp64_attrmap(self, count);
 		min_dsp64_add_perform(self, dsp64);
 	}
 
