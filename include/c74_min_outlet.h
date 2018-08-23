@@ -245,6 +245,8 @@ namespace c74 { namespace min {
         
         virtual ~outlet_base() {}
 
+        virtual ~outlet_base() {}
+        
 	private:
 		virtual void create() = 0;
 
