@@ -10,16 +10,19 @@ endif ()
 
 
 set(C74_MAX_API_DIR ${CMAKE_CURRENT_LIST_DIR}/../max-api)
+
+if (APPLE)
+	if (CMAKE_OSX_ARCHITECTURES STREQUAL "")
+		set(CMAKE_OSX_ARCHITECTURES x86_64)
+	endif()
+endif ()
+
 include(${C74_MAX_API_DIR}/script/max-pretarget.cmake)
 
 set(C74_INCLUDES "${C74_MAX_API_DIR}/include" "${CMAKE_CURRENT_LIST_DIR}/../include")
 file(GLOB_RECURSE C74_MIN_HEADERS ${CMAKE_CURRENT_LIST_DIR}/../include/*.h)
 
 add_definitions(-DC74_MIN_API)
-
-if (APPLE)
-	set(CMAKE_OSX_ARCHITECTURES x86_64)
-endif ()
 
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/../../min-lib")
     message(STATUS "Min-Lib found")
