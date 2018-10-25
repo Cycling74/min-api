@@ -22,6 +22,8 @@ namespace c74 { namespace min {
 	public:
 		inlet_base(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
 		: port{an_owner, a_description, a_type} {}
+        
+        virtual ~inlet_base() {}
 
 		virtual bool has_attribute_mapping() = 0;
 		virtual attribute_base* attribute() = 0;
@@ -58,11 +60,11 @@ namespace c74 { namespace min {
 			m_owner->inlets().push_back(this);
 		}
 
-		bool has_attribute_mapping() {
+		bool has_attribute_mapping() override {
 			return m_attribute != nullptr;
 		}
 
-		attribute_base* attribute() {
+		attribute_base* attribute() override {
 			return m_attribute;
 		}
 

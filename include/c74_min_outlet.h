@@ -242,6 +242,8 @@ namespace c74 { namespace min {
 	public:
 		outlet_base(object_base* an_owner, const std::string& a_description, const std::string& a_type)
 		: port(an_owner, a_description, a_type) {}
+        
+        virtual ~outlet_base() {}
 
 	private:
 		virtual void create() = 0;
