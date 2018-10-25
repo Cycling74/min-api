@@ -125,7 +125,6 @@ namespace ui {
 	};
 
 
-
 	class size {
 	public:
 		size(double x, double y)
@@ -206,6 +205,27 @@ namespace ui {
 
 	private:
 		number m_value;
+	};
+
+
+	/// Apply a rotate matrix transformation to the object
+
+	class rotation {
+	public:
+		rotation(number a_value)
+//		: m_value { a_value }
+		{}
+
+		void apply() {
+
+		}
+
+		void cleanup() {
+
+		}
+
+	private:
+//		number m_value;
 	};
 	
 
