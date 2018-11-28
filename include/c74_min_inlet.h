@@ -25,6 +25,8 @@ namespace c74 { namespace min {
         
         virtual ~inlet_base() {}
 
+        virtual ~inlet_base() {}
+
 		virtual bool has_attribute_mapping() = 0;
 		virtual attribute_base* attribute() = 0;
 
