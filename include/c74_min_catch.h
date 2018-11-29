@@ -24,10 +24,9 @@ bool require_vector_approx(T source, T reference) {
 
 	for (auto i = 0; i < source.size(); ++i) {
 		auto e = std::numeric_limits<float>::epsilon()*1000;
-		std::cout << "e " << e << std::endl;
 		INFO("when i == " << i);
-		REQUIRE(source[i] == Approx(reference[i]).epsilon(e));
-		if (source[i] != Approx(reference[i]).epsilon(e))
+		REQUIRE(source[i] == Approx(reference[i]).epsilon(e).margin(e));
+		if (source[i] != Approx(reference[i]).epsilon(e).margin(e))
 			return false;
 	}
 	return true;
