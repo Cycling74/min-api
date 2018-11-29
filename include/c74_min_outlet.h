@@ -244,8 +244,6 @@ namespace c74 { namespace min {
 		: port(an_owner, a_description, a_type) {}
         
         virtual ~outlet_base() {}
-
-        virtual ~outlet_base() {}
         
 	private:
 		virtual void create() = 0;
