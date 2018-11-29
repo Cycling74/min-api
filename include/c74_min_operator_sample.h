@@ -29,6 +29,19 @@ namespace c74 { namespace min {
 	template<size_t input_count_param, size_t output_count_param>
 	class sample_operator : public sample_operator_base {
 	public:
+
+		/// Default constructor.
+
+		sample_operator() {}
+
+
+		/// Get pointers to the attributes mapped to audio inlets
+
+		auto& mapped_attributes() {
+			return m_attributes_mapped_to_inlets;
+		}
+
+
 		/// Return the number of audio inputs for this sample operator class.
 		/// @return The number of audio inputs.
 
@@ -96,7 +109,23 @@ namespace c74 { namespace min {
 		double m_samplerate{c74::max::sys_getsr()};    // initialized to the global samplerate, but updated to the local samplerate when the
 													   // dsp chain is compiled.
 		int m_vector_size{c74::max::sys_getblksize()};    // ...
+		vector<std::pair<int,attribute_base*>> m_attributes_mapped_to_inlets;
 	};
+
+
+	template<class min_class_type, enable_if_sample_operator<min_class_type> = 0>
+	void min_dsp64_attrmap(minwrap<min_class_type>* self, short* count) {
+		auto& attrs { self->m_min_object.mapped_attributes() };
+		auto& inlets { self->m_min_object.inlets() };
+
+		attrs.clear();
+
+		for (auto i=0; i<inlets.size(); ++i) {
+			auto& inlet = inlets[i];
+			if (inlet->has_signal_connection() && inlet->has_attribute_mapping())
+				attrs.push_back( { i, inlet->attribute() } );
+		}
+	}
 
 
 	// To implement the performer class (below) generically we use std::array<sample> for both input and output.
@@ -171,7 +200,6 @@ namespace c74 { namespace min {
 	//
 	// For sample_operator<> there are several versions of this wrapping/adapting callback.
 	// This one is optimized for the most common case: a single input and a single output.
-	// The other version is generic for N inputs and N outputs.
 
 	template<class min_class_type>
 	class performer<min_class_type, typename enable_if<is_base_of<sample_operator<1, 1>, min_class_type>::value>::type> {
@@ -224,16 +252,49 @@ namespace c74 { namespace min {
 	public:
 		static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans,
 			long numouts, long sampleframes, long, void*) {
-			for (auto i = 0; i < sampleframes; ++i) {
-				callable_samples<min_class_type, min_class_type::input_count()> ins(self);
+			auto& attrs { self->m_min_object.mapped_attributes() };
+			auto input_count { self->m_min_object.input_count() };
 
-				for (auto chan = 0; chan < self->m_min_object.input_count(); ++chan)
-					ins.set(chan, in_chans[chan][i]);
+			if (attrs.empty()) {
 
-				auto out = ins.call();
+				// the typical case:
 
-				if (numouts > 0)
-					perform_copy_output(self, i, out_chans, out);
+				for (auto i = 0; i < sampleframes; ++i) {
+					callable_samples<min_class_type, min_class_type::input_count()> ins(self);
+
+					for (auto chan = 0; chan < input_count; ++chan)
+						ins.set(chan, in_chans[chan][i]);
+
+					auto out = ins.call();
+
+					if (numouts > 0)
+						perform_copy_output(self, i, out_chans, out);
+				}
+			}
+			else {
+
+				// the case where audio inlets are mapped to attributes
+
+				for (auto i = 0; i < sampleframes; ++i) {
+					callable_samples<min_class_type, min_class_type::input_count()> ins(self);
+
+					for (auto& inletnum_and_attr : attrs) {
+						int 			inletnum { inletnum_and_attr.first };
+						attribute_base*	attr { inletnum_and_attr.second };
+						auto			value { in_chans[inletnum][i] };
+						atoms			a {{value}};
+						
+						attr->set(a, false, false);
+					}
+
+					for (auto chan = 0; chan < input_count; ++chan)
+						ins.set(chan, in_chans[chan][i]);
+
+					auto out = ins.call();
+
+					if (numouts > 0)
+						perform_copy_output(self, i, out_chans, out);
+				}
 			}
 		}
 	};

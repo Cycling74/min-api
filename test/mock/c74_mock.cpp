@@ -210,13 +210,16 @@ namespace max {
 
 
 	using t_jbox = t_object;
+	using t_pxjbox = t_object;
 
 
 	MOCK_EXPORT void jbox_ready(t_jbox* b) {}
-
-
-
-
+	MOCK_EXPORT void z_jbox_dsp_free(t_pxjbox *x) {}
+	MOCK_EXPORT void class_dspinitjbox(t_class *c) {}
+	MOCK_EXPORT t_max_err jbox_notify(t_jbox *b, t_symbol *s, t_symbol *msg, void *sender, void *data) {
+		return 0;
+	}
+	MOCK_EXPORT void class_attr_setstyle(t_class *c, const char *s) {}
 
 
 

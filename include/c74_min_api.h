@@ -237,6 +237,7 @@ namespace c74 { namespace min {
 
 
 	enum class threadsafe { undefined, no, yes };
+	enum class allow_repetitions { undefined, no, yes };
 
 	using mutex = std::mutex;
 	using guard = std::lock_guard<std::mutex>;
@@ -245,6 +246,19 @@ namespace c74 { namespace min {
 
 	template<typename T>
 	using fifo = moodycamel::ReaderWriterQueue<T>;
+
+
+	/// Compare two floating-point numbers to determine if they are roughly equal
+	/// @param lhs The left hand side of the comparison
+	/// @param rhs The right hand side of the comparison
+	/// @return true if they are roughly the same, otherwise false
+
+	template<typename T>
+	bool equivalent(T lhs, T rhs, double epsilon = std::numeric_limits<float>::epsilon() * 100.0, double margin = 0.0, double scale = 1.0) {
+		if (std::fabs( lhs - rhs ) < epsilon * (scale + (std::max)( std::fabs(lhs), std::fabs(rhs) ) ))
+			return true;
+		return std::fabs(lhs - rhs) < margin;
+	}
 
 }}    // namespace c74::min
 
@@ -314,6 +328,14 @@ namespace c74 { namespace min {
 #include "c74_min_operator_vector.h"    // Vector-based MSP object add-ins
 #include "c74_min_operator_sample.h"    // Sample-based MSP object add-ins
 #include "c74_min_operator_matrix.h"    // Jitter MOP add-ins
+
+// UI Object Support requires Visual Studio 2017 or higher when on Windows
+#if !defined(_MSC_VER) || ( _MSC_VER > 1900 )
+#include "c74_min_operator_ui.h"		// User Interface add-ins
+#include "c74_min_graphics.h"			// Graphics classes for UI objects
+#else
+#pragma message( "Building UI Objects Not Supported: Requires Visual Studio 2017 or higher." )
+#endif
 
 #include "c74_min_object_wrapper.h"    // Max wrapper for Min objects
 #include "c74_min_object.h"            // The Min object class that glues it all together

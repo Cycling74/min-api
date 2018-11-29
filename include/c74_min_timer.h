@@ -117,7 +117,7 @@ namespace c74 { namespace min {
 		max::t_clock* m_instance{nullptr};
 		max::t_qelem* m_qelem{nullptr};
 
-		friend void timer_tick_callback(timer* an_owner);
+		friend void timer_tick_callback(timer<>* an_owner);
 		void        defer() {
             max::qelem_set(m_qelem);
 		}

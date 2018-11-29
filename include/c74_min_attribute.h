@@ -59,7 +59,7 @@ namespace c74 { namespace min {
 	/// @ingroup attributes
 	/// @see style
 
-	static std::unordered_map<style, symbol> style_symbols{
+	static std::unordered_map<style, symbol> style_symbols {
 		{style::text, "text"},
 		{style::onoff, "onoff"},
 		{style::enum_symbol, "enum"},
@@ -300,11 +300,11 @@ namespace c74 { namespace min {
 
 	// forward declarations of stuff implemented and documented further below...
 
-	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
 	class attribute_threadsafe_helper;
 
-	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
-	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T, threadsafety, limit_type>* helper, atoms& args);
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
+	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T, threadsafety, limit_type, repetitions>* helper, atoms& args);
 
 
 	/// An Attribute.
@@ -324,7 +324,7 @@ namespace c74 { namespace min {
 	///								Namely: none, clamp, fold, and wrap.
 	/// @see						buffer_index example object.
 
-	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
 	class attribute : public attribute_base {
 	private:
 		// constructor utility: handle an argument defining an attribute's title / label
@@ -558,6 +558,9 @@ namespace c74 { namespace min {
 			if (!writable() && !override_readonly)
 				return;    // we're all done... unless this is a readonly attr that we are forcing to update
 
+			if (repetitions == allow_repetitions::no && compare_to_current_value(args))
+				return;
+
 #ifndef MIN_TEST    // At this time the Mock Kernel does not implement object_attr_setvalueof(), so we can't use it for unit tests
 			if (notify && this_class) {    // Use the Max API to set the attribute value
 				max::object_attr_setvalueof(
@@ -575,6 +578,14 @@ namespace c74 { namespace min {
 				else
 					m_helper.set(args);
 			}
+		}
+
+
+		/// Get the raw attribute value from an attribute.
+		/// @return The attribute value.
+
+		T& get() {
+			return m_value;
 		}
 
 
@@ -663,17 +674,22 @@ namespace c74 { namespace min {
 		atoms          m_range_args;    // The range/enum as provided by the owning Min object.
 		std::vector<T> m_range;         // The range/enum translated into the native datatype.
 		enum_map       m_enum_map;      // The enum mapping for indexed enums (as opposed to symbol enums).
-		attribute_threadsafe_helper<T, threadsafety, limit_type> m_helper{
+		attribute_threadsafe_helper<T, threadsafety, limit_type, repetitions> m_helper{
 			this};    // Attribute setting implementation for the specified threadsafety.
 
-		friend void attribute_threadsafe_helper_do_set<T, threadsafety, limit_type>(
-			attribute_threadsafe_helper<T, threadsafety, limit_type>* helper, atoms& args);
+		friend void attribute_threadsafe_helper_do_set<T, threadsafety, limit_type, repetitions>(
+			attribute_threadsafe_helper<T, threadsafety, limit_type, repetitions>* helper, atoms& args);
 
 
 		// Copy m_range_args to m_range when the attribute is created.
 		// Implemented in c74_min_attribute_impl.h.
 
 		void copy_range();
+
+
+		// Implemented in c74_min_attribute_impl.h.
+
+		bool compare_to_current_value(const atoms& args);
 
 
 		// Apply range limiting to all numerical types.
@@ -753,8 +769,8 @@ namespace c74 { namespace min {
 	// Shared code used by all of the various incarnations of attribute_threadsafe_helper
 	// to set an attribute.
 
-	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
-	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T, threadsafety, limit_type>* helper, atoms& args) {
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
+	void attribute_threadsafe_helper_do_set(attribute_threadsafe_helper<T, threadsafety, limit_type, repetitions>* helper, atoms& args) {
 		auto& attr = *helper->m_attribute;
 
 		attr.constrain(args);
@@ -771,13 +787,13 @@ namespace c74 { namespace min {
 	// the author of the owning object told us it is threadsafe and so we trust them that we
 	// don't need to do anything special.
 
-	template<typename T, template<typename> class limit_type>
-	class attribute_threadsafe_helper<T, threadsafe::yes, limit_type> {
+	template<typename T, template<typename> class limit_type, allow_repetitions repetitions>
+	class attribute_threadsafe_helper<T, threadsafe::yes, limit_type, repetitions> {
 		friend void attribute_threadsafe_helper_do_set<T, threadsafe::yes, limit_type>(
-			attribute_threadsafe_helper<T, threadsafe::yes, limit_type>* helper, atoms& args);
+			attribute_threadsafe_helper<T, threadsafe::yes, limit_type, repetitions>* helper, atoms& args);
 
 	public:
-		explicit attribute_threadsafe_helper(attribute<T, threadsafe::yes, limit_type>* an_attribute)
+		explicit attribute_threadsafe_helper(attribute<T, threadsafe::yes, limit_type, repetitions>* an_attribute)
 		: m_attribute(an_attribute) {}
 
 		void set(atoms& args) {
@@ -785,17 +801,17 @@ namespace c74 { namespace min {
 		}
 
 	private:
-		attribute<T, threadsafe::yes, limit_type>* m_attribute;
+		attribute<T, threadsafe::yes, limit_type, repetitions>* m_attribute;
 	};
 
 
 	// C-callback for the qelem used to defer attribute setting to the main thread
 	// for thread-unsafe attributes.
 
-	template<typename T, threadsafe threadsafety, template<typename> class limit_type>
-	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T, threadsafety, limit_type>* helper) {
+	template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
+	void attribute_threadsafe_helper_qfn(attribute_threadsafe_helper<T, threadsafety, limit_type, repetitions>* helper) {
 		static_assert(threadsafety != threadsafe::yes, "helper function should not be called by threadsafe attrs");
-		attribute_threadsafe_helper_do_set<T, threadsafety, limit_type>(helper, helper->m_value);
+		attribute_threadsafe_helper_do_set<T, threadsafety, limit_type, repetitions>(helper, helper->m_value);
 	}
 
 
@@ -803,17 +819,17 @@ namespace c74 { namespace min {
 	// These will check all setter calls to ensure that they are on the main thread.
 	// If they are not then defer the setter calls to the main thread using a qelem.
 
-	template<typename T, template<typename> class limit_type>
-	class attribute_threadsafe_helper<T, threadsafe::no, limit_type> {
+	template<typename T, template<typename> class limit_type, allow_repetitions repetitions>
+	class attribute_threadsafe_helper<T, threadsafe::no, limit_type, repetitions> {
 		friend void attribute_threadsafe_helper_do_set<T, threadsafe::no, limit_type>(
-			attribute_threadsafe_helper<T, threadsafe::no, limit_type>* helper, atoms& args);
-		friend void attribute_threadsafe_helper_qfn<T, threadsafe::no, limit_type>(
-			attribute_threadsafe_helper<T, threadsafe::no, limit_type>* helper);
+			attribute_threadsafe_helper<T, threadsafe::no, limit_type, repetitions>* helper, atoms& args);
+		friend void attribute_threadsafe_helper_qfn<T, threadsafe::no, limit_type, repetitions>(
+			attribute_threadsafe_helper<T, threadsafe::no, limit_type, repetitions>* helper);
 
 	public:
-		explicit attribute_threadsafe_helper(attribute<T, threadsafe::no, limit_type>* an_attribute)
+		explicit attribute_threadsafe_helper(attribute<T, threadsafe::no, limit_type, repetitions>* an_attribute)
 		: m_attribute(an_attribute) {
-			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)attribute_threadsafe_helper_qfn<T, threadsafe::no, limit_type>);
+			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)attribute_threadsafe_helper_qfn<T, threadsafe::no, limit_type, repetitions>);
 		}
 
 		~attribute_threadsafe_helper() {
@@ -830,7 +846,7 @@ namespace c74 { namespace min {
 		}
 
 	private:
-		attribute<T, threadsafe::no, limit_type>* m_attribute;
+		attribute<T, threadsafe::no, limit_type, repetitions>* m_attribute;
 		max::t_qelem*                             m_qelem;
 		atoms                                     m_value;
 	};
@@ -840,17 +856,17 @@ namespace c74 { namespace min {
 	// These will check all setter calls to ensure that they are on the main thread -- or that they are declared as threadsafe.
 	// If they are not then defer the setter calls to the main thread using a qelem.
 
-	template<typename T, template<typename> class limit_type>
-	class attribute_threadsafe_helper<T, threadsafe::undefined, limit_type> {
-		friend void attribute_threadsafe_helper_do_set<T, threadsafe::undefined, limit_type>(
-			attribute_threadsafe_helper<T, threadsafe::undefined, limit_type>* helper, atoms& args);
-		friend void attribute_threadsafe_helper_qfn<T, threadsafe::undefined, limit_type>(
-			attribute_threadsafe_helper<T, threadsafe::undefined, limit_type>* helper);
+	template<typename T, template<typename> class limit_type, allow_repetitions repetitions>
+	class attribute_threadsafe_helper<T, threadsafe::undefined, limit_type, repetitions> {
+		friend void attribute_threadsafe_helper_do_set<T, threadsafe::undefined, limit_type, repetitions>(
+			attribute_threadsafe_helper<T, threadsafe::undefined, limit_type, repetitions>* helper, atoms& args);
+		friend void attribute_threadsafe_helper_qfn<T, threadsafe::undefined, limit_type, repetitions>(
+			attribute_threadsafe_helper<T, threadsafe::undefined, limit_type, repetitions>* helper);
 
 	public:
-		explicit attribute_threadsafe_helper(attribute<T, threadsafe::undefined, limit_type>* an_attribute)
+		explicit attribute_threadsafe_helper(attribute<T, threadsafe::undefined, limit_type, repetitions>* an_attribute)
 		: m_attribute(an_attribute) {
-			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)attribute_threadsafe_helper_qfn<T, threadsafe::no, limit_type>);
+			m_qelem = (max::t_qelem*)max::qelem_new(this, (max::method)attribute_threadsafe_helper_qfn<T, threadsafe::no, limit_type, repetitions>);
 		}
 
 		~attribute_threadsafe_helper() {
@@ -867,7 +883,7 @@ namespace c74 { namespace min {
 		}
 
 	private:
-		attribute<T, threadsafe::undefined, limit_type>* m_attribute;
+		attribute<T, threadsafe::undefined, limit_type, repetitions>* m_attribute;
 		max::t_qelem*                                    m_qelem;
 		atoms                                            m_value;
 	};
@@ -883,14 +899,21 @@ namespace c74 { namespace min {
 
 	template<class T>
 	max::t_max_err min_attr_getter(minwrap<T>* self, max::t_object* maxattr, long* ac, max::t_atom** av) {
-		symbol attr_name = static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
-		auto&  attr      = self->m_min_object.attributes()[attr_name.c_str()];
-		atoms  rvals     = *attr;
+		symbol	attr_name	= static_cast<max::t_symbol*>(max::object_method(maxattr, k_sym_getname));
+		auto&	attr		= self->m_min_object.attributes()[attr_name.c_str()];
+		atoms	rvals		= *attr;
 
-		*ac = (long)rvals.size();
-		if (!(*av))    // otherwise use memory passed in
-			*av = (max::t_atom*)max::sysmem_newptr(sizeof(max::t_atom) * *ac);
-		for (auto i = 0; i < *ac; ++i)
+		if ((*ac) != rvals.size() || !(*av)) {		 // otherwise use memory passed in
+			if (*ac && *av) {
+				sysmem_freeptr(*av);
+				*av = NULL;
+			}
+			*ac = static_cast<long>(rvals.size());
+			*av = reinterpret_cast<max::t_atom*>( max::sysmem_newptr(sizeof(max::t_atom) * (*ac)) );
+			assert(*av);
+		}
+
+		for (auto i=0; i<(*ac); ++i)
 			(*av)[i] = rvals[i];
 
 		return 0;

@@ -54,6 +54,14 @@ namespace c74 {
 			}
 
 
+			/// Can the buffer's notify method manually
+			/// You will need to do this if you define a custom "notify" message for your object.
+
+			atoms notify(atoms args) {
+				return m_notification_callback(args, 0);
+			}
+
+
 			/// Find out if the buffer referenced actually exists
 			/// @return	True if the named buffer~ exists. Otherwise false.
 
@@ -125,7 +133,7 @@ public:
 	///	@return	True if the buffer~ is valid and possesses samples. Otherwise false.
 
 	bool valid() {
-		if (!m_tab)
+		if (!m_buffer_obj || !m_tab)
 			return false;
 		else
 			return true;
