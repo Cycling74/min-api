@@ -13,7 +13,7 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 
 	include_directories( 
 		"${C74_INCLUDES}"
-		"${C74_MIN_API_DIR}"
+		"${C74_MIN_API_DIR}/test"
 		# "${C74_MIN_API_DIR}/test/mock"
 	)
     
