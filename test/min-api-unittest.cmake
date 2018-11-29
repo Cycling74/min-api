@@ -9,7 +9,7 @@ enable_testing()
 
 include_directories( 
 	"${C74_INCLUDES}"
-	"${CMAKE_CURRENT_LIST_DIR}/catch/include"
+	"${CMAKE_CURRENT_LIST_DIR}"
 	"${CMAKE_CURRENT_LIST_DIR}/mock"
 )
 

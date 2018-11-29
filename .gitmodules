@@ -1,9 +1,6 @@
 [submodule "max-api"]
 	path = max-api
 	url = https://github.com/Cycling74/max-api.git
-[submodule "test/catch"]
-	path = test/catch
-	url = https://github.com/philsquared/Catch.git
 [submodule "include/readerwriterqueue"]
 	path = include/readerwriterqueue
 	url = https://github.com/cameron314/readerwriterqueue.git
