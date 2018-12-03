@@ -27,22 +27,24 @@ add_custom_target( API ALL
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/mock)
 
 
-enable_testing()
+# Add unit tests for the API
+if ("${THIS_PACKAGE_NAME}" MATCHES ".*devkit")
 
-SUBDIRLIST(TESTDIRS ${CMAKE_CURRENT_SOURCE_DIR}/test)
-foreach(testdir ${TESTDIRS})
-	if (${testdir} STREQUAL "mock")
-	elseif (${testdir} STREQUAL "catch")
-	else ()
-		if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir}/CMakeLists.txt")
-			message("Generating Unit Test: ${testdir}")
-			add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir})
-	 	endif ()
-	endif()
-endforeach()
+	enable_testing()
 
+	SUBDIRLIST(TESTDIRS ${CMAKE_CURRENT_SOURCE_DIR}/test)
+	foreach(testdir ${TESTDIRS})
+		if (${testdir} STREQUAL "mock")
+		elseif (${testdir} STREQUAL "catch")
+		else ()
+			if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir}/CMakeLists.txt")
+				message("Generating Unit Test: ${testdir}")
+				add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir})
+			endif ()
+		endif()
+	endforeach()
 
-
+endif ()
 
 
 find_package (Doxygen QUIET)
