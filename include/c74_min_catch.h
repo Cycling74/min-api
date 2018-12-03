@@ -8,6 +8,17 @@
 #include "catch.hpp"    // The Catch header must come first -- otherwise some C++ includes will tangle with it and cause problems.
 #include "c74_min.h"    // The standard Min header
 
+
+// epsilon value used for comparing floats for approximate equality
+
+const auto g_min_epsilon = std::numeric_limits<float>::epsilon()*1000;
+
+
+/// Wrapper for Catch's Appox() method with more accomating defaults, particularly for comparing values near zero.
+
+#define APPROX(x) Approx(x).epsilon(g_min_epsilon).margin(g_min_epsilon)
+
+
 /// Compare a container (e.g. a vector) of floats in a Catch unit test.
 /// If there is a failure, not only will the return value be false, but a Catch REQUIRE will fail.
 ///
@@ -23,10 +34,9 @@ bool require_vector_approx(T source, T reference) {
 		return false;
 
 	for (auto i = 0; i < source.size(); ++i) {
-		auto e = std::numeric_limits<float>::epsilon()*1000;
 		INFO("when i == " << i);
-		REQUIRE(source[i] == Approx(reference[i]).epsilon(e).margin(e));
-		if (source[i] != Approx(reference[i]).epsilon(e).margin(e))
+		REQUIRE(source[i] == APPROX(reference[i]));
+		if (source[i] != APPROX(reference[i]))
 			return false;
 	}
 	return true;
