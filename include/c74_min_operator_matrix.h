@@ -266,9 +266,9 @@ namespace c74 { namespace min {
 					matrix_coord           position(j, i);
 					U                      val = ip ? *(ip) : 0;
 					const std::array<U, 1> tmp = {{val}};
-					const std::array<U, 1> out = self->m_min_object.calc_cell(tmp, info, position);
+					const std::array<U, 1> out_cell = self->m_min_object.calc_cell(tmp, info, position);
 
-					*(op) = out[0];
+					*(op) = out_cell[0];
 					if (ip)
 						ip += is;
 					op += os;
@@ -285,15 +285,15 @@ namespace c74 { namespace min {
 
 					if (self->m_min_object.direction() == matrix_operator_base::iteration_direction::bidirectional) {
 						const std::array<U, 1> tmp = {{*op}};
-						const std::array<U, 1> out = self->m_min_object.calc_cell(tmp, info, position);
-						*op                        = out[0];
+						const std::array<U, 1> out_cell = self->m_min_object.calc_cell(tmp, info, position);
+						*op                        = out_cell[0];
 					}
 					else {
 						std::array<U, 1> tmp;
 						if (ip)
 							tmp = {{*ip}};
-						const std::array<U, 1> out = self->m_min_object.calc_cell(tmp, info, position);
-						*op                        = out[0];
+						const std::array<U, 1> out_cell = self->m_min_object.calc_cell(tmp, info, position);
+						*op                        = out_cell[0];
 					}
 					if (ip)
 						ip -= is;
@@ -310,12 +310,12 @@ namespace c74 { namespace min {
 					U                      v3  = ip ? *(ip + step * 2) : 0;
 					U                      v4  = ip ? *(ip + step * 3) : 0;
 					const std::array<U, 4> tmp = {{v1, v2, v3, v4}};
-					const std::array<U, 4> out = self->m_min_object.calc_cell(tmp, info, position);
+					const std::array<U, 4> out_cell = self->m_min_object.calc_cell(tmp, info, position);
 
-					*(op)            = out[0];
-					*(op + step)     = out[1];
-					*(op + step * 2) = out[2];
-					*(op + step * 3) = out[3];
+					*(op)            = out_cell[0];
+					*(op + step)     = out_cell[1];
+					*(op + step * 2) = out_cell[2];
+					*(op + step * 3) = out_cell[3];
 
 					if (ip)
 						ip += is;
@@ -337,11 +337,11 @@ namespace c74 { namespace min {
 						U                      v3  = ip ? *(op + step * 2) : 0;
 						U                      v4  = ip ? *(op + step * 3) : 0;
 						const std::array<U, 4> tmp = {{v1, v2, v3, v4}};
-						const std::array<U, 4> out = self->m_min_object.calc_cell(tmp, info, position);
-						*(op)                      = out[0];
-						*(op + step)               = out[1];
-						*(op + step * 2)           = out[2];
-						*(op + step * 3)           = out[3];
+						const std::array<U, 4> out_cell = self->m_min_object.calc_cell(tmp, info, position);
+						*(op)                      = out_cell[0];
+						*(op + step)               = out_cell[1];
+						*(op + step * 2)           = out_cell[2];
+						*(op + step * 3)           = out_cell[3];
 					}
 					else {
 						U                      v1  = ip ? *(ip) : 0;
@@ -349,11 +349,11 @@ namespace c74 { namespace min {
 						U                      v3  = ip ? *(ip + step * 2) : 0;
 						U                      v4  = ip ? *(ip + step * 3) : 0;
 						const std::array<U, 4> tmp = {{v1, v2, v3, v4}};
-						const std::array<U, 4> out = self->m_min_object.calc_cell(tmp, info, position);
-						*(op)                      = out[0];
-						*(op + step)               = out[1];
-						*(op + step * 2)           = out[2];
-						*(op + step * 3)           = out[3];
+						const std::array<U, 4> out_cell = self->m_min_object.calc_cell(tmp, info, position);
+						*(op)                      = out_cell[0];
+						*(op + step)               = out_cell[1];
+						*(op + step * 2)           = out_cell[2];
+						*(op + step * 3)           = out_cell[3];
 					}
 					if (ip)
 						ip -= is;
@@ -376,10 +376,10 @@ namespace c74 { namespace min {
 							tmp[k] = *(ip + instep * k);
 					}
 
-					const std::array<U, max::JIT_MATRIX_MAX_PLANECOUNT> out = self->m_min_object.calc_cell(tmp, info, position);
+					const std::array<U, max::JIT_MATRIX_MAX_PLANECOUNT> out_cell = self->m_min_object.calc_cell(tmp, info, position);
 
 					for (auto k = 0; k < info.m_out_info->planecount; ++k)
-						*(op + outstep * k) = out[k];
+						*(op + outstep * k) = out_cell[k];
 
 					if (ip)
 						ip += is;
@@ -401,10 +401,10 @@ namespace c74 { namespace min {
 							tmp[k] = *(ip + instep * k);
 					}
 
-					const std::array<U, max::JIT_MATRIX_MAX_PLANECOUNT> out = self->m_min_object.calc_cell(tmp, info, position);
+					const std::array<U, max::JIT_MATRIX_MAX_PLANECOUNT> out_cell = self->m_min_object.calc_cell(tmp, info, position);
 
 					for (auto k = 0; k < info.m_out_info->planecount; ++k)
-						*(op + outstep * k) = out[k];
+						*(op + outstep * k) = out_cell[k];
 
 					if (ip)
 						ip -= is;
