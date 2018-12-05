@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74 { namespace min {
 
 
 	/// A callback function used to handle an argument from the object box at instantiation.
@@ -14,7 +13,7 @@ namespace min {
 	/// @param	a	An atom which is the value provided as the argument to be handled.
 	/// @see		MIN_ARGUMENT_FUNCTION
 	/// @see		MIN_FUNCTION
-	
+
 	using argument_function = std::function<void(const atom& a)>;
 
 
@@ -22,7 +21,7 @@ namespace min {
 	/// @see argument
 	/// @see argument_function
 
-	#define MIN_ARGUMENT_FUNCTION [this](const c74::min::atom& arg)
+#define MIN_ARGUMENT_FUNCTION [this](const c74::min::atom& arg)
 
 
 	// Represents any type of argument declaration.
@@ -30,16 +29,15 @@ namespace min {
 
 	class argument_base {
 	public:
-
 		// constructor
 
-		argument_base(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_function& a_function)
-		: m_owner		{ an_owner }
-		, m_name		{ a_name }
-		, m_description	{ a_description }
-		, m_required	{ required }
-		, m_function	{ a_function }
-		{
+		argument_base(object_base* an_owner, const std::string& a_name, const description& a_description, bool required,
+			const argument_function& a_function)
+		: m_owner{an_owner}
+		, m_name{a_name}
+		, m_description{a_description}
+		, m_required{required}
+		, m_function{a_function} {
 			m_owner->register_argument(this);
 		}
 
@@ -48,7 +46,7 @@ namespace min {
 		/// This is called internally when the Max object instance is created.
 		/// @param arg	The value for the argument.
 
-		void operator ()(const atom& arg) {
+		void operator()(const atom& arg) {
 			if (m_function)
 				m_function(arg);
 		}
@@ -85,11 +83,11 @@ namespace min {
 		virtual std::string type() = 0;
 
 	protected:
-		object_base*		m_owner;
-		symbol				m_name;
-		description			m_description;
-		bool				m_required;
-		argument_function	m_function;
+		object_base*      m_owner;
+		symbol            m_name;
+		description       m_description;
+		bool              m_required;
+		argument_function m_function;
 	};
 
 
@@ -108,16 +106,15 @@ namespace min {
 	template<class T>
 	class argument : public argument_base {
 	public:
-
 		/// Creates an argument declaration for your class.
 		/// @param	an_owner		The Min object instance that owns this argument. Typically you should pass 'this'.
 		/// @param	a_name			A string specifying a symbolic name for this argument.
 		/// @param	a_description	Documentation string for this argument.
 		/// @param	a_function		Optional function to be called when the argument is processed at object instantiation.
 
-		argument(object_base* an_owner, const std::string& a_name, const description& a_description, const argument_function& a_function = {})
-		: argument_base(an_owner, a_name, a_description, false, a_function)
-		{}
+		argument(
+			object_base* an_owner, const std::string& a_name, const description& a_description, const argument_function& a_function = {})
+		: argument_base(an_owner, a_name, a_description, false, a_function) {}
 
 
 		/// Creates an argument declaration for your class.
@@ -127,9 +124,9 @@ namespace min {
 		/// @param	required		If true the argument _must_ be provided by the user. Otherwise the argument is optional.
 		/// @param	a_function		Optional function to be called when the argument is processed at object instantiation.
 
-		argument(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_function& a_function = {})
-		: argument_base(an_owner, a_name, a_description, required, a_function)
-		{}
+		argument(object_base* an_owner, const std::string& a_name, const description& a_description, bool required,
+			const argument_function& a_function = {})
+		: argument_base(an_owner, a_name, a_description, required, a_function) {}
 
 
 		/// Return the type of the argument as a string.
@@ -137,15 +134,23 @@ namespace min {
 		/// @return	The type of the argument.
 
 		std::string type() override {
-			if		(is_same<T, bool>::value)		return "bool";
-			else if (is_same<T, number>::value)		return "number";
-			else if (is_same<T, float>::value)		return "float";
-			else if (is_same<T, double>::value)		return "float";
-			else if (is_same<T, int>::value)		return "int";
-			else if (is_same<T, long>::value)		return "int";
-			else if (is_same<T, symbol>::value)		return "symbol";
-			else									return "";			// includes 'anything' type
+			if (is_same<T, bool>::value)
+				return "bool";
+			else if (is_same<T, number>::value)
+				return "number";
+			else if (is_same<T, float>::value)
+				return "float";
+			else if (is_same<T, double>::value)
+				return "float";
+			else if (is_same<T, int>::value)
+				return "int";
+			else if (is_same<T, long>::value)
+				return "int";
+			else if (is_same<T, symbol>::value)
+				return "symbol";
+			else
+				return "";    // includes 'anything' type
 		}
 	};
 
-}} // namespace c74::min
+}}    // namespace c74::min

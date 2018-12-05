@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74 { namespace min {
 
 	enum class time_flags {
 		none = 0,									/// anything goes -- both fixed times and tempo-based times
@@ -50,23 +49,20 @@ namespace min {
 		}
 
 		time_value(double interval_in_ms)
-		: m_owner	{ nullptr }
-		, m_timeobj	{ nullptr }
-		{
+		: m_owner{nullptr}
+		, m_timeobj{nullptr} {
 			set_milliseconds(interval_in_ms);
 		}
 
 		time_value(const atom& interval_in_ms)
-		: m_owner	{ nullptr }
-		, m_timeobj	{ nullptr }
-		{
+		: m_owner{nullptr}
+		, m_timeobj{nullptr} {
 			set_milliseconds(interval_in_ms);
 		}
 
 		time_value()
-		: m_owner	{ nullptr }
-		, m_timeobj	{ nullptr }
-		{}
+		: m_owner{nullptr}
+		, m_timeobj{nullptr} {}
 
 		~time_value() {
 			max::object_free(m_timeobj);
@@ -94,25 +90,24 @@ namespace min {
 		// e.g. to set defaults by const ref
 
 		time_value(const time_value& other)
-		: m_owner		{ other.m_owner }
-		, m_name		{ other.m_name }
-		, m_timeobj		{ nullptr }		// we cannot copy the timeobj or we will potentially double-free it
-		, m_interval_ms	{ other.m_interval_ms }
-		{}
+		: m_owner{other.m_owner}
+		, m_name{other.m_name}
+		, m_timeobj{nullptr}    // we cannot copy the timeobj or we will potentially double-free it
+		, m_interval_ms{other.m_interval_ms} {}
 
-		time_value& operator = (const time_value& other) {
+		time_value& operator=(const time_value& other) {
 			// do not overwrite anything!
 			// we just want to set the time for the existing timeobj
 			(*this) = static_cast<double>(other);
 			return *this;
 		}
 
-		time_value& operator = (double value) {
+		time_value& operator=(double value) {
 			set_milliseconds(value);
 			return *this;
 		}
 
-		time_value& operator = (const atom& value) {
+		time_value& operator=(const atom& value) {
 			set_milliseconds(value);
 			return *this;
 		}

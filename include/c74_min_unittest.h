@@ -19,7 +19,6 @@ namespace c74 {
 		template<class min_class_type>
 		class test_wrapper {
 		public:
-
 			/// Create a test wrapper instance of your object
 
 			test_wrapper() {
@@ -42,10 +41,10 @@ namespace c74 {
 			}
 
 		private:
-			minwrap<min_class_type>* m_minwrap_obj { nullptr };
+			minwrap<min_class_type>* m_minwrap_obj{nullptr};
 		};
 
-	} // namespace min
+	}    // namespace min
 
 
 	namespace max {
@@ -63,13 +62,13 @@ namespace c74 {
 		///
 		/// @remark		should sequences have time-stamps?
 
-		typedef std::vector<t_atom_vector>	t_sequence;
+		typedef std::vector<t_atom_vector> t_sequence;
 
 
 		// defined in the mock kernel used for executing object unit tests
 
-		extern "C" t_sequence* object_getoutput(void *o, int outletnum);
-	
-	} // namespace max
+		extern "C" t_sequence* object_getoutput(void* o, int outletnum);
 
-} // namespace c74
+	}    // namespace max
+
+}    // namespace c74

@@ -2,3 +2,4 @@ build
 tmp
 doc/doxyfile
 doc/html
+.DS_Store
