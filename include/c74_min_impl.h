@@ -103,6 +103,63 @@ namespace c74 { namespace min {
 		return *this;
 	}
 
+	
+#ifdef __APPLE__
+#pragma mark -
+#pragma mark atom
+#endif
+	
+
+	bool atom::operator==(max::t_symbol* s) const {
+		return atom_getsym(this) == s;
+	}
+	
+
+	bool atom::operator==(symbol s) const {
+		return atom_getsym(this) == (max::t_symbol*)s;
+	}
+	
+
+	bool atom::operator==(const char* str) const {
+		return atom_getsym(this) == max::gensym(str);
+	}
+	
+
+	bool atom::operator==(bool value) const {
+		return (atom_getlong(this) != 0) == value;
+	}
+	
+
+	bool atom::operator==(int value) const {
+		return atom_getlong(this) == value;
+	}
+
+	
+	bool atom::operator==(long value) const {
+		return atom_getlong(this) == value;
+	}
+	
+
+	bool atom::operator==(double value) const {
+		return atom_getfloat(this) == value;
+	}
+	
+
+	bool atom::operator==(max::t_object* value) const {
+		return atom_getobj(this) == value;
+	}
+	
+
+	bool atom::operator==(const max::t_atom& b) const {
+		return this->a_type == this->a_type && this->a_w.w_obj == b.a_w.w_obj;
+	}
+
+	
+	bool atom::operator==(time_value value) const {
+		const max::t_atom& a = *this;
+		return atom_getfloat(&a) == static_cast<double>(value);
+	}
+
 
 #ifdef __APPLE__
 #pragma mark -
