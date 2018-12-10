@@ -195,49 +195,35 @@ namespace c74 { namespace min {
 
 
 		/// Compare an atom against a value for equality.
-		inline friend bool operator==(const max::t_atom& a, max::t_symbol* s) {
-			return atom_getsym(&a) == s;
-		}
+		bool operator==(max::t_symbol* s) const;
 
 		/// Compare an atom against a value for equality.
-		inline friend bool operator==(const max::t_atom& a, symbol s) {
-			return atom_getsym(&a) == (max::t_symbol*)s;
-		}
+		bool operator==(symbol s) const;
 
 		/// Compare an atom against a value for equality.
-		inline friend bool operator==(const max::t_atom& a, const char* str) {
-			return atom_getsym(&a) == max::gensym(str);
-		}
+		bool operator==(const char* str) const;
 
 		/// Compare an atom against a value for equality.
-		inline friend bool operator==(const max::t_atom& a, bool value) {
-			return (atom_getlong(&a) != 0) == value;
-		}
+		bool operator==(bool value) const;
 
 		/// Compare an atom against a value for equality.
-		inline friend bool operator==(const max::t_atom& a, int value) {
-			return atom_getlong(&a) == value;
-		}
+		bool operator==(int value) const;
 
 		/// Compare an atom against a value for equality.
-		inline friend bool operator==(const max::t_atom& a, long value) {
-			return atom_getlong(&a) == value;
-		}
+		bool operator==(long value) const;
 
 		/// Compare an atom against a value for equality.
-		inline friend bool operator==(const max::t_atom& a, double value) {
-			return atom_getfloat(&a) == value;
-		}
+		bool operator==(double value) const;
 
 		/// Compare an atom against a value for equality.
-		inline friend bool operator==(const max::t_atom& a, max::t_object* value) {
-			return atom_getobj(&a) == value;
-		}
+		bool operator==(max::t_object* value) const;
 
 		/// Compare an atom against an atom for equality.
-		inline friend bool operator==(const max::t_atom& a, const max::t_atom& b) {
-			return a.a_type == b.a_type && a.a_w.w_obj == b.a_w.w_obj;
-		}
+		bool operator==(const max::t_atom& b) const;
+
+		/// Compare an atom against an atom for equality.
+		bool operator==(time_value value) const;
+
 	};
 
 
