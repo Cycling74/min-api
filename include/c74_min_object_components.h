@@ -350,6 +350,7 @@ namespace c74 { namespace min {
 	template<class min_class_type>
 	struct minwrap<min_class_type,
 		typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value
+			&& !is_base_of<mc_operator_base, min_class_type>::value
 			&& !is_base_of<sample_operator_base, min_class_type>::value>::type> {
 		maxobject_header m_max_header;
 		min_class_type   m_min_object;

@@ -119,15 +119,20 @@ namespace c74 { namespace min {
 
 		void setup() {
 			max::dsp_setup(m_max_header, (long)m_min_object.inlets().size());
-
+			
 			if (m_min_object.is_ui_class()) {
 				max::t_pxjbox* x = m_max_header;
 				x->z_misc |= max::Z_NO_INPLACE;
+				if (is_base_of<mc_operator_base, min_class_type>::value)
+					x->z_misc |= max::Z_MC_INLETS;
 			}
 			else {
 				max::t_pxobject* x = m_max_header;
 				x->z_misc |= max::Z_NO_INPLACE;
+				if (is_base_of<mc_operator_base, min_class_type>::value)
+					x->z_misc |= max::Z_MC_INLETS;
 			}
+			
 			m_min_object.create_outlets();
 		}
 

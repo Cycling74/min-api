@@ -112,6 +112,7 @@ namespace c74 { namespace min {
 	class time_value;
 	class matrix_operator_base;
 	class gl_operator_base;
+	class mc_operator_base;
 	class sample_operator_base;
 	class vector_operator_base;
 	class ui_operator_base;
@@ -193,6 +194,9 @@ namespace c74 { namespace min {
 	using enable_if_gl_operator = typename enable_if<is_base_of<gl_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
+	using enable_if_mc_operator = typename enable_if<is_base_of<mc_operator_base, min_class_type>::value, int>::type;
+
+		template<class min_class_type>
 	using enable_if_sample_operator = typename enable_if<is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
@@ -200,7 +204,7 @@ namespace c74 { namespace min {
 
 	template<class min_class_type>
 	using enable_if_audio_class = typename enable_if<
-		is_base_of<vector_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value, int>::type;
+		is_base_of<vector_operator_base, min_class_type>::value || is_base_of<mc_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
 	template<class min_class_type>
 	using enable_if_jitter_class =
@@ -215,10 +219,12 @@ namespace c74 { namespace min {
 
 	template<class min_class_type>
 	using type_enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value
+		|| is_base_of<mc_operator_base, min_class_type>::value
 		|| is_base_of<sample_operator_base, min_class_type>::value>::type;
 
 	template<class min_class_type>
 	using type_enable_if_not_audio_class = typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value
+		&& !is_base_of<mc_operator_base, min_class_type>::value
 		&& !is_base_of<sample_operator_base, min_class_type>::value>::type;
 
 	template<class min_class_type>
@@ -327,6 +333,7 @@ namespace c74 { namespace min {
 #include "c74_min_logger.h"             // Console / Max Window output
 #include "c74_min_operator_vector.h"    // Vector-based MSP object add-ins
 #include "c74_min_operator_sample.h"    // Sample-based MSP object add-ins
+#include "c74_min_operator_mc.h"    	// Vector-based MC object add-ins
 #include "c74_min_operator_matrix.h"    // Jitter MOP add-ins
 
 // UI Object Support requires Visual Studio 2017 or higher when on Windows
