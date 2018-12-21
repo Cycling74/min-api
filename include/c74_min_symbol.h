@@ -139,6 +139,7 @@ namespace c74 { namespace min {
 			return s->s_thing != nullptr;
 		}
 
+		operator float() const = delete;
 
 		const char* c_str() const {
 			return s->s_name;
