@@ -403,14 +403,14 @@ namespace std {
 }    // namespace std
 
 
-/// Expose atom for use in std output streams.
-template<class charT, class traits>
-std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& stream, const c74::min::atom& a) {
-	return stream << std::string(a);
-}
-
-
 namespace c74 { namespace min {
+	
+	/// Expose atom for use in std output streams.
+	template<class charT, class traits>
+	std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& stream, const c74::min::atom& a) {
+		return stream << std::string(a);
+	}
+	
 
 	/// Copy values from any STL container to a vector of atoms
 	/// @tparam	T			The type of the container
