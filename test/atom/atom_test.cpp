@@ -22,15 +22,19 @@ TEST_CASE( "Atom Class", "[atoms]" ) {
 		c74::min::atoms		dd = c74::min::to_atoms(d);
 		
 		REQUIRE( aa.size() == 1 );
+		REQUIRE( aa[0].type() == c74::min::message_type::int_argument);
 		REQUIRE( int(aa[0]) == 4 );
 		
 		REQUIRE( bb.size() == 1 );
+		REQUIRE( bb[0].type() == c74::min::message_type::float_argument);
 		REQUIRE( double(bb[0]) == Approx(6.28) );
 		
 		REQUIRE( cc.size() == 1 );
+		REQUIRE( cc[0].type() == c74::min::message_type::symbol_argument);
 		REQUIRE( c74::min::symbol(cc[0]) == "foo" );
 		
 		REQUIRE( dd.size() == 1 );
+		REQUIRE( dd[0].type() == c74::min::message_type::object_argument);
 		REQUIRE( (c74::max::t_object*)dd[0] == (c74::max::t_object*)1974 );
 	}
 

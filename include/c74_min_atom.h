@@ -189,7 +189,7 @@ namespace c74 { namespace min {
 					s = "?";
 					break;
 			}
-
+			
 			return s;
 		}
 
@@ -224,6 +224,12 @@ namespace c74 { namespace min {
 		/// Compare an atom against an atom for equality.
 		bool operator==(time_value value) const;
 
+		
+		/// Return the type of the data contained in the atom.
+		message_type type() {
+			return static_cast<message_type>(a_type);
+		}
+		
 	};
 
 

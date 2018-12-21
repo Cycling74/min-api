@@ -75,12 +75,12 @@ namespace c74 { namespace min {
 
 
 	enum class message_type : long {
-		nothing,
-		long_arg,
-		float_arg,
-		symbol_arg,
+		no_argument,
+		int_argument,
+		float_argument,
+		symbol_argument,
 		object_argument,
-		long_optional,
+		int_optional,
 		float_optional,
 		symbol_optional,
 		gimme,

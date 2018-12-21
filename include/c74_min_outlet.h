@@ -153,9 +153,9 @@ namespace c74 { namespace min {
 		void callback() {
 			tagged_atoms tas;
 			while (m_values.try_dequeue(tas)) {
-				if (tas.m_type == message_type::long_arg)
+				if (tas.m_type == message_type::int_argument)
 					outlet_do_send<max::t_atom_long>(this->m_baton, tas.m_as[0]);
-				else if (tas.m_type == message_type::float_arg)
+				else if (tas.m_type == message_type::float_argument)
 					outlet_do_send<double>(this->m_baton, tas.m_as[0]);
 				else
 					outlet_do_send(this->m_baton, tas.m_as);
@@ -208,9 +208,9 @@ namespace c74 { namespace min {
 	public:
 		handle_unsafe_outlet_send(outlet<check_type, thread_action::fifo>* an_outlet, const outlet_type& a_value) {
 			if (typeid(outlet_type) == typeid(max::t_atom_long))
-				an_outlet->queue_storage().push(message_type::long_arg, a_value);
+				an_outlet->queue_storage().push(message_type::int_argument, a_value);
 			else if (typeid(outlet_type) == typeid(double))
-				an_outlet->queue_storage().push(message_type::float_arg, a_value);
+				an_outlet->queue_storage().push(message_type::float_argument, a_value);
 			else    // atoms
 				an_outlet->queue_storage().push(message_type::gimme, a_value);
 		}
