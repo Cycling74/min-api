@@ -49,7 +49,7 @@ namespace c74 { namespace min {
 		}
 
 		auto as = to_atoms(a_default_value);
-		set(as, false);
+		set(as, false, true);
 	}
 
 
@@ -67,7 +67,7 @@ namespace c74 { namespace min {
 		copy_range();
 
 		auto as = to_atoms(a_default_value);
-		set(as, false);
+		set(as, false, true);
 	}
 
 
