@@ -453,11 +453,11 @@ namespace c74 { namespace min {
 
 			if (!(attr.editor_category() == k_sym__empty)) {
 				atom category_atom(attr.editor_category());
-				CLASS_ATTR_ATTR_ATOMS(c, attr_name.c_str(), "category", 0, k_sym_symbol, 1, &category_atom);
+				max::class_attr_addattr_atoms(c, attr_name.c_str(), "category", k_sym_symbol, 0, 1, &category_atom);
 			}
 
 			atom order_atom{attr.editor_order()};
-			max::class_attr_addattr_atoms(c, attr_name.c_str(), "order", 0, k_sym_long, 1, &order_atom);
+			max::class_attr_addattr_atoms(c, attr_name.c_str(), "order", k_sym_long, 0, 1, &order_atom);
 
 			auto range_string = attr.range_string();
 			if (!range_string.empty()) {
