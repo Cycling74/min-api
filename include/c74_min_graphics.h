@@ -127,8 +127,12 @@ namespace ui {
 
 	class size {
 	public:
-		size(double x, double y)
-		: m_size {x,y}
+		size(double width, double height)
+		: m_size {width, height}
+		{}
+
+		size(double a_size)
+		: size {a_size, a_size}
 		{}
 
 		void operator()(max::t_rect& r) {
@@ -138,6 +142,24 @@ namespace ui {
 
 	private:
 		max::t_size m_size;
+	};
+
+	
+	class span {
+	public:
+		span(double start, double finish)
+		: angle1 {start}
+		, angle2 {finish}
+		{}
+		
+		void operator()(max::t_rect& r) {
+			r.x = angle1;
+			r.y = angle2;
+		}
+		
+	private:
+		double angle1 {};
+		double angle2 {};
 	};
 
 
@@ -274,6 +296,13 @@ namespace ui {
 			const_cast<argument_type&>(arg)(m_misc);
 		}
 
+		/// constructor utility: span
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, span>::value>::type
+		assign_from_argument(const argument_type& arg) noexcept {
+			const_cast<argument_type&>(arg)(m_misc);
+		}
+
 		/// constructor utility: fontface
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, fontface>::value>::type
@@ -397,6 +426,20 @@ namespace ui {
 		}
 	};
 
+	
+	template<draw_style style = stroke>
+	class arc : public element {
+	public:
+		template<typename ...ARGS>
+		arc(ARGS... args) {
+			handle_arguments(args...);
+			update();
+			// reinterpreting the "rect" coordinates here to be the center point and the width/height (identical) to be the radius
+			max::jgraphics_arc(*m_target, m_rect.x, m_rect.y, m_rect.height, m_misc.x, m_misc.y);
+			draw<style>(*m_target);
+		}
+	};
+	
 
 	class text : public element {
 	public:
