@@ -226,7 +226,7 @@ namespace c74 { namespace min {
 
 		
 		/// Return the type of the data contained in the atom.
-		message_type type() {
+		message_type type() const {
 			return static_cast<message_type>(a_type);
 		}
 		
