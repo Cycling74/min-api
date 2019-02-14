@@ -55,6 +55,7 @@ namespace c74 { namespace min {
 
 	protected:
 		logger cout{this, logger::type::message};
+		logger cwarn{this, logger::type::warning};
 		logger cerr{this, logger::type::error};
 	};
 

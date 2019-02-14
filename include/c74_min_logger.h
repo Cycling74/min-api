@@ -29,6 +29,7 @@ namespace c74 { namespace min {
 
 		enum type {
 			message = 0,    ///< A regular console post to the Max Window.
+			warning,		///< A highlighted and trappable warning post to the Max Window.
 			error           ///< A highlighted and trappable error post to the Max Window.
 		};
 
@@ -68,6 +69,13 @@ namespace c74 { namespace min {
 					// if the max object is present then it is safe to post even if the owner isn't yet fully initialized
 					if (m_owner.initialized() || k_sym_max)
 						max::object_post(m_owner, s.c_str());
+					break;
+				case warning:
+					std::cerr << s << std::endl;
+
+					// if the max object is present then it is safe to post even if the owner isn't yet fully initialized
+					if (m_owner.initialized() || k_sym_max)
+						max::object_warn(m_owner, s.c_str());
 					break;
 				case error:
 					std::cerr << s << std::endl;
