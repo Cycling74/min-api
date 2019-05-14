@@ -113,8 +113,8 @@ namespace c74 { namespace min {
 			return s;
 		}
 
-		operator std::string &&() const {
-			return std::move(std::string(s->s_name));
+		operator std::string() const {
+			return std::string(s->s_name);
 		}
 
 		operator const char*() const {
