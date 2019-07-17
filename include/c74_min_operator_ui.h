@@ -60,7 +60,8 @@ namespace min {
 		}
 
 		void redraw() {
-			jbox_redraw(box());
+			if (m_instance->initialized())
+				jbox_redraw(box());
 		}
 
 		int default_width() const {
@@ -90,7 +91,7 @@ namespace min {
 				auto err = c74::max::object_attr_getvalueof(self, color_attr.first, &ac, &av);
 				if (!err) {
 					atoms a {av[0], av[1], av[2], av[3]};
-					attr.set(a);
+					attr.set(a, false); // notify must be false to prevent feedback loops
 				}
 			}
 		}
