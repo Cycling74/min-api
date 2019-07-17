@@ -227,6 +227,10 @@ attribute<symbol> mode {
 };
 ```
 
+#### The Value Attribute
+
+If you name your attribute "value" it will be imbued with additional status: this attribute will represent your object to Max's preset, pattr, and parameter (snapshot) systems for saving and recalling patcher state.
+
 ### Range Limiting
 
 Providing a range for the `bool` or  `enum` types automatically limits input to the options available. For other numeric types the provided range is a suggestion and is used to generate documentation.

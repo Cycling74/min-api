@@ -311,6 +311,47 @@ namespace c74 { namespace min {
 			*rv = ra[0];
 	}
 
+	template<class min_class_type>
+	max::t_max_err wrapper_method_getvalueof(max::t_object* o, long* ac, max::t_atom** av) {
+		return max::object_attr_getvalueof(o, k_sym_value, ac, av);
+	}
+	
+	template<class min_class_type>
+	max::t_max_err wrapper_method_setvalueof(max::t_object* o, long ac, max::t_atom* av) {
+		return max::object_attr_setvalueof(o, k_sym_value, ac, av);
+	}
+	
+	template<class min_class_type>
+	void wrapper_method_preset(max::t_object* o) {
+		auto z = static_cast<void*>(k_sym__preset);
+
+		if (z) {
+			long ac = 0;
+			max::t_atom* av = nullptr;
+			auto err = max::object_attr_getvalueof(o, k_sym_value, &ac, &av);
+
+			if (!err) {
+				max::t_atom a[16];
+				auto i = 0;
+				
+				max::atom_setobj(a+0, o);
+				max::atom_setsym(a+1, max::object_classname(o));
+				max::atom_setsym(a+2, k_sym_value);
+
+				if (ac > 13) {
+					ac = 13;
+					max::object_error(o, "Too many values to be stored as a preset. Truncating list.");
+				}
+				for (i=0; i<ac; ++i)
+					a[i+3] = av[i];
+				max::binbuf_insert(z, nullptr, i+3, a);
+			}
+
+			if (ac && av)
+				max::sysmem_freeptr(av);
+		}
+	}
+
 
 	// In the above wrapper methods we need access to the Max message name,
 	// either to pass it on or to perform a lookup.
@@ -496,6 +537,13 @@ namespace c74 { namespace min {
 				auto found = attributes_associated_with_styles.find(attr_name);
 				if (found != attributes_associated_with_styles.end())
 					c74::max::class_attr_setstyle(c, attr_name.c_str());
+			}
+			
+			// pattr and preset bindings
+			if (attr.name() == "value") {
+				max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_getvalueof<min_class_type>), "getvalueof", max::A_CANT, 0);
+				max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_setvalueof<min_class_type>), "setvalueof", max::A_CANT, 0);
+				max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_preset<min_class_type>), "preset", 0); // A_CANT won't work for this one
 			}
 		}
 

@@ -578,6 +578,9 @@ namespace c74 { namespace min {
 				else
 					m_helper.set(args);
 			}
+			
+			if (name() == k_sym_value)
+				c74::max::object_notify(owner().maxobj(), k_sym_modified, nullptr);
 		}
 
 
