@@ -228,6 +228,17 @@ namespace min {
 			max::object_attr_setfloat(m_buffer_obj, k_sym_size, length_in_ms);
 		}
 
+		
+		/// resize a buffer.
+		/// only available for non-audio thread access.
+		/// @param	length_in_samples	The new length to which the buffer should resize.
+		
+		template<bool U = audio_thread_access, typename enable_if<U == false, int>::type = 0>
+		void resize_in_samples(int length_in_samples) {
+			max::t_atom_long newsize = length_in_samples;
+			max::object_method(static_cast<max::t_object*>(m_buffer_obj), max::gensym("sizeinsamps"), (void*)newsize, 0);
+		}
+
 	private:
 		buffer_reference&  m_buffer_ref;
 		max::t_buffer_obj* m_buffer_obj{nullptr};
