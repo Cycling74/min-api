@@ -231,7 +231,7 @@ namespace c74 { namespace min {
 											// always the correct `self` for box operations
 			auto ret = meth(as);
 			if (!ret.empty())
-				return static_cast<long>(meth(as).at(0));
+				return static_cast<long>(ret.at(0));
 		}
 		return 0;
 	}
