@@ -19,6 +19,9 @@ namespace c74 { namespace min {
 				max::t_symbol* s = name;
 				m_instance       = max::dictobj_register(d, &s);
 			}
+            else {
+                m_instance = d;
+            }
 		}
 
 		/// Create an unregistered dictionary from dict-syntax
