@@ -665,7 +665,11 @@ namespace c74 { namespace min {
 
 			// Attribute Metadata
 			CLASS_ATTR_LABEL(this_jit_class, attr_name.c_str(), 0, attr.label_string());
-
+			
+			if (attr.editor_style() != style::none) {
+				CLASS_ATTR_STYLE(this_jit_class, attr_name.c_str(), 0, style_symbols[attr.editor_style()]);
+			}
+			
 			auto range_string = attr.range_string();
 			if (!range_string.empty()) {
 				if (attr.datatype() == "symbol") {
