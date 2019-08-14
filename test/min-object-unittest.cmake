@@ -55,6 +55,8 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
         set_target_properties(${TEST_NAME} PROPERTIES LINK_FLAGS "-Wl,-F'${C74_MAX_API_DIR}/lib/mac', -weak_framework JitterAPI")
 	endif ()
 	if (WIN32)
+        set_target_properties(${TEST_NAME} PROPERTIES COMPILE_PDB_NAME ${TEST_NAME})
+
 		# target_link_libraries(${TEST_NAME} ${MaxAPI_LIB})
 		# target_link_libraries(${TEST_NAME} ${MaxAudio_LIB})
 		# target_link_libraries(${TEST_NAME} ${Jitter_LIB})
