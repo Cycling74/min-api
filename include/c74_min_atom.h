@@ -356,7 +356,7 @@ namespace c74 { namespace min {
 		operator vector<int>() const {
 			vector<int> v(m_ac);
 			for (auto i = 0; i < m_ac; ++i)
-				v[i] = atom_getlong(m_av + i);
+				v[i] = static_cast<int>( atom_getlong(m_av + i) );
 			return v;
 		}
 
