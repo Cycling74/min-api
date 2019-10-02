@@ -119,7 +119,7 @@ In an example where you wish to define both the inlets and the outlets at runtim
 
 ```c++
 private:
-    std::vector< std::unique_ptr<inlet<>> >		m_inlets;
+    std::vector< std::unique_ptr<inlet<>> >	m_inlets;
     std::vector< std::unique_ptr<outlet<>> >	m_outlets;
 ```
 
@@ -135,12 +135,12 @@ clone(const atoms& args = {}) {
   	auto outlet_count = inlet_count * 2;
   
 	for (auto i=0; i < inlet_count; ++i) {
-      	auto an_inlet = std::make_unique<inlet<>>(this, "(bang) my assist message")
+      		auto an_inlet = std::make_unique<inlet<>>(this, "(bang) my assist message");
 		m_inlets.push_back( an_inlet );
 	}
 
   	for (auto i=0; i < outlet_count; ++i) {
-      	auto an_outlet = std::make_unique<outlet<>>(this, "my outlet assist message")
+      		auto an_outlet = std::make_unique<outlet<>>(this, "my outlet assist message");
 		m_outlets.push_back( an_outlet );
 	}
 }
