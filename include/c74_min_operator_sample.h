@@ -23,8 +23,8 @@ namespace c74 { namespace min {
 	/// samples<2> operator() (sample input1, sample input2, sample input3);
 	/// @endcode
 	///
-	/// @tparam input_count		The number of audio inputs for your object.
-	/// @tparam output_count	The number of audio outputs for your object.
+	/// @tparam input_count_param		The number of audio inputs for your object.
+	/// @tparam output_count_param	The number of audio outputs for your object.
 
 	template<size_t input_count_param, size_t output_count_param>
 	class sample_operator : public sample_operator_base {

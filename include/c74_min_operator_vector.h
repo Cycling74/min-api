@@ -173,7 +173,7 @@ namespace c74 { namespace min {
 	/// In some cases inheriting from vector_operator<> will be more computationally efficient.
 	/// This is particularly true if your object will perform buffer~ access.
 	///
-	/// @tparam	Unused. You should supply no arguments. For example, `vector_operator<>`.
+	/// @tparam vector_operator_placeholder_type	Unused. You should supply no arguments. For example, `vector_operator<>`.
 	/// @see sample_operator
 	/// @see buffer_reference
 

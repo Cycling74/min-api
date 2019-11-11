@@ -101,7 +101,7 @@ namespace c74 { namespace min {
 	/// class defines a custom constructor.
 	/// In the later case you must process the arguments manually in your constructor.
 	///
-	/// @tparam	The type of argument a user may type into the object box in Max.
+	/// @tparam	T The type of argument a user may type into the object box in Max.
 
 	template<class T>
 	class argument : public argument_base {

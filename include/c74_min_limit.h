@@ -226,7 +226,7 @@ namespace c74 { namespace min {
 	namespace limit {
 
 		/// The interface for all attribute range limiter classes
-		/// @tparam	The numerical type to be constrained.
+		/// @tparam	T The numerical type to be constrained.
 
 		template<typename T>
 		class base {
@@ -242,7 +242,7 @@ namespace c74 { namespace min {
 
 
 		/// Attribute range limiter that does not constrain values.
-		/// @tparam	The numerical type to be constrained.
+		/// @tparam T	The numerical type to be constrained.
 
 		template<typename T>
 		class none : public base<T> {
@@ -271,7 +271,7 @@ namespace c74 { namespace min {
 
 
 		/// Attribute range limiter that constrains values by clamping.
-		/// @tparam	The numerical type to be constrained.
+		/// @tparam	T The numerical type to be constrained.
 
 		template<typename T>
 		class clamp : public base<T> {
@@ -300,7 +300,7 @@ namespace c74 { namespace min {
 
 
 		/// Attribute range limiter that constrains values by wrapping.
-		/// @tparam	The numerical type to be constrained.
+		/// @tparam	T The numerical type to be constrained.
 
 		template<typename T>
 		class wrap : public base<T> {
@@ -329,7 +329,7 @@ namespace c74 { namespace min {
 
 
 		/// Attribute range limiter that constrains values by folding.
-		/// @tparam	The numerical type to be constrained.
+		/// @tparam	T The numerical type to be constrained.
 
 		template<typename T>
 		class fold : public base<T> {

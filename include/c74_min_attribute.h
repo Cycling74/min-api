@@ -317,7 +317,7 @@ namespace c74 { namespace min {
 	///								If your object has been written specifically and carefully to be threadsafe then
 	///								you may pass the option parameter threadsafe::yes.
 	///								The default is threadsafe::no, which is the correct choice in most cases.
-	/// @param		limit_type		An optional parameter.
+	/// @tparam		limit_type		An optional parameter.
 	///								If your attribute is a numeric type (e.g. number or int), and it defines a range,
 	///								the class type you specify here will be used to limit the input values to that range.
 	///								The available options are the template classes defined in the #c74::min::limit namespace.
@@ -442,7 +442,7 @@ namespace c74 { namespace min {
 		/// @param an_owner			The instance pointer for the owning C++ class, typically you will pass 'this'
 		/// @param a_name			A string specifying the name of the attribute when dynamically addressed or inspected.
 		/// @param a_default_value	The default value of the attribute, which will be set when the instance is created.
-		/// @param ...args			N arguments specifying optional properties of an attribute such as setter, label, style, etc.
+		/// @param args				N arguments specifying optional properties of an attribute such as setter, label, style, etc.
 
 		template<typename... ARGS>
 		attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args);

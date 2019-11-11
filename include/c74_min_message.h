@@ -103,7 +103,7 @@ namespace c74 { namespace min {
 		void update_inlet_number(int& inlet) {
 			if (inlet == -1) {
 				if (m_owner->inlets().size() > 1)    // avoid this potentially expensive call if there is only one inlet
-					inlet = proxy_getinlet(static_cast<max::t_object*>(*m_owner));
+					inlet = static_cast<int>(proxy_getinlet(static_cast<max::t_object*>(*m_owner)));
 				else
 					inlet = 0;
 			}
@@ -250,7 +250,7 @@ namespace c74 { namespace min {
 		/// @param	a_function		The function to be called when the message is received by your object.
 		///							This is typically provided as a lamba function using the #MIN_FUNCTION definition.
 		/// @param	a_description	Optional, but highly encouraged, description string to document the message.
-		/// @param	a_type			Optional message type determines what kind of messages Max can send.
+		/// @param	type			Optional message type determines what kind of messages Max can send.
 		///							In most cases you should _not_ pass anything here and accept the default.
 
 		message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {},

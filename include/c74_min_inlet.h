@@ -37,7 +37,7 @@ namespace c74 { namespace min {
 	/// The actual inlet class is a templated type.
 	/// This is done for consistency of coding style with outlet<>, message<>, attribute<>, etc.
 	/// At the moment there is no actual function for the template parameter.
-	/// @tparam	Unused. You should supply no arguments. For example, `inlet<>`.
+	/// @tparam inlet_placeholder_type	Unused. You should supply no arguments. For example, `inlet<>`.
 
 	template<placeholder inlet_placeholder_type = placeholder::none>
 	class inlet : public inlet_base {
