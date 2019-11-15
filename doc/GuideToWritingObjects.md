@@ -6,7 +6,7 @@ Example code is distributed as a part of the [Min-DevKit Package](https://github
 
 See Also:
 
-* [Guide To Theading](GuideToThreading.md)
+* [Guide To Threading](GuideToThreading.md)
 * [Guide To Audio](GuideToAudio.md)
 * [Guide To Initialization](GuideToInitialization.md)
 * [Guide To UI Objects](GuideToUserInterfaceObjects.md)
