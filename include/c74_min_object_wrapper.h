@@ -453,9 +453,10 @@ namespace c74 { namespace min {
             else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mousemove, self_ptr_pt_long, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c,
-				mousedragdelta, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long,
-				A_CANT) else if (a_message.first == "dspsetup");    // skip -- handle it in operator classes
+            else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, api_sendmessage, api_sendmessage, A_CANT)
+      else if (a_message.first == "dspsetup");    // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup");          // for min class construction only, do not add for exposure to max
 			else if (a_message.first == "savestate") {
 				max::class_addmethod(
