@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <cstdarg>
+
 namespace c74 { namespace min {
 
 
@@ -284,6 +286,23 @@ namespace c74 { namespace min {
 			dictobj_release(d);
 	}
 
+  template<class min_class_type, class message_name_type>
+  void wrapper_method_api_sendmessage(max::t_object* o, void* fun_name, ...) {
+		auto self = wrapper_find_self<min_class_type>(o);
+		auto& meth = *self->m_min_object.messages()[(char *)fun_name];
+    atoms as;
+
+    va_list fun_args;
+    va_start(fun_args, fun_name);
+    char *fun_arg;
+    while ((fun_arg = (char *)va_arg(fun_args, void*))) {
+      as.push_back(fun_arg);
+    }
+    va_end(fun_args);
+
+    meth(as);
+  }
+
 	// this version is called for most message instances defined in the min class
 	template<class min_class_type>
 	void wrapper_method_generic(max::t_object* o, max::t_symbol* s, long ac, max::t_atom* av) {
@@ -396,6 +415,7 @@ namespace c74 { namespace min {
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(oksize)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(paint)
 	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(patchlineupdate)
+	MIN_WRAPPER_CREATE_TYPE_FROM_STRING(api_sendmessage)
 
 
 	// Simplify the meth switches in the following code to reduce excessive and tedious code duplication
