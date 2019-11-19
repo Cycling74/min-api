@@ -65,7 +65,7 @@ namespace c74 { namespace min {
 
 
 		/// Constructor with an integer value that will be turned into a symbol.
-		/// @param value	Initial value that will be stringified.
+		/// @param number_to_be_symbolized	Initial value that will be stringified.
 
 		symbol(int number_to_be_symbolized)
 		: symbol(std::to_string(number_to_be_symbolized)) {}
