@@ -48,6 +48,7 @@ namespace c74 { namespace min {
 	struct anything {};
 
 	using numbers = std::vector<number>;
+    using strings = std::vector<std::string>;
 
 	template<size_t count>
 	using samples = std::array<sample, count>;

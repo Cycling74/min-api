@@ -768,4 +768,34 @@ namespace c74 { namespace min {
 #undef MIN_WRAPPER_ADDMETHOD
 #undef MIN_WRAPPER_CREATE_TYPE_FROM_STRING
 
+
+#if 0
+#pragma mark -
+#pragma mark Utilities for Handling Specific Messages
+#endif
+
+
+    /// Add the contents of a package to a standalone when responding to a "fileusage" message from Max.
+    /// @param    fileusage_handle                             The raw arguments passed to the "fileusage" message by Max.
+    /// @param    package_name                                      The name of the package to be added to the standalone.
+    /// @param    names_of_folders_to_include     Optional. The names of the folders in the package to add to the standalone.
+    ///                                         If none are provided then the entire package will be added.
+
+    void fileusage_addpackage(const atoms& fileusage_handle, string package_name, strings names_of_folders_to_include= {}) {
+        void *w { fileusage_handle[0] };
+            if (names_of_folders_to_include.empty())
+                c74::max::fileusage_addpackage(w, package_name.c_str(), nullptr);
+            else {
+                c74::max::t_atom       a;
+                c74::max::t_atomarray* aa = c74::max::atomarray_new(0, NULL);
+
+                for (const auto& folder_name : names_of_folders_to_include) {
+                    c74::max::atom_setsym(&a, c74::max::gensym(folder_name.c_str()));
+                    c74::max::atomarray_appendatom(aa, &a);
+                }
+                c74::max::fileusage_addpackage(w, package_name.c_str(), (c74::max::t_object*)aa);
+            }
+    }
+
+
 }}    // namespace c74::min

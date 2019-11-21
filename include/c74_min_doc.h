@@ -68,8 +68,6 @@ namespace c74 { namespace min {
 
 #define MIN_RELATED static constexpr const char* class_related
 
-	using strings = std::vector<std::string>;
-
 	template<typename min_class_type>
 	struct has_class_related {
 		template<class, class>
