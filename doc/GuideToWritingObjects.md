@@ -325,7 +325,7 @@ In the example above `bang_out` is an outlet. After sending the "bang" the timer
 
 ## Queues
 
-A `min::queue` creates a an element that, when set, will be executed by Max's low-priority queue. This provides a mechanism for transferring or deferring events from other threads (such as the scheduler or audio thread) to Max's main thread.
+A `min::queue` creates an element that, when set, will be executed by Max's low-priority queue. This provides a mechanism for transferring or deferring events from other threads (such as the scheduler or audio thread) to Max's main thread.
 
 ```c++
 queue deferrer { this, 
