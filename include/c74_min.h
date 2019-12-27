@@ -20,4 +20,6 @@
 #include "../../min-lib/include/c74_lib.h"
 #endif
 
+#define UNUSED(x) ((void)x)
+
 #undef C74_MIN_WITH_IMPLEMENTATION
