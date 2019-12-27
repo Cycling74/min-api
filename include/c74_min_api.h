@@ -174,6 +174,7 @@ namespace c74 { namespace min {
         };
     }    // namespace ui
 
+
     template<class T>
     using is_class = std::is_class<T>;
 
@@ -187,61 +188,71 @@ namespace c74 { namespace min {
     using is_color = is_same<T, ui::color>;
 
     template<class min_class_type>
-    using enable_if_matrix_operator = typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
+    using enable_if_matrix_operator =
+        typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
-    using enable_if_not_matrix_operator = typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
+    using enable_if_not_matrix_operator =
+        typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
-    using enable_if_gl_operator = typename enable_if<is_base_of<gl_operator_base, min_class_type>::value, int>::type;
+    using enable_if_gl_operator =
+        typename enable_if<is_base_of<gl_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
-    using enable_if_mc_operator = typename enable_if<is_base_of<mc_operator_base, min_class_type>::value, int>::type;
-
-        template<class min_class_type>
-    using enable_if_sample_operator = typename enable_if<is_base_of<sample_operator_base, min_class_type>::value, int>::type;
+    using enable_if_mc_operator =
+        typename enable_if<is_base_of<mc_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
-    using enable_if_vector_operator = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value, int>::type;
+    using enable_if_sample_operator =
+        typename enable_if<is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
-    using enable_if_audio_class = typename enable_if<
-        is_base_of<vector_operator_base, min_class_type>::value || is_base_of<mc_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value, int>::type;
+    using enable_if_vector_operator =
+        typename enable_if<is_base_of<vector_operator_base, min_class_type>::value, int>::type;
+
+    template<class min_class_type>
+    using enable_if_audio_class =
+        typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<mc_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
     using enable_if_jitter_class =
-        typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value || is_base_of<gl_operator_base, min_class_type>::value,
-            int>::type;
+        typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value || is_base_of<gl_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
     using enable_if_not_jitter_class =
-        typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value,
-            int>::type;
+        typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value, int>::type;
 
 
     template<class min_class_type>
-    using type_enable_if_audio_class = typename enable_if<is_base_of<vector_operator_base, min_class_type>::value
+    using type_enable_if_audio_class =
+        typename enable_if<is_base_of<vector_operator_base, min_class_type>::value
         || is_base_of<mc_operator_base, min_class_type>::value
         || is_base_of<sample_operator_base, min_class_type>::value>::type;
 
     template<class min_class_type>
-    using type_enable_if_not_audio_class = typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value
+    using type_enable_if_not_audio_class =
+        typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value
         && !is_base_of<mc_operator_base, min_class_type>::value
         && !is_base_of<sample_operator_base, min_class_type>::value>::type;
 
     template<class min_class_type>
-    using type_enable_if_not_jitter_class = typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value
+    using type_enable_if_not_jitter_class =
+        typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value
         && !is_base_of<gl_operator_base, min_class_type>::value>::type;
 
 
     template<class min_class_type>
-    using enable_if_ui_operator = typename enable_if<is_base_of<ui_operator_base, min_class_type>::value, int>::type;
+    using enable_if_ui_operator =
+        typename enable_if<is_base_of<ui_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
-    using enable_if_not_ui_operator = typename enable_if<!is_base_of<ui_operator_base, min_class_type>::value, int>::type;
+    using enable_if_not_ui_operator =
+        typename enable_if<!is_base_of<ui_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
-    using type_enable_if_not_ui_class = typename enable_if<!is_base_of<ui_operator_base, min_class_type>::value>::type;
+    using type_enable_if_not_ui_class =
+        typename enable_if<!is_base_of<ui_operator_base, min_class_type>::value>::type;
 
 
     enum class threadsafe { undefined, no, yes };
@@ -337,14 +348,8 @@ namespace c74 { namespace min {
 #include "c74_min_operator_sample.h"    // Sample-based MSP object add-ins
 #include "c74_min_operator_mc.h"    	// Vector-based MC object add-ins
 #include "c74_min_operator_matrix.h"    // Jitter MOP add-ins
-
-// UI Object Support requires Visual Studio 2017 or higher when on Windows
-#if !defined(_MSC_VER) || ( _MSC_VER > 1900 )
 #include "c74_min_operator_ui.h"		// User Interface add-ins
 #include "c74_min_graphics.h"			// Graphics classes for UI objects
-#else
-#pragma message( "Building UI Objects Not Supported: Requires Visual Studio 2017 or higher." )
-#endif
 
 #include "c74_min_object_wrapper.h"    // Max wrapper for Min objects
 #include "c74_min_object.h"            // The Min object class that glues it all together
