@@ -10,11 +10,11 @@
 TEST_CASE( "Symbol Class", "[symbols]" ) {
 
     SECTION("symbol assignments") {
-		c74::min::symbol s1 = "foo";
-		const char* c1 = s1;
-		
-		REQUIRE( s1 == "foo" );
-		REQUIRE( !strcmp(c1, "foo") );
-	}
+        c74::min::symbol s1 = "foo";
+        const char* c1 = s1;
+
+        REQUIRE( s1 == "foo" );
+        REQUIRE( !strcmp(c1, "foo") );
+    }
 
 }
