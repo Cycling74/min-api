@@ -22,6 +22,8 @@ namespace c74 { namespace min {
 	/// @code
 	/// samples<2> operator() (sample input1, sample input2, sample input3);
 	/// @endcode
+	///
+	/// @tparam vector_operator_placeholder_type Unused.
 
 	template<placeholder vector_operator_placeholder_type = placeholder::none>
 	class mc_operator : public mc_operator_base {
