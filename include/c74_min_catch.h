@@ -29,17 +29,17 @@ const auto g_min_epsilon = std::numeric_limits<float>::epsilon()*1000;
 
 template<typename T>
 bool require_vector_approx(T source, T reference) {
-	REQUIRE(source.size() == reference.size());
-	if (source.size() != reference.size())
-		return false;
+    REQUIRE(source.size() == reference.size());
+    if (source.size() != reference.size())
+        return false;
 
-	for (auto i = 0; i < source.size(); ++i) {
-		INFO("when i == " << i);
-		REQUIRE(source[i] == APPROX(reference[i]));
-		if (source[i] != APPROX(reference[i]))
-			return false;
-	}
-	return true;
+    for (auto i = 0; i < source.size(); ++i) {
+        INFO("when i == " << i);
+        REQUIRE(source[i] == APPROX(reference[i]));
+        if (source[i] != APPROX(reference[i]))
+            return false;
+    }
+    return true;
 }
 
 
