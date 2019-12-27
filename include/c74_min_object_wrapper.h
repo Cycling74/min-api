@@ -284,6 +284,23 @@ namespace c74 { namespace min {
 			dictobj_release(d);
 	}
 
+    template<class min_class_type>
+    void wrapper_method_ellipsis(max::t_object* o, void* fun_name, ...) {
+        auto self = wrapper_find_self<min_class_type>(o);
+		auto& meth = *self->m_min_object.messages()[(char *)fun_name];
+        atoms as;
+
+        va_list fun_args;
+        va_start(fun_args, fun_name);
+        char *fun_arg;
+        while ((fun_arg = (char *)va_arg(fun_args, void*))) {
+            as.push_back(fun_arg);
+        }
+        va_end(fun_args);
+
+        meth(as);
+    }
+
 	// this version is called for most message instances defined in the min class
 	template<class min_class_type>
 	void wrapper_method_generic(max::t_object* o, max::t_symbol* s, long ac, max::t_atom* av) {
@@ -429,7 +446,7 @@ namespace c74 { namespace min {
 
 		// messages
 
-		for (auto& a_message : instance.messages()) {
+        for (auto& a_message : instance.messages()) {
 			MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
 			else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
@@ -442,34 +459,31 @@ namespace c74 { namespace min {
             else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary, A_SYM)
             else MIN_WRAPPER_ADDMETHOD(c, notify, notify, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr,
-				A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, paint, paint, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long,
-				A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mouseleave, self_ptr_pt_long, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mousedown,
-				self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedown, self_ptr_pt_long, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mousemove, self_ptr_pt_long, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c,
-				mousedragdelta, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long,
-				A_CANT) else if (a_message.first == "dspsetup");    // skip -- handle it in operator classes
+            else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long, A_CANT)
+            else if (static_cast<message_type>(*a_message.second) == message_type::ellipsis) {
+                max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_ellipsis<min_class_type>), a_message.first.c_str(), max::A_CANT, 0);
+            }
+            else if (a_message.first == "dspsetup");    // skip -- handle it in operator classes
 			else if (a_message.first == "maxclass_setup");          // for min class construction only, do not add for exposure to max
 			else if (a_message.first == "savestate") {
-				max::class_addmethod(
-					c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
+				max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
 			}
 			else {
-				max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>), a_message.first.c_str(),
-					a_message.second->type(), 0);
+				max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>), a_message.first.c_str(), a_message.second->type(), 0);
 			}
 
 			// if there is a 'float' message but no 'int' message, generate a wrapper for it
 			if (a_message.first == "float" && (instance.messages().find("int") == instance.messages().end())) {
-				max::class_addmethod(
-					c, reinterpret_cast<method>(wrapper_method_int<min_class_type, wrapper_message_name_float>), "int", max::A_LONG, 0);
+				max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_int<min_class_type, wrapper_message_name_float>), "int", max::A_LONG, 0);
 			}
 		}
 

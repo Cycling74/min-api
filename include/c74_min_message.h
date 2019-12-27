@@ -76,6 +76,14 @@ namespace c74 { namespace min {
 		}
 
 
+        /// Casting a message to a message_type allows easy checking of a message's type.
+        /// @return The type of the message
+
+        operator message_type() const {
+            return m_type;
+        }
+
+
 		/// Return the provided description for use in documentation generation, auto-complete, etc.
 		/// @return	The description string supplied when the message was created.
 
