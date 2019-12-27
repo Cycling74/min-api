@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// A callback function used to handle an argument from the object box at instantiation.
@@ -153,4 +153,4 @@ namespace c74 { namespace min {
         }
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min

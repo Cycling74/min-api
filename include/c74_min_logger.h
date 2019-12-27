@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     class logger_line_ending {};       ///< A type to represent line endings for the min::logger class.
@@ -96,4 +96,4 @@ namespace c74 { namespace min {
         std::stringstream m_stream;
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min

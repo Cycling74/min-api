@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// Flags that determine the behavior of automatically generated documentation (maxref) files.
@@ -148,4 +148,4 @@ namespace c74 { namespace min {
         returned_flags = T::none;
     }
 
-}}    // namespace c74::min
+}    // namespace c74::min

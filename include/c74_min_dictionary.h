@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
-
+namespace c74::min {
 
     class dict {
     public:
@@ -142,4 +141,4 @@ namespace c74 { namespace min {
         bool               m_has_ownership{true};
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min

@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// The base class for all template specializations of sample_operator.
@@ -91,4 +91,4 @@ namespace c74 { namespace min {
     template<class min_class_type, enable_if_mc_operator<min_class_type> = 0>
     void min_dsp64_attrmap(minwrap<min_class_type>* self, short* count) {}
 
-}}    // namespace c74::min
+}    // namespace c74::min

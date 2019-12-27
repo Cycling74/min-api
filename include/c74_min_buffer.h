@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
+namespace c74::min {
 
     /// @defgroup buffers Buffer Objects
 
@@ -245,4 +244,4 @@ namespace min {
         float*             m_tab{nullptr};
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min

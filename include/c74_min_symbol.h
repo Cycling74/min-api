@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
     class atom;
 
@@ -188,4 +188,4 @@ namespace c74 { namespace min {
     static const symbol k_sym_buffer_modified{"buffer_modified"};                  ///< Cached symbol "buffer_modified"
 
 
-}}    // namespace c74::min
+}    // namespace c74::min

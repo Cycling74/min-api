@@ -9,8 +9,7 @@
 #include "c74_min_catch.h"
 
 
-namespace c74 {
-    namespace min {
+namespace c74::min {
 
 
         /// An wrapper class for RAII instantiation of Min objects in unit tests.
@@ -44,10 +43,10 @@ namespace c74 {
             minwrap<min_class_type>* m_minwrap_obj{nullptr};
         };
 
-    }    // namespace min
+}
 
 
-    namespace max {
+namespace c74::max {
 
         ///	A vector of atoms.
 
@@ -69,6 +68,4 @@ namespace c74 {
 
         extern "C" t_sequence* object_getoutput(void* o, int outletnum);
 
-    }    // namespace max
-
-}    // namespace c74
+}

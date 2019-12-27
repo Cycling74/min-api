@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     class path {
@@ -258,4 +258,4 @@ namespace c74 { namespace min {
         bool          m_directory                = false;
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min

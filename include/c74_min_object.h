@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// The base class for all first-class objects that are to be exposed in the Max environment.
@@ -59,4 +59,4 @@ namespace c74 { namespace min {
         logger cerr{this, logger::type::error};
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min

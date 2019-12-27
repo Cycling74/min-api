@@ -8,7 +8,7 @@
 #include <sstream>
 #include <unordered_map>
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// @defgroup attributes Attributes
@@ -938,4 +938,4 @@ namespace c74 { namespace min {
         return 0;
     }
 
-}}    // namespace c74::min
+}    // namespace c74::min

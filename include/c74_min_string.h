@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min { namespace str {
+namespace c74::min::str {
 
 
     /// Trim leading and trailing whitespace from a string
@@ -55,4 +55,4 @@ namespace c74 { namespace min { namespace str {
         return output;
     }
 
-}}}    // namespace c74::min::str
+}    // namespace c74::min::str

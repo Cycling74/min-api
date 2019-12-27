@@ -7,8 +7,7 @@
 
 #include "c74_min_buffer.h"
 
-namespace c74 { namespace min {
-
+namespace c74::min {
 
     template<>
     buffer_lock<true>::buffer_lock(buffer_reference& a_buffer_ref)
@@ -41,4 +40,4 @@ namespace c74 { namespace min {
         buffer_edit_end(m_buffer_obj, true);
     }
 
-}}    // namespace c74::min
+}    // namespace c74::min

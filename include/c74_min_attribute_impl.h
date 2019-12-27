@@ -7,7 +7,7 @@
 
 #include "c74_min_attribute.h"
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
@@ -242,4 +242,4 @@ namespace c74 { namespace min {
     }
 
 
-}}    // namespace c74::min
+}    // namespace c74::min

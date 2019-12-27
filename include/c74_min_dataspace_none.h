@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min { namespace dataspace {
-
+namespace c74::min::dataspace {
 
     class none : public dataspace_base {
     public:
@@ -24,4 +23,4 @@ namespace c74 { namespace min { namespace dataspace {
         };
     };
 
-}}}    // namespace c74::min::dataspace
+}    // namespace c74::min::dataspace

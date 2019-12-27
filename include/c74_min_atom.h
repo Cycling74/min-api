@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     class atom : public max::t_atom {
@@ -366,7 +366,7 @@ namespace c74 { namespace min {
         max::t_atom* m_av;
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min
 
 
 #ifdef __APPLE__
@@ -412,7 +412,7 @@ namespace std {
 }    // namespace std
 
 
-namespace c74 { namespace min {
+namespace c74::min {
 
     /// Expose atom for use in std output streams.
     template<class charT, class traits>
@@ -540,4 +540,4 @@ namespace c74 { namespace min {
     }
 
 #endif    // C74_MIN_NO_ENUM_CHECKS
-}}        // namespace c74::min
+}        // namespace c74::min

@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     // time_interval is a hybrid object that can represent a time value
@@ -108,4 +108,4 @@ namespace c74 { namespace min {
         }
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min

@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     // Type definition for what the legacy C Max SDK uses to represent an outlet.
@@ -438,4 +438,4 @@ namespace c74 { namespace min {
     };
 
 
-}}    // namespace c74::min
+}    // namespace c74::min

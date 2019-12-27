@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     template<placeholder inlet_placeholder_type = placeholder::none>
@@ -91,4 +91,4 @@ namespace c74 { namespace min {
     };
 
 
-}}    // namespace c74::min
+}    // namespace c74::min

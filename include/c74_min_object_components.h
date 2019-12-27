@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     // forward declarations
@@ -414,4 +414,4 @@ namespace c74 { namespace min {
         return smaxname;
     }
 
-}}    // namespace c74::min
+}    // namespace c74::min

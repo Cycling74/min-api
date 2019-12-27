@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// A port represents a input or an output from an object.
@@ -67,4 +67,4 @@ namespace c74 { namespace min {
     };
 
 
-}}    // namespace c74::min
+}    // namespace c74::min

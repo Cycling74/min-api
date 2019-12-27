@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// Options that control the behavior of the timer.
@@ -124,4 +124,4 @@ namespace c74 { namespace min {
     };
 
 
-}}    // namespace c74::min
+}    // namespace c74::min

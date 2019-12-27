@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
 #define MIN_AUTHOR static constexpr const char* class_author
@@ -359,4 +359,4 @@ namespace c74 { namespace min {
         }
     }
 
-}}    // namespace c74::min
+}    // namespace c74::min

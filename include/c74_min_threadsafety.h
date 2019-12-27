@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// There are several places where Min may check the thread of execution
@@ -169,4 +169,4 @@ namespace c74 { namespace min {
         self->callback();
     }
 
-}}    // namespace c74::min
+}    // namespace c74::min

@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     // defined in c74_min_doc.h -- generates an updated maxref if needed
@@ -812,4 +812,4 @@ namespace c74 { namespace min {
     }
 
 
-}}    // namespace c74::min
+}    // namespace c74::min

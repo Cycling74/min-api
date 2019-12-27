@@ -7,8 +7,7 @@
 
 //#include "c74_jitter.h"
 
-namespace c74 {
-namespace min {
+namespace c74::min {
 
 
     class ui_operator_base {
@@ -125,4 +124,4 @@ namespace min {
         c74::max::class_attr_addattr_parse(c, "patching_rect", "default", attr_type, 0, default_patching_rect.c_str());
     }
 
-}} // namespace c74::min
+} // namespace c74::min

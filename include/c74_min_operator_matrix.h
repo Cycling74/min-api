@@ -7,7 +7,7 @@
 
 #include "c74_jitter.h"
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     using pixel = std::array<uchar, 4>;
@@ -639,4 +639,4 @@ namespace c74 { namespace min {
         }
     }
 
-}}    // namespace c74::min
+}    // namespace c74::min

@@ -5,9 +5,7 @@
 
 #pragma once
 
-namespace c74 {
-namespace min {
-namespace ui {
+namespace c74::min::ui {
 
 
     class target {
@@ -497,4 +495,4 @@ namespace ui {
     };
 
 
-}}} // namespace c74::min:::graphics
+} // namespace c74::min:::graphics

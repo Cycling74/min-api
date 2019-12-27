@@ -7,7 +7,7 @@
 
 #include "c74_min_api.h"
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
 #ifdef __APPLE__
@@ -238,4 +238,4 @@ namespace c74 { namespace min {
     }
 
 
-}}    // namespace c74::min
+}    // namespace c74::min

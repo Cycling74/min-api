@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// The base class for all template specializations of sample_operator.
@@ -299,4 +299,4 @@ namespace c74 { namespace min {
         }
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min

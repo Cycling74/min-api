@@ -31,7 +31,7 @@
 
 #include "murmur/Murmur3.h"    // used for constexpr hash function
 
-namespace c74 { namespace min {
+namespace c74::min {
 
     // types
 
@@ -279,7 +279,7 @@ namespace c74 { namespace min {
         return std::fabs(lhs - rhs) < margin;
     }
 
-}}    // namespace c74::min
+}    // namespace c74::min
 
 
 /// A standard interface for flagging serious runtime snafus.
@@ -325,12 +325,11 @@ inline uint16_t byteorder_swap(uint16_t x) {
 #include "c74_min_dictionary.h"
 #include "c74_min_limit.h"    // Library of miscellaneous helper functions (e.g. range clipping)
 
-namespace c74 { namespace min {
+namespace c74::min {
     static max::t_class*  this_class      = nullptr;
     static bool           this_class_init = false;
     static max::t_symbol* this_class_name = nullptr;
-}}    // namespace c74::min
-
+}
 
 #include "c74_min_object_components.h"    // Shared components of Max objects
 #include "c74_jitter.h"

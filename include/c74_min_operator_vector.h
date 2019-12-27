@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
+namespace c74::min {
 
 
     /// An audio bundle is a container for N channels of M-sized vectors of audio sample values.
@@ -373,4 +373,4 @@ namespace c74 { namespace min {
             max::class_dspinit(c);
     }
 
-}}    // namespace c74::min
+}    // namespace c74::min

@@ -5,8 +5,7 @@
 
 #pragma once
 
-namespace c74 { namespace min {
-
+namespace c74::min {
 
     /// A standard callback function used throughout Min for various purposes.
     /// Typically this is provided to argument as a lamba function using the #MIN_FUNCTION macro.
@@ -373,4 +372,4 @@ namespace c74 { namespace min {
         }
     };
 
-}}    // namespace c74::min
+}    // namespace c74::min
