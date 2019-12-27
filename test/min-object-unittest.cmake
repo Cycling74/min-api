@@ -1,7 +1,7 @@
 # Copyright 2018 The Min-API Authors. All rights reserved.
 # Use of this source code is governed by the MIT License found in the License.md file.
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 
 set(ORIGINAL_NAME "${PROJECT_NAME}")
 set(TEST_NAME "${PROJECT_NAME}_test")
@@ -46,7 +46,7 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 
 	add_executable(${TEST_NAME} ${TEST_NAME}.cpp ${TEST_SOURCE_FILES})
 
-	set_property(TARGET ${TEST_NAME} PROPERTY CXX_STANDARD 14)
+	set_property(TARGET ${TEST_NAME} PROPERTY CXX_STANDARD 17)
 	set_property(TARGET ${TEST_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
     target_link_libraries(${TEST_NAME} PUBLIC "mock_kernel")
