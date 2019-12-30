@@ -29,8 +29,8 @@ namespace c74::min {
         ///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
 
         queue(object_base* an_owner, function a_function)
-        : m_owner{an_owner}
-        , m_function{a_function} {
+        : m_owner { an_owner }
+        , m_function { a_function } {
             m_instance = max::qelem_new(this, reinterpret_cast<max::method>(queue_qfn_callback));
         }
 
@@ -81,7 +81,7 @@ namespace c74::min {
     private:
         object_base*  m_owner;
         function      m_function;
-        max::t_qelem* m_instance{nullptr};
+        max::t_qelem* m_instance { nullptr };
 
         friend void queue_qfn_callback(queue* a_queue);
         void        qfn() {

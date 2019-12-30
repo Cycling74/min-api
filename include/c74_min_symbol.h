@@ -68,7 +68,8 @@ namespace c74::min {
         /// @param number_to_be_symbolized	Initial value that will be stringified.
 
         symbol(int number_to_be_symbolized)
-        : symbol(std::to_string(number_to_be_symbolized)) {}
+        : symbol(std::to_string(number_to_be_symbolized))
+        {}
 
 
         /// Constructor with an initial value (of any assignable type)
@@ -162,30 +163,29 @@ namespace c74::min {
 #pragma mark Cache of Pre-Defined Symbols
 #endif
 
-    static const symbol k_sym_box{"box"};            ///< The symbol "box", which is the max-namespace for normal user-facing classes.
-    static const symbol k_sym__empty{""};            ///< The special empty symbol which contains no chars at all.
-    static const symbol k_sym__pound_d{"#D"};        ///< The special "#D" symbol used for accessing an object's dictionary in the patcher.
-    static const symbol k_sym_float{"float"};			///< The symbol "float".
-    static const symbol k_sym_float32{"float32"};    ///< The symbol "float32".
-    static const symbol k_sym_float64{"float64"};    ///< The symbol "float64".
-    static const symbol k_sym_getmatrix{"getmatrix"};    ///< The symbol "getmatrix".
-    static const symbol k_sym_long{"long"};              ///< The symbol "long".
-    static const symbol k_sym_modified{"modified"};      ///< The symbol "modified".
-    static const symbol k_sym_symbol{"symbol"};          ///< The symbol "symbol".
-    static const symbol k_sym_list{"list"};              ///< The symbol "list".
-    static const symbol k_sym_bang{"bang"};              ///< The symbol "bang".
-    static const symbol k_sym_getname{"getname"};        ///< The symbol "getname".
-    static const symbol k_sym_max{"max"};                ///< The symbol "max" -- the max object.
-    static const symbol k_sym__preset{"_preset"};			///< The symbol "preset".
-    static const symbol k_sym_size{"size"};              ///< Cached symbol "size"
-    static const symbol k_sym_time{"time"};              ///< The symbol "time".
-    static const symbol k_sym_value{"value"};			///< The symbol "value".
-
-    static const symbol k_sym_globalsymbol_binding{"globalsymbol_binding"};        ///< Cached symbol "globalsymbol_binding"
-    static const symbol k_sym_binding{"binding"};                                  ///< Cached symbol "binding"
-    static const symbol k_sym_globalsymbol_unbinding{"globalsymbol_unbinding"};    ///< Cached symbol "globalsymbol_unbinding"
-    static const symbol k_sym_unbinding{"unbinding"};                              ///< Cached symbol "unbinding"
-    static const symbol k_sym_buffer_modified{"buffer_modified"};                  ///< Cached symbol "buffer_modified"
-
+    static const symbol k_sym_box                       { "box" };          ///< The symbol "box", which is the max-namespace for normal user-facing classes.
+    static const symbol k_sym__empty                    { "" };             ///< The special empty symbol which contains no chars at all.
+    static const symbol k_sym__pound_d                  { "#D" };           ///< The special "#D" symbol used for accessing an object's dictionary in the patcher.
+    static const symbol k_sym_float                     { "float" };		///< The symbol "float".
+    static const symbol k_sym_float32                   { "float32" };      ///< The symbol "float32".
+    static const symbol k_sym_float64                   { "float64" };      ///< The symbol "float64".
+    static const symbol k_sym_getmatrix                 { "getmatrix" };    ///< The symbol "getmatrix".
+    static const symbol k_sym_long                      { "long" };         ///< The symbol "long".
+    static const symbol k_sym_modified                  { "modified" };     ///< The symbol "modified".
+    static const symbol k_sym_symbol                    { "symbol" };       ///< The symbol "symbol".
+    static const symbol k_sym_list                      { "list" };         ///< The symbol "list".
+    static const symbol k_sym_bang                      { "bang" };         ///< The symbol "bang".
+    static const symbol k_sym_getname                   { "getname" };      ///< The symbol "getname".
+    static const symbol k_sym_max                       { "max" };          ///< The symbol "max" -- the max object.
+    static const symbol k_sym__preset                   { "_preset" };	    ///< The symbol "preset".
+    static const symbol k_sym_size                      { "size" };         ///< Cached symbol "size"
+    static const symbol k_sym_time                      { "time" };         ///< The symbol "time".
+    static const symbol k_sym_value                     { "value" };	    ///< The symbol "value".
+ 
+    static const symbol k_sym_globalsymbol_binding      { "globalsymbol_binding"};      ///< Cached symbol "globalsymbol_binding"
+    static const symbol k_sym_binding                   { "binding"};                   ///< Cached symbol "binding"
+    static const symbol k_sym_globalsymbol_unbinding    { "globalsymbol_unbinding"};    ///< Cached symbol "globalsymbol_unbinding"
+    static const symbol k_sym_unbinding                 { "unbinding"};                 ///< Cached symbol "unbinding"
+    static const symbol k_sym_buffer_modified           { "buffer_modified"};           ///< Cached symbol "buffer_modified"
 
 }    // namespace c74::min

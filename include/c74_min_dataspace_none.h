@@ -7,7 +7,6 @@
 
 namespace c74::min::dataspace {
 
-
     class none : public dataspace_base {
     public:
         // the neutral unit is always a pass-through... compiler inlining should make it a noop

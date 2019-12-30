@@ -16,29 +16,30 @@ namespace c74::min {
     class time_value {
     public:
         time_value(object_base* owner, symbol attrname, double initial_interval)
-        : m_owner{owner}
-        , m_name{attrname}
-        , m_timeobj{nullptr} {
+        : m_owner { owner }
+        , m_name { attrname }
+        , m_timeobj { nullptr } {
             if (owner->maxobj())
                 m_timeobj = max::time_new(owner->maxobj(), attrname, nullptr, 0);
             set_milliseconds(initial_interval);
         }
 
         time_value(double interval_in_ms)
-        : m_owner{nullptr}
-        , m_timeobj{nullptr} {
+        : m_owner { nullptr }
+        , m_timeobj { nullptr } {
             set_milliseconds(interval_in_ms);
         }
 
         time_value(const atom& interval_in_ms)
-        : m_owner{nullptr}
-        , m_timeobj{nullptr} {
+        : m_owner { nullptr }
+        , m_timeobj { nullptr } {
             set_milliseconds(interval_in_ms);
         }
 
         time_value()
-        : m_owner{nullptr}
-        , m_timeobj{nullptr} {}
+        : m_owner { nullptr }
+        , m_timeobj { nullptr }
+        {}
 
         ~time_value() {
             max::object_free(m_timeobj);
@@ -51,10 +52,11 @@ namespace c74::min {
         // e.g. to set defaults by const ref
 
         time_value(const time_value& other)
-        : m_owner{other.m_owner}
-        , m_name{other.m_name}
-        , m_timeobj{nullptr}    // we cannot copy the timeobj or we will potentially double-free it
-        , m_interval_ms{other.m_interval_ms} {}
+        : m_owner       { other.m_owner }
+        , m_name        { other.m_name }
+        , m_timeobj     { nullptr }    // we cannot copy the timeobj or we will potentially double-free it
+        , m_interval_ms { other.m_interval_ms }
+        {}
 
         time_value& operator=(const time_value& other) {
             // do not overwrite anything!
@@ -89,7 +91,7 @@ namespace c74::min {
         object_base*   m_owner;
         symbol         m_name;
         max::t_object* m_timeobj;
-        double         m_interval_ms = 0;
+        double         m_interval_ms {};
 
         double get_milliseconds() const {
             if (m_timeobj)

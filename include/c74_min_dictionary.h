@@ -7,7 +7,6 @@
 
 namespace c74::min {
 
-
     class dict {
     public:
         /// Create (or reference an existing) dictionary by name
@@ -79,7 +78,7 @@ namespace c74::min {
         /// Be exceedingly careful with this!
         /// When you pass the pointer out are you pointing the instance without incrementing the reference count?
 
-        //  TODO: We need copy (retain) and move (don't retain) semantics ????
+        // TODO: We need copy (retain) and move (don't retain) semantics ????
         // TODO: we don't have a copy constructor!
 
         operator max::t_object*() const {
@@ -138,8 +137,8 @@ namespace c74::min {
 
 
     private:
-        max::t_dictionary* m_instance{nullptr};
-        bool               m_has_ownership{true};
+        max::t_dictionary* m_instance       { nullptr };
+        bool               m_has_ownership  { true };
     };
 
 }    // namespace c74::min

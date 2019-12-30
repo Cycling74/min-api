@@ -7,7 +7,6 @@
 
 namespace c74::min {
 
-
     class logger_line_ending {};       ///< A type to represent line endings for the min::logger class.
     static logger_line_ending endl;    ///< An instance of a line ending for convenience.
 
@@ -40,8 +39,9 @@ namespace c74::min {
         /// @param a_type		The type of console output to deliver
 
         logger(object_base* an_owner, logger::type a_type)
-        : m_owner{*an_owner}
-        , m_target{a_type} {}
+        : m_owner { *an_owner }
+        , m_target { a_type }
+        {}
 
 
         /// Use the insertion operator as for any other stream to build the output message

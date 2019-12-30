@@ -39,8 +39,8 @@ namespace c74::min {
         ///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
 
         timer(object_base* an_owner, function a_function)
-        : m_owner{an_owner}
-        , m_function{a_function} {
+        : m_owner { an_owner }
+        , m_function { a_function } {
             m_instance = max::clock_new(this, reinterpret_cast<max::method>(timer_tick_callback));
             if (options == timer_options::defer_delivery)
                 m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(timer_qfn_callback));
@@ -113,11 +113,12 @@ namespace c74::min {
     private:
         object_base*  m_owner;
         function      m_function;
-        max::t_clock* m_instance{nullptr};
-        max::t_qelem* m_qelem{nullptr};
+        max::t_clock* m_instance    { nullptr };
+        max::t_qelem* m_qelem       { nullptr };
 
         friend void timer_tick_callback(timer<>* an_owner);
-        void        defer() {
+        
+        void defer() {
             max::qelem_set(m_qelem);
         }
     };

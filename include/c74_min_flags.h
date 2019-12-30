@@ -42,7 +42,8 @@ namespace c74::min {
         /// @see			documentation_flags
 
         explicit constexpr flags(documentation_flags doc)
-        : m_documentation{doc} {}
+        : m_documentation{doc}
+        {}
 
 
         /// Declare flags for your class.
@@ -50,7 +51,8 @@ namespace c74::min {
         /// @see				behavior_flags
 
         explicit constexpr flags(behavior_flags behavior)
-        : m_behavior{behavior} {}
+        : m_behavior{behavior}
+        {}
 
 
         /// Declare flags for your class.
@@ -58,7 +60,8 @@ namespace c74::min {
         /// @see			host_flags
 
         explicit constexpr flags(host_flags host)
-        : m_host{host} {}
+        : m_host{host}
+        {}
 
 
         /// Declare flags for your class.
@@ -69,7 +72,8 @@ namespace c74::min {
         explicit constexpr flags(behavior_flags behavior, documentation_flags doc, host_flags host = host_flags::none)
         : m_documentation{doc}
         , m_behavior{behavior}
-        , m_host{host} {}
+        , m_host{host}
+        {}
 
 
         /// Get the documentation flags of the class.
@@ -107,7 +111,7 @@ namespace c74::min {
     /// For argument options see the documentation on constructors for the #flags class.
     /// @see flags
 
-#define MIN_FLAGS const flags class_flags
+    #define MIN_FLAGS const flags class_flags
 
 
     // SFINAE implementation used internally to determine if the Min class has
@@ -125,7 +129,7 @@ namespace c74::min {
         static std::false_type test(...);
 
         typedef decltype(test<min_class_type>(nullptr)) type;
-        static const bool                               value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
     };
 
 

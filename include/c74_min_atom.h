@@ -7,7 +7,6 @@
 
 namespace c74::min {
 
-
     class atom : public max::t_atom {
     public:
         /// Default constructor -- an empty atom
@@ -295,8 +294,7 @@ namespace c74::min {
         // pop_front
         // pop_back
 
-        // TODO: we could consider implementing the following,
-        // but it is not clear we need them due to the limited roll of this type:
+        // TODO: we could consider implementing the following (but we may not need them due to limited role of this type):
         // front()
         // back()
         // operator []
@@ -304,9 +302,11 @@ namespace c74::min {
 
 
         atom_reference(long argc, max::t_atom* argv)
-        : m_ac{argc}
-        , m_av{argv} {}
+        : m_ac { argc }
+        , m_av { argv }
+        {}
 
+        
         atom_reference& operator=(const symbol& value) {
             m_ac = 1;
             atom_setsym(m_av, value);
@@ -426,8 +426,7 @@ namespace c74::min {
     /// @param	container	The container instance whose values will be copied
     /// @return				A vector of atoms
 
-    template<class T,
-        typename enable_if<!is_symbol<T>::value && !is_time_value<T>::value && !is_color<T>::value && is_class<T>::value, int>::type = 0>
+    template<class T, typename enable_if<!is_symbol<T>::value && !is_time_value<T>::value && !is_color<T>::value && is_class<T>::value, int>::type = 0>
     atoms to_atoms(const T& container) {
         atoms  as(container.size());
         size_t index = 0;
@@ -469,8 +468,7 @@ namespace c74::min {
     /// @param	as	The vector atoms containing the desired data
     /// @return		The container of the values
 
-    template<class T,
-        typename enable_if<!is_symbol<T>::value && !is_time_value<T>::value && !is_color<T>::value && is_class<T>::value, int>::type = 0>
+    template<class T, typename enable_if<!is_symbol<T>::value && !is_time_value<T>::value && !is_color<T>::value && is_class<T>::value, int>::type = 0>
     T from_atoms(const atoms& as) {
         T container;
 
@@ -498,9 +496,7 @@ namespace c74::min {
     /// @param	as	The vector atoms containing the desired data
     /// @return		The value
 
-    template<class T,
-        typename enable_if<!std::is_enum<T>::value && (is_symbol<T>::value || is_time_value<T>::value || !is_class<T>::value), int>::type
-        = 0>
+    template<class T, typename enable_if<!std::is_enum<T>::value && (is_symbol<T>::value || is_time_value<T>::value || !is_class<T>::value), int>::type = 0>
     T from_atoms(const atoms& as) {
         return static_cast<T>(as[0]);
     }

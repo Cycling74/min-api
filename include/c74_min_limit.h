@@ -18,10 +18,9 @@ namespace c74::min {
     /// @see				fold()
 
 #ifdef WIN_VERSION
-#define MIN_CLAMP(input, low_bound, high_bound)                                                                                            \
-    clamp<std::remove_reference<decltype(input)>::type>(input, (decltype(input))low_bound, (decltype(input))high_bound)
+    #define MIN_CLAMP(input, low_bound, high_bound) clamp<std::remove_reference<decltype(input)>::type>(input, (decltype(input))low_bound, (decltype(input))high_bound)
 #else
-#define MIN_CLAMP(input, low_bound, high_bound) clamp<__typeof(input)>(input, low_bound, high_bound)
+    #define MIN_CLAMP(input, low_bound, high_bound) clamp<__typeof(input)>(input, low_bound, high_bound)
 #endif
 
 

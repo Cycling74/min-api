@@ -19,7 +19,8 @@ namespace c74::min {
         port(object_base* an_owner, const std::string& a_description, const std::string& a_type)
         : m_owner(an_owner)
         , m_description(a_description)
-        , m_type(a_type) {}
+        , m_type(a_type)
+        {}
 
     public:
         /// Determine if an audio signal is currently connected to this port.
@@ -52,7 +53,7 @@ namespace c74::min {
         object_base* m_owner;
         std::string  m_description;
         std::string  m_type;
-        bool         m_signal_connection{false};
+        bool         m_signal_connection { false };
 
 
         // update_signal_connection() is called to update our audio signal connection state

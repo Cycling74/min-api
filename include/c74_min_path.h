@@ -12,20 +12,16 @@ namespace c74::min {
     public:
         enum class system { undefined = 0, application, desktop, preferences, temp };
 
-
         enum class filetype { any = 0, folder, external, patcher, audio };
 
-
         using filedate = max::t_ptr_uint;
-
 
         // uninitialized path
         path() {}
 
-
         // path initialized to a system directory
         path(system initial)
-        : m_directory{true} {
+        : m_directory { true } {
             switch (initial) {
                 case system::application:
                     m_path = max::path_getapppath();
@@ -48,8 +44,9 @@ namespace c74::min {
 
         // path initialized to a user-supplied path id (discouraged, but might be provided by legacy Max API)
         path(short path_id)
-        : m_path{path_id}
-        , m_directory{true} {}
+        : m_path        { path_id }
+        , m_directory   { true }
+        {}
 
 
         // path initialized by name
@@ -57,7 +54,7 @@ namespace c74::min {
             strncpy(m_filename, name.c_str(), MAX_PATH_CHARS);
 
             auto           types = typelist(type);
-            max::t_fourcc* first_type{nullptr};
+            max::t_fourcc* first_type { nullptr };
             if (types.size())
                 first_type = &types[0];
 
@@ -252,10 +249,10 @@ namespace c74::min {
         }
 
     private:
-        short         m_path                     = 0;
-        char          m_filename[MAX_PATH_CHARS] = {};
-        max::t_fourcc m_type                     = 0;
-        bool          m_directory                = false;
+        short         m_path                     {};
+        char          m_filename[MAX_PATH_CHARS] {};
+        max::t_fourcc m_type                     {};
+        bool          m_directory                {};
     };
 
 }    // namespace c74::min

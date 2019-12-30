@@ -12,8 +12,9 @@ namespace c74::min {
         using textfunction = std::function<void(const char*)>;
 
         texteditor(object_base* an_owner, textfunction fn)
-        : m_owner{an_owner}
-        , m_callback{fn} {}
+        : m_owner { an_owner }
+        , m_callback { fn }
+        {}
 
 
         ~texteditor() {
@@ -41,8 +42,8 @@ namespace c74::min {
 
 
     private:
-        object_base*   m_owner{nullptr};
-        max::t_object* m_jed{nullptr};
+        object_base*   m_owner      { nullptr };
+        max::t_object* m_jed        { nullptr };
         textfunction   m_callback;
 
 

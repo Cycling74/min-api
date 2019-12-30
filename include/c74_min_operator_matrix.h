@@ -9,13 +9,17 @@
 
 namespace c74::min {
 
-
     using pixel = std::array<uchar, 4>;
 
     template<class matrix_type, size_t plane_count>
     using cell = std::array<matrix_type, plane_count>;
 
-    enum { alpha = 0, red, green, blue };
+    enum {
+        alpha = 0,
+        red,
+        green,
+        blue
+    };
 
 
     class matrix_coord {
@@ -40,10 +44,11 @@ namespace c74::min {
     class matrix_info {
     public:
         matrix_info(max::t_jit_matrix_info* a_in_info, uchar* ip, max::t_jit_matrix_info* a_out_info, uchar* op)
-        : m_in_info{a_in_info}
-        , m_bip{ip}
-        , m_out_info{a_out_info}
-        , m_bop{op} {}
+        : m_in_info { a_in_info }
+        , m_bip { ip }
+        , m_out_info { a_out_info }
+        , m_bop { op }
+        {}
 
 
         long plane_count() const {
@@ -124,9 +129,8 @@ namespace c74::min {
         /// When the matrix is processed a call is made to the subclass calc_cell() method for each cell.
         /// The order in which the cells are iterated will be one of the options provided here.
 
-        enum class iteration_direction { forward, reverse, bidirectional, enum_count };
-
-        enum_map iteration_direction_info = {"forward", "reverse", "bidirectional"};
+        enum class  iteration_direction { forward, reverse, bidirectional, enum_count };
+        enum_map    iteration_direction_info {"forward", "reverse", "bidirectional"};
     };
 
 
@@ -140,11 +144,11 @@ namespace c74::min {
         ///									undesired consequences.
 
         explicit matrix_operator(bool enable_parallel_breakup = true)
-        : m_enable_parallel_breakup{enable_parallel_breakup} {}
+        : m_enable_parallel_breakup { enable_parallel_breakup }
+        {}
 
         template<class matrix_type, size_t planecount>
-        friend cell<matrix_type, planecount> calc_cell(
-            cell<matrix_type, planecount> input, const matrix_info& info, matrix_coord& position);
+        friend cell<matrix_type, planecount> calc_cell(cell<matrix_type, planecount> input, const matrix_info& info, matrix_coord& position);
 
 
         /// Find out if parallel processing of the matrix is enabled
@@ -166,7 +170,7 @@ namespace c74::min {
 
     private:
         bool                m_enable_parallel_breakup;
-        iteration_direction m_direction{};
+        iteration_direction m_direction {};
     };
 
 
@@ -420,9 +424,8 @@ namespace c74::min {
     // The calls into these templates should be inlined by the compiler, eliminating concern about any added function call overhead.
 
     template<class min_class_type, typename U>
-    typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value>::type jit_calculate_ndim_loop(minwrap<min_class_type>* self,
-        long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo,
-        max::t_jit_matrix_info* out_minfo, uchar* bip, uchar* bop, long* dim, long plane_count, long datasize) {
+    typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value>::type
+    jit_calculate_ndim_loop(minwrap<min_class_type>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, uchar* bip, uchar* bop, long* dim, long plane_count, long datasize) {
         matrix_info info((in_minfo ? in_minfo : out_minfo), (bip ? bip : bop), out_minfo, bop);
         for (auto i = 0; i < dim[1]; i++) {
             if (in_opinfo)
@@ -434,8 +437,7 @@ namespace c74::min {
 
 
     template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
-    void jit_calculate_ndim(minwrap<min_class_type>* self, long dim_count, long* dim, long plane_count, max::t_jit_matrix_info* in_minfo,
-        uchar* bip, max::t_jit_matrix_info* out_minfo, uchar* bop) {
+    void jit_calculate_ndim(minwrap<min_class_type>* self, long dim_count, long* dim, long plane_count, max::t_jit_matrix_info* in_minfo, uchar* bip, max::t_jit_matrix_info* out_minfo, uchar* bop) {
         if (dim_count < 1)
             return;    // safety
 

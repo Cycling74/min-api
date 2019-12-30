@@ -7,7 +7,6 @@
 
 namespace c74::min::ui {
 
-
     class target {
     public:
         explicit target(const atoms& args) {
@@ -57,8 +56,6 @@ namespace c74::min::ui {
     };
 
 
-
-
     class position {
     public:
         position(double x, double y)
@@ -66,7 +63,7 @@ namespace c74::min::ui {
         {}
 
         position(int x, int y)
-        : m_position {static_cast<double>(x), static_cast<double>(y)}
+        : m_position { static_cast<double>(x), static_cast<double>(y) }
         {}
 
         void operator()(max::t_rect& r) {
@@ -86,7 +83,7 @@ namespace c74::min::ui {
         {}
 
         origin(int x, int y)
-        : m_position {static_cast<double>(x), static_cast<double>(y)}
+        : m_position { static_cast<double>(x), static_cast<double>(y) }
         {}
 
         void operator()(max::t_rect& r) {
@@ -102,15 +99,15 @@ namespace c74::min::ui {
     class destination {
     public:
         destination(double x, double y)
-        : m_position {x,y}
+        : m_position { x, y }
         {}
 
         destination(int x, int y)
-        : m_position {static_cast<double>(x), static_cast<double>(y)}
+        : m_position { static_cast<double>(x), static_cast<double>(y) }
         {}
 
         destination(int x, double y)
-        : m_position {static_cast<double>(x), y}
+        : m_position { static_cast<double>(x), y }
         {}
 
         void operator()(max::t_rect& r) {
@@ -126,11 +123,11 @@ namespace c74::min::ui {
     class size {
     public:
         size(double width, double height)
-        : m_size {width, height}
+        : m_size { width, height }
         {}
 
         size(double a_size)
-        : size {a_size, a_size}
+        : size { a_size, a_size }
         {}
 
         void operator()(max::t_rect& r) {
@@ -146,8 +143,8 @@ namespace c74::min::ui {
     class span {
     public:
         span(double start, double finish)
-        : angle1 {start}
-        , angle2 {finish}
+        : angle1 { start }
+        , angle2 { finish }
         {}
 
         void operator()(max::t_rect& r) {
@@ -180,7 +177,7 @@ namespace c74::min::ui {
     class content {
     public:
         content(string str)
-        : m_text {str}
+        : m_text { str }
         {}
 
         void operator()(string& s) {
@@ -451,16 +448,13 @@ namespace c74::min::ui {
     };
 
 
-
-
-
-
     class image {
     public:
         image(object_base* an_owner, double width, double height, const function& a_function = nullptr)
-        : m_width{width}
-        , m_height{height}
-        , m_draw_callback{a_function} {}
+        : m_width { width }
+        , m_height { height }
+        , m_draw_callback { a_function }
+        {}
 
         ~image() {
             if (m_surface) {
@@ -490,8 +484,8 @@ namespace c74::min::ui {
     private:
         double					m_width;
         double					m_height;
-        function        	  m_draw_callback;
-        c74::max::t_jsurface* m_surface{nullptr};
+        function        	    m_draw_callback;
+        c74::max::t_jsurface*   m_surface { nullptr };
     };
 
 

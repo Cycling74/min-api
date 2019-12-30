@@ -20,9 +20,10 @@ namespace c74::min {
         /// @param	frame_count		The size (in samples) of the audio vectors for each channel.
 
         audio_bundle(double** samples, long channel_count, long frame_count)
-        : m_samples{samples}
-        , m_channel_count{channel_count}
-        , m_frame_count{frame_count} {}
+        : m_samples { samples }
+        , m_channel_count { channel_count }
+        , m_frame_count { frame_count }
+        {}
 
 
         /// Get a direct pointer to the memory of the audio bundle.
@@ -98,9 +99,9 @@ namespace c74::min {
         }
 
     private:
-        double** m_samples{nullptr};
-        long     m_channel_count{};
-        long     m_frame_count{};
+        double** m_samples { nullptr };
+        long     m_channel_count {};
+        long     m_frame_count {};
     };
 
 
@@ -233,9 +234,8 @@ namespace c74::min {
         virtual void operator()(audio_bundle input, audio_bundle output) = 0;
 
     private:
-        double m_samplerate{c74::max::sys_getsr()};    // initialized to the global samplerate, but updated to the local samplerate when the
-                                                       // dsp chain is compiled.
-        int m_vector_size{c74::max::sys_getblksize()};    // ...
+        double  m_samplerate { c74::max::sys_getsr() };        // initialized to the global samplerate, but updated to the local samplerate when the dsp chain is compiled.
+        int     m_vector_size { c74::max::sys_getblksize() };  // ...
     };
 
 
@@ -251,8 +251,7 @@ namespace c74::min {
     public:
         // The traditional Max audio "perform" callback routine
 
-        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans,
-            long numouts, long sampleframes, long, void*) {
+        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
             audio_bundle input  = {in_chans, numins, sampleframes};
             audio_bundle output = {out_chans, numouts, sampleframes};
             self->m_min_object(input, output);
@@ -279,7 +278,7 @@ namespace c74::min {
         static std::false_type test(...);
 
         typedef decltype(test<min_class_type>(nullptr)) type;
-        static const bool                               value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
     };
 
 
@@ -306,7 +305,8 @@ namespace c74::min {
 
 
     template<class min_class_type, enable_if_vector_operator<min_class_type> = 0>
-    void min_dsp64_attrmap(minwrap<min_class_type>* self, short* count) {}
+    void min_dsp64_attrmap(minwrap<min_class_type>* self, short* count)
+    {}
 
 
     // The min_dsp64_add_perform function handles adding the perform method to the signal chain (see performer class above)
@@ -322,8 +322,8 @@ namespace c74::min {
     // A specialization of min_dsp64_sel for classes that have a custom "dspsetup" message.
 
     template<class min_class_type>
-    typename enable_if<has_dspsetup<min_class_type>::value>::type min_dsp64_sel(
-        minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
+    typename enable_if<has_dspsetup<min_class_type>::value>::type
+    min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
         self->m_min_object.samplerate(samplerate);
         min_dsp64_io(self, count);
         min_dsp64_attrmap(self, count);
@@ -341,8 +341,8 @@ namespace c74::min {
     // (which is most audio classes).
 
     template<class min_class_type>
-    typename enable_if<!has_dspsetup<min_class_type>::value>::type min_dsp64_sel(
-        minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
+    typename enable_if<!has_dspsetup<min_class_type>::value>::type
+    min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
         self->m_min_object.samplerate(samplerate);
         min_dsp64_io(self, count);
         min_dsp64_attrmap(self, count);
@@ -353,8 +353,8 @@ namespace c74::min {
     // The dsp64 method that interfaces with the call from Max when compiling the signal chain.
 
     template<class min_class_type>
-    type_enable_if_audio_class<min_class_type> min_dsp64(
-        minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
+    type_enable_if_audio_class<min_class_type>
+    min_dsp64(minwrap<min_class_type>* self, max::t_object* dsp64, short* count, double samplerate, long maxvectorsize, long flags) {
         min_dsp64_sel<min_class_type>(self, dsp64, count, samplerate, maxvectorsize, flags);
     }
 

@@ -21,7 +21,7 @@ namespace c74::min {
     /// @see argument
     /// @see argument_function
 
-#define MIN_FUNCTION [this](const c74::min::atoms& args, int inlet) -> c74::min::atoms
+    #define MIN_FUNCTION [this](const c74::min::atoms& args, int inlet) -> c74::min::atoms
 
 
     // Represents any type of message.
@@ -31,12 +31,11 @@ namespace c74::min {
     protected:
         // Constructor. See the constructor documention for min::message<> to get more details on the arguments.
 
-        message_base(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {},
-            message_type type = message_type::gimme)
-        : m_owner{an_owner}
-        , m_function{a_function}
-        , m_type{type}
-        , m_description{a_description} {
+        message_base(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type type = message_type::gimme)
+        : m_owner { an_owner }
+        , m_function { a_function }
+        , m_type { type }
+        , m_description { a_description } {
             assert(m_function != nullptr);    // could happen if a function is passed as the arg but that fn hasn't initialized yet
 
             std::string name = a_name;
@@ -102,7 +101,7 @@ namespace c74::min {
     protected:
         object_base* m_owner;
         function     m_function;
-        message_type m_type{message_type::gimme};
+        message_type m_type { message_type::gimme };
         symbol       m_name;
         description  m_description;
 
@@ -128,10 +127,12 @@ namespace c74::min {
         deferred_message(message<threadsafe::no>* an_owning_message, const atoms& args, int inlet)
         : m_owning_message{an_owning_message}
         , m_args{args}
-        , m_inlet{inlet} {}
+        , m_inlet{inlet}
+        {}
 
 
-        deferred_message() {}
+        deferred_message()
+        {}
 
 
         // call a message's action and remove it from the queue
@@ -141,9 +142,9 @@ namespace c74::min {
 
 
     private:
-        message<threadsafe::no>* m_owning_message{nullptr};
-        atoms                    m_args{};
-        int                      m_inlet{-1};
+        message<threadsafe::no>* m_owning_message { nullptr };
+        atoms                    m_args {};
+        int                      m_inlet { -1 };
     };
 
 
@@ -174,9 +175,9 @@ namespace c74::min {
         /// @param	a_type			Optional message type determines what kind of messages Max can send.
         ///							In most cases you should _not_ pass anything here and accept the default.
 
-        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {},
-            message_type a_type = message_type::gimme)
-        : message_base(an_owner, a_name, a_function, a_description, a_type) {}
+        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type a_type = message_type::gimme)
+        : message_base(an_owner, a_name, a_function, a_description, a_type)
+        {}
 
 
         /// Create a new message for a Min class.
@@ -188,7 +189,8 @@ namespace c74::min {
         ///							This is typically provided as a lamba function using the #MIN_FUNCTION definition.
 
         message(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
-        : message_base(an_owner, a_name, a_function, a_description) {}
+        : message_base(an_owner, a_name, a_function, a_description)
+        {}
 
 
         /// Create a new message for a Min class.
@@ -201,7 +203,8 @@ namespace c74::min {
         ///							This is typically provided as a lamba function using the #MIN_FUNCTION definition.
 
         message(object_base* an_owner, const std::string& a_name, const description& a_description, message_type a_type, const function& a_function)
-        : message(an_owner, a_name, a_function, a_description, a_type) {}
+        : message(an_owner, a_name, a_function, a_description, a_type)
+        {}
 
 
         /// Call the message's action.
@@ -234,7 +237,7 @@ namespace c74::min {
         /// @return			Any return values will be returned as atoms.
 
         atoms operator()(atom arg, int inlet = -1) override {
-            atoms as{arg};
+            atoms as { arg };
             return (*this)(as, inlet);
         }
 
@@ -242,7 +245,7 @@ namespace c74::min {
         // Any messages received from outside the main thread will be deferred using the queue below.
 
         friend class deferred_message;
-        fifo<deferred_message> m_deferred_messages{2};
+        fifo<deferred_message> m_deferred_messages { 2 };
     };
 
 
@@ -261,9 +264,9 @@ namespace c74::min {
         /// @param	type			Optional message type determines what kind of messages Max can send.
         ///							In most cases you should _not_ pass anything here and accept the default.
 
-        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {},
-            message_type type = message_type::gimme)
-        : message_base(an_owner, a_name, a_function, a_description) {}
+        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type type = message_type::gimme)
+        : message_base(an_owner, a_name, a_function, a_description)
+        {}
 
 
         /// Create a new message for a Min class.
@@ -275,7 +278,8 @@ namespace c74::min {
         ///							This is typically provided as a lamba function using the #MIN_FUNCTION definition.
 
         message(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
-        : message_base(an_owner, a_name, a_function, a_description) {}
+        : message_base(an_owner, a_name, a_function, a_description)
+        {}
 
 
         /// Call the message's action.
@@ -292,8 +296,7 @@ namespace c74::min {
                 deferred_message m{this, args, inlet};
                 m_deferred_messages.try_enqueue(m);
                 auto r = m_deferred_messages.peek();
-                max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafe::no>::defer_callback),
-                    reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
+                max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafe::no>::defer_callback), reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
             }
             return {};
         }
@@ -308,7 +311,7 @@ namespace c74::min {
         /// @return			Any return values will be returned as atoms.
 
         atoms operator()(atom arg, int inlet = -1) override {
-            atoms as{arg};
+            atoms as { arg };
             return (*this)(as, inlet);
         }
 
@@ -316,7 +319,7 @@ namespace c74::min {
         // Any messages received from outside the main thread will be deferred using the queue below.
 
         friend class deferred_message;
-        fifo<deferred_message> m_deferred_messages{2};
+        fifo<deferred_message> m_deferred_messages { 2 };
     };
 
 
@@ -335,9 +338,9 @@ namespace c74::min {
         /// @param	a_type			Optional message type determines what kind of messages Max can send.
         ///							In most cases you should _not_ pass anything here and accept the default.
 
-        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {},
-            message_type a_type = message_type::gimme)
-        : message_base(an_owner, a_name, a_function, a_description, a_type) {}
+        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type a_type = message_type::gimme)
+        : message_base(an_owner, a_name, a_function, a_description, a_type)
+        {}
 
 
         /// Create a new message for a Min class.
@@ -349,7 +352,8 @@ namespace c74::min {
         ///							This is typically provided as a lamba function using the #MIN_FUNCTION definition.
 
         message(object_base* an_owner, const std::string& a_name, const description& a_description, const function& a_function)
-        : message_base(an_owner, a_name, a_function, a_description) {}
+        : message_base(an_owner, a_name, a_function, a_description)
+        {}
 
 
         /// Call the message's action.

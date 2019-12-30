@@ -243,7 +243,7 @@ namespace c74::min {
     private:
         max::t_object*                                   m_maxobj;       // initialized prior to placement new
         long                                             m_min_magic;    // should be valid if m_maxobj has been assigned
-        bool                                             m_initialized{false};
+        bool                                             m_initialized { false };
         std::vector<inlet_base*>                         m_inlets;
         std::vector<outlet_base*>                        m_outlets;
         std::vector<argument_base*>                      m_arguments;
@@ -348,10 +348,9 @@ namespace c74::min {
     // This (non-)specialization is a normal max object (which includes ui objects and jitter matrix operators).
 
     template<class min_class_type>
-    struct minwrap<min_class_type,
-        typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value
-            && !is_base_of<mc_operator_base, min_class_type>::value
-            && !is_base_of<sample_operator_base, min_class_type>::value>::type> {
+    struct minwrap<min_class_type, typename enable_if<!is_base_of<vector_operator_base, min_class_type>::value
+                                                        && !is_base_of<mc_operator_base, min_class_type>::value
+                                                        && !is_base_of<sample_operator_base, min_class_type>::value>::type> {
         maxobject_header m_max_header;
         min_class_type   m_min_object;
 

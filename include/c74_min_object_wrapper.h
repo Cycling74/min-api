@@ -250,8 +250,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, void* arg1, max::t_atom_long arg2, max::t_atom_long* arg3,
-        max::t_atom_long arg4, max::t_atom_long* arg5, max::t_atom_long arg6) {
+    void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, void* arg1, max::t_atom_long arg2, max::t_atom_long* arg3, max::t_atom_long arg4, max::t_atom_long* arg5, max::t_atom_long arg6) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         atoms as{o, arg1, arg2, arg3, arg4, arg5, arg6};    // NOTE: self could be the jitter object rather than the max object -- so we
@@ -378,18 +377,18 @@ namespace c74::min {
     // Thus we create types for each string that we would like to pass and then
     // specialize the template calls with the type.
 
-#ifdef C74_MIN_WITH_IMPLEMENTATION
-#define MIN_WRAPPER_CREATE_TYPE_FROM_STRING(str)                                                                                           \
-    struct wrapper_message_name_##str {                                                                                                    \
-        static const char name[];                                                                                                          \
-    };                                                                                                                                     \
-    const char wrapper_message_name_##str::name[] = #str;
-#else
-#define MIN_WRAPPER_CREATE_TYPE_FROM_STRING(str)                                                                                           \
-    struct wrapper_message_name_##str {                                                                                                    \
-        static const char name[];                                                                                                          \
-    };
-#endif
+    #ifdef C74_MIN_WITH_IMPLEMENTATION
+    #define MIN_WRAPPER_CREATE_TYPE_FROM_STRING(str)                         \
+        struct wrapper_message_name_##str {                                  \
+            static const char name[];                                        \
+        };                                                                   \
+        const char wrapper_message_name_##str::name[] = #str;
+    #else
+    #define MIN_WRAPPER_CREATE_TYPE_FROM_STRING(str)                         \
+        struct wrapper_message_name_##str {                                  \
+            static const char name[];                                        \
+        };
+    #endif
 
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(anything)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(bang)
@@ -417,7 +416,7 @@ namespace c74::min {
 
     // Simplify the meth switches in the following code to reduce excessive and tedious code duplication
 
-#define MIN_WRAPPER_ADDMETHOD(c, methname, wrappermethod, methtype)                                                                        \
+    #define MIN_WRAPPER_ADDMETHOD(c, methname, wrappermethod, methtype)                                                                    \
     if (a_message.first == #methname) {                                                                                                    \
         max::class_addmethod(c,                                                                                                            \
             reinterpret_cast<max::method>(wrapper_method_##wrappermethod<min_class_type, wrapper_message_name_##methname>), #methname,     \
@@ -469,17 +468,14 @@ namespace c74::min {
             else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long, A_CANT)
-            else if (static_cast<message_type>(*a_message.second) == message_type::ellipsis) {
+            else if (static_cast<message_type>(*a_message.second) == message_type::ellipsis)
                 max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_ellipsis<min_class_type>), a_message.first.c_str(), max::A_CANT, 0);
-            }
             else if (a_message.first == "dspsetup");    // skip -- handle it in operator classes
             else if (a_message.first == "maxclass_setup");          // for min class construction only, do not add for exposure to max
-            else if (a_message.first == "savestate") {
+            else if (a_message.first == "savestate")
                 max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
-            }
-            else {
+            else
                 max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>), a_message.first.c_str(), a_message.second->type(), 0);
-            }
 
             // if there is a 'float' message but no 'int' message, generate a wrapper for it
             if (a_message.first == "float" && (instance.messages().find("int") == instance.messages().end())) {
@@ -639,8 +635,10 @@ namespace c74::min {
 
         // 1. Boxless Jit Class
 
-        this_jit_class = static_cast<max::t_class*>(max::jit_class_new(cppname, reinterpret_cast<method>(jit_new<min_class_type>),
-            reinterpret_cast<method>(jit_free<min_class_type>), sizeof(minwrap<min_class_type>), 0));
+        this_jit_class = static_cast<max::t_class*>(max::jit_class_new(cppname,
+                                                                       reinterpret_cast<method>(jit_new<min_class_type>),
+                                                                       reinterpret_cast<method>(jit_free<min_class_type>),
+                                                                       sizeof(minwrap<min_class_type>), 0));
 
         size_t inlet_count = 0;
         for (auto i : instance->inlets()) {
@@ -709,23 +707,28 @@ namespace c74::min {
         // must happen pror to max_jit_class_wrap_standard call
         for (auto& a_message : instance->messages()) {
             MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
-            else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(
-                c, okclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero,
-                A_CANT) else MIN_WRAPPER_ADDMETHOD(c, anything, anything, A_GIMME) else MIN_WRAPPER_ADDMETHOD(c, int, int,
-                A_LONG) else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT) else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary,
-                A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, notify, A_CANT) else MIN_WRAPPER_ADDMETHOD(c,
-                patchlineupdate, self_ptr_long_ptr_long_ptr_long,
-                A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, paint,
-                A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave,
-                self_ptr_pt_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown, self_ptr_pt_long, A_CANT)
-                    else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT)
-                        else MIN_WRAPPER_ADDMETHOD(c, mousemove, self_ptr_pt_long, A_CANT)
-                            else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
-                        else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long,
-                A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long, A_CANT) else if (a_message.first == "savestate") {
-                max::class_addmethod(
-                    c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
-            }
+            else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, anything, anything, A_GIMME)
+            else MIN_WRAPPER_ADDMETHOD(c, int, int, A_LONG)
+            else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT)
+            else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary, A_SYM)
+            else MIN_WRAPPER_ADDMETHOD(c, notify, notify, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, paint, paint, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mouseleave, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedown, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousemove, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long, A_CANT)
+            else if (a_message.first == "savestate")
+                max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
             else if (a_message.first == "dspsetup");          // skip -- handle it in operator classes
             else if (a_message.first == "maxclass_setup");    // for min class construction only, do not add for exposure to max
             else if (a_message.first == "jitclass_setup");    // for min class construction only, do not add for exposure to max
@@ -750,24 +753,17 @@ namespace c74::min {
             }
         }
 
-        if (instance->has_call("maxclass_setup")) {
+        if (instance->has_call("maxclass_setup"))
             instance->try_call("maxclass_setup", c);
-        }
         else {
             // for generator mops, override jit_matrix and outputmatrix
             long flags = (ownsinput ? max::MAX_JIT_MOP_FLAGS_OWN_OUTPUTMATRIX | max::MAX_JIT_MOP_FLAGS_OWN_JIT_MATRIX : 0);
 
-            max::max_jit_class_mop_wrap(
-                c, this_jit_class, flags);    // attrs & methods for name, type, dim, plane_count, bang, outputmatrix, etc
-            max::max_jit_class_wrap_standard(
-                c, this_jit_class, 0);    // attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
-
+            max::max_jit_class_mop_wrap(c, this_jit_class, flags);    // attrs & methods for name, type, dim, plane_count, bang, outputmatrix, etc
+            max::max_jit_class_wrap_standard(c, this_jit_class, 0);   // attrs & methods for getattributes, dumpout, maxjitclassaddmethods, etc
             if (ownsinput)
-                max::max_jit_class_addmethod_usurp_low(
-                    c, reinterpret_cast<method>(min_jit_mop_outputmatrix<min_class_type>), (char*)"outputmatrix");
-
-            max::class_addmethod(c, reinterpret_cast<method>(max::max_jit_mop_assist), "assist", max::A_CANT,
-                0);    // standard matrix-operator (mop) assist fn
+                max::max_jit_class_addmethod_usurp_low(c, reinterpret_cast<method>(min_jit_mop_outputmatrix<min_class_type>), (char*)"outputmatrix");
+            max::class_addmethod(c, reinterpret_cast<method>(max::max_jit_mop_assist), "assist", max::A_CANT, 0);    // standard matrix-operator (mop) assist fn
         }
 
         this_class_name = symbol(cppname);
@@ -779,8 +775,8 @@ namespace c74::min {
         doc_update<min_class_type>(*instance, maxname, cppname);
     }
 
-#undef MIN_WRAPPER_ADDMETHOD
-#undef MIN_WRAPPER_CREATE_TYPE_FROM_STRING
+    #undef MIN_WRAPPER_ADDMETHOD
+    #undef MIN_WRAPPER_CREATE_TYPE_FROM_STRING
 
 
 #if 0
@@ -797,18 +793,18 @@ namespace c74::min {
 
     inline void fileusage_addpackage(const atoms& fileusage_handle, string package_name, strings names_of_folders_to_include= {}) {
         void *w { fileusage_handle[0] };
-            if (names_of_folders_to_include.empty())
-                c74::max::fileusage_addpackage(w, package_name.c_str(), nullptr);
-            else {
-                c74::max::t_atom       a;
-                c74::max::t_atomarray* aa = c74::max::atomarray_new(0, NULL);
+        if (names_of_folders_to_include.empty())
+            c74::max::fileusage_addpackage(w, package_name.c_str(), nullptr);
+        else {
+            c74::max::t_atom       a;
+            c74::max::t_atomarray* aa = c74::max::atomarray_new(0, NULL);
 
-                for (const auto& folder_name : names_of_folders_to_include) {
-                    c74::max::atom_setsym(&a, c74::max::gensym(folder_name.c_str()));
-                    c74::max::atomarray_appendatom(aa, &a);
-                }
-                c74::max::fileusage_addpackage(w, package_name.c_str(), (c74::max::t_object*)aa);
+            for (const auto& folder_name : names_of_folders_to_include) {
+                c74::max::atom_setsym(&a, c74::max::gensym(folder_name.c_str()));
+                c74::max::atomarray_appendatom(aa, &a);
             }
+            c74::max::fileusage_addpackage(w, package_name.c_str(), (c74::max::t_object*)aa);
+        }
     }
 
 

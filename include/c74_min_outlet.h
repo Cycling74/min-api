@@ -79,7 +79,8 @@ namespace c74::min {
     class outlet_queue : public thread_trigger<t_max_outlet, check> {
     public:
         explicit outlet_queue(t_max_outlet a_maxoutlet)
-        : thread_trigger<t_max_outlet, check>(a_maxoutlet) {}
+        : thread_trigger<t_max_outlet, check>(a_maxoutlet)
+        {}
 
         void callback() {}
 
@@ -93,7 +94,8 @@ namespace c74::min {
     class outlet_queue<check, thread_action::first> : public thread_trigger<t_max_outlet, check> {
     public:
         explicit outlet_queue(t_max_outlet a_maxoutlet)
-        : thread_trigger<t_max_outlet, check>(a_maxoutlet) {}
+        : thread_trigger<t_max_outlet, check>(a_maxoutlet)
+        {}
 
         void callback() {
             outlet_do_send(m_value);
@@ -110,7 +112,7 @@ namespace c74::min {
 
     private:
         atoms m_value;
-        bool  m_set{false};
+        bool  m_set { false };
     };
 
 
@@ -120,7 +122,8 @@ namespace c74::min {
     class outlet_queue<check, thread_action::last> : public thread_trigger<t_max_outlet, check> {
     public:
         explicit outlet_queue(t_max_outlet a_maxoutlet)
-        : thread_trigger<t_max_outlet, check>(a_maxoutlet) {}
+        : thread_trigger<t_max_outlet, check>(a_maxoutlet)
+        {}
 
         void callback() {
             outlet_do_send(this->m_maxoutlet, m_value);
@@ -148,7 +151,8 @@ namespace c74::min {
 
     public:
         explicit outlet_queue(t_max_outlet a_maxoutlet)
-        : thread_trigger<t_max_outlet, check>(a_maxoutlet) {}
+        : thread_trigger<t_max_outlet, check>(a_maxoutlet)
+        {}
 
         void callback() {
             tagged_atoms tas;
@@ -241,7 +245,8 @@ namespace c74::min {
 
     public:
         outlet_base(object_base* an_owner, const std::string& a_description, const std::string& a_type)
-        : port(an_owner, a_description, a_type) {}
+        : port(an_owner, a_description, a_type)
+        {}
 
         virtual ~outlet_base() {}
 
@@ -249,7 +254,7 @@ namespace c74::min {
         virtual void create() = 0;
 
     protected:
-        t_max_outlet m_instance{nullptr};
+        t_max_outlet m_instance { nullptr };
     };
 
 
@@ -309,7 +314,8 @@ namespace c74::min {
         /// @param a_type			Optional string defining the Max message type of the outlet for checking patch-cord connections.
 
         outlet(object_base* an_owner, const std::string& a_description, size_t an_atom_count, const std::string& a_type = "")
-        : outlet(an_owner, a_description, a_type, an_atom_count) {}
+        : outlet(an_owner, a_description, a_type, an_atom_count)
+        {}
 
 
         /// Send a value out an outlet
@@ -413,7 +419,7 @@ namespace c74::min {
 
     private:
         atoms                       m_accumulated_output;
-        outlet_queue<check, action> m_queue_storage{this->m_instance};
+        outlet_queue<check, action> m_queue_storage { this->m_instance };
 
 
         // called by object_base::create_outlets() when the owning object is constructed

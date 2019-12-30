@@ -13,7 +13,7 @@ namespace c74::min {
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
     template<typename... ARGS>
     attribute<T, threadsafety, limit_type, repetitions>::attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
-    : attribute_base{*an_owner, a_name} {
+    : attribute_base{ *an_owner, a_name } {
         m_owner.attributes()[a_name] = this;
 
         if (is_same<T, bool>::value)
@@ -56,8 +56,8 @@ namespace c74::min {
     template<>
     template<typename... ARGS>
     attribute<time_value>::attribute(object_base* an_owner, std::string a_name, time_value a_default_value, ARGS... args)
-    : attribute_base{*an_owner, a_name}
-    , m_value{an_owner, a_name, static_cast<double>(a_default_value)} {
+    : attribute_base{ *an_owner, a_name }
+    , m_value{ an_owner, a_name, static_cast<double>(a_default_value) } {
         m_owner.attributes()[a_name] = this;
 
         m_datatype = k_sym_time;
@@ -108,8 +108,7 @@ namespace c74::min {
 
 
     // enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
-    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions,
-        typename enable_if<std::is_enum<T>::value, int>::type = 0>
+    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<std::is_enum<T>::value, int>::type = 0>
     std::string range_string_item(attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
         auto i = static_cast<int>(item);
 
@@ -120,8 +119,7 @@ namespace c74::min {
     }
 
     // vectors cannot be passed directly to stringstream
-    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions,
-        typename enable_if<std::is_same<T, std::vector<number>>::value, int>::type = 0>
+    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<std::is_same<T, std::vector<number>>::value, int>::type = 0>
     std::string range_string_item(attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
         string str;
         for (const auto& i : item) {
@@ -131,8 +129,7 @@ namespace c74::min {
     }
 
     // all non-enum non-vector values can just pass through
-    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions,
-        typename enable_if<!std::is_enum<T>::value && !std::is_same<T, std::vector<number>>::value, int>::type = 0>
+    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<!std::is_enum<T>::value && !std::is_same<T, std::vector<number>>::value, int>::type = 0>
     T range_string_item(attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
         return item;
     }
@@ -170,8 +167,7 @@ namespace c74::min {
 
 
     // color attrs don't use range
-    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions,
-        typename enable_if<is_color<T>::value, int>::type = 0>
+    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<is_color<T>::value, int>::type = 0>
     void range_copy_helper(attribute<T, threadsafety, limit_type, repetitions>* attr) {
         // for (auto i=0; i < attr->get_enum_map().size(); ++i)
         //	attr->range_ref().push_back(static_cast<T>(i));
@@ -179,8 +175,7 @@ namespace c74::min {
 
 
     // most attrs can just copy range normally
-    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions,
-        typename enable_if<!is_enum<T>::value && !is_color<T>::value, int>::type = 0>
+    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<!is_enum<T>::value && !is_color<T>::value, int>::type = 0>
     void range_copy_helper(attribute<T, threadsafety, limit_type, repetitions>* attr) {
         for (const auto& a : attr->get_range_args())
             attr->range_ref().push_back(a);

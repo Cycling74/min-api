@@ -31,8 +31,9 @@ namespace c74::min {
         // thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
 
         buffer_reference(object_base* an_owner, const function& a_function = nullptr)
-        : m_owner{*an_owner}
-        , m_notification_callback{a_function} {}
+        : m_owner { *an_owner }
+        , m_notification_callback { a_function }
+        {}
 
 
         /// Destroy a buffer reference.
@@ -105,7 +106,7 @@ namespace c74::min {
                     else if (msg == k_sym_buffer_modified)
                         m_notification_callback({k_sym_modified}, -1);
                 }
-                return {max::buffer_ref_notify(m_instance, s, msg, sender, data)};
+                return { max::buffer_ref_notify(m_instance, s, msg, sender, data) };
             }
         };
 

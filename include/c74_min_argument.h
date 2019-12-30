@@ -7,7 +7,6 @@
 
 namespace c74::min {
 
-
     /// A callback function used to handle an argument from the object box at instantiation.
     /// Typically this is provided to argument as a lamba function using the #MIN_ARGUMENT_FUNCTION macro.
     /// @param	a	An atom which is the value provided as the argument to be handled.
@@ -21,7 +20,7 @@ namespace c74::min {
     /// @see argument
     /// @see argument_function
 
-#define MIN_ARGUMENT_FUNCTION [this](const c74::min::atom& arg)
+    #define MIN_ARGUMENT_FUNCTION [this](const c74::min::atom& arg)
 
 
     // Represents any type of argument declaration.
@@ -29,15 +28,12 @@ namespace c74::min {
 
     class argument_base {
     public:
-        // constructor
-
-        argument_base(object_base* an_owner, const std::string& a_name, const description& a_description, bool required,
-            const argument_function& a_function)
-        : m_owner{an_owner}
-        , m_name{a_name}
-        , m_description{a_description}
-        , m_required{required}
-        , m_function{a_function} {
+        argument_base(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_function& a_function)
+        : m_owner       { an_owner }
+        , m_name        { a_name }
+        , m_description { a_description }
+        , m_required    { required }
+        , m_function    { a_function } {
             m_owner->register_argument(this);
         }
 
@@ -112,9 +108,9 @@ namespace c74::min {
         /// @param	a_description	Documentation string for this argument.
         /// @param	a_function		Optional function to be called when the argument is processed at object instantiation.
 
-        argument(
-            object_base* an_owner, const std::string& a_name, const description& a_description, const argument_function& a_function = {})
-        : argument_base(an_owner, a_name, a_description, false, a_function) {}
+        argument(object_base* an_owner, const std::string& a_name, const description& a_description, const argument_function& a_function = {})
+        : argument_base(an_owner, a_name, a_description, false, a_function)
+        {}
 
 
         /// Creates an argument declaration for your class.
@@ -124,9 +120,9 @@ namespace c74::min {
         /// @param	required		If true the argument _must_ be provided by the user. Otherwise the argument is optional.
         /// @param	a_function		Optional function to be called when the argument is processed at object instantiation.
 
-        argument(object_base* an_owner, const std::string& a_name, const description& a_description, bool required,
-            const argument_function& a_function = {})
-        : argument_base(an_owner, a_name, a_description, required, a_function) {}
+        argument(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_function& a_function = {})
+        : argument_base(an_owner, a_name, a_description, required, a_function)
+        {}
 
 
         /// Return the type of the argument as a string.

@@ -37,7 +37,8 @@ namespace c74::min {
 
         /// Destructor.
 
-        virtual ~object() {}
+        virtual ~object()
+        {}
 
 
         bool is_jitter_class() override {
@@ -54,9 +55,9 @@ namespace c74::min {
 
 
     protected:
-        logger cout{this, logger::type::message};
-        logger cwarn{this, logger::type::warning};
-        logger cerr{this, logger::type::error};
+        logger cout     { this, logger::type::message };
+        logger cwarn    { this, logger::type::warning };
+        logger cerr     { this, logger::type::error };
     };
 
 }    // namespace c74::min

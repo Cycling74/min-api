@@ -220,15 +220,19 @@ namespace c74::min {
 
     template<class min_class_type>
     using enable_if_audio_class =
-        typename enable_if<is_base_of<vector_operator_base, min_class_type>::value || is_base_of<mc_operator_base, min_class_type>::value || is_base_of<sample_operator_base, min_class_type>::value, int>::type;
+        typename enable_if<is_base_of<vector_operator_base, min_class_type>::value
+        || is_base_of<mc_operator_base, min_class_type>::value
+        || is_base_of<sample_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
     using enable_if_jitter_class =
-        typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value || is_base_of<gl_operator_base, min_class_type>::value, int>::type;
+        typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value
+        || is_base_of<gl_operator_base, min_class_type>::value, int>::type;
 
     template<class min_class_type>
     using enable_if_not_jitter_class =
-        typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value && !is_base_of<gl_operator_base, min_class_type>::value, int>::type;
+        typename enable_if<!is_base_of<matrix_operator_base, min_class_type>::value
+        && !is_base_of<gl_operator_base, min_class_type>::value, int>::type;
 
 
     template<class min_class_type>
@@ -336,7 +340,7 @@ namespace c74::min {
     static max::t_class*  this_class      = nullptr;
     static bool           this_class_init = false;
     static max::t_symbol* this_class_name = nullptr;
-}    // namespace c74::min
+} 
 
 
 #include "c74_min_object_components.h"    // Shared components of Max objects

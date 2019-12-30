@@ -156,7 +156,8 @@ namespace c74::min {
     struct callable_samples {
 
         explicit callable_samples(minwrap<min_class_type>* a_self)
-        : self(a_self) {}
+        : self(a_self)
+        {}
 
         void set(size_t index, sample& value) {
             data[index] = value;
@@ -206,8 +207,7 @@ namespace c74::min {
     public:
         // The traditional Max audio "perform" callback routine
 
-        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans,
-            long numouts, long sampleframes, long, void*) {
+        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
             auto in_samps  = in_chans[0];
             auto out_samps = out_chans[0];
 
@@ -228,8 +228,7 @@ namespace c74::min {
     public:
         // The traditional Max audio "perform" callback routine
 
-        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans,
-            long numouts, long sampleframes, long, void*) {
+        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
             auto in_samps = in_chans[0];
 
             for (auto i = 0; i < sampleframes; ++i) {
@@ -247,11 +246,10 @@ namespace c74::min {
     template<class min_class_type>
     class performer<min_class_type,
         typename enable_if<is_base_of<sample_operator_base, min_class_type>::value
-            && !is_base_of<sample_operator<1, 1>, min_class_type>::value
-            && !is_base_of<sample_operator<1, 0>, min_class_type>::value>::type> {
+                        && !is_base_of<sample_operator<1, 1>, min_class_type>::value
+                        && !is_base_of<sample_operator<1, 0>, min_class_type>::value>::type> {
     public:
-        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans,
-            long numouts, long sampleframes, long, void*) {
+        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
             auto& attrs { self->m_min_object.mapped_attributes() };
             auto input_count { self->m_min_object.input_count() };
 

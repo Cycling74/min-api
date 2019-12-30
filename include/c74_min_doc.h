@@ -7,8 +7,7 @@
 
 namespace c74::min {
 
-
-#define MIN_AUTHOR static constexpr const char* class_author
+    #define MIN_AUTHOR static constexpr const char* class_author
 
     template<typename min_class_type>
     struct has_class_author {
@@ -22,7 +21,7 @@ namespace c74::min {
         static std::false_type test(...);
 
         typedef decltype(test<min_class_type>(nullptr)) type;
-        static const bool                               value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
     };
 
     template<class min_class_type>
@@ -35,8 +34,8 @@ namespace c74::min {
         returned_class_author = "Anonymous";
     }
 
-
-#define MIN_TAGS static constexpr const char* class_tags
+    
+    #define MIN_TAGS static constexpr const char* class_tags
 
     using tags = std::vector<std::string>;
 
@@ -52,7 +51,7 @@ namespace c74::min {
         static std::false_type test(...);
 
         typedef decltype(test<min_class_type>(nullptr)) type;
-        static const bool                               value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
     };
 
     template<class min_class_type>
@@ -66,7 +65,7 @@ namespace c74::min {
     }
 
 
-#define MIN_RELATED static constexpr const char* class_related
+    #define MIN_RELATED static constexpr const char* class_related
 
     template<typename min_class_type>
     struct has_class_related {
@@ -80,7 +79,7 @@ namespace c74::min {
         static std::false_type test(...);
 
         typedef decltype(test<min_class_type>(nullptr)) type;
-        static const bool                               value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
     };
 
     template<class min_class_type>
@@ -94,7 +93,7 @@ namespace c74::min {
     }
 
 
-#define MIN_DESCRIPTION static constexpr const char* class_description
+    #define MIN_DESCRIPTION static constexpr const char* class_description
 
     template<typename min_class_type>
     struct has_class_description {
@@ -108,7 +107,7 @@ namespace c74::min {
         static std::false_type test(...);
 
         typedef decltype(test<min_class_type>(nullptr)) type;
-        static const bool                               value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
     };
 
 
@@ -145,8 +144,7 @@ namespace c74::min {
 
 
     template<class min_class_type>
-    void doc_generate(const min_class_type& instance, const std::string& refpage_fullpath, std::string& max_class_name,
-        const std::string& min_class_name) {
+    void doc_generate(const min_class_type& instance, const std::string& refpage_fullpath, std::string& max_class_name, const std::string& min_class_name) {
         documentation_flags flags = documentation_flags::none;
 
         class_get_flags<min_class_type>(instance, flags);
@@ -184,6 +182,7 @@ namespace c74::min {
         const size_t digest_length_max = 256;
         char         digest[digest_length_max];
         string       class_description;
+        
         doc_get_description<min_class_type>(class_description);
         strncpy(digest, class_description.c_str(), digest_length_max);
 
@@ -294,8 +293,7 @@ namespace c74::min {
                 if (c)
                     *c = 0;
 
-                refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='" << attr_object.writable()
-                             << "' type='" << attr_type << "' size='1' >" << endl;
+                refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='" << attr_object.writable() << "' type='" << attr_type << "' size='1' >" << endl;
                 refpage_file << "			<digest>" << digest << "</digest>" << endl;
                 refpage_file << "			<description>" << description << "</description>" << endl;
                 refpage_file << "		</attribute>" << endl << endl;

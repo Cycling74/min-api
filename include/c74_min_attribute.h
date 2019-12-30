@@ -34,7 +34,7 @@ namespace c74::min {
     /// @see		getter
     /// @see		attribute
 
-#define MIN_GETTER_FUNCTION [this]() -> atoms
+    #define MIN_GETTER_FUNCTION [this]() -> atoms
 
 
     /// A high-level meta-type that is associated with an attribute.
@@ -128,7 +128,8 @@ namespace c74::min {
         attribute_base(object_base& an_owner, std::string a_name)
         : m_owner{an_owner}
         , m_name{a_name}
-        , m_title{a_name} {}
+        , m_title{a_name}
+        {}
 
     public:
         attribute_base(const attribute_base& other)  = delete;    // no copying allowed!
@@ -263,14 +264,14 @@ namespace c74::min {
         symbol       m_datatype;
         setter       m_setter;
         getter       m_getter;
-        bool         m_readonly{false};
-        visibility   m_visibility{visibility::show};
+        bool         m_readonly { false };
+        visibility   m_visibility { visibility::show };
         description  m_description;
         size_t       m_size;    // size of array/vector if attr is array/vector
 
-        style  m_style;       // display style in Max
-        symbol m_category;    // Max inspector category
-        int    m_order{0};    // Max inspector ordering
+        style  m_style;         // display style in Max
+        symbol m_category;      // Max inspector category
+        int    m_order { 0 };   // Max inspector ordering
 
 
         // calculate the offset of the size member as required for array/vector attributes
@@ -338,8 +339,7 @@ namespace c74::min {
         // constructor utility: handle an argument defining an attribute's description
 
         template<typename argument_type>
-        constexpr typename enable_if<is_same<argument_type, description>::value>::type assign_from_argument(
-            const argument_type& arg) noexcept {
+        constexpr typename enable_if<is_same<argument_type, description>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             const_cast<argument_type&>(m_description) = arg;
         }
 
@@ -356,8 +356,7 @@ namespace c74::min {
         // this is used in place of the range for index enum attributes.
 
         template<typename argument_type>
-        constexpr typename enable_if<is_same<argument_type, enum_map>::value>::type assign_from_argument(
-            const argument_type& arg) noexcept {
+        constexpr typename enable_if<is_same<argument_type, enum_map>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             const_cast<argument_type&>(m_enum_map) = arg;
         }
 
@@ -380,8 +379,7 @@ namespace c74::min {
         // constructor utility: handle an argument defining a attribute's readonly property
 
         template<typename argument_type>
-        constexpr typename enable_if<is_same<argument_type, readonly>::value>::type assign_from_argument(
-            const argument_type& arg) noexcept {
+        constexpr typename enable_if<is_same<argument_type, readonly>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             const_cast<argument_type&>(m_readonly) = arg;
         }
 
@@ -389,8 +387,7 @@ namespace c74::min {
         // constructor utility: handle an argument defining a attribute's visibility property
 
         template<typename argument_type>
-        constexpr typename enable_if<is_same<argument_type, visibility>::value>::type assign_from_argument(
-            const argument_type& arg) noexcept {
+        constexpr typename enable_if<is_same<argument_type, visibility>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             const_cast<argument_type&>(m_visibility) = arg;
         }
 
@@ -406,8 +403,7 @@ namespace c74::min {
         // constructor utility: handle an argument defining a attribute's category property
 
         template<typename argument_type>
-        constexpr typename enable_if<is_same<argument_type, category>::value>::type assign_from_argument(
-            const argument_type& arg) noexcept {
+        constexpr typename enable_if<is_same<argument_type, category>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             const_cast<argument_type&>(m_category) = arg;
         }
 
@@ -677,11 +673,9 @@ namespace c74::min {
         atoms          m_range_args;    // The range/enum as provided by the owning Min object.
         std::vector<T> m_range;         // The range/enum translated into the native datatype.
         enum_map       m_enum_map;      // The enum mapping for indexed enums (as opposed to symbol enums).
-        attribute_threadsafe_helper<T, threadsafety, limit_type, repetitions> m_helper{
-            this};    // Attribute setting implementation for the specified threadsafety.
+        attribute_threadsafe_helper<T, threadsafety, limit_type, repetitions> m_helper{this};    // Attribute setting implementation for the specified threadsafety.
 
-        friend void attribute_threadsafe_helper_do_set<T, threadsafety, limit_type, repetitions>(
-            attribute_threadsafe_helper<T, threadsafety, limit_type, repetitions>* helper, atoms& args);
+        friend void attribute_threadsafe_helper_do_set<T, threadsafety, limit_type, repetitions>(attribute_threadsafe_helper<T, threadsafety, limit_type, repetitions>* helper, atoms& args);
 
 
         // Copy m_range_args to m_range when the attribute is created.
@@ -792,12 +786,12 @@ namespace c74::min {
 
     template<typename T, template<typename> class limit_type, allow_repetitions repetitions>
     class attribute_threadsafe_helper<T, threadsafe::yes, limit_type, repetitions> {
-        friend void attribute_threadsafe_helper_do_set<T, threadsafe::yes, limit_type>(
-            attribute_threadsafe_helper<T, threadsafe::yes, limit_type, repetitions>* helper, atoms& args);
+        friend void attribute_threadsafe_helper_do_set<T, threadsafe::yes, limit_type>(attribute_threadsafe_helper<T, threadsafe::yes, limit_type, repetitions>* helper, atoms& args);
 
     public:
         explicit attribute_threadsafe_helper(attribute<T, threadsafe::yes, limit_type, repetitions>* an_attribute)
-        : m_attribute(an_attribute) {}
+        : m_attribute(an_attribute)
+        {}
 
         void set(atoms& args) {
             attribute_threadsafe_helper_do_set(this, args);
@@ -824,10 +818,8 @@ namespace c74::min {
 
     template<typename T, template<typename> class limit_type, allow_repetitions repetitions>
     class attribute_threadsafe_helper<T, threadsafe::no, limit_type, repetitions> {
-        friend void attribute_threadsafe_helper_do_set<T, threadsafe::no, limit_type>(
-            attribute_threadsafe_helper<T, threadsafe::no, limit_type, repetitions>* helper, atoms& args);
-        friend void attribute_threadsafe_helper_qfn<T, threadsafe::no, limit_type, repetitions>(
-            attribute_threadsafe_helper<T, threadsafe::no, limit_type, repetitions>* helper);
+        friend void attribute_threadsafe_helper_do_set<T, threadsafe::no, limit_type>(attribute_threadsafe_helper<T, threadsafe::no, limit_type, repetitions>* helper, atoms& args);
+        friend void attribute_threadsafe_helper_qfn<T, threadsafe::no, limit_type, repetitions>(attribute_threadsafe_helper<T, threadsafe::no, limit_type, repetitions>* helper);
 
     public:
         explicit attribute_threadsafe_helper(attribute<T, threadsafe::no, limit_type, repetitions>* an_attribute)
@@ -849,9 +841,9 @@ namespace c74::min {
         }
 
     private:
-        attribute<T, threadsafe::no, limit_type, repetitions>* m_attribute;
-        max::t_qelem*                             m_qelem;
-        atoms                                     m_value;
+        attribute<T, threadsafe::no, limit_type, repetitions>*  m_attribute;
+        max::t_qelem*                                           m_qelem;
+        atoms                                                   m_value;
     };
 
 
@@ -861,10 +853,8 @@ namespace c74::min {
 
     template<typename T, template<typename> class limit_type, allow_repetitions repetitions>
     class attribute_threadsafe_helper<T, threadsafe::undefined, limit_type, repetitions> {
-        friend void attribute_threadsafe_helper_do_set<T, threadsafe::undefined, limit_type, repetitions>(
-            attribute_threadsafe_helper<T, threadsafe::undefined, limit_type, repetitions>* helper, atoms& args);
-        friend void attribute_threadsafe_helper_qfn<T, threadsafe::undefined, limit_type, repetitions>(
-            attribute_threadsafe_helper<T, threadsafe::undefined, limit_type, repetitions>* helper);
+        friend void attribute_threadsafe_helper_do_set<T, threadsafe::undefined, limit_type, repetitions>(attribute_threadsafe_helper<T, threadsafe::undefined, limit_type, repetitions>* helper, atoms& args);
+        friend void attribute_threadsafe_helper_qfn<T, threadsafe::undefined, limit_type, repetitions>(attribute_threadsafe_helper<T, threadsafe::undefined, limit_type, repetitions>* helper);
 
     public:
         explicit attribute_threadsafe_helper(attribute<T, threadsafe::undefined, limit_type, repetitions>* an_attribute)
@@ -886,9 +876,9 @@ namespace c74::min {
         }
 
     private:
-        attribute<T, threadsafe::undefined, limit_type, repetitions>* m_attribute;
-        max::t_qelem*                                    m_qelem;
-        atoms                                            m_value;
+        attribute<T, threadsafe::undefined, limit_type, repetitions>*   m_attribute;
+        max::t_qelem*                                                   m_qelem;
+        atoms                                                           m_value;
     };
 
 

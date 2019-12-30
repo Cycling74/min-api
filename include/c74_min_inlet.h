@@ -8,7 +8,7 @@
 namespace c74::min {
 
 
-    // Type definition for what the legacy C Max SDK uses to represent an outlet.
+    // Type definition for what the legacy C Max SDK uses to represent an inlet.
 
     using t_max_inlet = void*;
 
@@ -21,7 +21,8 @@ namespace c74::min {
 
     public:
         inlet_base(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-        : port{an_owner, a_description, a_type} {}
+        : port { an_owner, a_description, a_type }
+        {}
 
         virtual ~inlet_base() {}
 
@@ -29,7 +30,7 @@ namespace c74::min {
         virtual attribute_base* attribute() = 0;
 
     private:
-        t_max_inlet m_instance{nullptr};
+        t_max_inlet m_instance { nullptr };
     };
 
 
@@ -48,15 +49,13 @@ namespace c74::min {
         /// @param	a_type			Optional string to create a type-checked inlet.
 
         inlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "")
-        : inlet_base{an_owner, a_description, a_type}
-        {
+        : inlet_base { an_owner, a_description, a_type } {
             m_owner->inlets().push_back(this);
         }
 
         inlet(object_base* an_owner, const std::string& a_description, attribute_base& an_attribute_to_which_to_map_audio_input, const std::string& a_type = "")
         : inlet_base{an_owner, a_description, a_type}
-        , m_attribute { &an_attribute_to_which_to_map_audio_input }
-        {
+        , m_attribute { &an_attribute_to_which_to_map_audio_input } {
             m_owner->inlets().push_back(this);
         }
 
@@ -69,7 +68,7 @@ namespace c74::min {
         }
 
     private:
-        attribute_base* m_attribute {nullptr};
+        attribute_base* m_attribute { nullptr };
     };
 
 }    // namespace c74::min

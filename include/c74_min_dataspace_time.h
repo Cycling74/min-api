@@ -7,7 +7,6 @@
 
 namespace c74::min::dataspace {
 
-
     class time : public dataspace_base {
     public:
         // Seconds is the neutral unit, so it is a pass-through

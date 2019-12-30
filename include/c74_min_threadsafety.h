@@ -100,7 +100,7 @@ namespace c74::min {
         // callback() for when the trigger fires
         // and a push() for handling new items.
 
-        virtual void callback()                                     = 0;
+        virtual void callback() = 0;
         virtual void push(message_type a_type, const atoms& values) = 0;
 
     protected:
@@ -151,7 +151,7 @@ namespace c74::min {
         // callback() for when the trigger fires
         // and a push() for handling new items.
 
-        virtual void callback()                                     = 0;
+        virtual void callback() = 0;
         virtual void push(message_type a_type, const atoms& values) = 0;
 
     protected:
