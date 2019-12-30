@@ -7,7 +7,6 @@
 
 namespace c74::min {
 
-
     // time_interval is a hybrid object that can represent a time value
     // but also can be an actor by implementing the internals used by Max's ITM system.
     //

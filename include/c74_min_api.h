@@ -27,7 +27,14 @@
 #include <unordered_map>
 #include <utility>
 
+#ifdef MAC_VERSION
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
 #include "readerwriterqueue/readerwriterqueue.h"
+#ifdef MAC_VERSION
+#pragma clang diagnostic pop
+#endif
 
 #include "murmur/Murmur3.h"    // used for constexpr hash function
 
@@ -329,7 +336,8 @@ namespace c74::min {
     static max::t_class*  this_class      = nullptr;
     static bool           this_class_init = false;
     static max::t_symbol* this_class_name = nullptr;
-}
+}    // namespace c74::min
+
 
 #include "c74_min_object_components.h"    // Shared components of Max objects
 #include "c74_jitter.h"

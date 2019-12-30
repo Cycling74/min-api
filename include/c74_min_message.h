@@ -7,6 +7,7 @@
 
 namespace c74::min {
 
+
     /// A standard callback function used throughout Min for various purposes.
     /// Typically this is provided to argument as a lamba function using the #MIN_FUNCTION macro.
     /// @param	as		A vector of atoms which may contain any arguments passed to your function.

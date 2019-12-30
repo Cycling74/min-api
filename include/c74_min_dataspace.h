@@ -20,7 +20,7 @@ namespace c74::min::dataspace {
         }
     };
 
-}    // namespace c74::min::dataspace
+}
 
 #include "c74_min_dataspace_gain.h"
 #include "c74_min_dataspace_none.h"

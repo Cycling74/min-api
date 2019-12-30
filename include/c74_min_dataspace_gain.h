@@ -7,6 +7,7 @@
 
 namespace c74::min::dataspace {
 
+
     class gain : public dataspace_base {
     public:
         // Linear is the neutral unit, so it is a pass-through

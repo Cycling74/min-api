@@ -7,7 +7,6 @@
 
 namespace c74::min {
 
-
     /// Options that control the behavior of the timer.
 
     enum class timer_options {

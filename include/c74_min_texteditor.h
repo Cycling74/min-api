@@ -7,7 +7,6 @@
 
 namespace c74::min {
 
-
     class texteditor {
     public:
         using textfunction = std::function<void(const char*)>;

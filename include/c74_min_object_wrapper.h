@@ -795,7 +795,7 @@ namespace c74::min {
     /// @param    names_of_folders_to_include     Optional. The names of the folders in the package to add to the standalone.
     ///                                         If none are provided then the entire package will be added.
 
-    void fileusage_addpackage(const atoms& fileusage_handle, string package_name, strings names_of_folders_to_include= {}) {
+    inline void fileusage_addpackage(const atoms& fileusage_handle, string package_name, strings names_of_folders_to_include= {}) {
         void *w { fileusage_handle[0] };
             if (names_of_folders_to_include.empty())
                 c74::max::fileusage_addpackage(w, package_name.c_str(), nullptr);

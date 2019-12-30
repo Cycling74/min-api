@@ -7,7 +7,6 @@
 
 namespace c74::min {
 
-
     /// There are several places where Min may check the thread of execution
     /// either for error catching or for altering the execution.
     /// This is true, for example, in the case of outlets.
