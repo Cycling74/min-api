@@ -21,7 +21,7 @@ namespace c74::min {
         explicit ui_operator(object_base* instance, const atoms& args)
         : m_instance { instance }
         {
-            if (!box()) // box will be a nullptr when being dummy-constructed
+            if (!m_instance->maxobj()) // box will be a nullptr when being dummy-constructed
                 return;
 
             long flags = 0
@@ -47,18 +47,18 @@ namespace c74::min {
              //	| JBOX_FIXWIDTH			// 19
             ;
 
-            c74::max::jbox_new(box(), flags, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
-            box()->b_firstin = m_instance->maxobj();
+            c74::max::jbox_new(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()), flags, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
+            reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj())->b_firstin = m_instance->maxobj();
         }
 
         virtual ~ui_operator() {
-            if (box())  // box will be a nullptr when being dummy-constructed
-                jbox_free(box());
+            if (m_instance->maxobj())  // box will be a nullptr when being dummy-constructed
+                jbox_free(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()));
         }
 
         void redraw() {
             if (m_instance->initialized())
-                jbox_redraw(box());
+                jbox_redraw(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()));
         }
 
         int default_width() const {
@@ -96,10 +96,6 @@ namespace c74::min {
     private:
         object_base* m_instance;
         vector<std::pair<symbol,attribute_base*>> m_color_attributes;
-
-        c74::max::t_jbox* box() const {
-            return reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj());
-        }
     };
 
 
