@@ -209,6 +209,34 @@ namespace c74::min {
         }
 
 
+        patcher patcher() {
+            max::t_object* p {};
+
+            auto err = max::object_obex_lookup(maxobj(), k_sym__pound_p, &p);
+            if (err != max::MAX_ERR_NONE)
+                error("unable to obtain owning patcher for object");
+            return min::patcher(p);
+        }
+
+
+        box box() {
+            max::t_object* b {};
+
+            auto err = max::object_obex_lookup(maxobj(), k_sym__pound_b, &b);
+            if (err != max::MAX_ERR_NONE)
+                error("unable to obtain owning patcher for object");
+            return min::box(b);
+        }
+
+
+        void attach(max::t_object* o, symbol a_namespace = k_sym_nobox) {
+            assert(o != nullptr);
+            auto err = object_attach_byptr_register(maxobj(), o, a_namespace);
+            if (err)
+                error("cannot attach to object");
+        }
+
+
         /// Try to call a named message.
         /// @param	name	The name of the message to attempt to call.
         /// @param	args	Any args you wish to pass to the message call.

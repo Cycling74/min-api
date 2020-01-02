@@ -146,6 +146,10 @@ namespace c74::min {
             return s->s_name;
         }
 
+        bool empty() const {
+            return (s == nullptr) || (s == max::gensym(""));
+        }
+
     private:
         max::t_symbol* s;
     };
@@ -164,8 +168,11 @@ namespace c74::min {
 #endif
 
     static const symbol k_sym_box                       { "box" };          ///< The symbol "box", which is the max-namespace for normal user-facing classes.
+    static const symbol k_sym_nobox                     { "nobox" };        ///< The symbol "nobox", which is the max-namespace for non-user-facing classes.
     static const symbol k_sym__empty                    { "" };             ///< The special empty symbol which contains no chars at all.
+    static const symbol k_sym__pound_b                  { "#B" };           ///< The special "#B" symbol used for accessing an object's box.
     static const symbol k_sym__pound_d                  { "#D" };           ///< The special "#D" symbol used for accessing an object's dictionary in the patcher.
+    static const symbol k_sym__pound_p                  { "#P" };           ///< The special "#D" symbol used for accessing an object's owning patcher.
     static const symbol k_sym_float                     { "float" };		///< The symbol "float".
     static const symbol k_sym_float32                   { "float32" };      ///< The symbol "float32".
     static const symbol k_sym_float64                   { "float64" };      ///< The symbol "float64".
