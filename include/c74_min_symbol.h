@@ -109,6 +109,13 @@ namespace c74::min {
             return lhs.s == max::gensym(rhs);
         }
 
+        friend bool operator!=(const symbol& lhs, const symbol& rhs) {
+            return lhs.s != rhs.s;
+        }
+
+        friend bool operator!=(const symbol& lhs, const char* rhs) {
+            return lhs.s != max::gensym(rhs);
+        }
 
         operator max::t_symbol*() const {
             return s;

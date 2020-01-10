@@ -10,10 +10,8 @@ namespace c74::min::ui {
     class target {
     public:
         explicit target(const atoms& args) {
-            if (args.size() == 1) {
-                // This is ONLY for mouse events
-                
-            }
+            assert(args.size() > 1);
+
             if (args.size() == 3) {
                 // if there are 3 args then the first arg is the graphics context itself
                 // this occurs in the case where we create an image (surface)
