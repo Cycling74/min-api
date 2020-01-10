@@ -93,20 +93,17 @@ namespace c74::min {
 
         message<> notify_meth = {&m_owner, "notify",
             MIN_FUNCTION{
-                symbol	s = args[1];
-                symbol	msg = args[2];
-                void*	sender = args[3];
-                void*	data = args[4];
+                notification n { args };
 
                 if (m_notification_callback) {
-                    if (msg == k_sym_globalsymbol_binding)
+                    if (n.name() == k_sym_globalsymbol_binding)
                         m_notification_callback({k_sym_binding}, -1);
-                    else if (msg == k_sym_globalsymbol_unbinding)
+                    else if (n.name() == k_sym_globalsymbol_unbinding)
                         m_notification_callback({k_sym_unbinding}, -1);
-                    else if (msg == k_sym_buffer_modified)
+                    else if (n.name() == k_sym_buffer_modified)
                         m_notification_callback({k_sym_modified}, -1);
                 }
-                return { max::buffer_ref_notify(m_instance, s, msg, sender, data) };
+                return { max::buffer_ref_notify(m_instance, n.registration(), n.name(), n.source(), n.data()) };
             }
         };
 

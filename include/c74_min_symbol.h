@@ -188,7 +188,8 @@ namespace c74::min {
     static const symbol k_sym_size                      { "size" };         ///< Cached symbol "size"
     static const symbol k_sym_time                      { "time" };         ///< The symbol "time".
     static const symbol k_sym_value                     { "value" };	    ///< The symbol "value".
- 
+
+    static const symbol k_sym_attr_modified             { "attr_modified" };            ///< Cached symbol "attr_modified"
     static const symbol k_sym_globalsymbol_binding      { "globalsymbol_binding"};      ///< Cached symbol "globalsymbol_binding"
     static const symbol k_sym_binding                   { "binding"};                   ///< Cached symbol "binding"
     static const symbol k_sym_globalsymbol_unbinding    { "globalsymbol_unbinding"};    ///< Cached symbol "globalsymbol_unbinding"

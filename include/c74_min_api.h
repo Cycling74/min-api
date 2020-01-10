@@ -343,9 +343,10 @@ namespace c74::min {
 } 
 
 
+#include "c74_min_notification.h"       // A class representing notifications from attached-to objects
 #include "c74_min_patcher.h"            // Wrapper for interfacing with patchers
 
-#include "c74_min_object_components.h"    // Shared components of Max objects
+#include "c74_min_object_components.h"  // Shared components of Max objects
 #include "c74_jitter.h"
 #include "c74_min_flags.h"              // Class flags
 #include "c74_min_time.h"               // ITM Support
@@ -363,6 +364,7 @@ namespace c74::min {
 #include "c74_min_operator_matrix.h"    // Jitter MOP add-ins
 #include "c74_min_operator_ui.h"		// User Interface add-ins
 #include "c74_min_graphics.h"			// Graphics classes for UI objects
+#include "c74_min_event.h"              // Mouse-event and Touch-event classes
 
 #include "c74_min_object_wrapper.h"     // Max wrapper for Min objects
 #include "c74_min_object.h"             // The Min object class that glues it all together
