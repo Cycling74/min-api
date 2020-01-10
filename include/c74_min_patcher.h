@@ -6,60 +6,114 @@
 #pragma once
 
 namespace c74::min {
-    
-    class box {
+
+
+    /// An instance of an object.
+    /// This could be a box, a patcher, or anything else that is a live instance of a class in Max.
+
+    class instance {
     public:
-        box(max::t_object *a_box)
-        : m_box { a_box }
+        instance(max::t_object* an_instance = nullptr)
+        : m_instance { an_instance }
         {}
-        
-        operator max::t_object*() const {
-            return m_box;
+
+        virtual ~instance() {
+            if (m_own && m_instance)
+                object_free(m_instance);
         }
 
+
+        operator max::t_object*() const {
+            return m_instance;
+        }
+
+        operator bool() const {
+            return m_instance != nullptr;
+        }
+
+
+        template<typename T1>
+        void instantiate(symbol a_name, T1 arg1) {
+            if (m_instance && m_own)
+                max::object_free(m_instance);
+            m_instance = max::object_new(max::CLASS_NOBOX, a_name, arg1, 0);
+        }
+
+        
+        /// call a method on an instance
+
+        void* operator()(symbol method_name) {
+            return object_method(m_instance, method_name);
+        }
+
+        template<typename T1>
+        void* operator()(symbol method_name, T1 arg1) {
+            return object_method(m_instance, method_name, arg1);
+        }
+
+        template<typename T1, typename T2>
+        void* operator()(symbol method_name, T1 arg1, T2 arg2) {
+            return object_method(m_instance, method_name, arg1, arg2);
+        }
+
+        /// Set and get attributes of an instance
+
+        void set(symbol attribute_name, symbol value) {
+            max::object_attr_setsym(m_instance, attribute_name, value);
+        }
+
+        void set(symbol attribute_name, char value) {
+            max::object_attr_setchar(m_instance, attribute_name, value);
+        }
+
+        template<typename T>
+        T get(symbol attribute_name) {
+            long argc {};
+            max::t_atom* argv {};
+
+            max::object_attr_getvalueof(m_instance, attribute_name, &argc, &argv);
+            return static_cast<T>(atom(argv));
+        }
+
+
+    protected:
+        max::t_object*  m_instance;
+        bool            m_own {};
+    };
+
+
+    class box : public instance {
+    public:
+        box(max::t_object *a_box)
+        : instance { a_box }
+        {}
+
         symbol classname() const {
-            return max::jbox_get_maxclass(m_box);
+            return max::jbox_get_maxclass(m_instance);
         }
         
         symbol path() const {
-            return max::jbox_get_boxpath(m_box);
+            return max::jbox_get_boxpath(m_instance);
         }
-
-    private:
-        max::t_object* m_box {};
     };
     
     using boxes = std::vector<box>;
 
 
-    class device {
+    class device : public instance {
     public:
         device(max::t_object* a_device = nullptr)
-        : m_device { a_device }
+        : instance { a_device }
         {}
-
-        operator bool() const {
-            return m_device != nullptr;
-        }
-
-        operator max::t_object*() const {
-            return m_device;
-        }
-
-
-    private:
-        max::t_object*  m_device;
     };
 
-
-    /// @defgroup buffers Buffer Objects
 
     /// A reference to a buffer~ object.
     /// The buffer_reference automatically adds the management hooks required for your object to work with a buffer~.
     /// This includes adding a 'set' message and a 'dblclick' message as well as dealing with notifications and binding.
     /// @ingroup buffers
 
-    class patcher {
+    class patcher : public instance {
     public:
         /// Create a reference to a buffer~ object.
         /// @param	an_owner	The owning object for the buffer reference. Typically you will pass `this`.
@@ -70,7 +124,7 @@ namespace c74::min {
         // thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
 
         patcher(c74::max::t_object* a_patcher)
-        : m_patcher { a_patcher }
+        : instance { a_patcher }
         {}
 
 
@@ -78,10 +132,6 @@ namespace c74::min {
             max::t_object* m4l_device {};
             max::object_obex_lookup(m_patcher, symbol("##plugdevice##"), &m4l_device);
             return m4l_device;
-        }
-
-        operator max::t_object*() const {
-            return m_patcher;
         }
 
 
