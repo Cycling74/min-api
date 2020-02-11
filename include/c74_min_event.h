@@ -25,7 +25,7 @@ namespace c74::min {
         event(const atoms& args)
         : m_target { args }
         {
-            if (args.size() != 4)
+            if (args.size() != 5)
                 error("incorrect number of arguments for notification");
 
             m_self = args[0];
