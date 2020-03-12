@@ -474,8 +474,16 @@ namespace c74::min {
             else if (a_message.first == "maxclass_setup");          // for min class construction only, do not add for exposure to max
             else if (a_message.first == "savestate")
                 max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
-            else
-                max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>), a_message.first.c_str(), a_message.second->type(), 0);
+        	else {
+                if (a_message.second->type() == max::A_GIMMEBACK) {
+                    max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>), 
+                        a_message.first.c_str(), a_message.second->type(), 0);
+				}
+                else {
+					max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>), 
+                        a_message.first.c_str(), a_message.second->type(), 0);
+                }
+            }
 
             // if there is a 'float' message but no 'int' message, generate a wrapper for it
             if (a_message.first == "float" && (instance.messages().find("int") == instance.messages().end())) {
