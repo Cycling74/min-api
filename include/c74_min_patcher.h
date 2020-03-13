@@ -12,6 +12,13 @@ namespace c74::min {
     /// This could be a box, a patcher, or anything else that is a live instance of a class in Max.
 
     class instance {
+        struct messinfo {
+            max::t_object*  ob;
+            max::method     fn;
+            int             type;
+        };
+
+
     public:
         instance(max::t_object* an_instance = nullptr)
         : m_instance { an_instance }
@@ -39,22 +46,83 @@ namespace c74::min {
             m_instance = max::object_new(max::CLASS_NOBOX, a_name, arg1, 0);
         }
 
-        
+
         /// call a method on an instance
 
-        void* operator()(symbol method_name) {
-            return object_method(m_instance, method_name);
+        template<typename T1>
+        atom operator()(symbol method_name) {
+            auto m { find_method(method_name) };
+
+            if (m.type == max::A_GIMME) {
+                atoms as {};
+                return max::object_method_typed(m.ob, method_name, 0, nullptr, nullptr);
+            }
+            else if (m.type == max::A_GIMMEBACK) {
+                atoms       as {};
+                max::t_atom rv {};
+
+                max::object_method_typed(m.ob, method_name, 0, nullptr, &rv);
+                return rv;
+            }
+            else {
+                return m.fn(m.ob);
+            }
         }
+
 
         template<typename T1>
-        void* operator()(symbol method_name, T1 arg1) {
-            return object_method(m_instance, method_name, arg1);
+        atom operator()(symbol method_name, T1 arg1) {
+            auto m { find_method(method_name) };
+
+            if (m.type == max::A_GIMME) {
+                atoms   as { arg1 };
+                return max::object_method_typed(m.ob, method_name, as.size(), &as[0], nullptr);
+            }
+            else if (m.type == max::A_GIMMEBACK) {
+                atoms       as { arg1 };
+                max::t_atom rv {};
+
+                max::object_method_typed(m.ob, method_name, as.size(), &as[0], &rv);
+                return rv;
+            }
+            else {
+                if (typeid(T1) != typeid(atom))
+                    return m.fn(m.ob, arg1);
+                else {
+                    // atoms must be converted to native types and then reinterpreted as void*
+                    // doubles cannot be converted -- supporting those will need to be handled separately
+                    return m.fn(m.ob, atom_to_generic(arg1));
+                }
+            }
         }
 
+
         template<typename T1, typename T2>
-        void* operator()(symbol method_name, T1 arg1, T2 arg2) {
-            return object_method(m_instance, method_name, arg1, arg2);
+        atom operator()(symbol method_name, T1 arg1, T2 arg2) {
+            auto m { find_method(method_name) };
+
+            if (m.type == max::A_GIMME) {
+                atoms   as { arg1, arg2 };
+                return max::object_method_typed(m.ob, method_name, as.size(), &as[0], nullptr);
+            }
+            else if (m.type == max::A_GIMMEBACK) {
+                atoms       as { arg1, arg2 };
+                max::t_atom rv {};
+
+                max::object_method_typed(m.ob, method_name, as.size(), &as[0], &rv);
+                return rv;
+            }
+            else {
+                if (typeid(T1) != typeid(atom))
+                    return m.fn(m.ob, arg1, arg2);
+                else {
+                    // atoms must be converted to native types and then reinterpreted as void*
+                    // doubles cannot be converted -- supporting those will need to be handled separately
+                    return m.fn(m.ob, atom_to_generic(arg1), atom_to_generic(arg2));
+                }
+            }
         }
+
 
         /// Set and get attributes of an instance
 
@@ -79,6 +147,43 @@ namespace c74::min {
     protected:
         max::t_object*  m_instance;
         bool            m_own {};
+
+        auto find_method(symbol a_method_name) -> messinfo {
+            max::t_object* ob = m_instance;
+
+            for (max::t_messlist* mess = ob->o_messlist; max::t_symbol* s = mess->m_sym; ++mess) {
+                if (a_method_name == symbol(mess->m_sym)) {
+                    return {ob, mess->m_fun, mess->m_type[0] };
+                }
+            }
+
+            // no message found for the box, so call the object...
+            // TODO: check to see if it is a box before assuming it is...
+            ob = max::jbox_get_object(m_instance);
+
+            for (max::t_messlist* mess = ob->o_messlist; max::t_symbol* s = mess->m_sym; ++mess) {
+                if (a_method_name == symbol(mess->m_sym)) {
+                     return {ob, mess->m_fun, mess->m_type[0] };
+                }
+            }
+
+            // not found
+            return { nullptr, nullptr, 0 };
+        }
+
+
+    private:
+        void* atom_to_generic(const atom& a) {
+            if (a.type() == message_type::int_argument)
+                return reinterpret_cast<void*>( static_cast<max::t_atom_long>(a) );
+            // else if (a.type() == message_type::float_argument)
+            //  return reinterpret_cast<void*>( static_cast<max::t_atom_float>(a) );
+            else if (a.type() == message_type::symbol_argument)
+                return reinterpret_cast<void*>( static_cast<max::t_symbol*>(a) );
+            else
+                return reinterpret_cast<void*>( static_cast<max::t_object*>(a) );
+        }
+
     };
 
 
@@ -94,6 +199,14 @@ namespace c74::min {
         
         symbol path() const {
             return max::jbox_get_boxpath(m_instance);
+        }
+
+        symbol name() const {
+            return max::jbox_get_varname(m_instance);
+        }
+
+        void name(symbol a_new_scripting_name) {
+            max::jbox_set_varname(m_instance, a_new_scripting_name);
         }
     };
     
@@ -130,7 +243,7 @@ namespace c74::min {
 
         min::device device() {
             max::t_object* m4l_device {};
-            max::object_obex_lookup(m_patcher, symbol("##plugdevice##"), &m4l_device);
+            max::object_obex_lookup(m_instance, symbol("##plugdevice##"), &m4l_device);
             return m4l_device;
         }
 
@@ -141,7 +254,7 @@ namespace c74::min {
         min::boxes boxes() {
             m_boxes.clear();
 
-            auto box = max::jpatcher_get_firstobject(m_patcher);
+            auto box = max::jpatcher_get_firstobject(m_instance);
             while (box) {
                 m_boxes.push_back(box);
                 box = max::jbox_get_nextobject(box);
@@ -150,11 +263,10 @@ namespace c74::min {
         }
         
         symbol name() {
-             return max::jpatcher_get_name(m_patcher);
+             return max::jpatcher_get_name(m_instance);
         }
 
     private:
-        max::t_object*  m_patcher   {};
         min::boxes      m_boxes     {};
     };
 
