@@ -1,13 +1,13 @@
 # Copyright 2018 The Min-API Authors. All rights reserved.
 # Use of this source code is governed by the MIT License found in the License.md file.
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 project(MinAPI)
 
 
 if (${CMAKE_GENERATOR} MATCHES "Xcode")
- 		if (${XCODE_VERSION} VERSION_LESS 9)
-  			message(STATUS "Xcode 9 or later is required. Please install from the Mac App Store.")
+ 		if (${XCODE_VERSION} VERSION_LESS 10)
+  			message(STATUS "Xcode 10 or later is required. Please install from the Mac App Store.")
 			return ()
 		endif ()
 endif ()

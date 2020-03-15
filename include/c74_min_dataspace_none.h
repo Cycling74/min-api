@@ -5,23 +5,22 @@
 
 #pragma once
 
-namespace c74 { namespace min { namespace dataspace {
+namespace c74::min::dataspace {
 
+    class none : public dataspace_base {
+    public:
+        // the neutral unit is always a pass-through... compiler inlining should make it a noop
+        class nothing {
+            friend class dataspace_base;
 
-	class none : public dataspace_base {
-	public:
-		// the neutral unit is always a pass-through... compiler inlining should make it a noop
-		class nothing {
-			friend class dataspace_base;
+            static inline number to_neutral(number input) {
+                return input;
+            }
 
-			static inline number to_neutral(number input) {
-				return input;
-			}
+            static inline number from_neutral(number input) {
+                return input;
+            }
+        };
+    };
 
-			static inline number from_neutral(number input) {
-				return input;
-			}
-		};
-	};
-
-}}}    // namespace c74::min::dataspace
+}    // namespace c74::min::dataspace
