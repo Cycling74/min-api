@@ -33,6 +33,15 @@ namespace c74::min {
     }
 
 
+    /// Find out if the current class instance is a dummy instance.
+    /// The dummy instance is used for the initial class reflection and wrapper configuration.
+    /// All instances after that point are valid (non-dummy) instances.
+
+    bool dummy() {
+        return this_class_dummy_constructed == false;
+    }
+
+
     template<class min_class_type>
     minwrap<min_class_type>* wrapper_new(max::t_symbol* name, long ac, max::t_atom* av) {
         try {
@@ -528,12 +537,16 @@ namespace c74::min {
             else if (a_message.first == "maxclass_setup");          // for min class construction only, do not add for exposure to max
             else if (a_message.first == "savestate")
                 max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
- //           else if (a_message.first == "mt_mousedown") {
-   //             max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_mt_mousedown<min_class_type>), "mt_mousedown", max::A_CANT, 0);
-     //           std::cout << "BIND DOWN!" << std::endl;
-       //     }
-            else
-                max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>), a_message.first.c_str(), a_message.second->type(), 0);
+        	else {
+                if (a_message.second->type() == max::A_GIMMEBACK) {
+                    max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>), 
+                        a_message.first.c_str(), a_message.second->type(), 0);
+				}
+                else {
+					max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>), 
+                        a_message.first.c_str(), a_message.second->type(), 0);
+                }
+            }
 
             // if there is a 'float' message but no 'int' message, generate a wrapper for it
             if (a_message.first == "float" && (instance.messages().find("int") == instance.messages().end())) {
@@ -654,6 +667,7 @@ namespace c74::min {
         if (!instance) {
             dummy_instance = std::make_unique<min_class_type>();
             instance       = dummy_instance.get();
+            this_class_dummy_constructed = true;
         }
 
         host_flags flags = host_flags::none;
@@ -670,7 +684,7 @@ namespace c74::min {
         wrap_as_max_external_finish<min_class_type>(c, *instance);
         this_class = c;
         instance->try_call("maxclass_setup", c);
-    }
+     }
 
 
     template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
@@ -689,6 +703,7 @@ namespace c74::min {
         if (!instance) {
             dummy_instance = std::make_unique<min_class_type>();
             instance       = dummy_instance.get();
+            this_class_dummy_constructed = true;
         }
 
         // 1. Boxless Jit Class

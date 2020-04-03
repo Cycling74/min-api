@@ -293,6 +293,9 @@ namespace c74::min {
 }    // namespace c74::min
 
 
+bool dummy(); // forward decl
+
+
 /// A standard interface for flagging serious runtime snafus.
 /// At the moment this is hardwired to throw an exception but offers us the ability to
 /// change that behavior later or specialize it for certain contexts.
@@ -300,7 +303,10 @@ namespace c74::min {
 /// Because this throws an exception you should **not** call this function in an audio perform routine.
 
 inline void error(const std::string& description) {
-    throw std::runtime_error(description);
+    if (!dummy())
+        throw std::runtime_error(description);
+    else
+        std::cerr << description << std::endl;
 }
 
 
@@ -308,7 +314,7 @@ inline void error(const std::string& description) {
 /// When possible you should specify a description string and pass as an argument instead of calling this variant.
 
 inline void error() {
-    throw std::runtime_error("unknown");
+    error("unknown error");
 }
 
 
@@ -317,7 +323,7 @@ inline void error() {
 
 inline void error(bool check, const std::string& description) {
     if (check)
-        throw std::runtime_error(description);
+        error(description);
 }
 
 
@@ -337,9 +343,10 @@ inline uint16_t byteorder_swap(uint16_t x) {
 #include "c74_min_limit.h"      // Library of miscellaneous helper functions (e.g. range clipping)
 
 namespace c74::min {
-    static max::t_class*  this_class      = nullptr;
-    static bool           this_class_init = false;
-    static max::t_symbol* this_class_name = nullptr;
+    static max::t_class*    this_class                      { nullptr };
+    static bool             this_class_init                 { false };
+    static max::t_symbol*   this_class_name                 { nullptr };
+    static bool             this_class_dummy_constructed    { false };
 } 
 
 
