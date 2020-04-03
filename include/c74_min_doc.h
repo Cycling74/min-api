@@ -35,36 +35,6 @@ namespace c74::min {
     }
 
     
-    #define MIN_TAGS static constexpr const char* class_tags
-
-    using tags = std::vector<std::string>;
-
-    template<typename min_class_type>
-    struct has_class_tags {
-        template<class, class>
-        class checker;
-
-        template<typename C>
-        static std::true_type test(checker<C, decltype(&C::class_tags)>*);
-
-        template<typename C>
-        static std::false_type test(...);
-
-        typedef decltype(test<min_class_type>(nullptr)) type;
-        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
-    };
-
-    template<class min_class_type>
-    typename enable_if<has_class_tags<min_class_type>::value>::type doc_get_tags(tags& returned_tags) {
-        returned_tags = str::split(min_class_type::class_tags, ',');
-    }
-
-    template<class min_class_type>
-    typename enable_if<!has_class_tags<min_class_type>::value>::type doc_get_tags(tags& returned_tags) {
-        returned_tags = {};
-    }
-
-
     #define MIN_RELATED static constexpr const char* class_related
 
     template<typename min_class_type>
@@ -168,7 +138,7 @@ namespace c74::min {
         refpage_file << "<c74object name='" << max_class_name << "' category='";
 
         strings class_tags;
-        doc_get_tags<min_class_type>(class_tags);
+        get_tags<min_class_type>(class_tags);
         for (auto i = 0; i < class_tags.size(); ++i) {
             if (i > 0)
                 refpage_file << ", ";

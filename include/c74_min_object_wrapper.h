@@ -212,13 +212,52 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_self_ptr_pt_long(max::t_object* o, void* arg1, max::t_pt arg2, max::t_atom_long arg3) {
+    void wrapper_method_mouse(max::t_object* o, max::t_object* a_patcherview, max::t_pt position, max::t_atom_long modifiers) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
-        atoms as{o, arg1, arg2.x, arg2.y, arg3};
+        max::t_mouseevent an_event {};
 
+        an_event.type = max::eMouseEvent;
+        an_event.index = 0; // zero-based or one based ???
+        an_event.position = position;
+        an_event.modifiers = static_cast<max::t_modifiers>(modifiers);
+        // pressure;
+        // orientation;
+        // rotation;
+        // tiltX;
+        //tiltY;
+
+        //atoms as {o, a_patcherview, arg2.x, arg2.y, arg3};
+        event e { a_patcherview, &an_event };
+        atoms as { e };
         meth(as);
     }
+
+
+    template<class min_class_type, class message_name_type>
+    void wrapper_method_multitouch(max::t_object* o, max::t_object* a_patcherview, max::t_mouseevent* an_event) {
+        auto  self = wrapper_find_self<min_class_type>(o);
+        auto  name = message_name_type::name;
+
+        if (name == "mt_mouseenter")
+            name = "mouseenter";
+        else if (name == "mt_mouseleave")
+            name = "mouseleave";
+        else if (name == "mt_mousedown")
+            name = "mousedown";
+        else if (name == "mt_mouseup")
+            name = "mouseup";
+        else if (name == "mt_mousemove")
+            name = "mousemove";
+        else if (name == "mt_mousedrag")
+            name = "mousedrag";
+        auto& meth = *self->m_min_object.messages()[name];
+
+        event e { a_patcherview, an_event };
+        atoms as { e };
+        meth(as);
+    }
+
 
     template<class min_class_type, class message_name_type>
     max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
@@ -401,10 +440,17 @@ namespace c74::min {
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(int)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(loadbang)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseenter)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mt_mouseenter)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseleave)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mt_mouseleave)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedown)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mt_mousedown)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseup)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mt_mouseup)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousemove)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mt_mousemove)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedrag)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mt_mousedrag)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedragdelta)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mousedoubleclick)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(notify)
@@ -446,6 +492,7 @@ namespace c74::min {
         // messages
 
         for (auto& a_message : instance.messages()) {
+            std::cout << "BINDING " << a_message.first << std::endl;
             MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
             else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
@@ -460,20 +507,31 @@ namespace c74::min {
             else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, paint, paint, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mouseleave, self_ptr_pt_long, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mousedown, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mouseenter, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mouseenter, multitouch, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mouseleave, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mouseleave, multitouch, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedown, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mousedown, multitouch, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mousemove, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mouseup, multitouch, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousemove, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mousemove, multitouch, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedrag, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mousedrag, multitouch, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, mouse, A_CANT)
             else if (static_cast<message_type>(*a_message.second) == message_type::ellipsis)
                 max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_ellipsis<min_class_type>), a_message.first.c_str(), max::A_CANT, 0);
             else if (a_message.first == "dspsetup");    // skip -- handle it in operator classes
             else if (a_message.first == "maxclass_setup");          // for min class construction only, do not add for exposure to max
             else if (a_message.first == "savestate")
                 max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
+ //           else if (a_message.first == "mt_mousedown") {
+   //             max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_mt_mousedown<min_class_type>), "mt_mousedown", max::A_CANT, 0);
+     //           std::cout << "BIND DOWN!" << std::endl;
+       //     }
             else
                 max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>), a_message.first.c_str(), a_message.second->type(), 0);
 
@@ -719,14 +777,21 @@ namespace c74::min {
             else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, paint, paint, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mouseenter, self_ptr_pt_long, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mouseleave, self_ptr_pt_long, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mousedown, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mouseenter, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mouseenter, multitouch, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mouseleave, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mouseleave, multitouch, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedown, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mousedown, multitouch, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mousemove, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mouseup, multitouch, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousemove, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mousemove, multitouch, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedrag, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mt_mousedrag, multitouch, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, self_ptr_pt_long, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, self_ptr_pt_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, mouse, A_CANT)
             else if (a_message.first == "savestate")
                 max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
             else if (a_message.first == "dspsetup");          // skip -- handle it in operator classes

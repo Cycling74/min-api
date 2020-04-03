@@ -13,15 +13,6 @@ namespace c74::min {
     class event {
     public:
 
-        /// Represent message arguments as an instance of a notification
-        ///
-        /// @param  args    Five atoms passed as a notification in Max's object listener system, described as follows:
-        /// * arg0    self
-        /// * arg1    s         the registered name of the sending object
-        /// * arg2    msg        then name of the notification/message sent
-        /// * arg3    sender    the pointer to the sending object
-        /// * arg4    data    optional argument sent with the notification/message
-
         event(const atoms& args)
         : m_target { args }
         {

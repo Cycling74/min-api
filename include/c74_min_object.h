@@ -7,7 +7,37 @@
 
 namespace c74::min {
 
+    
+    #define MIN_TAGS static constexpr const char* class_tags
 
+    using tags = std::vector<std::string>;
+
+    template<typename min_class_type>
+    struct has_class_tags {
+        template<class, class>
+        class checker;
+
+        template<typename C>
+        static std::true_type test(checker<C, decltype(&C::class_tags)>*);
+
+        template<typename C>
+        static std::false_type test(...);
+
+        typedef decltype(test<min_class_type>(nullptr)) type;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+    };
+
+    template<class min_class_type>
+    typename enable_if<has_class_tags<min_class_type>::value>::type get_tags(tags& returned_tags) {
+        returned_tags = str::split(min_class_type::class_tags, ',');
+    }
+
+    template<class min_class_type>
+    typename enable_if<!has_class_tags<min_class_type>::value>::type get_tags(tags& returned_tags) {
+        returned_tags = {};
+    }
+
+    
     /// The base class for all first-class objects that are to be exposed in the Max environment.
     ///
     /// We pass the class type as a template parameter to this class.
@@ -52,6 +82,15 @@ namespace c74::min {
         bool is_assumed_threadsafe() override {
             return threadsafety == threadsafe::yes;
         }
+
+        virtual strings tags() const override {
+            strings t;
+            get_tags<min_class_type>(t);
+            for (auto& a_tag : t)
+                a_tag = str::trim(a_tag);
+            return t;
+        }
+
 
 
     protected:

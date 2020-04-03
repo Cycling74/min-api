@@ -108,6 +108,10 @@ namespace c74::min {
         virtual bool is_assumed_threadsafe() = 0;
 
 
+        
+        virtual strings tags() const = 0;
+
+
         /// Cast this object to it's corresponding t_object pointer as understood by the older C Max API.
         /// @return The t_object pointer for this object.
 

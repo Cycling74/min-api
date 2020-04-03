@@ -37,7 +37,7 @@ namespace c74::min {
                 | c74::max::JBOX_BACKGROUND		// 9
              //	| JBOX_NOFLOATINSPECTOR	// 10
              // | c74::max::JBOX_TEXTFIELD		// 11
-                | c74::max::JBOX_MOUSEDRAGDELTA	// 12
+             //   | c74::max::JBOX_MOUSEDRAGDELTA	// 12
              //	| JBOX_COLOR			// 13
              //	| JBOX_BINBUF			// 14
              //	| JBOX_DRAWIOLOCKED		// 15
@@ -46,6 +46,17 @@ namespace c74::min {
              //	| JBOX_DEFAULTNAMES		// 18
              //	| JBOX_FIXWIDTH			// 19
             ;
+
+            strings tags = instance->tags();
+            auto tag_iter = std::find(tags.begin(), tags.end(), "multitouch");
+            if (tag_iter != tags.end()) {
+                flags |= c74::max::JBOX_MULTITOUCH;
+                std::cout << "MULTITOUCH" << std::endl;
+            }
+            else {
+                flags |= c74::max::JBOX_MOUSEDRAGDELTA;
+                std::cout << "NOT MULTITOUCH" << std::endl;
+            }
 
             c74::max::jbox_new(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()), flags, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
             reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj())->b_firstin = m_instance->maxobj();
@@ -103,6 +114,12 @@ namespace c74::min {
     typename enable_if< is_base_of<ui_operator_base, min_class_type>::value >::type
     wrap_as_max_external_ui(max::t_class* c, min_class_type& instance) {
         long flags {};
+
+        strings tags = instance.tags();
+        auto tag_iter = std::find(tags.begin(), tags.end(), "multitouch");
+        if (tag_iter != tags.end()) {
+            flags |= c74::max::JBOX_MULTITOUCH;
+        }
 
         // flags |= c74::max::JBOX_TEXTFIELD;
         jbox_initclass(c, flags);

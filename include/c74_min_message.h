@@ -56,6 +56,26 @@ namespace c74::min {
                 m_type = message_type::cant;
             }
 
+            strings tags = an_owner->tags();
+
+            auto tag_iter = std::find(tags.begin(), tags.end(), "multitouch");
+            if (tag_iter != tags.end()) {
+                if (a_name == "mouseenter")
+                    name = "mt_mouseenter";
+                else if (a_name == "mousemove")
+                    name = "mt_mousemove";
+                else if (a_name == "mousedown")
+                    name = "mt_mousedown";
+                else if (a_name == "mousedrag")
+                    name = "mt_mousedrag";
+                else if (a_name == "mouseup")
+                    name = "mt_mouseup";
+                else if (a_name == "mouseleave")
+                    name = "mt_mouseleave";
+            }
+
+std::cout << "MESS NAME " << name.c_str() << std::endl;
+
             m_name                    = name;
             m_owner->messages()[name] = this;    // add the message to the owning object's pile
         }

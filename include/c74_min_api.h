@@ -330,11 +330,11 @@ inline uint16_t byteorder_swap(uint16_t x) {
     return ((int16_t)(((((uint16_t)(x)) >> 8) & 0x00ff) + ((((uint16_t)(x)) << 8) & 0xff00)));
 }
 
-
+#include "c74_min_string.h"     // String helper functions
 #include "c74_min_symbol.h"
 #include "c74_min_atom.h"
 #include "c74_min_dictionary.h"
-#include "c74_min_limit.h"    // Library of miscellaneous helper functions (e.g. range clipping)
+#include "c74_min_limit.h"      // Library of miscellaneous helper functions (e.g. range clipping)
 
 namespace c74::min {
     static max::t_class*  this_class      = nullptr;
@@ -376,7 +376,6 @@ namespace c74::min {
 #include "c74_min_texteditor.h"         // Wrapper for text editor window
 #include "c74_min_dataspace.h"          // Unit conversion routines (e.g. db-to-linear or hz-to-midi)
 
-#include "c74_min_string.h"             // String helper functions
 #include "c74_min_doc.h"                // Instrumentation and tools for generating documentation from Min classes
 
 
