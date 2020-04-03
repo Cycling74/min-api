@@ -33,15 +33,6 @@ namespace c74::min {
     }
 
 
-    /// Find out if the current class instance is a dummy instance.
-    /// The dummy instance is used for the initial class reflection and wrapper configuration.
-    /// All instances after that point are valid (non-dummy) instances.
-
-    bool dummy() {
-        return this_class_dummy_constructed == false;
-    }
-
-
     template<class min_class_type>
     minwrap<min_class_type>* wrapper_new(max::t_symbol* name, long ac, max::t_atom* av) {
         try {

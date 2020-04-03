@@ -293,47 +293,61 @@ namespace c74::min {
 }    // namespace c74::min
 
 
-bool dummy(); // forward decl
+namespace c74::min {
+    static max::t_class*    this_class                      { nullptr };
+    static bool             this_class_init                 { false };
+    static max::t_symbol*   this_class_name                 { nullptr };
+    static bool             this_class_dummy_constructed    { false };
 
 
-/// A standard interface for flagging serious runtime snafus.
-/// At the moment this is hardwired to throw an exception but offers us the ability to
-/// change that behavior later or specialize it for certain contexts.
-///
-/// Because this throws an exception you should **not** call this function in an audio perform routine.
+    /// Find out if the current class instance is a dummy instance.
+    /// The dummy instance is used for the initial class reflection and wrapper configuration.
+    /// All instances after that point are valid (non-dummy) instances.
 
-inline void error(const std::string& description) {
-    if (!dummy())
-        throw std::runtime_error(description);
-    else
-        std::cerr << description << std::endl;
-}
+    bool dummy() {
+        return this_class_dummy_constructed == false;
+    }
 
 
-/// Throw a generic error.
-/// When possible you should specify a description string and pass as an argument instead of calling this variant.
+    /// A standard interface for flagging serious runtime snafus.
+    /// At the moment this is hardwired to throw an exception but offers us the ability to
+    /// change that behavior later or specialize it for certain contexts.
+    ///
+    /// Because this throws an exception you should **not** call this function in an audio perform routine.
 
-inline void error() {
-    error("unknown error");
-}
-
-
-/// @param	check	The condition which triggers the error.
-///					In other words "true" will cause an exception to throw while "false" will not.
-
-inline void error(bool check, const std::string& description) {
-    if (check)
-        error(description);
-}
+    inline void error(const std::string& description) {
+        if (!c74::min::dummy())
+            throw std::runtime_error(description);
+        else
+            std::cerr << description << std::endl;
+    }
 
 
-/// Reverse the byte-ordering of an int.
-/// Meaning from Big Endian to Little or vice versa.
-/// @param x	The int to have its byte-ordering reversed.
-/// @return		The byte-swapped output of this function.
+    /// Throw a generic error.
+    /// When possible you should specify a description string and pass as an argument instead of calling this variant.
 
-inline uint16_t byteorder_swap(uint16_t x) {
-    return ((int16_t)(((((uint16_t)(x)) >> 8) & 0x00ff) + ((((uint16_t)(x)) << 8) & 0xff00)));
+    inline void error() {
+        error("unknown error");
+    }
+
+
+    /// @param	check	The condition which triggers the error.
+    ///					In other words "true" will cause an exception to throw while "false" will not.
+
+    inline void error(bool check, const std::string& description) {
+        if (check)
+            error(description);
+    }
+
+
+    /// Reverse the byte-ordering of an int.
+    /// Meaning from Big Endian to Little or vice versa.
+    /// @param x	The int to have its byte-ordering reversed.
+    /// @return		The byte-swapped output of this function.
+
+    inline uint16_t byteorder_swap(uint16_t x) {
+        return ((int16_t)(((((uint16_t)(x)) >> 8) & 0x00ff) + ((((uint16_t)(x)) << 8) & 0xff00)));
+    }
 }
 
 
@@ -341,14 +355,6 @@ inline uint16_t byteorder_swap(uint16_t x) {
 #include "c74_min_atom.h"
 #include "c74_min_dictionary.h"
 #include "c74_min_limit.h"    // Library of miscellaneous helper functions (e.g. range clipping)
-
-namespace c74::min {
-    static max::t_class*    this_class                      { nullptr };
-    static bool             this_class_init                 { false };
-    static max::t_symbol*   this_class_name                 { nullptr };
-    static bool             this_class_dummy_constructed    { false };
-} 
-
 
 #include "c74_min_notification.h"       // A class representing notifications from attached-to objects
 #include "c74_min_patcher.h"            // Wrapper for interfacing with patchers
