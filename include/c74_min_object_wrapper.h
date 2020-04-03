@@ -33,6 +33,15 @@ namespace c74::min {
     }
 
 
+    /// Find out if the current class instance is a dummy instance.
+    /// The dummy instance is used for the initial class reflection and wrapper configuration.
+    /// All instances after that point are valid (non-dummy) instances.
+
+    bool dummy() {
+        return this_class_dummy_constructed == false;
+    }
+
+
     template<class min_class_type>
     minwrap<min_class_type>* wrapper_new(max::t_symbol* name, long ac, max::t_atom* av) {
         try {
@@ -604,6 +613,7 @@ namespace c74::min {
         if (!instance) {
             dummy_instance = std::make_unique<min_class_type>();
             instance       = dummy_instance.get();
+            this_class_dummy_constructed = true;
         }
 
         host_flags flags = host_flags::none;
@@ -620,7 +630,7 @@ namespace c74::min {
         wrap_as_max_external_finish<min_class_type>(c, *instance);
         this_class = c;
         instance->try_call("maxclass_setup", c);
-    }
+     }
 
 
     template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
@@ -639,6 +649,7 @@ namespace c74::min {
         if (!instance) {
             dummy_instance = std::make_unique<min_class_type>();
             instance       = dummy_instance.get();
+            this_class_dummy_constructed = true;
         }
 
         // 1. Boxless Jit Class

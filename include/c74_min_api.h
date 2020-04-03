@@ -337,9 +337,10 @@ inline uint16_t byteorder_swap(uint16_t x) {
 #include "c74_min_limit.h"    // Library of miscellaneous helper functions (e.g. range clipping)
 
 namespace c74::min {
-    static max::t_class*  this_class      = nullptr;
-    static bool           this_class_init = false;
-    static max::t_symbol* this_class_name = nullptr;
+    static max::t_class*    this_class                      { nullptr };
+    static bool             this_class_init                 { false };
+    static max::t_symbol*   this_class_name                 { nullptr };
+    static bool             this_class_dummy_constructed    { false };
 } 
 
 
