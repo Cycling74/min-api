@@ -304,7 +304,7 @@ namespace c74::min {
     /// The dummy instance is used for the initial class reflection and wrapper configuration.
     /// All instances after that point are valid (non-dummy) instances.
 
-    bool dummy() {
+    inline bool dummy() {
         return this_class_dummy_constructed == false;
     }
 
