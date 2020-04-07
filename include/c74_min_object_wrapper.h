@@ -228,7 +228,7 @@ namespace c74::min {
         //tiltY;
 
         //atoms as {o, a_patcherview, arg2.x, arg2.y, arg3};
-        event e { a_patcherview, &an_event };
+        event e { o, a_patcherview, an_event };
         atoms as { e };
         meth(as);
     }
@@ -253,7 +253,7 @@ namespace c74::min {
             name = "mousedrag";
         auto& meth = *self->m_min_object.messages()[name];
 
-        event e { a_patcherview, an_event };
+        event e { o, a_patcherview, *an_event };
         atoms as { e };
         meth(as);
     }
@@ -513,7 +513,7 @@ namespace c74::min {
             else MIN_WRAPPER_ADDMETHOD(c, mt_mouseleave, multitouch, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mousedown, mouse, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mt_mousedown, multitouch, A_CANT)
-            else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, mouseup, mouse, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mt_mouseup, multitouch, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mousemove, mouse, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mt_mousemove, multitouch, A_CANT)

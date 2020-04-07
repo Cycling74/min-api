@@ -7,6 +7,8 @@
 
 namespace c74::min {
 
+    class event;
+
     class atom : public max::t_atom {
     public:
         /// Default constructor -- an empty atom
@@ -25,6 +27,11 @@ namespace c74::min {
         template<class T, typename enable_if<std::is_enum<T>::value, int>::type = 0>
         atom(T initial_value) {
             *this = static_cast<max::t_atom_long>(initial_value);
+        }
+
+        atom(event& e) {
+            this->a_type    = c74::max::A_OBJ;
+            this->a_w.w_obj = reinterpret_cast<max::t_object*>(&e);
         }
 
 

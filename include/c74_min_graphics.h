@@ -8,11 +8,25 @@
 namespace c74::min::ui {
 
     class target {
+ //   private:
+
+        // a ctor only for mouse event internal usage
+ //       friend class event;
+ //       target() {}
+
+  //      target& operator = (const atom& value) {
+  //          m_graphics_context = reinterpret_cast<max::t_jgraphics*>(static_cast<void*>(value));
+   //         return *this;
+   //     }
+
     public:
         explicit target(const atoms& args) {
-            assert(args.size() > 1);
-
-            if (args.size() == 3) {
+            // assert(args.size() > 1);
+            if (args.size() < 2) {
+                // this can happen when the args are a single atom with an event inside of it.
+                ;
+            }
+            else if (args.size() == 3) {
                 // if there are 3 args then the first arg is the graphics context itself
                 // this occurs in the case where we create an image (surface)
                 m_graphics_context = reinterpret_cast<max::t_jgraphics*>(static_cast<void*>(args[0]));
@@ -21,15 +35,25 @@ namespace c74::min::ui {
             }
             else {
                 // this is the typical case, where we need to get the context from the object's box
-                m_box = (max::t_jbox*)(max::t_object*)args[0];
-                m_view = args[1];
-                m_graphics_context = (max::t_jgraphics*)max::patcherview_get_jgraphics(m_view);
-                jbox_get_rect_for_view((max::t_object*)m_box, m_view, &m_rect);
+                *this = target(args[0], args[1]);
             }
         }
 
+        target(max::t_object* o, max::t_object* a_patcherview) {
+            m_box = (max::t_jbox*)o;
+            m_view = a_patcherview;
+            m_graphics_context = (max::t_jgraphics*)max::patcherview_get_jgraphics(m_view);
+            jbox_get_rect_for_view((max::t_object*)m_box, m_view, &m_rect);
+        }
+
+
+
         operator max::t_jgraphics*() const {
             return m_graphics_context;
+        }
+
+        max::t_object* view() {
+            return m_view;
         }
 
         number x() const {

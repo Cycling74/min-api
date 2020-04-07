@@ -16,14 +16,32 @@ namespace c74::min {
         event(const atoms& args)
         : m_target { args }
         {
-            if (args.size() != 5)
+            if (args.size() == 1) {
+                // a single atom indicates we are being passed a pointer to an event
+                auto* e = static_cast<event*>( static_cast<void*>(args[0]) );
+                *this = *e;
+            }
+            else if (args.size() != 5) {
                 error("incorrect number of arguments for notification");
+            }
+            else {
+                m_self = args[0];
+                //m_target = args[1];
+                m_x = args[2];
+                m_y = args[3];
+                m_modifiers = args[4];
+            }
+        }
 
-            m_self = args[0];
-            // m_target = args[1];
-            m_x = args[2];
-            m_y = args[3];
-            m_modifiers = args[4];
+
+        event(max::t_object* o, max::t_object* a_patcherview, max::t_mouseevent& a_max_mouseevent)
+        : m_target { o, a_patcherview }
+        {
+            m_self = o;
+            // m_target
+            m_x = a_max_mouseevent.position.x;
+            m_y = a_max_mouseevent.position.y;
+            m_modifiers = a_max_mouseevent.modifiers;
         }
 
 
