@@ -604,7 +604,6 @@ namespace c74::min {
         if (!instance) {
             dummy_instance = std::make_unique<min_class_type>();
             instance       = dummy_instance.get();
-            this_class_dummy_constructed = true;
         }
 
         host_flags flags = host_flags::none;
@@ -621,6 +620,7 @@ namespace c74::min {
         wrap_as_max_external_finish<min_class_type>(c, *instance);
         this_class = c;
         instance->try_call("maxclass_setup", c);
+        this_class_dummy_constructed = true;
      }
 
 
@@ -640,7 +640,6 @@ namespace c74::min {
         if (!instance) {
             dummy_instance = std::make_unique<min_class_type>();
             instance       = dummy_instance.get();
-            this_class_dummy_constructed = true;
         }
 
         // 1. Boxless Jit Class
@@ -783,6 +782,8 @@ namespace c74::min {
 
         // documentation update (if neccessary)
         doc_update<min_class_type>(*instance, maxname, cppname);
+
+        this_class_dummy_constructed = true;
     }
 
     #undef MIN_WRAPPER_ADDMETHOD
