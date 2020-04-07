@@ -438,6 +438,13 @@ message<> maxclass_setup { this, "maxclass_setup",
 };
 ```
 
+## Underlying Details About Class Creation
+
+The process by which a class is registered with the Max kernel involves the creation of a "dummy" instance of your object the first time the object is requested. This dummy instance is then interrogated and it's various properties are bound to equivalent structures in Max. The dummy instance is then destroyed and all subsequent instantiations of your object are "real" instantiations.
+
+If you need to know when you are working with a dummy instance, then you can call the `dummy()` function. This will return true if the instance is a dummy.
+
+
 
 ## Unit Testing
 
