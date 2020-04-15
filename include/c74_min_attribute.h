@@ -267,11 +267,10 @@ namespace c74::min {
         bool         m_readonly { false };
         visibility   m_visibility { visibility::show };
         description  m_description;
-        size_t       m_size;    // size of array/vector if attr is array/vector
-
-        style  m_style;         // display style in Max
-        symbol m_category;      // Max inspector category
-        int    m_order { 0 };   // Max inspector ordering
+		size_t       m_size {};                 // size of array/vector if attr is array/vector
+        style        m_style { style::none };   // display style in Max
+        symbol       m_category;                // Max inspector category
+        int          m_order { 0 };             // Max inspector ordering
 
 
         // calculate the offset of the size member as required for array/vector attributes

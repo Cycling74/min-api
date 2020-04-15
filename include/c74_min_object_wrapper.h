@@ -147,11 +147,11 @@ namespace c74::min {
     void wrapper_method_anything(max::t_object* o, max::t_symbol* s, long ac, max::t_atom* av) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
-        atoms as(ac + 1);
+        atoms as(ac + 1L);
 
         as[0] = s;
-        for (auto i = 0; i < ac; ++i)
-            as[i + 1] = av[i];
+        for (long i = 0; i < ac; ++i)
+            as[i + 1L] = av[i];
         meth(as);
     }
 

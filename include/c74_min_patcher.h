@@ -76,13 +76,13 @@ namespace c74::min {
 
             if (m.type == max::A_GIMME) {
                 atoms   as { arg1 };
-                return max::object_method_typed(m.ob, method_name, as.size(), &as[0], nullptr);
+                return max::object_method_typed(m.ob, method_name, static_cast<long>(as.size()), &as[0], nullptr);
             }
             else if (m.type == max::A_GIMMEBACK) {
                 atoms       as { arg1 };
                 max::t_atom rv {};
 
-                max::object_method_typed(m.ob, method_name, as.size(), &as[0], &rv);
+                max::object_method_typed(m.ob, method_name, static_cast<long>(as.size()), &as[0], &rv);
                 return rv;
             }
             else {
@@ -103,13 +103,13 @@ namespace c74::min {
 
             if (m.type == max::A_GIMME) {
                 atoms   as { arg1, arg2 };
-                return max::object_method_typed(m.ob, method_name, as.size(), &as[0], nullptr);
+				return max::object_method_typed(m.ob, method_name, static_cast<long>(as.size()), &as[0], nullptr);
             }
             else if (m.type == max::A_GIMMEBACK) {
                 atoms       as { arg1, arg2 };
                 max::t_atom rv {};
 
-                max::object_method_typed(m.ob, method_name, as.size(), &as[0], &rv);
+                max::object_method_typed(m.ob, method_name, static_cast<long>(as.size()), &as[0], &rv);
                 return rv;
             }
             else {

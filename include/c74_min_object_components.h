@@ -4,6 +4,10 @@
 ///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #pragma once
+#pragma warning(push)
+#pragma warning(disable : 26495)    // uninitialized member warning: because we use placement-new this warning is not appropriate
+
+
 
 namespace c74::min {
 
@@ -442,3 +446,5 @@ namespace c74::min {
     }
 
 }    // namespace c74::min
+
+#pragma warning(pop)    // disable : 26495
