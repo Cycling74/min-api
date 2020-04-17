@@ -12,6 +12,12 @@ namespace c74::min {
 
     class event {
     public:
+        enum class input_type {
+            mouse = 1,
+            touch,
+            pen
+        };
+
 
         event(const atoms& args)
         : m_target { args }
@@ -42,17 +48,18 @@ namespace c74::min {
             m_x = a_max_mouseevent.position.x;
             m_y = a_max_mouseevent.position.y;
             m_modifiers = a_max_mouseevent.modifiers;
+            m_type = static_cast<input_type>( a_max_mouseevent.type );
         }
 
 
         /// Is this notification for a local attribute being modified?
         /// @return true if is a local attribute modified notification, otherwise false.
 
-        bool is_command_key_down() {
+        bool is_command_key_down() const {
             return (m_modifiers & c74::max::eCommandKey);
         }
 
-        bool is_shift_key_down() {
+        bool is_shift_key_down() const {
             return (m_modifiers & c74::max::eShiftKey);
         }
 
@@ -60,7 +67,7 @@ namespace c74::min {
         /// The name of the notification message
         /// @return the name of the notification
 
-        auto target() {
+        auto target() const {
             return m_target;
         }
 
@@ -68,7 +75,7 @@ namespace c74::min {
         /// The sender of the notification message
         /// @return A pointer to the sender of the notification.
 
-        auto x() {
+        auto x() const {
             return m_x;
         }
 
@@ -76,10 +83,14 @@ namespace c74::min {
         /// The payload or data for the notification, if any.
         /// @return a pointer to the data of the notification.
 
-        auto y() {
+        auto y() const {
             return m_y;
         }
 
+
+        auto type() const {
+            return m_type;
+        }
 
     private:
         max::t_object*  m_self;
@@ -87,6 +98,7 @@ namespace c74::min {
         number          m_x;
         number          m_y;
         int             m_modifiers;
+        input_type      m_type;
     };
 
 
