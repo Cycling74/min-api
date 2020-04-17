@@ -26,7 +26,7 @@ namespace c74::min {
         /// The output type of the message.
         /// These are not `levels` as in some languages (e.g. Ruby) but distinct targets.
 
-        enum type {
+        enum class type {
             message = 0,    ///< A regular console post to the Max Window.
             warning,		///< A highlighted and trappable warning post to the Max Window.
             error           ///< A highlighted and trappable error post to the Max Window.
@@ -63,21 +63,21 @@ namespace c74::min {
             const std::string& s = m_stream.str();
 
             switch (m_target) {
-                case message:
+				case type::message:
                     std::cout << s << std::endl;
 
                     // if the max object is present then it is safe to post even if the owner isn't yet fully initialized
                     if (m_owner.initialized() || k_sym_max)
                         max::object_post(m_owner, s.c_str());
                     break;
-                case warning:
+				case type::warning:
                     std::cerr << s << std::endl;
 
                     // if the max object is present then it is safe to post even if the owner isn't yet fully initialized
                     if (m_owner.initialized() || k_sym_max)
                         max::object_warn(m_owner, s.c_str());
                     break;
-                case error:
+				case type::error:
                     std::cerr << s << std::endl;
 
                     // if the max object is present then it is safe to post even if the owner isn't yet fully initialized

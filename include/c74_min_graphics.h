@@ -217,8 +217,10 @@ namespace c74::min::ui {
     public:
         fontface(symbol a_name, bool bold = false, bool italic = false)
         : m_name	{ a_name }
-        , m_weight	{ bold ? max::JGRAPHICS_FONT_WEIGHT_BOLD : max::JGRAPHICS_FONT_WEIGHT_NORMAL }
-        , m_slant	{ italic ? max::JGRAPHICS_FONT_SLANT_ITALIC : max::JGRAPHICS_FONT_SLANT_NORMAL }
+		, m_weight {bold ? max::t_jgraphics_font_weight::JGRAPHICS_FONT_WEIGHT_BOLD
+						 : max::t_jgraphics_font_weight::JGRAPHICS_FONT_WEIGHT_NORMAL}
+		, m_slant {italic ? max::t_jgraphics_font_slant::JGRAPHICS_FONT_SLANT_ITALIC
+						  : max::t_jgraphics_font_slant::JGRAPHICS_FONT_SLANT_NORMAL}
         {}
 
         void operator()(const target& g) {

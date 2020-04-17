@@ -129,26 +129,25 @@ namespace c74::min {
     namespace ui {
         class color {
         public:
-            enum colors { black, white, gray };
+            enum class predefined { black, white, gray };
 
-            color()
-            : color{colors::black} {}
+            color() {}
 
             color(max::t_jrgba a_color)
-            : m_color{a_color} {}
+            : m_color {a_color} {}
 
             color(double red, double green, double blue, double alpha)
             : m_color{red, green, blue, alpha} {}
 
-            color(colors a_color) {
+            color(predefined a_color) {
                 switch (a_color) {
-                    case black:
-                        m_color = {0.0, 0.0, 0.0, 1.0};
-                        break;
-                    case white:
+                    //case black:
+                    //    m_color = {0.0, 0.0, 0.0, 1.0};
+                    //    break;
+					case predefined::white:
                         m_color = {1.0, 1.0, 1.0, 1.0};
                         break;
-                    case gray:
+					case predefined::gray:
                         m_color = {0.7, 0.7, 0.7, 1.0};
                         break;
                 }
@@ -177,7 +176,7 @@ namespace c74::min {
             }
 
         private:
-            max::t_jrgba m_color;
+			max::t_jrgba m_color { 0.0, 0.0, 0.0, 1.0 };
         };
     }    // namespace ui
 

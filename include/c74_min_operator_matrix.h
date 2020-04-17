@@ -109,7 +109,7 @@ namespace c74::min {
 
         pixel out_pixel(const matrix_coord&) {
             // TODO: implement
-            pixel a;
+			pixel a {};
             return a;
         }
 
