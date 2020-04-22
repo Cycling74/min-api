@@ -164,6 +164,26 @@ namespace c74::min::ui {
     };
 
 
+    class corner {
+    public:
+        corner(double a_width, double a_height)
+        : m_size { a_width, a_height }
+        {}
+
+        corner(double a_radius)
+        : m_size { a_radius, a_radius }
+        {}
+
+        void operator()(max::t_rect& r) {
+            r.width = m_size.width;
+            r.height = m_size.height;
+        }
+
+        private:
+            max::t_size m_size;
+    };
+
+
     class span {
     public:
         span(double start, double finish)
@@ -317,6 +337,13 @@ namespace c74::min::ui {
             const_cast<argument_type&>(arg)(m_misc);
         }
 
+        /// constructor utility: corner
+        template<typename argument_type>
+        constexpr typename enable_if<is_same<argument_type, corner>::value>::type
+        assign_from_argument(const argument_type& arg) noexcept {
+            const_cast<argument_type&>(arg)(m_misc);
+        }
+
         /// constructor utility: span
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, span>::value>::type
@@ -415,7 +442,7 @@ namespace c74::min::ui {
         rect(ARGS... args) {
             handle_arguments(args...);
             update();
-            max::jgraphics_rectangle(*m_target, m_rect.x, m_rect.y, m_rect.width, m_rect.height);
+            max::jgraphics_rectangle_rounded(*m_target, m_rect.x, m_rect.y, m_rect.width, m_rect.height, m_misc.width, m_misc.height);
             draw<style>(*m_target);
         }
     };

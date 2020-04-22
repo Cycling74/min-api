@@ -141,9 +141,9 @@ namespace c74::min {
 
             color(predefined a_color) {
                 switch (a_color) {
-                    //case black:
-                    //    m_color = {0.0, 0.0, 0.0, 1.0};
-                    //    break;
+                    case predefined::black:
+                        m_color = {0.0, 0.0, 0.0, 1.0};
+                        break;
 					case predefined::white:
                         m_color = {1.0, 1.0, 1.0, 1.0};
                         break;
