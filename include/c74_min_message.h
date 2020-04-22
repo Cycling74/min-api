@@ -238,16 +238,22 @@ std::cout << "MESS NAME " << name.c_str() << std::endl;
             if (m_owner->is_assumed_threadsafe() || max::systhread_ismainthread())
                 return m_function(args, inlet);
             else {
-                deferred_message m{reinterpret_cast<message<threadsafe::no>*>(this), args, inlet};
-                m_deferred_messages.try_enqueue(m);
-                auto r = m_deferred_messages.peek();
-                max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafety>::defer_callback),
-                    reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
+                deferred_message m { reinterpret_cast<message<threadsafe::no>*>(this), args, inlet };
+                if (m_deferred_messages.try_enqueue(m)) {
+                    max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafety>::defer_callback),
+                               reinterpret_cast<c74::max::t_symbol*>(this), 0, nullptr);
+                }
             }
             return {};
         }
 
-        static void defer_callback(max::t_object* self, deferred_message* m, long, max::t_atom*) {
+
+        void pop() {
+            auto r = m_deferred_messages.peek();
+            r->pop();
+        }
+
+        static void defer_callback(max::t_object* self, message<threadsafety>* m, long, max::t_atom*) {
             m->pop();
         }
 
@@ -313,15 +319,21 @@ std::cout << "MESS NAME " << name.c_str() << std::endl;
             if (max::systhread_ismainthread())
                 return m_function(args, inlet);
             else {
-                deferred_message m{this, args, inlet};
-                m_deferred_messages.try_enqueue(m);
-                auto r = m_deferred_messages.peek();
-                max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafe::no>::defer_callback), reinterpret_cast<c74::max::t_symbol*>(r), 0, nullptr);
+                deferred_message m { this, args, inlet };
+                if (m_deferred_messages.try_enqueue(m)) {
+                    max::defer(this->m_owner->maxobj(), reinterpret_cast<max::method>(message<threadsafe::no>::defer_callback),
+                               reinterpret_cast<c74::max::t_symbol*>(this), 0, nullptr);
+                }
             }
             return {};
         }
 
-        static void defer_callback(max::t_object* self, deferred_message* m, long, max::t_atom*) {
+        void pop() {
+            auto r = m_deferred_messages.peek();
+            r->pop();
+        }
+
+        static void defer_callback(max::t_object* self, message<threadsafe::no>* m, long, max::t_atom*) {
             m->pop();
         }
 
