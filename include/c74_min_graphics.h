@@ -8,17 +8,6 @@
 namespace c74::min::ui {
 
     class target {
- //   private:
-
-        // a ctor only for mouse event internal usage
- //       friend class event;
- //       target() {}
-
-  //      target& operator = (const atom& value) {
-  //          m_graphics_context = reinterpret_cast<max::t_jgraphics*>(static_cast<void*>(value));
-   //         return *this;
-   //     }
-
     public:
         explicit target(const atoms& args) {
             // assert(args.size() > 1);
