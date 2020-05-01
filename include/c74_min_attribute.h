@@ -902,8 +902,8 @@ namespace c74::min {
             }
             *ac = static_cast<long>(rvals.size());
             *av = reinterpret_cast<max::t_atom*>( max::sysmem_newptr(sizeof(max::t_atom) * (*ac)) );
-            assert(*av);
         }
+		assert(*av);
 
         for (auto i=0; i<(*ac); ++i)
             (*av)[i] = rvals[i];
