@@ -43,12 +43,17 @@ namespace c74::min {
         event(max::t_object* o, max::t_object* a_patcherview, max::t_mouseevent& a_max_mouseevent)
         : m_target { o, a_patcherview }
         {
-            m_self = o;
-            // m_target
-            m_x = a_max_mouseevent.position.x;
-            m_y = a_max_mouseevent.position.y;
-            m_modifiers = a_max_mouseevent.modifiers;
-            m_type = static_cast<input_type>( a_max_mouseevent.type );
+            m_self            = o;
+			m_index           = static_cast<int>( a_max_mouseevent.index );
+            m_x               = a_max_mouseevent.position.x;
+            m_y               = a_max_mouseevent.position.y;
+            m_modifiers       = a_max_mouseevent.modifiers;
+            m_type            = static_cast<input_type>( a_max_mouseevent.type );
+			m_pen_pressure    = a_max_mouseevent.pressure;
+			m_pen_orientation = a_max_mouseevent.orientation;
+			m_pen_rotation    = a_max_mouseevent.rotation;
+			m_pen_tilt_x      = a_max_mouseevent.tiltX;
+			m_pen_tilt_y      = a_max_mouseevent.tiltY;
         }
 
 
@@ -72,6 +77,11 @@ namespace c74::min {
         }
 
 
+        auto index() const {
+			return m_index;
+        }
+
+
         /// The sender of the notification message
         /// @return A pointer to the sender of the notification.
 
@@ -92,13 +102,39 @@ namespace c74::min {
             return m_type;
         }
 
+        auto pen_pressure() const {
+			return m_pen_pressure;
+        }
+
+		auto pen_orientation() const {
+			return m_pen_orientation;
+        }
+		
+        auto pen_rotation() const {
+			return m_pen_rotation;
+        }
+		
+        auto pen_tilt_x() const {
+			return m_pen_tilt_x;
+        }
+		
+        auto pen_tilt_y() const {
+			return m_pen_tilt_y;   
+        }
+
     private:
         max::t_object*  m_self;
         ui::target      m_target;
-        number          m_x;
-        number          m_y;
-        int             m_modifiers;
-        input_type      m_type;
+		int             m_index {};
+		number          m_x {};
+		number          m_y {};
+		int             m_modifiers {};
+		input_type      m_type {};
+		number          m_pen_pressure {};
+		number          m_pen_orientation {};
+		number          m_pen_rotation {};
+		number          m_pen_tilt_x {};
+		number          m_pen_tilt_y {};
     };
 
 
