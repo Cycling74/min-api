@@ -63,7 +63,7 @@ namespace c74::min {
             }
             return self;
         }
-        catch (std::runtime_error& e) {
+        catch (std::exception& e) {
             max::object_error(nullptr, e.what());
             return nullptr;
         }
@@ -492,7 +492,6 @@ namespace c74::min {
         // messages
 
         for (auto& a_message : instance.messages()) {
-            std::cout << "BINDING " << a_message.first << std::endl;
             MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
             else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)

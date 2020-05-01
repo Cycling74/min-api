@@ -74,8 +74,6 @@ namespace c74::min {
                     name = "mt_mouseleave";
             }
 
-std::cout << "MESS NAME " << name.c_str() << std::endl;
-
             m_name                    = name;
             m_owner->messages()[name] = this;    // add the message to the owning object's pile
         }
