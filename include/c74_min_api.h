@@ -55,6 +55,7 @@ namespace c74::min {
     struct anything {};
 
     using numbers = std::vector<number>;
+    using ints = std::vector<int>;
     using strings = std::vector<std::string>;
 
     template<size_t count>

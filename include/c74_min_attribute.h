@@ -649,6 +649,15 @@ namespace c74::min {
             return m_value[index];
         }
 
+        /// Get a component of an attribute value when that attribute is a vector of ints.
+        /// @param    index     The index of the item in the vector to access.
+        /// @return          A writable reference to the value at an index of the attribute.
+
+        template<class U = T, typename enable_if<is_same<U, ints>::value, int>::type = 0>
+        double& operator[](size_t index) {
+            return m_value[index];
+        }
+
 
         /// Is the attribute currently disabled?
         /// @return	True if it is disabled. False if it is active.

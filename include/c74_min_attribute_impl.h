@@ -91,7 +91,7 @@ namespace c74::min {
 
 
     template<>
-    void attribute<std::vector<double>>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
+    void attribute<numbers>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
         if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
@@ -128,8 +128,25 @@ namespace c74::min {
         }
     }
 
+    // vectors cannot be passed directly to stringstream
+    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<std::is_same<T, std::vector<int>>::value, int>::type = 0>
+    std::string range_string_item(attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
+        string str;
+        for (const auto& i : item) {
+            str += std::to_string(i);
+            str += " ";
+        }
+    }
+
     // all non-enum non-vector values can just pass through
-    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<!std::is_enum<T>::value && !std::is_same<T, std::vector<number>>::value, int>::type = 0>
+    template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions,
+        typename enable_if<
+            !std::is_enum<T>::value &&
+            !std::is_same<T, std::vector<number>>::value &&
+            !std::is_same<T, std::vector<int>>::value,
+            int
+        >::type = 0
+    >
     T range_string_item(attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
         return item;
     }
@@ -145,7 +162,21 @@ namespace c74::min {
 
 
     template<>
-    std::string attribute<std::vector<double>>::range_string() {
+    std::string attribute<numbers>::range_string() {
+        if (m_range.empty())
+            return "";
+
+        // the range for this type is a low-bound and high-bound applied to all elements in the vector
+        assert(m_range.size() == 2);
+
+        std::stringstream ss;
+        ss << m_range[0][0] << " " << m_range[1][0];
+        return ss.str();
+    };
+
+
+    template<>
+    std::string attribute<ints>::range_string() {
         if (m_range.empty())
             return "";
 
@@ -189,7 +220,20 @@ namespace c74::min {
 
 
     template<>
-    void attribute<std::vector<double>>::copy_range() {
+    void attribute<numbers>::copy_range() {
+        if (!m_range.empty()) {
+            // the range for this type is a low-bound and high-bound applied to all elements in the vector
+            assert(m_range_args.size() == 2);
+
+            m_range.resize(2);
+            m_range[0][0] = m_range_args[0];
+            m_range[1][0] = m_range_args[1];
+        }
+    };
+
+
+    template<>
+    void attribute<ints>::copy_range() {
         if (!m_range.empty()) {
             // the range for this type is a low-bound and high-bound applied to all elements in the vector
             assert(m_range_args.size() == 2);
@@ -217,10 +261,22 @@ namespace c74::min {
     }
 
     template<>
-    bool attribute<vector<double>>::compare_to_current_value(const atoms& args) {
+    bool attribute<numbers>::compare_to_current_value(const atoms& args) {
         if (args.size() == m_value.size()) {
             for (auto i=0; i<m_value.size(); ++i) {
                 if (!equivalent<double>(args[i], m_value[i]))
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    template<>
+    bool attribute<ints>::compare_to_current_value(const atoms& args) {
+        if (args.size() == m_value.size()) {
+            for (auto i=0; i<m_value.size(); ++i) {
+                if (!equivalent<int>(args[i], m_value[i]))
                     return false;
             }
             return true;
