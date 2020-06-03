@@ -662,7 +662,7 @@ namespace c74::min {
         /// @return          A writable reference to the value at an index of the attribute.
 
         template<class U = T, typename enable_if<is_same<U, ints>::value, int>::type = 0>
-        double& operator[](const size_t index) {
+        int& operator[](const size_t index) {
             return m_value[index];
         }
 

@@ -107,6 +107,23 @@ namespace c74::min {
     };
 
 
+    template<>
+    void attribute<ints>::create(max::t_class* c, const max::method getter, const max::method setter, bool const isjitclass) {
+        if (isjitclass) {
+            auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
+                const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
+                reinterpret_cast<void*>(0xFFFF), reinterpret_cast<void*>(flags(isjitclass)), reinterpret_cast<void*>(getter),
+                reinterpret_cast<void*>(setter), reinterpret_cast<void*>(size_offset()), nullptr);
+            max::jit_class_addattr(c, jit_attr);
+        }
+        else {
+            auto max_attr = max::attr_offset_array_new(
+                m_name, datatype(), 0xFFFF, static_cast<long>(flags(isjitclass)), getter, setter, static_cast<long>(size_offset()), 0);
+            max::class_addattr(c, max_attr);
+        }
+    };
+
+
     // enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<std::is_enum<T>::value, int>::type = 0>
     std::string range_string_item(const attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
