@@ -37,7 +37,7 @@ namespace c74::min {
         /// Is this notification for a local attribute being modified?
         /// @return true if is a local attribute modified notification, otherwise false.
 
-        bool is_attr_modified() {
+        bool is_attr_modified() const {
             return (m_sender == m_self) && (m_notification_name == k_sym_attr_modified);
         }
 
@@ -45,7 +45,7 @@ namespace c74::min {
         /// The name of the attribute being modified if this is a notification for local attribute modification.
         /// @return the name of the attribute if this notification is for a local attribute notification. otherwise the empty symbol will be returned.
 
-        auto attr_name() {
+        auto attr_name() const {
             symbol attribute_name;
             if (is_attr_modified()) {
                 auto retval = c74::max::object_method(m_data, k_sym_getname);
@@ -58,7 +58,7 @@ namespace c74::min {
         /// The name of the notification message
         /// @return the name of the notification
 
-        auto name() {
+        auto name() const {
             return m_notification_name;
         }
 
@@ -66,7 +66,7 @@ namespace c74::min {
         /// The sender of the notification message
         /// @return A pointer to the sender of the notification.
 
-        auto source() {
+        auto source() const {
             return m_sender;
         }
 
@@ -74,7 +74,7 @@ namespace c74::min {
         /// The payload or data for the notification, if any.
         /// @return a pointer to the data of the notification.
 
-        auto data() {
+        auto data() const {
             return m_data;
         }
 
@@ -82,7 +82,7 @@ namespace c74::min {
         /// The sending object's registered name in Max's object attachment system.
         /// @return the internally-registered name of the sending object.
 
-        auto registration() {
+        auto registration() const {
             return m_sender_name;
         }
         

@@ -38,7 +38,7 @@ namespace c74::min {
         /// @param	a_function	A function to be executed when the timer is called.
         ///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
 
-        timer(object_base* an_owner, function a_function)
+        timer(object_base* an_owner, const function a_function)
         : m_owner { an_owner }
         , m_function { a_function } {
             m_instance = max::clock_new(this, reinterpret_cast<max::method>(timer_tick_callback));
@@ -67,7 +67,7 @@ namespace c74::min {
         /// When the timer fires its function will be executed.
         /// @param	duration_in_ms	The length of the delay (from "now") before the timer fires.
 
-        void delay(double duration_in_ms) {
+        void delay(const double duration_in_ms) {
             clock_fdelay(m_instance, duration_in_ms);
         }
 

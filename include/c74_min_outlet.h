@@ -26,7 +26,7 @@ namespace c74::min {
     // outlet_do_send() helper function is called.
 
     template<typename outlet_type>
-    inline void outlet_do_send(t_max_outlet maxoutlet, const outlet_type& value) {
+    inline void outlet_do_send(const t_max_outlet maxoutlet, const outlet_type& value) {
         if (value[0].a_type == max::A_LONG || value[0].a_type == max::A_FLOAT)
             max::outlet_list(maxoutlet, nullptr, static_cast<short>(value.size()), static_cast<const max::t_atom*>(&value[0]));
         else {
@@ -38,12 +38,12 @@ namespace c74::min {
     }
 
     template<>
-    inline void outlet_do_send<max::t_atom_long>(t_max_outlet maxoutlet, const max::t_atom_long& value) {
+    inline void outlet_do_send<max::t_atom_long>(const t_max_outlet maxoutlet, const max::t_atom_long& value) {
         max::outlet_int(maxoutlet, value);
     }
 
     template<>
-    inline void outlet_do_send<double>(t_max_outlet maxoutlet, const double& value) {
+    inline void outlet_do_send<double>(const t_max_outlet maxoutlet, const double& value) {
         max::outlet_float(maxoutlet, value);
     }
 
@@ -78,13 +78,13 @@ namespace c74::min {
     template<thread_check check, thread_action action>
     class outlet_queue : public thread_trigger<t_max_outlet, check> {
     public:
-        explicit outlet_queue(t_max_outlet a_maxoutlet)
+        explicit outlet_queue(const t_max_outlet a_maxoutlet)
         : thread_trigger<t_max_outlet, check>(a_maxoutlet)
         {}
 
         void callback() {}
 
-        void push(message_type, const atoms&) {}
+        void push(const message_type, const atoms&) {}
     };
 
 
@@ -93,7 +93,7 @@ namespace c74::min {
     template<thread_check check>
     class outlet_queue<check, thread_action::first> : public thread_trigger<t_max_outlet, check> {
     public:
-        explicit outlet_queue(t_max_outlet a_maxoutlet)
+        explicit outlet_queue(const t_max_outlet a_maxoutlet)
         : thread_trigger<t_max_outlet, check>(a_maxoutlet)
         {}
 
@@ -102,7 +102,7 @@ namespace c74::min {
             m_set = false;
         }
 
-        void push(message_type a_type, const atoms& as) {
+        void push(const message_type a_type, const atoms& as) {
             if (!m_set) {
                 m_value = as;
                 m_set   = true;
@@ -121,7 +121,7 @@ namespace c74::min {
     template<thread_check check>
     class outlet_queue<check, thread_action::last> : public thread_trigger<t_max_outlet, check> {
     public:
-        explicit outlet_queue(t_max_outlet a_maxoutlet)
+        explicit outlet_queue(const t_max_outlet a_maxoutlet)
         : thread_trigger<t_max_outlet, check>(a_maxoutlet)
         {}
 
@@ -129,7 +129,7 @@ namespace c74::min {
             outlet_do_send(this->m_maxoutlet, m_value);
         }
 
-        void push(message_type a_type, const atoms& as) {
+        void push(const message_type a_type, const atoms& as) {
             m_value = as;
             thread_trigger<t_max_outlet, check>::set();
         }
@@ -150,7 +150,7 @@ namespace c74::min {
         };
 
     public:
-        explicit outlet_queue(t_max_outlet a_maxoutlet)
+        explicit outlet_queue(const t_max_outlet a_maxoutlet)
         : thread_trigger<t_max_outlet, check>(a_maxoutlet)
         {}
 
@@ -166,7 +166,7 @@ namespace c74::min {
             }
         }
 
-        void push(message_type a_type, const atoms& as) {
+        void push(const message_type a_type, const atoms& as) {
             tagged_atoms tas{a_type, as};
             m_values.enqueue(tas);
             thread_trigger<t_max_outlet, check>::set();
@@ -244,7 +244,7 @@ namespace c74::min {
         friend void object_base::create_outlets();
 
     public:
-        outlet_base(object_base* an_owner, const std::string& a_description, const std::string& a_type)
+        outlet_base(object_base* an_owner, const string& a_description, const string& a_type)
         : port(an_owner, a_description, a_type)
         {}
 
@@ -299,7 +299,7 @@ namespace c74::min {
         /// @param an_atom_count	Optional number of atoms that will be passed out as a list from this outlet.
         ///							When greater than 1, defining this allows memory to be pre-allocated to improve performance.
 
-        outlet(object_base* an_owner, const std::string& a_description, const std::string& a_type = "", size_t an_atom_count = 1)
+        outlet(object_base* an_owner, const string& a_description, const string& a_type = "", const size_t an_atom_count = 1)
         : outlet_base(an_owner, a_description, a_type) {
             m_owner->outlets().push_back(this);
             m_accumulated_output.reserve(an_atom_count);
@@ -313,7 +313,7 @@ namespace c74::min {
         ///							When greater than 1, defining this allows memory to be pre-allocated to improve performance.
         /// @param a_type			Optional string defining the Max message type of the outlet for checking patch-cord connections.
 
-        outlet(object_base* an_owner, const std::string& a_description, size_t an_atom_count, const std::string& a_type = "")
+        outlet(object_base* an_owner, const string& a_description, const size_t an_atom_count, const string& a_type = "")
         : outlet(an_owner, a_description, a_type, an_atom_count)
         {}
 
@@ -321,7 +321,7 @@ namespace c74::min {
         /// Send a value out an outlet
         /// @param value The value to send.
 
-        void send(bool value) {
+        void send(const bool value) {
             if (outlet_call_is_safe<check>())
                 outlet_do_send(m_instance, (max::t_atom_long)value);
             else
@@ -332,7 +332,7 @@ namespace c74::min {
         /// Send a value out an outlet
         /// @param value The value to send.
 
-        void send(int value) {
+        void send(const int value) {
             if (outlet_call_is_safe<check>())
                 outlet_do_send(m_instance, (max::t_atom_long)value);
             else
@@ -343,7 +343,7 @@ namespace c74::min {
         /// Send a value out an outlet
         /// @param value The value to send.
 
-        void send(long value) {
+        void send(const long value) {
             if (outlet_call_is_safe<check>())
                 outlet_do_send(m_instance, (max::t_atom_long)value);
             else
@@ -354,7 +354,7 @@ namespace c74::min {
         /// Send a value out an outlet
         /// @param value The value to send.
 
-        void send(size_t value) {
+        void send(const size_t value) {
             if (outlet_call_is_safe<check>())
                 outlet_do_send(m_instance, (max::t_atom_long)value);
             else
@@ -365,7 +365,7 @@ namespace c74::min {
         /// Send a value out an outlet
         /// @param value The value to send.
 
-        void send(float value) {
+        void send(const float value) {
             if (outlet_call_is_safe<check>())
                 outlet_do_send(m_instance, (double)value);
             else
@@ -376,7 +376,7 @@ namespace c74::min {
         /// Send a value out an outlet
         /// @param value The value to send.
 
-        void send(double value) {
+        void send(const double value) {
             if (outlet_call_is_safe<check>())
                 outlet_do_send(m_instance, (double)value);
             else

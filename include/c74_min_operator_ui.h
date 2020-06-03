@@ -7,10 +7,11 @@
 
 namespace c74::min {
 
+    using tagged_attribute = std::pair<const symbol, attribute_base*>;
 
     class ui_operator_base {
     public:
-        virtual void add_color_attribute(std::pair<symbol,attribute_base*> a_color_attr) = 0;
+		virtual void add_color_attribute(const tagged_attribute a_color_attr) = 0;
         virtual void update_colors() = 0;
     };
 
@@ -80,7 +81,7 @@ namespace c74::min {
             return default_height_type;
         }
 
-        void add_color_attribute(std::pair<symbol,attribute_base*> a_color_attr) override {
+        void add_color_attribute(const tagged_attribute a_color_attr) override {
             m_color_attributes.push_back(a_color_attr);
         }
 
@@ -106,7 +107,7 @@ namespace c74::min {
 
     private:
         object_base* m_instance;
-        vector<std::pair<symbol,attribute_base*>> m_color_attributes;
+		vector<tagged_attribute> m_color_attributes;
     };
 
 

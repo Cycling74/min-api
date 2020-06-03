@@ -134,13 +134,13 @@ namespace c74::min {
 
             color() {}
 
-            color(max::t_jrgba a_color)
+            color(const max::t_jrgba a_color)
             : m_color {a_color} {}
 
-            color(double red, double green, double blue, double alpha)
+            color(const double red, const double green, const double blue, const double alpha)
             : m_color{red, green, blue, alpha} {}
 
-            color(predefined a_color) {
+            color(const predefined a_color) {
                 switch (a_color) {
                     case predefined::black:
                         m_color = {0.0, 0.0, 0.0, 1.0};
@@ -284,7 +284,7 @@ namespace c74::min {
     /// @return true if they are roughly the same, otherwise false
 
     template<typename T>
-    bool equivalent(T lhs, T rhs, double epsilon = std::numeric_limits<float>::epsilon() * 100.0, double margin = 0.0, double scale = 1.0) {
+    bool equivalent(const T lhs, const T rhs, const double epsilon = std::numeric_limits<float>::epsilon() * 100.0, const double margin = 0.0, const double scale = 1.0) {
         if (std::fabs( lhs - rhs ) < epsilon * (scale + (std::max)( std::fabs(lhs), std::fabs(rhs) ) ))
             return true;
         return std::fabs(lhs - rhs) < margin;
@@ -334,7 +334,7 @@ namespace c74::min {
     /// @param	check	The condition which triggers the error.
     ///					In other words "true" will cause an exception to throw while "false" will not.
 
-    inline void error(bool check, const std::string& description) {
+    inline void error(const bool check, const std::string& description) {
         if (check)
             error(description);
     }
@@ -345,7 +345,7 @@ namespace c74::min {
     /// @param x	The int to have its byte-ordering reversed.
     /// @return		The byte-swapped output of this function.
 
-    inline uint16_t byteorder_swap(uint16_t x) {
+    inline uint16_t byteorder_swap(const uint16_t x) {
         return ((int16_t)(((((uint16_t)(x)) >> 8) & 0x00ff) + ((((uint16_t)(x)) << 8) & 0xff00)));
     }
 }

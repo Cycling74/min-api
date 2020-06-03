@@ -32,7 +32,7 @@ namespace c74::min {
         /// The default constructor produces an empty symbol (no chars) or, optionally, a unique random symbol.
         /// @param unique	If true then produce a unique/random symbol instead of an empty symbol.
 
-        symbol(bool unique = false) {
+        symbol(const bool unique = false) {
             if (unique)
                 s = max::symbol_unique();
             else
@@ -67,7 +67,7 @@ namespace c74::min {
         /// Constructor with an integer value that will be turned into a symbol.
         /// @param number_to_be_symbolized	Initial value that will be stringified.
 
-        symbol(int number_to_be_symbolized)
+        symbol(const int number_to_be_symbolized)
         : symbol(std::to_string(number_to_be_symbolized))
         {}
 
@@ -78,13 +78,14 @@ namespace c74::min {
         symbol(const atom& value);
 
 
-        symbol& operator=(max::t_object* value) {
-            s->s_thing = value;
+        symbol& operator=(const max::t_object* value) {
+            s->s_thing = const_cast<max::t_object*>(value);
             return *this;
         }
 
-        symbol& operator=(max::t_symbol* value) {
-            s = value;
+        symbol& operator=(const max::t_symbol* value) {
+            s->s_name = value->s_name;
+			s->s_thing = value->s_thing;
             return *this;
         }
 

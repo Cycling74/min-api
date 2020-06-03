@@ -11,7 +11,7 @@
 
 // epsilon value used for comparing floats for approximate equality
 
-const auto g_min_epsilon = std::numeric_limits<float>::epsilon()*1000;
+constexpr auto g_min_epsilon = std::numeric_limits<float>::epsilon()*1000;
 
 
 /// Wrapper for Catch's Appox() method with more accomating defaults, particularly for comparing values near zero.
@@ -28,7 +28,7 @@ const auto g_min_epsilon = std::numeric_limits<float>::epsilon()*1000;
 /// @return             True if they are (approximately) the same. Otherwise false.
 
 template<typename T>
-bool require_vector_approx(T source, T reference) {
+bool require_vector_approx(const T source, const T reference) {
     REQUIRE(source.size() == reference.size());
     if (source.size() != reference.size())
         return false;

@@ -10,7 +10,7 @@ namespace c74::min {
     class dict {
     public:
         /// Create (or reference an existing) dictionary by name
-        dict(symbol name) {
+        dict(const symbol name) {
             auto d = max::dictobj_findregistered_retain(name);
 
             if (!d) {    // didn't find a dictionary with that name, so create it
@@ -24,14 +24,14 @@ namespace c74::min {
         }
 
         /// Create an unregistered dictionary from dict-syntax
-        dict(atoms content) {
+        dict(const atoms& content) {
             max::dictobj_dictionaryfromatoms(&m_instance, static_cast<long>(content.size()), &content[0]);
         }
 
         /// Create an unregistered dictionary
         /// @param d				optionally getting a handle to an old-school t_dictionary
         /// @param take_ownership	defaults to true, change to false only in exceptional cases
-        dict(max::t_dictionary* d = nullptr, bool take_ownership = true) {
+        dict(max::t_dictionary* d = nullptr, const bool take_ownership = true) {
             if (d == nullptr)
                 m_instance = max::dictionary_new();
             else {
@@ -44,8 +44,8 @@ namespace c74::min {
         }
 
 
-        dict(atom an_atom_containing_a_dict) {
-            auto a     = static_cast<max::t_atom*>(&an_atom_containing_a_dict);
+        dict(const atom an_atom_containing_a_dict) {
+            auto a     = static_cast<const max::t_atom*>(&an_atom_containing_a_dict);
             m_instance = static_cast<max::t_dictionary*>(max::atom_getobj(a));
             if (!m_instance)
                 error("no dictionary in atom");
@@ -88,7 +88,7 @@ namespace c74::min {
 
 
         // bounds check: if key doesn't exist, throw
-        atom_reference at(symbol key) {
+        atom_reference at(const symbol key) {
             long         argc = 0;
             max::t_atom* argv = nullptr;
             auto         err  = max::dictionary_getatoms(m_instance, key, &argc, &argv);
@@ -111,12 +111,12 @@ namespace c74::min {
         };
 
 
-        symbol name() {
+        symbol name() const {
             return dictobj_namefromptr(m_instance);
         }
 
 
-        bool valid() {
+        bool valid() const {
             return m_instance != nullptr;
         }
 

@@ -69,17 +69,23 @@ namespace c74::min::ui {
     };
 
 
+    // The classes below appear to have a lot of code duplication.
+    // This is true. As an example: position, origin, and destination are essentially identical.
+    // We cannot, however, declare one class and then make type aliases to it
+    // because doing so results in failures to resolve ambiguity in the variadic template constructor(s) below.
+
+
     class position {
     public:
-        position(double x, double y)
+        position(const double x, const double y)
         : m_position {x,y}
         {}
 
-        position(int x, int y)
+        position(const int x, const int y)
         : m_position { static_cast<double>(x), static_cast<double>(y) }
         {}
 
-        void operator()(max::t_rect& r) {
+        void operator()(max::t_rect& r) const {
             r.x = m_position.x;
             r.y = m_position.y;
         }
@@ -88,18 +94,18 @@ namespace c74::min::ui {
         max::t_pt m_position;
     };
 
-
+    
     class origin {
     public:
-        origin(double x, double y)
+        origin(const double x, const double y)
         : m_position {x,y}
         {}
 
-        origin(int x, int y)
+        origin(const int x, const int y)
         : m_position { static_cast<double>(x), static_cast<double>(y) }
         {}
 
-        void operator()(max::t_rect& r) {
+        void operator()(max::t_rect& r) const {
             r.x = m_position.x;
             r.y = m_position.y;
         }
@@ -111,19 +117,19 @@ namespace c74::min::ui {
 
     class destination {
     public:
-        destination(double x, double y)
+        destination(const double x, const double y)
         : m_position { x, y }
         {}
 
-        destination(int x, int y)
+        destination(const int x, const int y)
         : m_position { static_cast<double>(x), static_cast<double>(y) }
         {}
 
-        destination(int x, double y)
+        destination(const int x, const double y)
         : m_position { static_cast<double>(x), y }
         {}
 
-        void operator()(max::t_rect& r) {
+        void operator()(max::t_rect& r) const {
             r.x = m_position.x;
             r.y = m_position.y;
         }
@@ -131,19 +137,19 @@ namespace c74::min::ui {
     private:
         max::t_pt m_position;
     };
-
+    
 
     class size {
     public:
-        size(double width, double height)
+        size(const double width, const double height)
         : m_size { width, height }
         {}
 
-        size(double a_size)
+        size(const double a_size)
         : size { a_size, a_size }
         {}
 
-        void operator()(max::t_rect& r) {
+        void operator()(max::t_rect& r) const {
             r.width = m_size.width;
             r.height = m_size.height;
         }
@@ -155,15 +161,15 @@ namespace c74::min::ui {
 
     class corner {
     public:
-        corner(double a_width, double a_height)
+        corner(const double a_width, const double a_height)
         : m_size { a_width, a_height }
         {}
 
-        corner(double a_radius)
+        corner(const double a_radius)
         : m_size { a_radius, a_radius }
         {}
 
-        void operator()(max::t_rect& r) {
+        void operator()(max::t_rect& r) const {
             r.width = m_size.width;
             r.height = m_size.height;
         }
@@ -175,12 +181,12 @@ namespace c74::min::ui {
 
     class span {
     public:
-        span(double start, double finish)
+        span(const double start, const double finish)
         : angle1 { start }
         , angle2 { finish }
         {}
 
-        void operator()(max::t_rect& r) {
+        void operator()(max::t_rect& r) const {
             r.x = angle1;
             r.y = angle2;
         }
@@ -193,11 +199,11 @@ namespace c74::min::ui {
 
     class line_width {
     public:
-        line_width(number a_width)
+        line_width(const number a_width)
         : m_width { a_width }
         {}
 
-        void operator()(const target& g) {
+        void operator()(const target& g) const {
             max::jgraphics_set_line_width(g, m_width);
         }
 
@@ -209,11 +215,11 @@ namespace c74::min::ui {
     /// textual content
     class content {
     public:
-        content(string str)
+        content(const string& str)
         : m_text { str }
         {}
 
-        void operator()(string& s) {
+        void operator()(string& s) const {
             s = m_text;
         }
 
@@ -224,7 +230,7 @@ namespace c74::min::ui {
 
     class fontface {
     public:
-        fontface(symbol a_name, bool bold = false, bool italic = false)
+        fontface(const symbol a_name, const bool bold = false, const bool italic = false)
         : m_name	{ a_name }
 		, m_weight {bold ? max::t_jgraphics_font_weight::JGRAPHICS_FONT_WEIGHT_BOLD
 						 : max::t_jgraphics_font_weight::JGRAPHICS_FONT_WEIGHT_NORMAL}
@@ -232,7 +238,7 @@ namespace c74::min::ui {
 						  : max::t_jgraphics_font_slant::JGRAPHICS_FONT_SLANT_NORMAL}
         {}
 
-        void operator()(const target& g) {
+        void operator()(target& g) const {
             max::jgraphics_select_font_face(g, m_name, m_slant, m_weight);
         }
 
@@ -247,11 +253,11 @@ namespace c74::min::ui {
 
     class fontsize {
     public:
-        fontsize(double a_value)
+        fontsize(const double a_value)
         : m_value { a_value }
         {}
 
-        void operator()(const target& g) {
+        void operator()(target& g) const {
             max::jgraphics_set_font_size(g, m_value);
         }
 
@@ -264,7 +270,7 @@ namespace c74::min::ui {
 
     class rotation {
     public:
-        rotation(number a_value)
+        rotation(const number a_value)
 //		: m_value { a_value }
         {}
 
@@ -302,70 +308,70 @@ namespace c74::min::ui {
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, position>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)(m_rect);
+            arg(m_rect);
         }
 
         /// constructor utility: size
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, size>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)(m_rect);
+            arg(m_rect);
         }
 
         /// constructor utility: origin
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, origin>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)(m_rect);
+            arg(m_rect);
         }
 
         /// constructor utility: destination
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, destination>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)(m_misc);
+            arg(m_misc);
         }
 
         /// constructor utility: corner
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, corner>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)(m_misc);
+            arg(m_misc);
         }
 
         /// constructor utility: span
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, span>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)(m_misc);
+            arg(m_misc);
         }
 
         /// constructor utility: fontface
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, fontface>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)( const_cast<target&>(*m_target) );
+            arg( const_cast<target&>(*m_target) );
         }
 
         /// constructor utility: fontsize
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, fontsize>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)( const_cast<target&>(*m_target) );
+            arg( const_cast<target&>(*m_target) );
         }
 
         /// constructor utility: line_width
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, line_width>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)( const_cast<target&>(*m_target) );
+            arg( const_cast<target&>(*m_target) );
         }
 
         /// constructor utility: content
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, content>::value>::type
         assign_from_argument(const argument_type& arg) noexcept {
-            const_cast<argument_type&>(arg)(m_text);
+            arg(m_text);
         }
 
         /// constructor utility
@@ -492,7 +498,7 @@ namespace c74::min::ui {
 
     class image {
     public:
-        image(object_base* an_owner, double width, double height, const function& a_function = nullptr)
+        image(object_base* an_owner, const double width, const double height, const function& a_function = nullptr)
         : m_width { width }
         , m_height { height }
         , m_draw_callback { a_function }
@@ -505,7 +511,7 @@ namespace c74::min::ui {
             }
         }
 
-        void redraw(int width, int height) {
+        void redraw(const int width, const int height) {
             auto old_surface = m_surface;
             m_surface = c74::max::jgraphics_image_surface_create(c74::max::JGRAPHICS_FORMAT_ARGB32, width, height);
             m_width = width;
@@ -519,7 +525,7 @@ namespace c74::min::ui {
                 c74::max::jgraphics_surface_destroy(old_surface);
         }
 
-        void draw(ui::target& t, double x, double y, double width, double height) {
+        void draw(ui::target& t, const double x, const double y, const double width, const double height) {
             c74::max::jgraphics_image_surface_draw(t, m_surface, {0.0, 0.0, m_width, m_height}, {x, y, width, height});
         }
 

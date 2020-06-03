@@ -15,7 +15,7 @@ namespace c74::min {
 
     class time_value {
     public:
-        time_value(object_base* owner, symbol attrname, double initial_interval)
+        time_value(object_base* owner, const symbol attrname, const double initial_interval)
         : m_owner { owner }
         , m_name { attrname }
         , m_timeobj { nullptr } {
@@ -24,7 +24,7 @@ namespace c74::min {
             set_milliseconds(initial_interval);
         }
 
-        time_value(double interval_in_ms)
+        time_value(const double interval_in_ms)
         : m_owner { nullptr }
         , m_timeobj { nullptr } {
             set_milliseconds(interval_in_ms);
@@ -65,7 +65,7 @@ namespace c74::min {
             return *this;
         }
 
-        time_value& operator=(double value) {
+        time_value& operator=(const double value) {
             set_milliseconds(value);
             return *this;
         }
@@ -89,7 +89,7 @@ namespace c74::min {
 
     private:
         object_base*   m_owner;
-        symbol         m_name;
+        const symbol   m_name;
         max::t_object* m_timeobj;
         double         m_interval_ms {};
 
@@ -100,7 +100,7 @@ namespace c74::min {
                 return m_interval_ms;
         }
 
-        void set_milliseconds(double value) {
+        void set_milliseconds(const double value) {
             if (m_timeobj) {
                 atom a(value);
                 max::time_setvalue(m_timeobj, nullptr, 1, &a);

@@ -31,7 +31,7 @@ namespace c74::min {
     ///	@see			limit_to_power_of_two()
 
     template<class T>
-    bool is_power_of_two(T value) {
+    bool is_power_of_two(const T value) {
         // TODO: static_assert is_integral
         return (value > 0) && ((value & (value - 1)) == 0);
     }
@@ -46,8 +46,11 @@ namespace c74::min {
     /// @seealso		 http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
 
     template<class T>
-    T limit_to_power_of_two(T value) {
+    T limit_to_power_of_two(const T a_value) {
         // TODO: static_assert correct type
+
+        T value {a_value};
+
         value--;
         value |= value >> 1;
         value |= value >> 2;
@@ -60,7 +63,7 @@ namespace c74::min {
 
 
     template<typename T>
-    T clamp(T input, T low, T high) {
+    T clamp(const T input, const T low, const T high) {
         return std::min(std::max(input, low), high);
     }
 
@@ -77,7 +80,10 @@ namespace c74::min {
     /// @see				fold()
 
     template<class T>
-    T wrap(T input, T low_bound, T high_bound) {
+    T wrap(const T input, const T a_low_bound, const T a_high_bound) {
+		T low_bound {a_low_bound};
+		T high_bound {a_high_bound};
+
         if (low_bound > high_bound)
             std::swap(low_bound, high_bound);
 
@@ -128,7 +134,7 @@ namespace c74::min {
     /// @see				fold()
 
     template<class T>
-    T wrap_once(T input, const T low_bound, const T high_bound) {
+    T wrap_once(const T input, const T low_bound, const T high_bound) {
         if ((input >= low_bound) && (input < high_bound))
             return input;
         else if (input >= high_bound)
@@ -150,7 +156,7 @@ namespace c74::min {
     /// @see				wrap()
 
     template<typename T>
-    T fold(T input, T low_bound, T high_bound) {
+    T fold(const T input, T low_bound, T high_bound) {
         if (low_bound > high_bound)
             std::swap(low_bound, high_bound);
 
@@ -173,13 +179,12 @@ namespace c74::min {
     ///	@return				Returns the scaled value.
 
     template<class T>
-    static T scale(T value, T in_low, T in_high, T out_low, T out_high) {
+    static T scale(const T value, const T in_low, const T in_high, const T out_low, const T out_high) {
         number in_scale = 1 / (in_high - in_low);
         number out_diff = out_high - out_low;
-
-        value = static_cast<T>((value - in_low) * in_scale);
-        value = static_cast<T>((value * out_diff) + out_low);
-        return value;
+        T out = static_cast<T>((value - in_low) * in_scale);
+        out = static_cast<T>((out * out_diff) + out_low);
+        return out;
     }
 
 
@@ -198,18 +203,17 @@ namespace c74::min {
     ///	@return				Returns the scaled value.
 
     template<class T>
-    static T scale(T value, T in_low, T in_high, T out_low, T out_high, number power) {
+    static T scale(const T value, const T in_low, const T in_high, const T out_low, const T out_high, const number power) {
         // TODO: ensure that power is > 0.0
         number in_scale = 1 / (in_high - in_low);
         number out_diff = out_high - out_low;
-
-        value = (value - in_low) * in_scale;
-        if (value > 0.0)
-            value = pow(value, power);
-        else if (value < 0.0)
-            value = -pow(-value, power);
-        value = (value * out_diff) + out_low;
-        return value;
+        T out = (value - in_low) * in_scale;
+        if (out > 0.0)
+            out = pow(out, power);
+        else if (out < 0.0)
+            out = -pow(-out, power);
+        out = (out * out_diff) + out_low;
+        return out;
     }
 
 
@@ -236,7 +240,7 @@ namespace c74::min {
             /// @param	high	The high boundary of the range.
             /// @return			The constrained value.
 
-            virtual T operator()(T input, T low, T high) = 0;
+            virtual T operator()(const T input, const T low, const T high) = 0;
         };
 
 
@@ -252,7 +256,7 @@ namespace c74::min {
             /// @param	high	The high boundary of the range.
             /// @return			The constrained value.
 
-            static T apply(T input, T low, T high) {
+            static T apply(const T input, const T low, const T high) {
                 return input;
             }
 
@@ -263,7 +267,7 @@ namespace c74::min {
             /// @param	high	The high boundary of the range.
             /// @return			The constrained value.
 
-            T operator()(T input, T low, T high) {
+            T operator()(const T input, const T low, const T high) {
                 return apply(input, low, high);
             }
         };
@@ -281,7 +285,7 @@ namespace c74::min {
             /// @param	high	The high boundary of the range.
             /// @return			The constrained value.
 
-            static T apply(T input, T low, T high) {
+            static T apply(const T input, const T low, const T high) {
                 return min::clamp<T>(input, low, high);
             }
 
@@ -292,7 +296,7 @@ namespace c74::min {
             /// @param	high	The high boundary of the range.
             /// @return			The constrained value.
 
-            T operator()(T input, T low, T high) {
+            T operator()(const T input, const T low, const T high) {
                 return apply(input, low, high);
             }
         };
@@ -310,7 +314,7 @@ namespace c74::min {
             /// @param	high	The high boundary of the range.
             /// @return			The constrained value.
 
-            static T apply(T input, T low, T high) {
+            static T apply(const T input, const T low, const T high) {
                 return min::wrap(input, low, high);
             }
 
@@ -321,7 +325,7 @@ namespace c74::min {
             /// @param	high	The high boundary of the range.
             /// @return			The constrained value.
 
-            T operator()(T input, T low, T high) {
+            T operator()(const T input, const T low, const T high) {
                 return apply(input, low, high);
             }
         };
@@ -339,7 +343,7 @@ namespace c74::min {
             /// @param	high	The high boundary of the range.
             /// @return			The constrained value.
 
-            static T apply(T input, T low, T high) {
+            static T apply(const T input, const T low, const T high) {
                 return min::fold(input, low, high);
             }
 
@@ -350,7 +354,7 @@ namespace c74::min {
             /// @param	high	The high boundary of the range.
             /// @return			The constrained value.
 
-            T operator()(T input, T low, T high) {
+            T operator()(const T input, const T low, const T high) {
                 return apply(input, low, high);
             }
         };

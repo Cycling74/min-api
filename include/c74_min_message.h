@@ -14,14 +14,14 @@ namespace c74::min {
     /// @param	inlet	The number (zero-based index) of the inlet at which the message was received, if relevant. Otherwise -1.
     /// @see		MIN_FUNCTION
 
-    using function = std::function<atoms(const atoms& as, int inlet)>;
+    using function = std::function<atoms(const atoms& as, const int inlet)>;
 
 
     /// Provide the correct lamba function prototype for the min::argument constructor.
     /// @see argument
     /// @see argument_function
 
-    #define MIN_FUNCTION [this](const c74::min::atoms& args, int inlet) -> c74::min::atoms
+    #define MIN_FUNCTION [this](const c74::min::atoms& args, const int inlet) -> c74::min::atoms
 
 
     // Represents any type of message.
@@ -31,7 +31,7 @@ namespace c74::min {
     protected:
         // Constructor. See the constructor documention for min::message<> to get more details on the arguments.
 
-        message_base(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type type = message_type::gimme)
+        message_base(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, const message_type type = message_type::gimme)
         : m_owner { an_owner }
         , m_function { a_function }
         , m_type { type }
@@ -81,8 +81,8 @@ namespace c74::min {
     public:
         // All messages must define what happens when you call them.
 
-        virtual atoms operator()(atoms args = {}, int inlet = -1) = 0;
-        virtual atoms operator()(atom arg, int inlet = -1)        = 0;
+        virtual atoms operator()(const atoms& args = {}, const int inlet = -1) = 0;
+        virtual atoms operator()(const atom arg, const int inlet = -1)        = 0;
 
 
         /// Return the Max C API message type constant for this message.
@@ -142,7 +142,7 @@ namespace c74::min {
 
     class deferred_message {
     public:
-        deferred_message(message<threadsafe::no>* an_owning_message, const atoms& args, int inlet)
+        deferred_message(message<threadsafe::no>* an_owning_message, const atoms& args, const int inlet)
         : m_owning_message{an_owning_message}
         , m_args{args}
         , m_inlet{inlet}
@@ -193,7 +193,7 @@ namespace c74::min {
         /// @param	a_type			Optional message type determines what kind of messages Max can send.
         ///							In most cases you should _not_ pass anything here and accept the default.
 
-        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type a_type = message_type::gimme)
+        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, const message_type a_type = message_type::gimme)
         : message_base(an_owner, a_name, a_function, a_description, a_type)
         {}
 
@@ -229,7 +229,8 @@ namespace c74::min {
         /// @param	args	Optional arguments to send to the message's action.
         /// @return			Any return values will be returned as atoms.
 
-        atoms operator()(atoms args = {}, int inlet = -1) override {
+        atoms operator()(const atoms& args = {}, const int an_inlet = -1) override {
+			int inlet {an_inlet};
             update_inlet_number(inlet);
 
             // this is the same as what happens in a defer() call
@@ -251,7 +252,7 @@ namespace c74::min {
             r->pop();
         }
 
-        static void defer_callback(max::t_object* self, message<threadsafety>* m, long, max::t_atom*) {
+        static void defer_callback(max::t_object* self, message<threadsafety>* m, const long, max::t_atom*) {
             m->pop();
         }
 
@@ -260,7 +261,7 @@ namespace c74::min {
         /// @param	arg		A single argument to send to the message's action.
         /// @return			Any return values will be returned as atoms.
 
-        atoms operator()(atom arg, int inlet = -1) override {
+        atoms operator()(const atom arg, const int inlet = -1) override {
             atoms as { arg };
             return (*this)(as, inlet);
         }
@@ -288,7 +289,7 @@ namespace c74::min {
         /// @param	type			Optional message type determines what kind of messages Max can send.
         ///							In most cases you should _not_ pass anything here and accept the default.
 
-        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type type = message_type::gimme)
+        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, const message_type type = message_type::gimme)
         : message_base(an_owner, a_name, a_function, a_description)
         {}
 
@@ -310,7 +311,8 @@ namespace c74::min {
         /// @param	args	Optional arguments to send to the message's action.
         /// @return			Any return values will be returned as atoms.
 
-        atoms operator()(atoms args = {}, int inlet = -1) override {
+        atoms operator()(const atoms& args = {}, const int an_inlet = -1) override {
+			int inlet {an_inlet};
             update_inlet_number(inlet);
 
             // this is the same as what happens in a defer() call
@@ -331,7 +333,7 @@ namespace c74::min {
             r->pop();
         }
 
-        static void defer_callback(max::t_object* self, message<threadsafe::no>* m, long, max::t_atom*) {
+        static void defer_callback(max::t_object* self, message<threadsafe::no>* m, long, const max::t_atom*) {
             m->pop();
         }
 
@@ -340,7 +342,7 @@ namespace c74::min {
         /// @param	arg		A single argument to send to the message's action.
         /// @return			Any return values will be returned as atoms.
 
-        atoms operator()(atom arg, int inlet = -1) override {
+        atoms operator()(const atom arg, const int inlet = -1) override {
             atoms as { arg };
             return (*this)(as, inlet);
         }
@@ -368,7 +370,7 @@ namespace c74::min {
         /// @param	a_type			Optional message type determines what kind of messages Max can send.
         ///							In most cases you should _not_ pass anything here and accept the default.
 
-        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, message_type a_type = message_type::gimme)
+        message(object_base* an_owner, const std::string& a_name, const function& a_function, const description& a_description = {}, const message_type a_type = message_type::gimme)
         : message_base(an_owner, a_name, a_function, a_description, a_type)
         {}
 
@@ -391,7 +393,8 @@ namespace c74::min {
         /// @param	inlet	Optional inlet number associated with the incoming message.
         /// @return			Any return values will be returned as atoms.
 
-        atoms operator()(atoms args = {}, int inlet = -1) override {
+        atoms operator()(const atoms& args = {}, const int an_inlet = -1) override {
+			int inlet {an_inlet};
             update_inlet_number(inlet);
             return m_function(args, inlet);
         }
@@ -402,7 +405,7 @@ namespace c74::min {
         /// @param	inlet	Optional inlet number associated with the incoming message.
         /// @return			Any return values will be returned as atoms.
 
-        atoms operator()(atom arg, int inlet = -1) override {
+        atoms operator()(const atom arg, const int inlet = -1) override {
             return m_function({arg}, inlet);
         }
     };

@@ -24,7 +24,7 @@ namespace c74::min {
 
     class matrix_coord {
     public:
-        matrix_coord(long x, long y) {
+        matrix_coord(const long x, const long y) {
             position[0] = x;
             position[1] = y;
         }
@@ -43,7 +43,7 @@ namespace c74::min {
 
     class matrix_info {
     public:
-        matrix_info(max::t_jit_matrix_info* a_in_info, uchar* ip, max::t_jit_matrix_info* a_out_info, uchar* op)
+        matrix_info(const max::t_jit_matrix_info* a_in_info, uchar* ip, max::t_jit_matrix_info* a_out_info, uchar* op)
         : m_in_info { a_in_info }
         , m_bip { ip }
         , m_out_info { a_out_info }
@@ -84,7 +84,7 @@ namespace c74::min {
         }
 
         template<class matrix_type, size_t plane_count>
-        const std::array<matrix_type, plane_count> in_cell(int x, int y) const {
+        const std::array<matrix_type, plane_count> in_cell(const int x, const int y) const {
             matrix_coord coord(x, y);
             return in_cell<matrix_type, plane_count>(coord);
         }
@@ -101,7 +101,7 @@ namespace c74::min {
         }
 
 
-        const pixel in_pixel(int x, int y) const {
+        const pixel in_pixel(const int x, const int y) const {
             matrix_coord coord(x, y);
             return in_pixel(coord);
         }
@@ -114,7 +114,7 @@ namespace c74::min {
         }
 
 
-        max::t_jit_matrix_info* m_in_info;
+        const max::t_jit_matrix_info* m_in_info;
         uchar*                  m_bip;
         max::t_jit_matrix_info* m_out_info;
         uchar*                  m_bop;
@@ -143,7 +143,7 @@ namespace c74::min {
         ///									This can improve the speed calculating your matrix processing, but in some cases may have
         ///									undesired consequences.
 
-        explicit matrix_operator(bool enable_parallel_breakup = true)
+        explicit matrix_operator(const bool enable_parallel_breakup = true)
         : m_enable_parallel_breakup { enable_parallel_breakup }
         {}
 
@@ -154,17 +154,17 @@ namespace c74::min {
         /// Find out if parallel processing of the matrix is enabled
         ///	@return	True if parallel breakup is enabled. Otherwise false.
 
-        bool parallel_breakup_enabled() {
+        bool parallel_breakup_enabled() const {
             return m_enable_parallel_breakup;
         }
 
 
-        void direction(iteration_direction new_direction) {
+        void direction(const iteration_direction new_direction) {
             m_direction = new_direction;
         }
 
 
-        iteration_direction direction() {
+        iteration_direction direction() const {
             return m_direction;
         }
 
@@ -184,7 +184,7 @@ namespace c74::min {
     /// @param s	The name of the object is passed as an argument to support object-mappings.
     ///		In such cases we might not know what the object name is at compile time.
     template<class min_class_type>
-    max::t_object* jit_new(max::t_symbol* s) {
+    max::t_object* jit_new(const max::t_symbol* s) {
         auto self = static_cast<minwrap<min_class_type>*>(max::jit_object_alloc(this_jit_class));
 
         self->m_min_object.assign_instance(self->maxobj());
@@ -214,7 +214,7 @@ namespace c74::min {
 
 
     template<class min_class_type>
-    void* max_jit_mop_new(max::t_symbol* s, long argc, max::t_atom* argv) {
+    void* max_jit_mop_new(const max::t_symbol* s, const long argc, const max::t_atom* argv) {
         assert(this_class_name != nullptr);    // required pre-condition
 
         atom_reference args(argc, argv);
@@ -253,7 +253,7 @@ namespace c74::min {
 
     template<class min_class_type, typename U, enable_if_matrix_operator<min_class_type> = 0>
     void jit_calculate_vector(
-        minwrap<min_class_type>* self, const matrix_info& info, long n, long i, max::t_jit_op_info* in, max::t_jit_op_info* out) {
+        minwrap<min_class_type>* self, const matrix_info& info, const long n, const long i, const max::t_jit_op_info* in, max::t_jit_op_info* out) {
         auto       ip         = in ? static_cast<U*>(in->p) : nullptr;
         auto       op         = static_cast<U*>(out->p);
         auto       is         = in ? in->stride : 0;
@@ -425,7 +425,7 @@ namespace c74::min {
 
     template<class min_class_type, typename U>
     typename enable_if<is_base_of<matrix_operator_base, min_class_type>::value>::type
-    jit_calculate_ndim_loop(minwrap<min_class_type>* self, long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, uchar* bip, uchar* bop, long* dim, long plane_count, long datasize) {
+    jit_calculate_ndim_loop(minwrap<min_class_type>* self, const long n, max::t_jit_op_info* in_opinfo, max::t_jit_op_info* out_opinfo, max::t_jit_matrix_info* in_minfo, max::t_jit_matrix_info* out_minfo, uchar* bip, uchar* bop, long* dim, const long plane_count, const long datasize) {
         matrix_info info((in_minfo ? in_minfo : out_minfo), (bip ? bip : bop), out_minfo, bop);
         for (auto i = 0; i < dim[1]; i++) {
             if (in_opinfo)
@@ -437,7 +437,7 @@ namespace c74::min {
 
 
     template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
-    void jit_calculate_ndim(minwrap<min_class_type>* self, long dim_count, long* dim, long plane_count, max::t_jit_matrix_info* in_minfo, uchar* bip, max::t_jit_matrix_info* out_minfo, uchar* bop) {
+    void jit_calculate_ndim(minwrap<min_class_type>* self, const long dim_count, long* dim, const long plane_count, max::t_jit_matrix_info* in_minfo, uchar* bip, max::t_jit_matrix_info* out_minfo, uchar* bop) {
         if (dim_count < 1)
             return;    // safety
 
@@ -479,7 +479,7 @@ namespace c74::min {
 
     template<class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
     void jit_calculate_ndim_single(
-        minwrap<min_class_type>* self, long dim_count, long* dim, long plane_count, max::t_jit_matrix_info* out_minfo, uchar* bop) {
+        minwrap<min_class_type>* self, const long dim_count, long* dim, const long plane_count, max::t_jit_matrix_info* out_minfo, uchar* bop) {
         if (dim_count < 1)
             return;    // safety
 

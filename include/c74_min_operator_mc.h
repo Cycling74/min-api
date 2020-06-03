@@ -39,7 +39,7 @@ namespace c74::min {
         /// It is called internally any time the dsp chain containing your object is compiled.
         /// @param	a_samplerate	A new samplerate with which your object will be updated.
 
-        void samplerate(double a_samplerate) {
+        void samplerate(const double a_samplerate) {
             m_samplerate = a_samplerate;
         }
 
@@ -47,7 +47,7 @@ namespace c74::min {
         /// Return the current samplerate for this object's signal chain.
         /// @return	The samplerate in hz.
 
-        double samplerate() {
+        double samplerate() const {
             return m_samplerate;
         }
 
@@ -57,7 +57,7 @@ namespace c74::min {
         /// It is called internally any time the dsp chain containing your object is compiled.
         /// @param	a_vector_size	A new vector size with which your object will be updated.
 
-        void vector_size(double a_vector_size) {
+        void vector_size(const double a_vector_size) {
             m_vector_size = a_vector_size;
         }
 
@@ -65,7 +65,7 @@ namespace c74::min {
         /// Return the current vector size for this object's signal chain.
         /// @return	The vector size in samples.
 
-        double vector_size() {
+        double vector_size() const {
             return m_vector_size;
         }
 
@@ -89,6 +89,6 @@ namespace c74::min {
     };
 
     template<class min_class_type, enable_if_mc_operator<min_class_type> = 0>
-    void min_dsp64_attrmap(minwrap<min_class_type>* self, short* count) {}
+    void min_dsp64_attrmap(minwrap<min_class_type>* self, const short* count) {}
 
 }    // namespace c74::min

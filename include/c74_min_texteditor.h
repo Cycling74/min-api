@@ -11,7 +11,7 @@ namespace c74::min {
     public:
         using textfunction = std::function<void(const char*)>;
 
-        texteditor(object_base* an_owner, textfunction fn, symbol a_name = "Editor")
+        texteditor(object_base* an_owner, const textfunction fn, const symbol a_name = "Editor")
         : m_owner { an_owner }
         , m_callback { fn }
         , m_name { a_name }
@@ -29,7 +29,7 @@ namespace c74::min {
                 m_jed.set("visible", 1);
         }
 
-        void open(std::string& contents) {
+        void open(const std::string& contents) {
             open(contents.c_str());
         }
 

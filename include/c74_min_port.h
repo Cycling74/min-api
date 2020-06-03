@@ -26,7 +26,7 @@ namespace c74::min {
         /// Determine if an audio signal is currently connected to this port.
         ///	@return		True if a signal is connected. Otherwise false.
 
-        bool has_signal_connection() {
+        bool has_signal_connection() const {
             return m_signal_connection;
         }
 
@@ -36,7 +36,7 @@ namespace c74::min {
         /// Notable exceptions are "signal" for audio and "dictionary" for dictionaries.
         /// @return		A string with the type of the port, if a type has been given to the port.
 
-        const std::string& type() {
+        string type() const {
             return m_type;
         }
 
@@ -45,14 +45,14 @@ namespace c74::min {
         /// or displaying assistance info in the UI.
         /// @return		A string with the description of the port.
 
-        const std::string& description() {
+        string description() const {
             return m_description;
         }
 
     protected:
         object_base* m_owner;
-        std::string  m_description;
-        std::string  m_type;
+        string       m_description;
+        string       m_type;
         bool         m_signal_connection { false };
 
 
@@ -60,9 +60,9 @@ namespace c74::min {
         // by Max's "dspsetup" method via min_dsp64_io()
 
         template<class min_class_type>
-        friend void min_dsp64_io(minwrap<min_class_type>* self, short* count);
+        friend void min_dsp64_io(minwrap<min_class_type>* self, const short* count);
 
-        void update_signal_connection(bool new_signal_connection_status) {
+        void update_signal_connection(const bool new_signal_connection_status) {
             m_signal_connection = new_signal_connection_status;
         }
     };

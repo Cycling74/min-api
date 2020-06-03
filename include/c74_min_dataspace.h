@@ -14,7 +14,7 @@ namespace c74::min::dataspace {
     public:
         // TODO: error checking -- can we do a static_assert that both source and dest are defined in the same dataspace?
         template<class source_unit_type, class dest_unit_type>
-        static inline number convert(number x) {
+        static inline number convert(const number x) {
             return dest_unit_type::from_neutral(source_unit_type::to_neutral(x));
         }
     };

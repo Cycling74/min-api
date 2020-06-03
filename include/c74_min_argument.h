@@ -28,7 +28,7 @@ namespace c74::min {
 
     class argument_base {
     public:
-        argument_base(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_function& a_function)
+        argument_base(object_base* an_owner, const std::string& a_name, const description& a_description, const bool required, const argument_function& a_function)
         : m_owner       { an_owner }
         , m_name        { a_name }
         , m_description { a_description }
@@ -76,14 +76,14 @@ namespace c74::min {
         // Declaring this as pure virtual because, yes we need this defined for all argument decls,
         // but also to enforce that no one tries to instantiate an argument_base directly.
 
-        virtual std::string type() = 0;
+        virtual std::string type() const = 0;
 
     protected:
-        object_base*      m_owner;
-        symbol            m_name;
-        description       m_description;
-        bool              m_required;
-        argument_function m_function;
+        object_base*            m_owner;
+        const symbol            m_name;
+        const description       m_description;
+        const bool              m_required;
+        const argument_function m_function;
     };
 
 
@@ -120,7 +120,7 @@ namespace c74::min {
         /// @param	required		If true the argument _must_ be provided by the user. Otherwise the argument is optional.
         /// @param	a_function		Optional function to be called when the argument is processed at object instantiation.
 
-        argument(object_base* an_owner, const std::string& a_name, const description& a_description, bool required, const argument_function& a_function = {})
+        argument(object_base* an_owner, const std::string& a_name, const description& a_description, const bool required, const argument_function& a_function = {})
         : argument_base(an_owner, a_name, a_description, required, a_function)
         {}
 
@@ -129,7 +129,7 @@ namespace c74::min {
         /// This is used to generate documentation and thus object box auto-completion.
         /// @return	The type of the argument.
 
-        std::string type() override {
+        std::string type() const override {
             if (is_same<T, bool>::value)
                 return "bool";
             else if (is_same<T, number>::value)

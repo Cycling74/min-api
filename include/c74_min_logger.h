@@ -38,7 +38,7 @@ namespace c74::min {
         /// @param an_owner		Your object instance
         /// @param a_type		The type of console output to deliver
 
-        logger(object_base* an_owner, logger::type a_type)
+        logger(const object_base* an_owner, const logger::type a_type)
         : m_owner { *an_owner }
         , m_target { a_type }
         {}
@@ -91,9 +91,9 @@ namespace c74::min {
         }
 
     private:
-        object_base&      m_owner;
-        logger::type      m_target;
-        std::stringstream m_stream;
+        const object_base&  m_owner;
+        const logger::type  m_target;
+        std::stringstream   m_stream;
     };
 
 }    // namespace c74::min

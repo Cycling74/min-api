@@ -100,9 +100,9 @@ namespace c74::min {
         }
 
     private:
-        documentation_flags m_documentation{};
-        behavior_flags      m_behavior{};
-        host_flags          m_host{};
+        const documentation_flags m_documentation{};
+        const behavior_flags      m_behavior{};
+        const host_flags          m_host{};
     };
 
 
