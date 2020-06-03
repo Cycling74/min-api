@@ -20,7 +20,7 @@ namespace c74::min {
         path() {}
 
         // path initialized to a system directory
-        path(system initial)
+        path(const system initial)
         : m_directory { true } {
             switch (initial) {
                 case system::application:
@@ -43,14 +43,14 @@ namespace c74::min {
 
 
         // path initialized to a user-supplied path id (discouraged, but might be provided by legacy Max API)
-        path(short path_id)
+        path(const short path_id)
         : m_path        { path_id }
         , m_directory   { true }
         {}
 
 
         // path initialized by name
-        path(const std::string& name, filetype type = filetype::any, bool create = false) {
+        path(const std::string& name, const filetype type = filetype::any, const bool create = false) {
             strncpy(m_filename, name.c_str(), MAX_PATH_CHARS);
 
             auto           types = typelist(type);
@@ -109,7 +109,7 @@ namespace c74::min {
         }
 
 
-        path(const atoms& optional_name, filetype type = filetype::any) {
+        path(const atoms& optional_name, const filetype type = filetype::any) {
             if (!optional_name.empty())
                 *this = path(static_cast<string>(optional_name[0]));
             else {
@@ -121,7 +121,7 @@ namespace c74::min {
         }
 
 
-        std::vector<max::t_fourcc> typelist(filetype type) {
+        std::vector<max::t_fourcc> typelist(const filetype type) {
             std::vector<max::t_fourcc> list;
             max::t_fourcc              types[max::TYPELIST_SIZE];
             short                      type_count = 0;
@@ -186,7 +186,7 @@ namespace c74::min {
 
         using enumerate_function = std::function<void(string)>;
 
-        void enumerate(filetype a_type, enumerate_function a_callback) {
+        void enumerate(const filetype a_type, const enumerate_function a_callback) {
             if (!m_directory)
                 return;
             if (!m_path)
@@ -225,7 +225,7 @@ namespace c74::min {
         }
 
 
-        string name() {
+        string name() const {
             if (m_directory) {
                 char pathname[MAX_PATH_CHARS];
                 max::path_toabsolutesystempath(m_path, m_filename, pathname);

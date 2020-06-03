@@ -19,19 +19,19 @@ namespace c74::min {
 
         /// constructor with generic initializer
         template<class T, typename enable_if<!std::is_enum<T>::value && !is_same<T, std::vector<atom>>::value, int>::type = 0>
-        atom(T initial_value) {
+        atom(const T initial_value) {
             *this = initial_value;
         }
 
         /// constructor with enum initializer
         template<class T, typename enable_if<std::is_enum<T>::value, int>::type = 0>
-        atom(T initial_value) {
+        atom(const T initial_value) {
             *this = static_cast<max::t_atom_long>(initial_value);
         }
 
-        atom(event& e) {
+        atom(const event& e) {
             this->a_type    = c74::max::A_OBJ;
-            this->a_w.w_obj = reinterpret_cast<max::t_object*>(&e);
+            this->a_w.w_obj = const_cast<max::t_object*>(reinterpret_cast<const max::t_object*>(&e));
         }
 
 
@@ -201,34 +201,34 @@ namespace c74::min {
 
 
         /// Compare an atom against a value for equality.
-        bool operator==(max::t_symbol* s) const;
+        bool operator==(const max::t_symbol* s) const;
 
         /// Compare an atom against a value for equality.
-        bool operator==(symbol s) const;
+        bool operator==(const symbol s) const;
 
         /// Compare an atom against a value for equality.
         bool operator==(const char* str) const;
 
         /// Compare an atom against a value for equality.
-        bool operator==(bool value) const;
+        bool operator==(const bool value) const;
 
         /// Compare an atom against a value for equality.
-        bool operator==(int value) const;
+        bool operator==(const int value) const;
 
         /// Compare an atom against a value for equality.
-        bool operator==(long value) const;
+        bool operator==(const long value) const;
 
         /// Compare an atom against a value for equality.
-        bool operator==(double value) const;
+        bool operator==(const double value) const;
 
         /// Compare an atom against a value for equality.
-        bool operator==(max::t_object* value) const;
+        bool operator==(const max::t_object* value) const;
 
         /// Compare an atom against an atom for equality.
         bool operator==(const max::t_atom& b) const;
 
         /// Compare an atom against an atom for equality.
-        bool operator==(time_value value) const;
+        bool operator==(const time_value value) const;
 
 
         /// Return the type of the data contained in the atom.
@@ -307,10 +307,12 @@ namespace c74::min {
         // operator []
         // at()
 
+        // The ctor does not alter the atoms, 
+        // but note that some future operations done to the atom_reference could unless it is a const atom_reference
 
-        atom_reference(long argc, max::t_atom* argv)
+        atom_reference(const long argc, const max::t_atom* argv)
         : m_ac { argc }
-        , m_av { argv }
+        , m_av { const_cast<max::t_atom*>(argv) }
         {}
 
         
@@ -320,27 +322,27 @@ namespace c74::min {
             return *this;
         }
 
-        atom_reference& operator=(int value) {
+        atom_reference& operator=(const int value) {
             m_ac = 1;
             atom_setlong(m_av, value);
             return *this;
         }
 
-        atom_reference& operator=(long value) {
+        atom_reference& operator=(const long value) {
             m_ac = 1;
             atom_setlong(m_av, value);
             return *this;
         }
 
-        atom_reference& operator=(double value) {
+        atom_reference& operator=(const double value) {
             m_ac = 1;
             atom_setfloat(m_av, value);
             return *this;
         }
 
-        atom_reference& operator=(max::t_object* value) {
+        atom_reference& operator=(const max::t_object* value) {
             m_ac = 1;
-            atom_setobj(m_av, value);
+            atom_setobj(m_av, const_cast<max::t_object*>(value));
             return *this;
         }
 

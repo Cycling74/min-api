@@ -63,7 +63,7 @@ namespace c74::min {
         /// It is called internally any time the dsp chain containing your object is compiled.
         /// @param	a_samplerate	A new samplerate with which your object will be updated.
 
-        void samplerate(double a_samplerate) {
+        void samplerate(const double a_samplerate) {
             m_samplerate = a_samplerate;
         }
 
@@ -71,7 +71,7 @@ namespace c74::min {
         /// Return the current samplerate for this object's signal chain.
         /// @return	The samplerate in hz.
 
-        double samplerate() {
+        double samplerate() const {
             return m_samplerate;
         }
 
@@ -81,7 +81,7 @@ namespace c74::min {
         /// It is called internally any time the dsp chain containing your object is compiled.
         /// @param	a_vector_size	A new vector size with which your object will be updated.
 
-        void vector_size(double a_vector_size) {
+        void vector_size(const double a_vector_size) {
             m_vector_size = a_vector_size;
         }
 
@@ -89,7 +89,7 @@ namespace c74::min {
         /// Return the current vector size for this object's signal chain.
         /// @return	The vector size in samples.
 
-        double vector_size() {
+        double vector_size() const {
             return m_vector_size;
         }
 
@@ -106,15 +106,15 @@ namespace c74::min {
         // void operator() (sample input1, sample input2);
 
     private:
-        double m_samplerate{c74::max::sys_getsr()};    // initialized to the global samplerate, but updated to the local samplerate when the
+        double m_samplerate {c74::max::sys_getsr()};    // initialized to the global samplerate, but updated to the local samplerate when the
                                                        // dsp chain is compiled.
-        int m_vector_size{c74::max::sys_getblksize()};    // ...
+        int m_vector_size {c74::max::sys_getblksize()};    // ...
         vector<std::pair<int,attribute_base*>> m_attributes_mapped_to_inlets;
     };
 
 
     template<class min_class_type, enable_if_sample_operator<min_class_type> = 0>
-    void min_dsp64_attrmap(minwrap<min_class_type>* self, short* count) {
+    void min_dsp64_attrmap(minwrap<min_class_type>* self, const short* count) {
         auto& attrs { self->m_min_object.mapped_attributes() };
         auto& inlets { self->m_min_object.inlets() };
 
@@ -159,7 +159,7 @@ namespace c74::min {
         : self(a_self)
         {}
 
-        void set(size_t index, sample& value) {
+        void set(const size_t index, const sample& value) {
             data[index] = value;
         }
 
@@ -180,7 +180,7 @@ namespace c74::min {
     // version of perform_copy_output() for samples<N> returned by the sample_operator<>'s call operator in the performer below.
 
     template<class min_class_type, typename type_returned_from_call_operator>
-    void perform_copy_output(minwrap<min_class_type>* self, size_t index, double** out_chans, type_returned_from_call_operator vals) {
+    void perform_copy_output(minwrap<min_class_type>* self, const size_t index, double** out_chans, const type_returned_from_call_operator vals) {
         for (auto chan = 0; chan < self->m_min_object.output_count(); ++chan)
             out_chans[chan][index] = vals[chan];
     }
@@ -189,7 +189,7 @@ namespace c74::min {
     // version of perform_copy_output() for a single sample returned by the sample_operator<>'s call operator in the performer below.
 
     template<class min_class_type>
-    void perform_copy_output(minwrap<min_class_type>* self, size_t index, double** out_chans, sample val) {
+    void perform_copy_output(minwrap<min_class_type>* self, const size_t index, double** out_chans, const sample val) {
         out_chans[0][index] = val;
     }
 
@@ -207,7 +207,7 @@ namespace c74::min {
     public:
         // The traditional Max audio "perform" callback routine
 
-        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
+        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, const double** in_chans, const long numins, double** out_chans, const long numouts, const long sampleframes, const long, const void*) {
             auto in_samps  = in_chans[0];
             auto out_samps = out_chans[0];
 
@@ -228,7 +228,7 @@ namespace c74::min {
     public:
         // The traditional Max audio "perform" callback routine
 
-        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
+        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, const double** in_chans, const long numins, double** out_chans, const long numouts, const long sampleframes, const long, const void*) {
             auto in_samps = in_chans[0];
 
             for (auto i = 0; i < sampleframes; ++i) {
@@ -249,9 +249,9 @@ namespace c74::min {
                         && !is_base_of<sample_operator<1, 1>, min_class_type>::value
                         && !is_base_of<sample_operator<1, 0>, min_class_type>::value>::type> {
     public:
-        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, double** in_chans, long numins, double** out_chans, long numouts, long sampleframes, long, void*) {
+        static void perform(minwrap<min_class_type>* self, max::t_object* dsp64, const double** in_chans, const long numins, double** out_chans, const long numouts, const long sampleframes, const long, const void*) {
             auto& attrs { self->m_min_object.mapped_attributes() };
-            auto input_count { self->m_min_object.input_count() };
+            const auto input_count { self->m_min_object.input_count() };
 
             if (attrs.empty()) {
 

@@ -34,9 +34,9 @@ namespace c74::min {
 
 
     template<class min_class_type>
-    minwrap<min_class_type>* wrapper_new(max::t_symbol* name, long ac, max::t_atom* av) {
+    minwrap<min_class_type>* wrapper_new(const max::t_symbol* name, const long ac, const max::t_atom* av) {
         try {
-            atom_reference args(ac, av);
+            const atom_reference args(ac, av);
             long           attrstart = attr_args_offset(static_cast<short>(args.size()), args.begin());    // support normal arguments
             auto           self      = static_cast<minwrap<min_class_type>*>(max::object_alloc(this_class));
             auto           self_ob   = reinterpret_cast<max::t_object*>(self);
@@ -78,7 +78,7 @@ namespace c74::min {
 
 
     template<class min_class_type>
-    void wrapper_method_assist(minwrap<min_class_type>* self, void* b, long m, long a, char* s) {
+    void wrapper_method_assist(minwrap<min_class_type>* self, const void* b, const long m, const long a, char* s) {
         if (m == 2) {
             const auto& outlet = self->m_min_object.outlets()[a];
             strncpy(s, outlet->description().c_str(), 256);
@@ -117,7 +117,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_int(max::t_object* o, max::t_atom_long v) {
+    void wrapper_method_int(max::t_object* o, const max::t_atom_long v) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         atoms as   = {v};
@@ -126,7 +126,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_float(max::t_object* o, double v) {
+    void wrapper_method_float(max::t_object* o, const double v) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         atoms as   = {v};
@@ -135,7 +135,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_symbol(max::t_object* o, max::t_symbol* v) {
+    void wrapper_method_symbol(max::t_object* o, const max::t_symbol* v) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         atoms as   = {symbol(v)};
@@ -144,7 +144,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_anything(max::t_object* o, max::t_symbol* s, long ac, max::t_atom* av) {
+    void wrapper_method_anything(max::t_object* o, const max::t_symbol* s, const long ac, const max::t_atom* av) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         atoms as(ac + 1L);
@@ -156,7 +156,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_ptr(max::t_object* o, void* v) {
+    void wrapper_method_ptr(max::t_object* o, const void* v) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         atoms as   = {v};
@@ -165,7 +165,7 @@ namespace c74::min {
     }
 
     template<class min_class_type>
-    void wrapper_method_savestate(max::t_object* o, max::t_dictionary* d) {
+    void wrapper_method_savestate(max::t_object* o, const max::t_dictionary* d) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()["savestate"];
         atoms as   = {d};
@@ -173,7 +173,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_self_ptr(max::t_object* o, void* arg1) {
+    void wrapper_method_self_ptr(max::t_object* o, const void* arg1) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         atoms as{o, arg1};
@@ -182,7 +182,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void* wrapper_method_oksize(max::t_object* o, void* arg1) {
+    void* wrapper_method_oksize(max::t_object* o, const void* arg1) {
         auto  self = wrapper_find_self<min_class_type>(o);
 
         // this method can be called by the ctor before the object is actually constructed
@@ -197,7 +197,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_paint(max::t_object* o, void* arg1) {
+    void wrapper_method_paint(max::t_object* o, const void* arg1) {
         if (is_base_of<ui_operator_base, min_class_type>::value) {
             auto  self = wrapper_find_self<min_class_type>(o);
             auto& ui_op = const_cast<ui_operator_base&>(dynamic_cast<const ui_operator_base&>(self->m_min_object));
@@ -212,7 +212,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_mouse(max::t_object* o, max::t_object* a_patcherview, max::t_pt position, max::t_atom_long modifiers) {
+    void wrapper_method_mouse(max::t_object* o, max::t_object* a_patcherview, const max::t_pt position, const max::t_atom_long modifiers) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         max::t_mouseevent an_event {};
@@ -235,7 +235,7 @@ namespace c74::min {
 
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_multitouch(max::t_object* o, max::t_object* a_patcherview, max::t_mouseevent* an_event) {
+    void wrapper_method_multitouch(max::t_object* o, max::t_object* a_patcherview, const max::t_mouseevent* an_event) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto  name = message_name_type::name;
 
@@ -260,7 +260,7 @@ namespace c74::min {
 
 
     template<class min_class_type, class message_name_type>
-    max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
+    max::t_max_err wrapper_method_self_sym_sym_ptr_ptr___err(max::t_object* o, const max::t_symbol* s1, const max::t_symbol* s2, const void* p1, const void* p2) {
         auto  self = wrapper_find_self<min_class_type>(o);
 
         // This supports notify methods for UI objects which don't actually have a notify method member in the min class
@@ -276,7 +276,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    max::t_max_err wrapper_method_notify(max::t_object* o, max::t_symbol* s1, max::t_symbol* s2, void* p1, void* p2) {
+    max::t_max_err wrapper_method_notify(max::t_object* o, const max::t_symbol* s1, const max::t_symbol* s2, const void* p1, const void* p2) {
         if (is_base_of<ui_operator_base, min_class_type>::value) {
             auto err = wrapper_method_self_sym_sym_ptr_ptr___err<min_class_type, message_name_type>(o, s1, s2, p1, p2);
             if (!err)
@@ -289,7 +289,7 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, void* arg1, max::t_atom_long arg2, max::t_atom_long* arg3, max::t_atom_long arg4, max::t_atom_long* arg5, max::t_atom_long arg6) {
+    void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, const void* arg1, const max::t_atom_long arg2, const max::t_atom_long* arg3, const max::t_atom_long arg4, const max::t_atom_long* arg5, const max::t_atom_long arg6) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         atoms as{o, arg1, arg2, arg3, arg4, arg5, arg6};    // NOTE: self could be the jitter object rather than the max object -- so we
@@ -311,7 +311,7 @@ namespace c74::min {
 
     // dictionary is a very special case because of the reference counting
     template<class min_class_type, class message_name_type>
-    void wrapper_method_dictionary(max::t_object* o, max::t_symbol* s) {
+    void wrapper_method_dictionary(max::t_object* o, const max::t_symbol* s) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         auto  d    = dictobj_findregistered_retain(s);
@@ -341,7 +341,7 @@ namespace c74::min {
 
     // this version is called for most message instances defined in the min class
     template<class min_class_type>
-    void wrapper_method_generic(max::t_object* o, max::t_symbol* s, long ac, max::t_atom* av) {
+    void wrapper_method_generic(max::t_object* o, const max::t_symbol* s, const long ac, const max::t_atom* av) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[s->s_name];
         atoms as(ac);
@@ -353,7 +353,7 @@ namespace c74::min {
 
     // same as wrapper_method_generic but can return values in an atom (A_GIMMEBACK)
     template<class min_class_type>
-    void wrapper_method_generic_typed(max::t_object* o, max::t_symbol* s, long ac, max::t_atom* av, max::t_atom* rv) {
+    void wrapper_method_generic_typed(max::t_object* o, const max::t_symbol* s, const long ac, const max::t_atom* av, max::t_atom* rv) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[s->s_name];
         atoms as(ac);
@@ -372,7 +372,7 @@ namespace c74::min {
     }
 
     template<class min_class_type>
-    max::t_max_err wrapper_method_setvalueof(max::t_object* o, long ac, max::t_atom* av) {
+    max::t_max_err wrapper_method_setvalueof(max::t_object* o, const long ac, const max::t_atom* av) {
         return max::object_attr_setvalueof(o, k_sym_value, ac, av);
     }
 
@@ -862,7 +862,7 @@ namespace c74::min {
     /// @param    names_of_folders_to_include     Optional. The names of the folders in the package to add to the standalone.
     ///                                         If none are provided then the entire package will be added.
 
-    inline void fileusage_addpackage(const atoms& fileusage_handle, string package_name, strings names_of_folders_to_include= {}) {
+    inline void fileusage_addpackage(const atoms& fileusage_handle, const string& package_name, const strings& names_of_folders_to_include = {}) {
         void *w { fileusage_handle[0] };
         if (names_of_folders_to_include.empty())
             c74::max::fileusage_addpackage(w, package_name.c_str(), nullptr);

@@ -46,7 +46,7 @@ namespace c74::min {
         /// Bind the buffer reference to a buffer with a different name.
         /// @param	name	The name of the buffer~ with which to bind the reference.
 
-        void set(symbol name) {
+        void set(const symbol name) {
             if (!m_instance)
                 m_instance = max::buffer_ref_new(m_owner, name);
             else
@@ -54,10 +54,10 @@ namespace c74::min {
         }
 
 
-        /// Can the buffer's notify method manually
+        /// Call the buffer's notify method manually
         /// You will need to do this if you define a custom "notify" message for your object.
 
-        atoms notify(atoms args) {
+        atoms notify(const atoms& args) {
             return m_notification_callback(args, 0);
         }
 
@@ -65,34 +65,34 @@ namespace c74::min {
         /// Find out if the buffer referenced actually exists
         /// @return	True if the named buffer~ exists. Otherwise false.
 
-        operator bool() {
+        operator bool() const {
             return m_instance && max::buffer_ref_exists(m_instance);
         }
 
 
     private:
-        max::t_buffer_ref* m_instance{nullptr};
+        max::t_buffer_ref* m_instance { nullptr };
         object_base&       m_owner;
         function           m_notification_callback;
 
         // Messages added to the owning object for this buffer~ reference
 
-        message<> set_meth = {&m_owner, "set", "Choose a named buffer~ from which to read.",
+        message<> set_meth = { &m_owner, "set", "Choose a named buffer~ from which to read.",
             MIN_FUNCTION {
                 set(args[0]);
                 return {};
             }
         };
 
-        message<> dblclick_meth = {&m_owner, "dblclick",
+        message<> dblclick_meth = { &m_owner, "dblclick",
             MIN_FUNCTION {
                 max::buffer_view(max::buffer_ref_getobject(m_instance));
                 return {};
             }
         };
 
-        message<> notify_meth = {&m_owner, "notify",
-            MIN_FUNCTION{
+        message<> notify_meth = { &m_owner, "notify",
+            MIN_FUNCTION {
                 notification n { args };
 
                 if (m_notification_callback) {
@@ -133,7 +133,7 @@ namespace c74::min {
         /// Determine if the buffer~ being accessed has valid samples to access.
         ///	@return	True if the buffer~ is valid and possesses samples. Otherwise false.
 
-        bool valid() {
+        bool valid() const {
             if (!m_buffer_obj || !m_tab)
                 return false;
             else
@@ -145,7 +145,7 @@ namespace c74::min {
         ///	@return	The length of the buffer~ in samples.
         /// @see	length_in_seconds()
 
-        size_t frame_count() {
+        size_t frame_count() const {
             return max::buffer_getframecount(m_buffer_obj);
         }
 
@@ -153,7 +153,7 @@ namespace c74::min {
         /// Determine the number of channels in the buffer~.
         ///	@return	The number of channels in the buffer~.
 
-        size_t channel_count() {
+        size_t channel_count() const {
             return max::buffer_getchannelcount(m_buffer_obj);
         }
 
@@ -190,7 +190,7 @@ namespace c74::min {
         /// Determine the sample rate of the buffer~ contents.
         /// @return	The buffer~ sample rate.
 
-        double samplerate() {
+        double samplerate() const {
             max::t_buffer_info info;
 
             max::buffer_getinfo(m_buffer_obj, &info);
@@ -202,7 +202,7 @@ namespace c74::min {
         /// @return	The length of the buffer~ in seconds.
         /// @see	frame_count()
 
-        double length_in_seconds() {
+        double length_in_seconds() const {
             return frame_count() / samplerate();
         }
 
@@ -238,8 +238,8 @@ namespace c74::min {
 
     private:
         buffer_reference&  m_buffer_ref;
-        max::t_buffer_obj* m_buffer_obj{nullptr};
-        float*             m_tab{nullptr};
+        max::t_buffer_obj* m_buffer_obj { nullptr };
+        float*             m_tab        { nullptr };
     };
 
 }    // namespace c74::min

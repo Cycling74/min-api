@@ -13,11 +13,11 @@ namespace c74::min::dataspace {
         class nothing {
             friend class dataspace_base;
 
-            static inline number to_neutral(number input) {
+            static inline number to_neutral(const number input) {
                 return input;
             }
 
-            static inline number from_neutral(number input) {
+            static inline number from_neutral(const number input) {
                 return input;
             }
         };

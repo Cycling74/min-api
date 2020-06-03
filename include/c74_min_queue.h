@@ -28,7 +28,7 @@ namespace c74::min {
         /// @param	a_function	A function to be executed when the queue is serviced.
         ///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
 
-        queue(object_base* an_owner, function a_function)
+        queue(object_base* an_owner, const function a_function)
         : m_owner { an_owner }
         , m_function { a_function } {
             m_instance = max::qelem_new(this, reinterpret_cast<max::method>(queue_qfn_callback));
@@ -74,14 +74,14 @@ namespace c74::min {
         /// post information about the timer to the console
         // also serves the purpose of eliminating warnings about m_owner being unused
 
-        void post() {
+        void post() const {
             std::cout << m_instance << &m_function << m_owner << std::endl;
         }
 
     private:
-        object_base*  m_owner;
-        function      m_function;
-        max::t_qelem* m_instance { nullptr };
+        object_base*   m_owner;
+        const function m_function;
+        max::t_qelem*  m_instance { nullptr };
 
         friend void queue_qfn_callback(queue* a_queue);
         void        qfn() {

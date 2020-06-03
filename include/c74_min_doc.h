@@ -114,7 +114,7 @@ namespace c74::min {
 
 
     template<class min_class_type>
-    void doc_generate(const min_class_type& instance, const std::string& refpage_fullpath, std::string& max_class_name, const std::string& min_class_name) {
+    void doc_generate(const min_class_type& instance, const std::string& refpage_fullpath, const std::string& max_class_name, const std::string& min_class_name) {
         documentation_flags flags = documentation_flags::none;
 
         class_get_flags<min_class_type>(instance, flags);
@@ -294,7 +294,7 @@ namespace c74::min {
 
 
     template<class min_class_type>
-    void doc_update(const min_class_type& instance, std::string& max_class_name, const std::string& min_class_name) {
+    void doc_update(const min_class_type& instance, const std::string& max_class_name, const std::string& min_class_name) {
         try {
             path        extern_file(max_class_name, path::filetype::external);
             auto        extern_date     = extern_file.date_modified();

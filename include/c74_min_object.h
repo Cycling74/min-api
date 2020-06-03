@@ -71,15 +71,15 @@ namespace c74::min {
         {}
 
 
-        bool is_jitter_class() override {
+        bool is_jitter_class() const override {
             return is_base_of<matrix_operator_base, min_class_type>::value;
         };
 
-        bool is_ui_class() override {
+        bool is_ui_class() const override {
             return is_base_of<ui_operator_base, min_class_type>::value;
         }
 
-        bool is_assumed_threadsafe() override {
+        bool is_assumed_threadsafe() const override {
             return threadsafety == threadsafe::yes;
         }
 

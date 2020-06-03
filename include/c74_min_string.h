@@ -12,7 +12,7 @@ namespace c74::min::str {
     /// @param	s	The string to trim
     /// @return		The trimmed string
 
-    inline string trim(string& s) {
+    inline string trim(const string& s) {
         if (!s.empty()) {
             size_t first = s.find_first_not_of(' ');
             size_t last  = s.find_last_not_of(' ');
@@ -28,7 +28,7 @@ namespace c74::min::str {
     /// @param	delim	The delimiter on which to split the string
     /// @return			A vector of substrings
 
-    inline vector<string> split(const string& s, char delim) {
+    inline vector<string> split(const string& s, const char delim) {
         vector<string>    substrings;
         string            substring;
         std::stringstream ss(s);
@@ -44,12 +44,12 @@ namespace c74::min::str {
     /// @param	glue	The character to use inbetween each string in the input.
     /// @return			The single concatenated string.
 
-    inline string join(const vector<string>& input, char glue = ' ') {
+    inline string join(const vector<string>& input, const char glue = ' ') {
         string output;
 
         for (const auto& str : input) {
             output += str;
-            output += " ";
+            output += glue;
         }
         trim(output);
         return output;

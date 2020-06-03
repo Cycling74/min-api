@@ -40,7 +40,7 @@ namespace c74::min {
         }
 
 
-        event(max::t_object* o, max::t_object* a_patcherview, max::t_mouseevent& a_max_mouseevent)
+        event(max::t_object* o, max::t_object* a_patcherview, const max::t_mouseevent& a_max_mouseevent)
         : m_target { o, a_patcherview }
         {
             m_self            = o;

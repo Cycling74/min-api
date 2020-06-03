@@ -12,7 +12,7 @@ namespace c74::min {
 
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
     template<typename... ARGS>
-    attribute<T, threadsafety, limit_type, repetitions>::attribute(object_base* an_owner, std::string a_name, T a_default_value, ARGS... args)
+    attribute<T, threadsafety, limit_type, repetitions>::attribute(object_base* an_owner, const std::string a_name, const T a_default_value, ARGS... args)
     : attribute_base{ *an_owner, a_name } {
         m_owner.attributes()[a_name] = this;
 
@@ -55,7 +55,7 @@ namespace c74::min {
 
     template<>
     template<typename... ARGS>
-    attribute<time_value>::attribute(object_base* an_owner, std::string a_name, time_value a_default_value, ARGS... args)
+    attribute<time_value>::attribute(object_base* an_owner, const std::string a_name, const time_value a_default_value, ARGS... args)
     : attribute_base{ *an_owner, a_name }
     , m_value{ an_owner, a_name, static_cast<double>(a_default_value) } {
         m_owner.attributes()[a_name] = this;
@@ -72,7 +72,7 @@ namespace c74::min {
 
 
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
-    void attribute<T, threadsafety, limit_type, repetitions>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
+    void attribute<T, threadsafety, limit_type, repetitions>::create(max::t_class* c, const max::method getter, const max::method setter, const bool isjitclass) {
         if (m_style == style::time) {
             class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
         }
@@ -91,7 +91,7 @@ namespace c74::min {
 
 
     template<>
-    void attribute<numbers>::create(max::t_class* c, max::method getter, max::method setter, bool isjitclass) {
+    void attribute<numbers>::create(max::t_class* c, const max::method getter, const max::method setter, bool const isjitclass) {
         if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
@@ -109,8 +109,8 @@ namespace c74::min {
 
     // enum classes cannot be converted implicitly to the underlying type, so we do that explicitly here.
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<std::is_enum<T>::value, int>::type = 0>
-    std::string range_string_item(attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
-        auto i = static_cast<int>(item);
+    std::string range_string_item(const attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
+        const auto i = static_cast<int>(item);
 
         if (attr->get_enum_map().empty())
             return std::to_string(i);
@@ -120,7 +120,7 @@ namespace c74::min {
 
     // vectors cannot be passed directly to stringstream
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<std::is_same<T, std::vector<number>>::value, int>::type = 0>
-    std::string range_string_item(attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
+    std::string range_string_item(const attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
         string str;
         for (const auto& i : item) {
             str += std::to_string(i);
@@ -130,7 +130,7 @@ namespace c74::min {
 
     // vectors cannot be passed directly to stringstream
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<std::is_same<T, std::vector<int>>::value, int>::type = 0>
-    std::string range_string_item(attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
+    std::string range_string_item(const attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
         string str;
         for (const auto& i : item) {
             str += std::to_string(i);
@@ -147,13 +147,13 @@ namespace c74::min {
             int
         >::type = 0
     >
-    T range_string_item(attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
+    T range_string_item(const attribute<T, threadsafety, limit_type, repetitions>* attr, const T& item) {
         return item;
     }
 
 
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
-    std::string attribute<T, threadsafety, limit_type, repetitions>::range_string() {
+    std::string attribute<T, threadsafety, limit_type, repetitions>::range_string() const {
         std::stringstream ss;
         for (const auto& val : m_range)
             ss << "\"" << range_string_item<T, threadsafety, limit_type, repetitions>(this, val) << "\" ";
@@ -162,7 +162,7 @@ namespace c74::min {
 
 
     template<>
-    std::string attribute<numbers>::range_string() {
+    std::string attribute<numbers>::range_string() const {
         if (m_range.empty())
             return "";
 
@@ -176,7 +176,7 @@ namespace c74::min {
 
 
     template<>
-    std::string attribute<ints>::range_string() {
+    std::string attribute<ints>::range_string() const {
         if (m_range.empty())
             return "";
 
@@ -199,10 +199,7 @@ namespace c74::min {
 
     // color attrs don't use range
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions, typename enable_if<is_color<T>::value, int>::type = 0>
-    void range_copy_helper(attribute<T, threadsafety, limit_type, repetitions>* attr) {
-        // for (auto i=0; i < attr->get_enum_map().size(); ++i)
-        //	attr->range_ref().push_back(static_cast<T>(i));
-    }
+    void range_copy_helper(attribute<T, threadsafety, limit_type, repetitions>* attr) {}
 
 
     // most attrs can just copy range normally
@@ -246,22 +243,22 @@ namespace c74::min {
 
 
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
-    bool attribute<T, threadsafety, limit_type, repetitions>::compare_to_current_value(const atoms& args) {
+    bool attribute<T, threadsafety, limit_type, repetitions>::compare_to_current_value(const atoms& args) const {
         return (args[0] == m_value);
     }
 
     template<>
-    bool attribute<number>::compare_to_current_value(const atoms& args) {
+    bool attribute<number>::compare_to_current_value(const atoms& args) const {
         return equivalent<number>(args[0], m_value);
     }
 
     template<>
-    bool attribute<symbol>::compare_to_current_value(const atoms& args) {
+    bool attribute<symbol>::compare_to_current_value(const atoms& args) const {
         return (args[0] == m_value);
     }
 
     template<>
-    bool attribute<numbers>::compare_to_current_value(const atoms& args) {
+    bool attribute<numbers>::compare_to_current_value(const atoms& args) const {
         if (args.size() == m_value.size()) {
             for (auto i=0; i<m_value.size(); ++i) {
                 if (!equivalent<double>(args[i], m_value[i]))
@@ -273,7 +270,7 @@ namespace c74::min {
     }
 
     template<>
-    bool attribute<ints>::compare_to_current_value(const atoms& args) {
+    bool attribute<ints>::compare_to_current_value(const atoms& args) const {
         if (args.size() == m_value.size()) {
             for (auto i=0; i<m_value.size(); ++i) {
                 if (!equivalent<int>(args[i], m_value[i]))
@@ -285,7 +282,7 @@ namespace c74::min {
     }
 
     template<>
-    bool attribute<ui::color>::compare_to_current_value(const atoms& args) {
+    bool attribute<ui::color>::compare_to_current_value(const atoms& args) const {
         return equivalent<double>(args[0], m_value.red())
         && equivalent<double>(args[1], m_value.green())
         && equivalent<double>(args[2], m_value.blue())

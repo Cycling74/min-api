@@ -13,11 +13,11 @@ namespace c74::min::dataspace {
         class linear {
             friend class dataspace_base;
 
-            static inline number to_neutral(number input) {
+            static inline number to_neutral(const number input) {
                 return input;
             }
 
-            static inline number from_neutral(number input) {
+            static inline number from_neutral(const number input) {
                 return input;
             }
         };
@@ -26,11 +26,11 @@ namespace c74::min::dataspace {
         class midi {
             friend class dataspace_base;
 
-            static inline number to_neutral(number input) {
+            static inline number to_neutral(const number input) {
                 return pow(input * 0.01, k_gain_midi_power);
             }
 
-            static inline number from_neutral(number input) {
+            static inline number from_neutral(const number input) {
                 return 100.0 * pow(input, k_gain_midi_power_r);
             }
         };
@@ -39,11 +39,11 @@ namespace c74::min::dataspace {
         class db {
             friend class dataspace_base;
 
-            static inline number to_neutral(number input) {
+            static inline number to_neutral(const number input) {
                 return pow(10.0, input * 0.05);
             }
 
-            static inline number from_neutral(number input) {
+            static inline number from_neutral(const number input) {
                 number temp = log10(input) * 20.0;
 
                 // Output decibel range is limited to 24 bit range, avoids problems with singularities (-inf) when using

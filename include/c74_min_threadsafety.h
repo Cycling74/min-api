@@ -101,7 +101,7 @@ namespace c74::min {
         // and a push() for handling new items.
 
         virtual void callback() = 0;
-        virtual void push(message_type a_type, const atoms& values) = 0;
+        virtual void push(const message_type a_type, const atoms& values) = 0;
 
     protected:
         T             m_baton;
@@ -152,7 +152,7 @@ namespace c74::min {
         // and a push() for handling new items.
 
         virtual void callback() = 0;
-        virtual void push(message_type a_type, const atoms& values) = 0;
+        virtual void push(const message_type a_type, const atoms& values) = 0;
 
     protected:
         T             m_baton;

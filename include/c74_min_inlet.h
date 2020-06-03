@@ -26,8 +26,8 @@ namespace c74::min {
 
         virtual ~inlet_base() {}
 
-        virtual bool has_attribute_mapping() = 0;
-        virtual attribute_base* attribute() = 0;
+        virtual bool has_attribute_mapping() const = 0;
+        virtual attribute_base* attribute() const = 0;
 
     private:
         t_max_inlet m_instance { nullptr };
@@ -59,11 +59,11 @@ namespace c74::min {
             m_owner->inlets().push_back(this);
         }
 
-        bool has_attribute_mapping() override {
+        bool has_attribute_mapping() const override {
             return m_attribute != nullptr;
         }
 
-        attribute_base* attribute() override {
+        attribute_base* attribute() const override {
             return m_attribute;
         }
 
