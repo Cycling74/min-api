@@ -110,6 +110,11 @@ namespace c74::min {
             return *this;
         }
 
+        atom& operator=(const void* value) {
+            atom_setobj(this, const_cast<void*>(value));
+            return *this;
+        }
+
         atom& operator=(void* value) {
             atom_setobj(this, value);
             return *this;
