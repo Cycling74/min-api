@@ -117,7 +117,7 @@ namespace c74::min {
             return lhs.s != max::gensym(rhs);
         }
 
-        operator const max::t_symbol* const () const {
+        operator max::t_symbol* () const {
             return s;
         }
 

@@ -155,7 +155,7 @@ namespace c74::min {
             return atom_getlong(this) != 0;
         }
 
-        operator const max::t_symbol*() const {
+        operator max::t_symbol*() const {
             return atom_getsym(this);
         }
 
