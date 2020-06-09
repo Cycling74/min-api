@@ -78,7 +78,7 @@ namespace c74::min {
         }
         else if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset,
-                const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
+                const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<const max::t_symbol*>(datatype()),
                 reinterpret_cast<void*>(flags(isjitclass)), reinterpret_cast<void*>(getter), reinterpret_cast<void*>(setter), nullptr,
                 nullptr, nullptr);
             max::jit_class_addattr(c, jit_attr);
@@ -94,7 +94,7 @@ namespace c74::min {
     void attribute<numbers>::create(max::t_class* c, const max::method getter, const max::method setter, bool const isjitclass) {
         if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
-                const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
+                const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<const max::t_symbol*>(datatype()),
                 reinterpret_cast<void*>(0xFFFF), reinterpret_cast<void*>(flags(isjitclass)), reinterpret_cast<void*>(getter),
                 reinterpret_cast<void*>(setter), reinterpret_cast<void*>(size_offset()), nullptr);
             max::jit_class_addattr(c, jit_attr);
@@ -111,7 +111,7 @@ namespace c74::min {
     void attribute<ints>::create(max::t_class* c, const max::method getter, const max::method setter, bool const isjitclass) {
         if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
-                const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
+                const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<const max::t_symbol*>(datatype()),
                 reinterpret_cast<void*>(0xFFFF), reinterpret_cast<void*>(flags(isjitclass)), reinterpret_cast<void*>(getter),
                 reinterpret_cast<void*>(setter), reinterpret_cast<void*>(size_offset()), nullptr);
             max::jit_class_addattr(c, jit_attr);

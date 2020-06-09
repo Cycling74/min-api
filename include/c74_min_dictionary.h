@@ -14,9 +14,9 @@ namespace c74::min {
             auto d = max::dictobj_findregistered_retain(name);
 
             if (!d) {    // didn't find a dictionary with that name, so create it
-                d                = max::dictionary_new();
-                max::t_symbol* s = name;
-                m_instance       = max::dictobj_register(d, &s);
+                d                 = max::dictionary_new();
+                max::t_symbol* s  = name;
+                m_instance        = max::dictobj_register(d, &s);
             }
             else {
                 m_instance = d;

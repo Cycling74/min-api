@@ -84,8 +84,7 @@ namespace c74::min {
         }
 
         symbol& operator=(const max::t_symbol* value) {
-            s->s_name = value->s_name;
-			s->s_thing = value->s_thing;
+            s = const_cast<max::t_symbol*>(value);
             return *this;
         }
 
@@ -118,7 +117,7 @@ namespace c74::min {
             return lhs.s != max::gensym(rhs);
         }
 
-        operator max::t_symbol*() const {
+        operator const max::t_symbol* const () const {
             return s;
         }
 
@@ -126,7 +125,7 @@ namespace c74::min {
             return std::string(s->s_name);
         }
 
-        operator const char*() const {
+        operator const char* const () const {
             return s->s_name;
         }
 

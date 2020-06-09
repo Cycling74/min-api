@@ -116,7 +116,7 @@ namespace c74::min {
 
 
     bool atom::operator==(const symbol s) const {
-        return atom_getsym(this) == (max::t_symbol*)s;
+        return atom_getsym(this) == (const max::t_symbol*)s;
     }
 
 
