@@ -175,6 +175,14 @@ namespace c74::min {
             double alpha() const {
                 return m_color.alpha;
             }
+          
+            bool operator==(const color& b) const {
+                return red() == b.red() && green() == b.green() && blue() == b.blue() && alpha() == b.alpha();
+            }
+          
+            bool operator!=(const color& b) const {
+                return red() != b.red() || green() != b.green() || blue() != b.blue() || alpha() != b.alpha();
+            }
 
         private:
 			max::t_jrgba m_color { 0.0, 0.0, 0.0, 1.0 };
