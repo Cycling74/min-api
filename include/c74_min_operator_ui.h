@@ -52,14 +52,13 @@ namespace c74::min {
             auto tag_iter = std::find(tags.begin(), tags.end(), "multitouch");
             if (tag_iter != tags.end()) {
                 flags |= c74::max::JBOX_MULTITOUCH;
-                std::cout << "MULTITOUCH" << std::endl;
             }
             else {
                 flags |= c74::max::JBOX_MOUSEDRAGDELTA;
-                std::cout << "NOT MULTITOUCH" << std::endl;
             }
 
-            c74::max::jbox_new(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()), flags, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
+            const c74::max::t_atom* argv = args.empty() ? nullptr : &args[0];
+            c74::max::jbox_new(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()), flags, static_cast<long>(args.size()), argv);
             reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj())->b_firstin = m_instance->maxobj();
         }
 
