@@ -62,10 +62,7 @@ namespace c74::min {
     }
 
 
-    template<typename T>
-    T clamp(const T input, const T low, const T high) {
-        return std::min(std::max(input, low), high);
-    }
+    using std::clamp;
 
 
     /// Limit values to within a specified range, wrapping the values to within the range if neccessary.
