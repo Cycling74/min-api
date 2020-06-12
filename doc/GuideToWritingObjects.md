@@ -128,21 +128,21 @@ In your constructor you then create the inlets and outlets and add the instances
 ```c++
 /// constructor
 clone(const atoms& args = {}) {
-	if (args.empty())
-		error("argument required");
-  
-  	auto inlet_count = args[0];
-  	auto outlet_count = inlet_count * 2;
+  if (args.empty())
+    error("argument required");
+
+  auto inlet_count = args[0];
+  auto outlet_count = inlet_count * 2;
   
 	for (auto i=0; i < inlet_count; ++i) {
-      		auto an_inlet = std::make_unique<inlet<>>(this, "(bang) my assist message");
-		m_inlets.push_back( an_inlet );
-	}
+    auto an_inlet = std::make_unique<inlet<>>(this, "(bang) my assist message");
+    m_inlets.push_back( std::move(an_inlet) );
+  }
 
-  	for (auto i=0; i < outlet_count; ++i) {
-      		auto an_outlet = std::make_unique<outlet<>>(this, "my outlet assist message");
-		m_outlets.push_back( an_outlet );
-	}
+  for (auto i=0; i < outlet_count; ++i) {
+    auto an_outlet = std::make_unique<outlet<>>(this, "my outlet assist message");
+    m_outlets.push_back( std::move(an_outlet) );
+  }
 }
 ```
 
