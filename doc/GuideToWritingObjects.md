@@ -113,7 +113,7 @@ In most cases you will likely use generic inlets and outlets that accept (and pr
 
 In most cases configuring inlets and outlets at compile time is the ideal solution. There are cases, however, where you may wish to define the inlets and outlets at runtime based on the arguments passed to your object's constructor. 
 
-(note: you cannot define the number of inlets and outlets at runtime for classes inheriting from `sample_operator<>` , you must instead inherit from `perform_operator<>` as is done in the *min.dcblocker~* example code in the Min-DevKit.)
+(note: you cannot define the number of inlets and outlets at runtime for classes inheriting from `sample_operator<>` , you must instead inherit from `perform_operator<>` as is done in the *filter.dcblocker~* example code in the Filter package.)
 
 In an example where you wish to define both the inlets and the outlets at runtime, you will need to create a place in your class to store the inlet/outlet instances. A convenient way to store the instances is in a vector.
 

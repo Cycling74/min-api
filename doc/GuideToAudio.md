@@ -18,10 +18,18 @@ In addition to inheriting from the `min::object<>` class, your audio objects wil
 
 In many cases using `sample_operator<>` will be desirable as it simplifies the code. In cases where you need to obtain a shared resource, gain better control of how variables are cached, or work on an object with a dynamic number of inputs/outputs a `vector_operator<>` will provide that additional flexibility.
 
-There are examples of both in the Min-DevKit.
+There following **buffer_loop** example is in the Min-DevKit. The **dcblocker** example is in 
+
+[the Filter Package]: https://github.com/Cycling74/filter/blob/master/source/projects/filter.dcblock_tilde/filter.dcblock_tilde.cpp
+
+. The **ease** example is in 
+
+[the Ease Package]: https://github.com/Cycling74/ease/blob/master/source/projects/ease_tilde/ease_tilde.cpp
+
+.
 
 ```c++
-class dcblocker : public object<dcblocker>, public sample_operator<1,1> {
+class ease : public object<ease>, public sample_operator<1,1> {
 public:
 	/// ...
 };
@@ -104,7 +112,7 @@ Your object must define a function call operator where the samples of audio will
 
 For `sample_operator<>` classes, the function call operator will take N `sample` arguments as input and return either a `sample` or a container `samples<>` as output.  
 
-The **min.dcblocker~** example processes a single input and produces a single output.
+The **filter.dcblocker~** example processes a single input and produces a single output.
 
 ```c++
 sample operator()(sample x) {
