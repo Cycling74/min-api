@@ -562,6 +562,7 @@ namespace c74::min {
             if (attr.editor_style() != style::none) {
                 CLASS_ATTR_STYLE(c, attr_name.c_str(), 0, style_symbols[attr.editor_style()]);
             }
+            CLASS_ATTR_DEFAULT(c, attr_name.c_str(), 0, attr.default_string().c_str());
 
             if (!(attr.editor_category() == k_sym__empty)) {
                 atom category_atom(attr.editor_category());

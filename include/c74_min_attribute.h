@@ -220,6 +220,12 @@ namespace c74::min {
         }
 
 
+        /// Fetch the default value as a string.
+        /// @return The attribute value as a string.
+
+        virtual string default_string() const = 0;
+
+
         /// Return the provided description for use in documentation generation, auto-complete, etc.
         /// @return	The description string supplied when the attribute was created.
 
@@ -469,7 +475,7 @@ namespace c74::min {
         // This is an internal method used to fetch the range in string format when creating the peer Max attribute.
         // It is made 'public' due to the trickiness of the SFINAE-enabled templated functions which call this from the wrapper.
 
-        std::string range_string() const;
+        std::string range_string() const override;
 
 
         // DO NOT USE
@@ -479,6 +485,13 @@ namespace c74::min {
 
         atoms get_range_args() {
             return m_range_args;
+        }
+
+
+        string default_string() const override {
+            auto as = to_atoms(m_default);
+            auto s = to_string(as);
+            return s;
         }
 
 
@@ -557,7 +570,7 @@ namespace c74::min {
         ///								Setting this to true will allow you to override the readonly flag and set the attribute value
         ///anyway.
 
-        void set(atoms& args, const bool notify = true, const bool override_readonly = false) {
+        void set(atoms& args, const bool notify = true, const bool override_readonly = false) override {
             if (!writable() && !override_readonly)
                 return;    // we're all done... unless this is a readonly attr that we are forcing to update
 
@@ -686,6 +699,7 @@ namespace c74::min {
 
     private:
         T              m_value;         // The actual data wrapped by this attribute.
+        T              m_default;       // The default value for this attribute.
         atoms          m_range_args;    // The range/enum as provided by the owning Min object.
         std::vector<T> m_range;         // The range/enum translated into the native datatype.
         enum_map       m_enum_map;      // The enum mapping for indexed enums (as opposed to symbol enums).

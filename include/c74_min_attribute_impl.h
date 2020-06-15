@@ -43,6 +43,8 @@ namespace c74::min {
         handle_arguments(args...);
         copy_range();
 
+        m_default = a_default_value;
+
         if (is_same<T,ui::color>::value && an_owner->is_ui_class()) {
             auto ui_op = dynamic_cast<ui_operator_base*>(an_owner);
             ui_op->add_color_attribute({a_name,this});
@@ -65,6 +67,8 @@ namespace c74::min {
 
         handle_arguments(args...);
         copy_range();
+
+        m_default = a_default_value;
 
         auto as = to_atoms(a_default_value);
         set(as, false, true);
