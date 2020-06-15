@@ -407,7 +407,7 @@ namespace std {
         else
             c74::max::object_error(nullptr, "problem geting text from atoms");
 
-        if (text)
+        if (text && textsize)
             c74::max::sysmem_freeptr(text);
 
         return str;
