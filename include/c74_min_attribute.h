@@ -459,7 +459,7 @@ namespace c74::min {
         // create the peer Max attribute and add it to the Max class.
         // It is made 'public' due to the trickiness of the SFINAE-enabled templated functions which call this from the wrapper.
 
-        void create(max::t_class* c, const max::method getter, const max::method setter, bool isjitclass = 0);
+        void create(max::t_class* c, const max::method getter, const max::method setter, bool isjitclass = 0) override;
 
 
         /// Get the range of the attribute.
@@ -521,7 +521,7 @@ namespace c74::min {
         /// Set the attribute value using atoms.
         /// @param	args	The new value to be assigned to the attribute.
 
-        attribute& operator=(atoms& args) {
+        attribute& operator=(atoms& args) override {
            set(args);
             return *this;
         }
@@ -621,7 +621,7 @@ namespace c74::min {
         /// Get the attribute value as a vector of atoms.
         /// @return	The value of the attribute.
 
-        operator atoms() const {
+        operator atoms() const override {
             if (m_getter)
                 return m_getter();
             else
