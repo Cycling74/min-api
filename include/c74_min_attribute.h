@@ -117,6 +117,15 @@ namespace c74::min {
     using readonly = bool;
 
 
+    /// Defines a mapping to a color in Max for Live's themes.
+    /// For examples of valid color names see the live.colors object in Max.
+    /// @ingroup attributes
+
+    class live_color : public symbol {
+		using symbol::symbol;    // inherit constructors
+	};
+
+
     // Represents any type of attribute.
     // Used internally to allow heterogenous containers of attributes for the Min class.
     /// @ingroup attributes
@@ -258,6 +267,13 @@ namespace c74::min {
         }
 
 
+        /// Return the live color name if a mapping to a live color was defined for this attribute.
+        /// @return The live color name or the empty symbol if no mapping was defined.
+
+        symbol live_color_mapping() const { 
+            return m_live_color;
+        }
+
         /// Touch the attribute to force an update and notification of its value to any listeners.
 
         void touch() {
@@ -278,7 +294,7 @@ namespace c74::min {
         style        m_style { style::none };   // display style in Max
         symbol       m_category;                // Max inspector category
         int          m_order { 0 };             // Max inspector ordering
-
+		symbol       m_live_color { k_sym__empty };
 
         // calculate the offset of the size member as required for array/vector attributes
 
@@ -367,14 +383,14 @@ namespace c74::min {
         }
 
 
-        // constructor utility: handle an argument defining a attribute's setter function
+        // constructor utility: handle an argument defining an attribute's setter function
 
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, setter>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             const_cast<argument_type&>(m_setter) = arg;
         }
 
-        // constructor utility: handle an argument defining a attribute's getter function
+        // constructor utility: handle an argument defining an attribute's getter function
 
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, getter>::value>::type assign_from_argument(const argument_type& arg) noexcept {
@@ -382,7 +398,7 @@ namespace c74::min {
         }
 
 
-        // constructor utility: handle an argument defining a attribute's readonly property
+        // constructor utility: handle an argument defining an attribute's readonly property
 
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, readonly>::value>::type assign_from_argument(const argument_type& arg) noexcept {
@@ -390,7 +406,7 @@ namespace c74::min {
         }
 
 
-        // constructor utility: handle an argument defining a attribute's visibility property
+        // constructor utility: handle an argument defining an attribute's visibility property
 
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, visibility>::value>::type assign_from_argument(const argument_type& arg) noexcept {
@@ -398,7 +414,7 @@ namespace c74::min {
         }
 
 
-        // constructor utility: handle an argument defining a attribute's style property
+        // constructor utility: handle an argument defining an attribute's style property
 
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, style>::value>::type assign_from_argument(const argument_type& arg) noexcept {
@@ -406,7 +422,7 @@ namespace c74::min {
         }
 
 
-        // constructor utility: handle an argument defining a attribute's category property
+        // constructor utility: handle an argument defining an attribute's category property
 
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, category>::value>::type assign_from_argument(const argument_type& arg) noexcept {
@@ -414,12 +430,20 @@ namespace c74::min {
         }
 
 
-        // constructor utility: handle an argument defining a attribute's order property
+        // constructor utility: handle an argument defining an attribute's order property
 
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, order>::value>::type assign_from_argument(const argument_type& arg) noexcept {
            m_order = arg;
         }
+
+        
+        // constructor utility: handle an argument defining an attribute's live_color property
+
+		template<typename argument_type>
+		constexpr typename enable_if<is_same<argument_type, live_color>::value>::type assign_from_argument(const argument_type& arg) noexcept {
+			m_live_color = arg;
+		}
 
 
         // constructor utility: empty argument handling (required for handling recursive variadic templates)
