@@ -562,7 +562,19 @@ namespace c74::min {
             if (attr.editor_style() != style::none) {
                 CLASS_ATTR_STYLE(c, attr_name.c_str(), 0, style_symbols[attr.editor_style()]);
             }
-            CLASS_ATTR_DEFAULTNAME(c, attr_name.c_str(), 0, attr.default_string().c_str());
+
+            if (attr.live_color_mapping() != k_sym__empty) {
+                max::t_jrgba current_color;
+                max::object_parameter_color_get(nullptr, attr.live_color_mapping(), &current_color);
+
+                char str[64];
+                sprintf(str, "%0.6f %0.6f %0.6f %0.6f", current_color.red, current_color.green, current_color.blue, current_color.alpha);
+
+                CLASS_ATTR_DEFAULTNAME(c, attr_name.c_str(), 0, str);
+                max::class_parameter_register_default_color(c, symbol(attr_name), attr.live_color_mapping());
+            } else {
+                CLASS_ATTR_DEFAULT(c, attr_name.c_str(), 0, attr.default_string().c_str());
+            }
 
             if (!(attr.editor_category() == k_sym__empty)) {
                 atom category_atom(attr.editor_category());
@@ -571,10 +583,6 @@ namespace c74::min {
 
             atom order_atom{attr.editor_order()};
             max::class_attr_addattr_atoms(c, attr_name.c_str(), "order", k_sym_long, 0, 1, &order_atom);
-
-            if (attr.live_color_mapping() != k_sym__empty) {
-                max::class_parameter_register_default_color(c, symbol(attr_name), attr.live_color_mapping());
-			}
 
             auto range_string = attr.range_string();
             if (!range_string.empty()) {
