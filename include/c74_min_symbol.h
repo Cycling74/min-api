@@ -139,10 +139,6 @@ namespace c74::min {
                 return nullptr;
         }
 
-        operator void*() const {
-            return s->s_thing;
-        }
-
         operator bool() const {
             return s->s_thing != nullptr;
         }
@@ -151,6 +147,10 @@ namespace c74::min {
 
         const char* c_str() const {
             return s->s_name;
+        }
+
+        void* object() const {
+            return s->s_thing;
         }
 
         bool empty() const {

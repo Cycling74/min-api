@@ -378,7 +378,7 @@ namespace c74::min {
 
     template<class min_class_type>
     void wrapper_method_preset(max::t_object* o) {
-        auto z = static_cast<void*>(k_sym__preset);
+        auto z = k_sym__preset.object();
 
         if (z) {
             long ac = 0;
@@ -675,7 +675,7 @@ namespace c74::min {
         host_flags flags = host_flags::none;
         class_get_flags<min_class_type>(*instance, flags);
         if (flags == host_flags::no_live) {
-            if (max::object_attr_getlong(k_sym_max, symbol("islib")))
+            if (max::object_attr_getlong(k_sym_max.object(), symbol("islib")))
                 return;    // we are being loaded in Live, and a flag to the class specifically prohibits that
         }
 
