@@ -567,10 +567,10 @@ namespace c74::min {
                 max::t_jrgba current_color;
                 max::object_parameter_color_get(nullptr, attr.live_color_mapping(), &current_color);
 
-                char str[64];
-                sprintf(str, "%0.6f %0.6f %0.6f %0.6f", current_color.red, current_color.green, current_color.blue, current_color.alpha);
+                const auto str = std::to_string(current_color.red) + " " + std::to_string(current_color.green) + " "
+					+ std::to_string(current_color.blue) + " " + std::to_string(current_color.alpha);
 
-                CLASS_ATTR_DEFAULTNAME(c, attr_name.c_str(), 0, str);
+                CLASS_ATTR_DEFAULTNAME(c, attr_name.c_str(), 0, str.c_str());
                 max::class_parameter_register_default_color(c, symbol(attr_name), attr.live_color_mapping());
             } else {
                 CLASS_ATTR_DEFAULT(c, attr_name.c_str(), 0, attr.default_string().c_str());
