@@ -33,6 +33,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC "mock_kernel")
 
 if (APPLE)
 	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F'${C74_MAX_API_DIR}/lib/mac', -weak_framework JitterAPI")
+	target_compile_options(${PROJECT_NAME} PRIVATE -DCATCH_CONFIG_NO_CPP17_UNCAUGHT_EXCEPTIONS)
 
     # The build dir won't be present the first time the test is compiled.
     # This isn't a problem but it does generate linker warnings about the folder not existing.
