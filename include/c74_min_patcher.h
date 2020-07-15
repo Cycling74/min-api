@@ -49,7 +49,6 @@ namespace c74::min {
 
         /// call a method on an instance
 
-        template<typename T1>
         atom operator()(const symbol method_name) {
             auto m { find_method(method_name) };
 
