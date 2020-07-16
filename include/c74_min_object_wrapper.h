@@ -683,9 +683,9 @@ namespace c74::min {
 
         wrap_as_max_external_audio<min_class_type>(c);
 
+        instance->try_call("maxclass_setup", c);
         wrap_as_max_external_finish<min_class_type>(c, *instance);
         this_class = c;
-        instance->try_call("maxclass_setup", c);
         this_class_dummy_constructed = true;
      }
 
