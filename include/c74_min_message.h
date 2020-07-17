@@ -127,7 +127,7 @@ namespace c74::min {
 
         void update_inlet_number(int& inlet) {
             if (inlet == -1) {
-                if (m_owner->inlets().size() > 1)    // avoid this potentially expensive call if there is only one inlet
+                if (m_owner && m_owner->inlets().size() > 1)    // avoid this potentially expensive call if there is only one inlet
                     inlet = static_cast<int>(proxy_getinlet(static_cast<max::t_object*>(*m_owner)));
                 else
                     inlet = 0;
