@@ -19,6 +19,14 @@ namespace c74::min {
     template<int default_width_type = 20, int default_height_type = 20>
     class ui_operator : public ui_operator_base {
     public:
+
+		static constexpr long default_flags = 0
+			| c74::max::JBOX_DRAWFIRSTIN
+			| c74::max::JBOX_NODRAWBOX
+			| c74::max::JBOX_DRAWINLAST
+			| c74::max::JBOX_GROWBOTH
+			| c74::max::JBOX_BACKGROUND;
+
         explicit ui_operator(object_base* instance, const atoms& args)
         : m_instance { instance }
         {
@@ -61,6 +69,17 @@ namespace c74::min {
             c74::max::jbox_new(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()), flags, static_cast<long>(args.size()), argv);
             reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj())->b_firstin = m_instance->maxobj();
         }
+
+		explicit ui_operator(object_base* instance, const atoms& args, long flags)
+		: m_instance { instance }
+		{
+			if (!m_instance->maxobj()) // box will be a nullptr when being dummy-constructed
+				return;
+
+			const c74::max::t_atom* argv = args.empty() ? nullptr : &args[0];
+			c74::max::jbox_new(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()), flags, static_cast<long>(args.size()), argv);
+			reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj())->b_firstin = m_instance->maxobj();
+		}
 
         virtual ~ui_operator() {
             if (m_instance->maxobj())  // box will be a nullptr when being dummy-constructed
