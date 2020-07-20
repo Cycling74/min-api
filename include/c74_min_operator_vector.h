@@ -281,6 +281,23 @@ namespace c74::min {
         static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
     };
 
+    // An alternative to the above to all "m_dspsetup" in addition to "dspsetup"
+
+    template<typename min_class_type>
+    struct has_m_dspsetup {
+        template<class, class>
+        class checker;
+
+        template<typename C>
+        static std::true_type test(checker<C, decltype(&C::m_dspsetup)>*);
+
+        template<typename C>
+        static std::false_type test(...);
+
+        typedef decltype(test<min_class_type>(nullptr)) type;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+    };
+
 
     // The "dsp64" method for Max audio objects is split up into several components here.
     // The main "dsp64" method is min_dsp64(), which needs to obey basic C rules because it is called by Max.
@@ -321,8 +338,10 @@ namespace c74::min {
 
     // A specialization of min_dsp64_sel for classes that have a custom "dspsetup" message.
 
+
     template<class min_class_type>
-    typename enable_if<has_dspsetup<min_class_type>::value>::type
+    typename enable_if<has_dspsetup<min_class_type>::value
+    || has_m_dspsetup<min_class_type>::value>::type
     min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, const short* count, const double samplerate, const long maxvectorsize, const long flags) {
         self->m_min_object.samplerate(samplerate);
         min_dsp64_io(self, count);
@@ -341,7 +360,8 @@ namespace c74::min {
     // (which is most audio classes).
 
     template<class min_class_type>
-    typename enable_if<!has_dspsetup<min_class_type>::value>::type
+    typename enable_if<!has_dspsetup<min_class_type>::value
+    && !has_m_dspsetup<min_class_type>::value>::type
     min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, const short* count, const double samplerate, const long maxvectorsize, const long flags) {
         self->m_min_object.samplerate(samplerate);
         min_dsp64_io(self, count);
