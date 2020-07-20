@@ -37,6 +37,45 @@ namespace c74::min {
         returned_tags = {};
     }
 
+
+    // SFINAE implementation used internally to determine if the Min class has a member named mousedragdelta.
+    // NOTE: This relies on the C++ member name being "mousedragdelta" -- not just the Max message name being "mousedragdelta".
+    //
+    // To test this in isolation, for a class named slide, use the following code:
+    // static_assert(has_mousedragdelta<slide>::value, "error");
+
+    template<typename min_class_type>
+    struct has_mousedragdelta {
+        template<class, class>
+        class checker;
+
+        template<typename C>
+        static std::true_type test(checker<C, decltype(&C::mousedragdelta)>*);
+
+        template<typename C>
+        static std::false_type test(...);
+
+        typedef decltype(test<min_class_type>(nullptr)) type;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+    };
+
+    // An alternative to the above to all "m_mousedragdelta" in addition to "mousedragdelta"
+
+    template<typename min_class_type>
+    struct has_m_mousedragdelta {
+        template<class, class>
+        class checker;
+
+        template<typename C>
+        static std::true_type test(checker<C, decltype(&C::m_mousedragdelta)>*);
+
+        template<typename C>
+        static std::false_type test(...);
+
+        typedef decltype(test<min_class_type>(nullptr)) type;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+    };
+
     
     /// The base class for all first-class objects that are to be exposed in the Max environment.
     ///
@@ -77,6 +116,10 @@ namespace c74::min {
 
         bool is_ui_class() const override {
             return is_base_of<ui_operator_base, min_class_type>::value;
+        }
+
+        bool has_mousedragdelta() const override {
+            return c74::min::has_mousedragdelta<min_class_type>::value || has_m_mousedragdelta<min_class_type>::value;
         }
 
         bool is_assumed_threadsafe() const override {

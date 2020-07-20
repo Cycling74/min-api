@@ -53,7 +53,7 @@ namespace c74::min {
             if (tag_iter != tags.end()) {
                 flags |= c74::max::JBOX_MULTITOUCH;
             }
-            else {
+            if (m_instance->has_mousedragdelta()) {
                 flags |= c74::max::JBOX_MOUSEDRAGDELTA;
             }
 

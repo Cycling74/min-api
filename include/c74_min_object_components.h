@@ -108,6 +108,12 @@ namespace c74::min {
         virtual bool is_ui_class() const = 0;
 
 
+        /// Does this class implement a "mousedragdelta" message?
+        /// @return True if does. Otherwise false.
+
+        virtual bool has_mousedragdelta() const = 0;
+
+
         /// Is this class assumed to have threadsafe attribute accessors and messages?
         /// @return True if it is. Otherwise false (the default).
 
