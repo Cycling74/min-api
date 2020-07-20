@@ -203,4 +203,58 @@ namespace c74::min {
     static const symbol k_sym_unbinding                 { "unbinding"};                 ///< Cached symbol "unbinding"
     static const symbol k_sym_buffer_modified           { "buffer_modified"};           ///< Cached symbol "buffer_modified"
 
+    static const symbol k_sym_surface_bg                 { "surface_bg" };                 ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_bg                 { "control_bg" };                 ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_text_bg            { "control_text_bg" };            ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_fg                 { "control_fg" };                 ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_fg_on              { "control_fg_on" };              ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_fg_off             { "control_fg_off" };             ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_selection          { "control_selection" };          ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_zombie             { "control_zombie" };             ///< Cached symbol naming a Live color
+    static const symbol k_sym_value_arc                  { "value_arc" };                  ///< Cached symbol naming a Live color
+    static const symbol k_sym_value_bar                  { "value_bar" };                  ///< Cached symbol naming a Live color
+    static const symbol k_sym_active_automation          { "active_automation" };          ///< Cached symbol naming a Live color
+    static const symbol k_sym_inactive_automation        { "inactive_automation" };        ///< Cached symbol naming a Live color
+    static const symbol k_sym_macro_assigned             { "macro_assigned" };             ///< Cached symbol naming a Live color
+    static const symbol k_sym_contrast_frame             { "contrast_frame" };             ///< Cached symbol naming a Live color
+    static const symbol k_sym_key_assignment             { "key_assignment" };             ///< Cached symbol naming a Live color
+    static const symbol k_sym_midi_assignment            { "midi_assignment" };            ///< Cached symbol naming a Live color
+    static const symbol k_sym_macro_assignment           { "macro_assignment" };           ///< Cached symbol naming a Live color
+    static const symbol k_sym_assignment_text_bg         { "assignment_text_bg" };         ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_fg_zombie          { "control_fg_zombie" };          ///< Cached symbol naming a Live color
+    static const symbol k_sym_value_arc_zombie           { "value_arc_zombie" };           ///< Cached symbol naming a Live color
+    static const symbol k_sym_numbox_triangle            { "numbox_triangle" };            ///< Cached symbol naming a Live color
+    static const symbol k_sym_macro_title                { "macro_title" };                ///< Cached symbol naming a Live color
+    static const symbol k_sym_selection                  { "selection" };                  ///< Cached symbol naming a Live color
+    static const symbol k_sym_led_bg                     { "led_bg" };                     ///< Cached symbol naming a Live color
+    static const symbol k_sym_meter_bg                   { "meter_bg" };                   ///< Cached symbol naming a Live color
+    static const symbol k_sym_surface_frame              { "surface_frame" };              ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_fg_off_zombie      { "control_fg_off_zombie" };      ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_fg_on_zombie       { "control_fg_on_zombie" };       ///< Cached symbol naming a Live color
+    static const symbol k_sym_focus_frame                { "focus_frame" };                ///< Cached symbol naming a Live color
+    static const symbol k_sym_dial_triangle              { "dial_triangle" };              ///< Cached symbol naming a Live color
+    static const symbol k_sym_dial_fg                    { "dial_fg" };                    ///< Cached symbol naming a Live color
+    static const symbol k_sym_dial_needle                { "dial_needle" };                ///< Cached symbol naming a Live color
+    static const symbol k_sym_dial_fg_zombie             { "dial_fg_zombie" };             ///< Cached symbol naming a Live color
+    static const symbol k_sym_dial_needle_zombie         { "dial_needle_zombie" };         ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_text_zombie        { "control_text_zombie" };        ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_text_selection     { "control_text_selection" };     ///< Cached symbol naming a Live color
+    static const symbol k_sym_control_fill_handle        { "control_fill_handle" };        ///< Cached symbol naming a Live color
+    static const symbol k_sym_lcd_bg                     { "lcd_bg" };                     ///< Cached symbol naming a Live color
+    static const symbol k_sym_lcd_frame                  { "lcd_frame" };                  ///< Cached symbol naming a Live color
+    static const symbol k_sym_lcd_control_fg             { "lcd_control_fg" };             ///< Cached symbol naming a Live color
+    static const symbol k_sym_lcd_control_fg_alt         { "lcd_control_fg_alt" };         ///< Cached symbol naming a Live color
+    static const symbol k_sym_lcd_control_fg_zombie      { "lcd_control_fg_zombie" };      ///< Cached symbol naming a Live color
+    static const symbol k_sym_freeze_color               { "freeze_color" };               ///< Cached symbol naming a Live color
+    static const symbol k_sym_threshold_line_color       { "threshold_line_color" };       ///< Cached symbol naming a Live color
+    static const symbol k_sym_gain_reduction_line_color  { "gain_reduction_line_color" };  ///< Cached symbol naming a Live color
+    static const symbol k_sym_input_curve_color          { "input_curve_color" };          ///< Cached symbol naming a Live color
+    static const symbol k_sym_input_curve_outline_color  { "input_curve_outline_color" };  ///< Cached symbol naming a Live color
+    static const symbol k_sym_output_curve_color         { "output_curve_color" };         ///< Cached symbol naming a Live color
+    static const symbol k_sym_output_curve_outline_color { "output_curve_outline_color" }; ///< Cached symbol naming a Live color
+    static const symbol k_sym_spectrum_default_color     { "spectrum_default_color" };     ///< Cached symbol naming a Live color
+    static const symbol k_sym_spectrum_alternative_color { "spectrum_alternative_color" }; ///< Cached symbol naming a Live color
+    static const symbol k_sym_spectrum_grid_lines        { "spectrum_grid_lines" };        ///< Cached symbol naming a Live color
+    static const symbol k_sym_retro_display_scale_text   { "retro_display_scale_text" };   ///< Cached symbol naming a Live color
+
 }    // namespace c74::min

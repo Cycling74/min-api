@@ -121,8 +121,16 @@ namespace c74::min {
     /// For examples of valid color names see the live.colors object in Max.
     /// @ingroup attributes
 
-    class live_color : public symbol {
-		using symbol::symbol;    // inherit constructors
+    class live_color {
+		symbol m_color_name;
+    public:
+        live_color(const symbol& a_symbol)
+        : m_color_name { a_symbol }
+        {}
+
+        operator symbol() const {
+            return m_color_name;
+        }
 	};
 
 
@@ -442,7 +450,7 @@ namespace c74::min {
 
 		template<typename argument_type>
 		constexpr typename enable_if<is_same<argument_type, live_color>::value>::type assign_from_argument(const argument_type& arg) noexcept {
-			m_live_color = arg;
+			m_live_color = static_cast<symbol>(arg);
 		}
 
 
