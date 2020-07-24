@@ -85,7 +85,8 @@ namespace c74::min {
         // Inheriting classes can retrieve information from this dictionary using the state() method.
 
         object_base()
-        : m_state{(max::t_dictionary*)k_sym__pound_d, false} {}
+        : m_state { (max::t_dictionary*)k_sym__pound_d, false }
+        {}
 
 
         // Destructor is only called when freeing a min::object<>, and never directly.
