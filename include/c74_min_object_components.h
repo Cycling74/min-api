@@ -114,6 +114,12 @@ namespace c74::min {
         virtual bool has_mousedragdelta() const = 0;
 
 
+        /// Can an instance of this class capture the keyboard focus?
+        /// @return True if it can. Otherwise false.
+
+        virtual bool is_focusable() const = 0;
+
+
         /// Is this class assumed to have threadsafe attribute accessors and messages?
         /// @return True if it is. Otherwise false (the default).
 

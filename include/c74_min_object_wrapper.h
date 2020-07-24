@@ -292,8 +292,18 @@ namespace c74::min {
     void wrapper_method_self_ptr_long_ptr_long_ptr_long(max::t_object* o, const void* arg1, const max::t_atom_long arg2, const max::t_atom_long* arg3, const max::t_atom_long arg4, const max::t_atom_long* arg5, const max::t_atom_long arg6) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
-        atoms as{o, arg1, arg2, arg3, arg4, arg5, arg6};    // NOTE: self could be the jitter object rather than the max object -- so we
+        atoms as {o, arg1, arg2, arg3, arg4, arg5, arg6};   // NOTE: self could be the jitter object rather than the max object -- so we
                                                             // pass `o` which is always the correct `self` for box operations
+        meth(as);
+    }
+
+
+    template<class min_class_type, class message_name_type>
+    void wrapper_method_self_ptr_long_long_long(max::t_object* o, const void* arg1, const max::t_atom_long arg2, const max::t_atom_long arg3, const max::t_atom_long arg4) {
+        auto  self = wrapper_find_self<min_class_type>(o);
+        auto& meth = *self->m_min_object.messages()[message_name_type::name];
+        atoms as {o, arg1, arg2, arg3, arg4};   // NOTE: self could be the jitter object rather than the max object -- so we
+                                                // pass `o` which is always the correct `self` for box operations
         meth(as);
     }
 
@@ -436,8 +446,11 @@ namespace c74::min {
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(edclose)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(fileusage)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(float)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(focusgained)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(focuslost)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(getplaystate)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(int)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(key)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(loadbang)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mouseenter)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(mt_mouseenter)
@@ -521,6 +534,9 @@ namespace c74::min {
             else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, mouse, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, mouse, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, focusgained, self_ptr, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, focuslost, self_ptr, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, key, self_ptr_long_long_long, A_CANT)
             else if (static_cast<message_type>(*a_message.second) == message_type::ellipsis)
                 max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_ellipsis<min_class_type>), a_message.first.c_str(), max::A_CANT, 0);
             else if (a_message.first == "dspsetup");    // skip -- handle it in operator classes

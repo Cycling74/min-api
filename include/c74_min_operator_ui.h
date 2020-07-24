@@ -56,6 +56,9 @@ namespace c74::min {
             if (m_instance->has_mousedragdelta()) {
                 flags |= c74::max::JBOX_MOUSEDRAGDELTA;
             }
+            if (m_instance->is_focusable()) {
+                flags |= c74::max::JBOX_HILITE;
+            }
 
             const c74::max::t_atom* argv = args.empty() ? nullptr : &args[0];
             c74::max::jbox_new(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()), flags, static_cast<long>(args.size()), argv);
