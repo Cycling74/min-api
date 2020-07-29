@@ -80,6 +80,7 @@ namespace c74::min {
         if (m_style == style::time) {
             class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
         }
+#ifndef C74_NO_JITTER
         else if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
@@ -87,6 +88,7 @@ namespace c74::min {
                 nullptr, nullptr);
             max::jit_class_addattr(c, jit_attr);
         }
+#endif
         else {
             auto max_attr = max::attr_offset_new(m_name, datatype(), static_cast<long>(flags(isjitclass)), getter, setter, 0);
             max::class_addattr(c, max_attr);
@@ -96,6 +98,7 @@ namespace c74::min {
 
     template<>
     void attribute<numbers>::create(max::t_class* c, const max::method getter, const max::method setter, bool const isjitclass) {
+#ifndef C74_NO_JITTER
         if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
@@ -104,15 +107,19 @@ namespace c74::min {
             max::jit_class_addattr(c, jit_attr);
         }
         else {
+#endif
             auto max_attr = max::attr_offset_array_new(
                 m_name, datatype(), 0xFFFF, static_cast<long>(flags(isjitclass)), getter, setter, static_cast<long>(size_offset()), 0);
             max::class_addattr(c, max_attr);
+#ifndef C74_NO_JITTER
         }
+#endif
     };
 
 
     template<>
     void attribute<ints>::create(max::t_class* c, const max::method getter, const max::method setter, bool const isjitclass) {
+#ifndef C74_NO_JITTER
         if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
@@ -121,10 +128,13 @@ namespace c74::min {
             max::jit_class_addattr(c, jit_attr);
         }
         else {
+#endif
             auto max_attr = max::attr_offset_array_new(
                 m_name, datatype(), 0xFFFF, static_cast<long>(flags(isjitclass)), getter, setter, static_cast<long>(size_offset()), 0);
             max::class_addattr(c, max_attr);
+#ifndef C74_NO_JITTER
         }
+#endif
     };
 
 
