@@ -24,26 +24,27 @@ add_custom_target( API ALL
 )
 
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/mock)
+if (NOT DISABLE_TESTING)
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/mock)
 
+	# Add unit tests for the API
+	if ("${THIS_PACKAGE_NAME}" MATCHES ".*devkit")
 
-# Add unit tests for the API
-if ("${THIS_PACKAGE_NAME}" MATCHES ".*devkit")
+		enable_testing()
 
-	enable_testing()
+		SUBDIRLIST(TESTDIRS ${CMAKE_CURRENT_SOURCE_DIR}/test)
+		foreach(testdir ${TESTDIRS})
+			if (${testdir} STREQUAL "mock")
+			elseif (${testdir} STREQUAL "catch")
+			else ()
+				if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir}/CMakeLists.txt")
+					message("Generating Unit Test: ${testdir}")
+					add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir})
+				endif ()
+			endif()
+		endforeach()
 
-	SUBDIRLIST(TESTDIRS ${CMAKE_CURRENT_SOURCE_DIR}/test)
-	foreach(testdir ${TESTDIRS})
-		if (${testdir} STREQUAL "mock")
-		elseif (${testdir} STREQUAL "catch")
-		else ()
-			if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir}/CMakeLists.txt")
-				message("Generating Unit Test: ${testdir}")
-				add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/${testdir})
-			endif ()
-		endif()
-	endforeach()
-
+	endif ()
 endif ()
 
 
