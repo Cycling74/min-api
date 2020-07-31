@@ -85,7 +85,8 @@ namespace c74::min {
         // Inheriting classes can retrieve information from this dictionary using the state() method.
 
         object_base()
-        : m_state{(max::t_dictionary*)k_sym__pound_d, false} {}
+        : m_state { (max::t_dictionary*)k_sym__pound_d, false }
+        {}
 
 
         // Destructor is only called when freeing a min::object<>, and never directly.
@@ -106,6 +107,18 @@ namespace c74::min {
         /// @return True if it is. Otherwise false.
 
         virtual bool is_ui_class() const = 0;
+
+
+        /// Does this class implement a "mousedragdelta" message?
+        /// @return True if does. Otherwise false.
+
+        virtual bool has_mousedragdelta() const = 0;
+
+
+        /// Can an instance of this class capture the keyboard focus?
+        /// @return True if it can. Otherwise false.
+
+        virtual bool is_focusable() const = 0;
 
 
         /// Is this class assumed to have threadsafe attribute accessors and messages?

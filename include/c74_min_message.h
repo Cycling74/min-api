@@ -126,7 +126,7 @@ namespace c74::min {
         friend class object_base;
 
         void update_inlet_number(int& inlet) {
-            if (inlet == -1) {
+            if (inlet == -1 && m_owner->maxobj()) {
                 if (m_owner->inlets().size() > 1)    // avoid this potentially expensive call if there is only one inlet
                     inlet = static_cast<int>(proxy_getinlet(static_cast<max::t_object*>(*m_owner)));
                 else
