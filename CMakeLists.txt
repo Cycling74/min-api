@@ -24,7 +24,8 @@ add_custom_target( API ALL
 )
 
 
-if (NOT DISABLE_TESTING)
+set(ENABLE_TESTING ON CACHE BOOL "Enable testing")
+if (ENABLE_TESTING)
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/mock)
 
 	# Add unit tests for the API
