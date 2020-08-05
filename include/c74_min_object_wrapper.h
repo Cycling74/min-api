@@ -563,9 +563,9 @@ namespace c74::min {
         // attributes
 
         for (auto& an_attribute : instance.attributes()) {
-            std::string     attr_name = an_attribute.first;
-            attribute_base& attr      = *an_attribute.second;
-
+            std::string     attr_name  { an_attribute.first };
+            attribute_base& attr       { *an_attribute.second };
+ 
             if (attr.visible() == visibility::disable)
                 continue;
 

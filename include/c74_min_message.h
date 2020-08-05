@@ -50,9 +50,12 @@ namespace c74::min {
             }
             else if (a_name == "dblclick" || a_name == "dsp64" || a_name == "dspsetup" || a_name == "edclose" || a_name == "fileusage"
                 || a_name == "jitclass_setup" || a_name == "maxclass_setup" || a_name == "maxob_setup" || a_name == "mop_setup"
-                || a_name == "notify" || a_name == "okclose" || a_name == "patchlineupdate" || a_name == "savestate" || a_name == "setup"
-                || a_name == "mouseenter" || a_name == "mouseleave" || a_name == "mousedown" || a_name == "mouseup"
-                || a_name == "mousedragdelta" || a_name == "mousedoubleclick") {
+                || a_name == "notify" || a_name == "okclose" || a_name == "oksize" || a_name == "paint"
+                || a_name == "patchlineupdate" || a_name == "savestate" || a_name == "setup"
+                || a_name == "mouseenter" || a_name == "mouseleave" || a_name == "mousedown" || a_name == "mouseup" || a_name == "mousemove"
+                || a_name == "mousedragdelta" || a_name == "mousedoubleclick"
+                || a_name == "focusgained" || a_name == "focuslost")
+            {
                 m_type = message_type::cant;
             }
 
