@@ -175,11 +175,11 @@ namespace c74::min {
             double alpha() const {
                 return m_color.alpha;
             }
-          
+
             bool operator==(const color& b) const {
                 return red() == b.red() && green() == b.green() && blue() == b.blue() && alpha() == b.alpha();
             }
-          
+
             bool operator!=(const color& b) const {
                 return red() != b.red() || green() != b.green() || blue() != b.blue() || alpha() != b.alpha();
             }
@@ -429,5 +429,5 @@ void wrap_as_max_external(const char* cppname, const char* maxname, void* resour
 
 #define MIN_EXTERNAL_CUSTOM(cpp_classname, max_name)                                                                                       \
     void ext_main(void* r) {                                                                                                               \
-        c74::min::wrap_as_max_external<cpp_classname>(#max_name, __FILE__, r);                                                             \
+        c74::min::wrap_as_max_external<cpp_classname>(#cpp_classname, #max_name, r);                                                       \
     }
