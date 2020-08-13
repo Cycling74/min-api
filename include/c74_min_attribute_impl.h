@@ -77,8 +77,12 @@ namespace c74::min {
 
     template<typename T, threadsafe threadsafety, template<typename> class limit_type, allow_repetitions repetitions>
     void attribute<T, threadsafety, limit_type, repetitions>::create(max::t_class* c, const max::method getter, const max::method setter, const bool isjitclass) {
+        long attr_flags {};
+        if (visible() == visibility::hide)
+            attr_flags |= max::ATTR_SET_OPAQUE_USER;
+
         if (m_style == style::time) {
-            class_time_addattr(c, m_name.c_str(), m_title.c_str(), 0);
+            class_time_addattr(c, m_name.c_str(), m_title.c_str(), attr_flags);
         }
         else if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset,
@@ -88,14 +92,21 @@ namespace c74::min {
             max::jit_class_addattr(c, jit_attr);
         }
         else {
-            auto max_attr = max::attr_offset_new(m_name, datatype(), static_cast<long>(flags(isjitclass)), getter, setter, 0);
+            auto max_attr = max::attr_offset_new(m_name, datatype(), static_cast<long>(flags(isjitclass)) | attr_flags, getter, setter, 0);
             max::class_addattr(c, max_attr);
         }
+
+        if (visible() == visibility::hide)
+            class_attr_addattr_parse(c, m_name.c_str(), "invisible", c74::max::gensym("long"), 1, "1");
     };
 
 
     template<>
     void attribute<numbers>::create(max::t_class* c, const max::method getter, const max::method setter, bool const isjitclass) {
+        long attr_flags {};
+        if (visible() == visibility::hide)
+            attr_flags |= max::ATTR_SET_OPAQUE_USER;
+
         if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
@@ -105,14 +116,21 @@ namespace c74::min {
         }
         else {
             auto max_attr = max::attr_offset_array_new(
-                m_name, datatype(), 0xFFFF, static_cast<long>(flags(isjitclass)), getter, setter, static_cast<long>(size_offset()), 0);
+                m_name, datatype(), 0xFFFF, static_cast<long>(flags(isjitclass)) | attr_flags, getter, setter, static_cast<long>(size_offset()), 0);
             max::class_addattr(c, max_attr);
         }
+
+        if (visible() == visibility::hide)
+            class_attr_addattr_parse(c, m_name.c_str(), "invisible", c74::max::gensym("long"), 1, "1");
     };
 
 
     template<>
     void attribute<ints>::create(max::t_class* c, const max::method getter, const max::method setter, bool const isjitclass) {
+        long attr_flags {};
+        if (visible() == visibility::hide)
+            attr_flags |= max::ATTR_SET_OPAQUE_USER;
+
         if (isjitclass) {
             auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
@@ -122,9 +140,12 @@ namespace c74::min {
         }
         else {
             auto max_attr = max::attr_offset_array_new(
-                m_name, datatype(), 0xFFFF, static_cast<long>(flags(isjitclass)), getter, setter, static_cast<long>(size_offset()), 0);
+                m_name, datatype(), 0xFFFF, static_cast<long>(flags(isjitclass)) | attr_flags, getter, setter, static_cast<long>(size_offset()), 0);
             max::class_addattr(c, max_attr);
         }
+        
+        if (visible() == visibility::hide)
+            class_attr_addattr_parse(c, m_name.c_str(), "invisible", c74::max::gensym("long"), 1, "1");
     };
 
 

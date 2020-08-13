@@ -256,6 +256,9 @@ namespace c74::min {
                 const auto& description = doc_format(attr_object.description_string());
                 const auto& attr_type   = attr_object.datatype();
 
+                if (attr_object.visible() == visibility::hide)
+                    continue;
+
                 strncpy(digest, description.c_str(), digest_length_max);
                 char* c = strstr(digest, ". ");
                 if (!c)
