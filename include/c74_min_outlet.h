@@ -98,7 +98,7 @@ namespace c74::min {
         {}
 
         void callback() {
-            outlet_do_send(m_value);
+            outlet_do_send(this->m_baton, m_value);
             m_set = false;
         }
 
