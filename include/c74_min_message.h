@@ -227,6 +227,7 @@ namespace c74::min {
         : message(an_owner, a_name, a_function, a_description, a_type)
         {}
 
+        virtual ~message() {}
 
         /// Call the message's action.
         /// @param	args	Optional arguments to send to the message's action.
