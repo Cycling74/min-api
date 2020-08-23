@@ -299,12 +299,13 @@ namespace c74::min {
 
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_self_ptr_long_long_long(max::t_object* o, const void* arg1, const max::t_atom_long arg2, const max::t_atom_long arg3, const max::t_atom_long arg4) {
+    max::t_atom_long wrapper_method_self_ptr_long_long_long(max::t_object* o, const void* arg1, const max::t_atom_long arg2, const max::t_atom_long arg3, const max::t_atom_long arg4) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
         atoms as {o, arg1, arg2, arg3, arg4};   // NOTE: self could be the jitter object rather than the max object -- so we
                                                 // pass `o` which is always the correct `self` for box operations
-        meth(as);
+        auto return_value = static_cast<max::t_atom_long>(meth(as)[0]);
+        return return_value;
     }
 
     template<class min_class_type, class message_name_type>
