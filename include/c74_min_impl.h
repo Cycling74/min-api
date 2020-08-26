@@ -151,7 +151,7 @@ namespace c74::min {
 
 
     bool atom::operator==(const max::t_atom& b) const {
-        return this->a_type == this->a_type && this->a_w.w_obj == b.a_w.w_obj;
+        return this->a_w.w_obj == b.a_w.w_obj;
     }
 
 
