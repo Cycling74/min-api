@@ -308,15 +308,6 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
-    void wrapper_method_self_ptr_long(max::t_object* o, const void* arg1, const max::t_atom_long arg2) {
-        auto  self = wrapper_find_self<min_class_type>(o);
-        auto& meth = *self->m_min_object.messages()[message_name_type::name];
-        atoms as {o, arg1, arg2};
-                                                // pass `o` which is always the correct `self` for box operations
-        meth(as);
-    }
-
-    template<class min_class_type, class message_name_type>
     void wrapper_method_getplaystate(max::t_object* o, long* play, double* pos, long* loop) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
@@ -516,7 +507,7 @@ namespace c74::min {
 
         for (auto& a_message : instance.messages()) {
             MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
-            else MIN_WRAPPER_ADDMETHOD(c, dspstate, self_ptr_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, dspstate, int, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT)
@@ -809,7 +800,7 @@ namespace c74::min {
         // must happen pror to max_jit_class_wrap_standard call
         for (auto& a_message : instance->messages()) {
             MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
-            else MIN_WRAPPER_ADDMETHOD(c, dspstate, self_ptr_long, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, dspstate, int, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT)
