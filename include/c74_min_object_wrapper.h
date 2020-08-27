@@ -308,6 +308,15 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
+    void wrapper_method_self_ptr_long(max::t_object* o, const void* arg1, const max::t_atom_long arg2) {
+        auto  self = wrapper_find_self<min_class_type>(o);
+        auto& meth = *self->m_min_object.messages()[message_name_type::name];
+        atoms as {o, arg1, arg2};
+                                                // pass `o` which is always the correct `self` for box operations
+        meth(as);
+    }
+
+    template<class min_class_type, class message_name_type>
     void wrapper_method_getplaystate(max::t_object* o, long* play, double* pos, long* loop) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
@@ -443,6 +452,7 @@ namespace c74::min {
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(bang)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(dblclick)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(dictionary)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(dspstate)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(edclose)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(fileusage)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(float)
@@ -506,6 +516,7 @@ namespace c74::min {
 
         for (auto& a_message : instance.messages()) {
             MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
+            else MIN_WRAPPER_ADDMETHOD(c, dspstate, self_ptr_long, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT)
@@ -543,13 +554,13 @@ namespace c74::min {
             else if (a_message.first == "maxclass_setup");          // for min class construction only, do not add for exposure to max
             else if (a_message.first == "savestate")
                 max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
-        	else {
-                if (a_message.second->type() == max::A_GIMMEBACK) {
-                    max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>), 
-                        a_message.first.c_str(), a_message.second->type(), 0);
-				}
-                else {
-					max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>), 
+            else {
+              if (a_message.second->type() == max::A_GIMMEBACK) {
+                max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>),
+                    a_message.first.c_str(), a_message.second->type(), 0);
+              }
+              else {
+                max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>),
                         a_message.first.c_str(), a_message.second->type(), 0);
                 }
             }
@@ -565,7 +576,7 @@ namespace c74::min {
         for (auto& an_attribute : instance.attributes()) {
             std::string     attr_name  { an_attribute.first };
             attribute_base& attr       { *an_attribute.second };
- 
+
             if (attr.visible() == visibility::disable)
                 continue;
 
@@ -584,7 +595,7 @@ namespace c74::min {
                 max::object_parameter_color_get(nullptr, attr.live_color_mapping(), &current_color);
 
                 const auto str = std::to_string(current_color.red) + " " + std::to_string(current_color.green) + " "
-					+ std::to_string(current_color.blue) + " " + std::to_string(current_color.alpha);
+                  + std::to_string(current_color.blue) + " " + std::to_string(current_color.alpha);
 
                 CLASS_ATTR_DEFAULTNAME(c, attr_name.c_str(), 0, str.c_str());
                 max::class_parameter_register_default_color(c, symbol(attr_name), attr.live_color_mapping());
@@ -798,6 +809,7 @@ namespace c74::min {
         // must happen pror to max_jit_class_wrap_standard call
         for (auto& a_message : instance->messages()) {
             MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
+            else MIN_WRAPPER_ADDMETHOD(c, dspstate, self_ptr_long, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT)
