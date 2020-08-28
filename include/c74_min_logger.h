@@ -5,11 +5,12 @@
 
 #pragma once
 
+#include <ostream>
+#include <streambuf>
 namespace c74::min {
 
-	class logger_line_ending { };      ///< A type to represent line endings for the min::logger class.
-	static logger_line_ending endl;    ///< An instance of a line ending for convenience.
-
+	// for backword compatibility. min::endl is no longer a empty class but an alias to std::endl.
+	using std::endl;
 
 	/// Logging utility to deliver console messages
 	/// in such a way that they are mirrored to the Max window.
@@ -19,12 +20,10 @@ namespace c74::min {
 	///
 	/// @see min::object::cout
 	/// @see min::object::cerr
-	/// @see min::endl
-	template<class E, class T = std::char_traits<E>>
-	class basic_logger_streambuf : public std::basic_streambuf<E, T> { };
+	/// @see min::object::cwarn
 
-	template<class E, class T = std::char_traits<E>>
-	class basic_logger : public std::basic_iostream<E, T> {
+
+	class loggerbuf : public std::basic_stringbuf<char> {
 	public:
 		/// The output type of the message.
 		/// These are not `levels` as in some languages (e.g. Ruby) but distinct targets.
@@ -41,28 +40,13 @@ namespace c74::min {
 		/// @param an_owner		Your object instance
 		/// @param a_type		The type of console output to deliver
 
-		basic_logger(object_base* an_owner, basic_logger::type a_type)
-		: std::basic_iostream<E, T>(new basic_logger_streambuf<E, T>)
+		loggerbuf(object_base* an_owner, loggerbuf::type a_type)
+		: std::basic_stringbuf<char>()
 		, m_owner {*an_owner}
 		, m_target {a_type} { }
 
-		/// Use the insertion operator as for any other stream to build the output message
-		/// @param	x	A token to be added to the output stream.
-		/// @return		A reference to the output stream.
-
-		template<typename T2>
-		basic_logger& operator<<(const T2& x) {
-			m_stream << x;
-			return *this;
-		}
-
-
-		/// Pass endl to the insertion operator to complete the console post and flush it.
-		/// @param x	The min::endl token
-		/// @return		A reference to the output stream.
-
-		basic_logger& operator<<(const logger_line_ending& x) {
-			const std::string& s = m_stream.str();
+		virtual int sync() override {
+			const std::string& s = str();
 
 			switch (m_target) {
 				case type::message:
@@ -81,23 +65,29 @@ namespace c74::min {
 					break;
 				case type::error:
 					std::cerr << s << std::endl;
-
 					// if the max object is present then it is safe to post even if the owner isn't yet fully initialized
 					if (m_owner.initialized() || k_sym_max)
 						max::object_error(m_owner, s.c_str());
 					break;
 			}
-
-			m_stream.str("");
-			return *this;
+			return 0;
 		}
 
 	private:
-		object_base&       m_owner;
-		basic_logger::type m_target;
-		std::stringstream  m_stream;
+		object_base&    m_owner;
+		loggerbuf::type m_target;
 	};
 
-	using logger = basic_logger<char, std::char_traits<char>>;
+	class logger : public std::iostream {
+	public:
+		logger() = delete;
+		explicit logger(object_base* an_owner, loggerbuf::type a_type)
+		: buf(an_owner, a_type)
+		, std::iostream(&buf) { }
+		using type = loggerbuf::type;
+
+	private:
+		loggerbuf buf;
+	};
 
 }    // namespace c74::min
