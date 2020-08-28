@@ -507,8 +507,8 @@ namespace c74::min {
 
         for (auto& a_message : instance.messages()) {
             MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
-            else MIN_WRAPPER_ADDMETHOD(c, dspstate, int, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, dspstate, int, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero, A_CANT)
@@ -800,8 +800,8 @@ namespace c74::min {
         // must happen pror to max_jit_class_wrap_standard call
         for (auto& a_message : instance->messages()) {
             MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
-            else MIN_WRAPPER_ADDMETHOD(c, dspstate, int, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
+            else MIN_WRAPPER_ADDMETHOD(c, dspstate, int, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT)
             else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero, A_CANT)
