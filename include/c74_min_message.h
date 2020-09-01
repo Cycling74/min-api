@@ -48,7 +48,7 @@ namespace c74::min {
                 name   = "float";
                 m_type = message_type::float_argument;
             }
-            else if (a_name == "dblclick" || a_name == "dsp64" || a_name == "dspsetup" || a_name == "edclose" || a_name == "fileusage"
+            else if (a_name == "dblclick" || a_name == "dsp64" || a_name == "dspsetup" || a_name == "dspstate" || a_name == "edclose" || a_name == "fileusage"
                 || a_name == "jitclass_setup" || a_name == "maxclass_setup" || a_name == "maxob_setup" || a_name == "mop_setup"
                 || a_name == "notify" || a_name == "okclose" || a_name == "oksize" || a_name == "paint"
                 || a_name == "patchlineupdate" || a_name == "savestate" || a_name == "setup"
