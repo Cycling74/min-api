@@ -48,6 +48,7 @@ namespace c74::min {
             self->m_min_object.set_classname(name);
 
             self->setup();
+            self->m_min_object.try_call("setup");
 
             if (self->m_min_object.is_ui_class()) {
                 max::t_dictionary* d = object_dictionaryarg(ac, av);
