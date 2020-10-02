@@ -54,7 +54,8 @@ namespace c74::min {
                 || a_name == "patchlineupdate" || a_name == "savestate" || a_name == "setup"
                 || a_name == "mouseenter" || a_name == "mouseleave" || a_name == "mousedown" || a_name == "mouseup" || a_name == "mousemove"
                 || a_name == "mousedragdelta" || a_name == "mousedoubleclick"
-                || a_name == "focusgained" || a_name == "focuslost")
+                || a_name == "focusgained" || a_name == "focuslost"
+                || a_name == "loadbang")
             {
                 m_type = message_type::cant;
             }
