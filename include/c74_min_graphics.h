@@ -85,6 +85,10 @@ namespace c74::min::ui {
         : m_position { static_cast<double>(x), static_cast<double>(y) }
         {}
 
+        position(const c74::max::t_pt& point)
+        : m_position { point.x, point.y }
+        {}
+
         void operator()(max::t_rect& r) const {
             r.x = m_position.x;
             r.y = m_position.y;
@@ -103,6 +107,10 @@ namespace c74::min::ui {
 
         origin(const int x, const int y)
         : m_position { static_cast<double>(x), static_cast<double>(y) }
+        {}
+
+        origin(const c74::max::t_pt& point)
+        : m_position { point.x, point.y }
         {}
 
         void operator()(max::t_rect& r) const {
@@ -127,6 +135,10 @@ namespace c74::min::ui {
 
         destination(const int x, const double y)
         : m_position { static_cast<double>(x), y }
+        {}
+
+        destination(const c74::max::t_pt& point)
+        : m_position { point.x, point.y }
         {}
 
         void operator()(max::t_rect& r) const {
