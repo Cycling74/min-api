@@ -9,8 +9,6 @@ if (${CMAKE_GENERATOR} MATCHES "Xcode")
 endif ()
 
 
-set(C74_MAX_API_DIR ${CMAKE_CURRENT_LIST_DIR}/../max-api)
-
 if (APPLE)
     if (CMAKE_OSX_ARCHITECTURES STREQUAL "")
         set(CMAKE_OSX_ARCHITECTURES x86_64)
@@ -18,7 +16,7 @@ if (APPLE)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version" FORCE)
 endif ()
 
-include(${C74_MAX_API_DIR}/script/max-pretarget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../max-api/script/max-pretarget.cmake)
 
 set(C74_INCLUDES ${C74_INCLUDES} "${CMAKE_CURRENT_LIST_DIR}/../include")
 file(GLOB_RECURSE C74_MIN_HEADERS ${CMAKE_CURRENT_LIST_DIR}/../include/*.h)
