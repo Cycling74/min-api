@@ -5,7 +5,6 @@ cmake_minimum_required(VERSION 3.10)
 
 set(ORIGINAL_NAME "${PROJECT_NAME}")
 set(TEST_NAME "${PROJECT_NAME}_test")
-#project(${PROJECT_NAME}_test)
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 
@@ -14,7 +13,6 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 	include_directories( 
 		"${C74_INCLUDES}"
 		"${C74_MIN_API_DIR}/test"
-		# "${C74_MIN_API_DIR}/test/mock"
 	)
     
 	add_definitions(
@@ -31,10 +29,6 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 		endif()
 	ENDFOREACH()
 	
-	# set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage")
-	# set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage")
-	# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
-
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../tests")
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
@@ -57,10 +51,6 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 	endif ()
 	if (WIN32)
         set_target_properties(${TEST_NAME} PROPERTIES COMPILE_PDB_NAME ${TEST_NAME})
-
-		# target_link_libraries(${TEST_NAME} ${MaxAPI_LIB})
-		# target_link_libraries(${TEST_NAME} ${MaxAudio_LIB})
-		# target_link_libraries(${TEST_NAME} ${Jitter_LIB})
 	endif ()
 
 	add_test(NAME ${TEST_NAME}
