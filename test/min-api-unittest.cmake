@@ -13,13 +13,7 @@ include_directories(
 	"${CMAKE_CURRENT_LIST_DIR}/mock"
 )
 
-#set(CMAKE_CXX_FLAGS "-std=c++1y -stdlib=libc++ -fprofile-arcs -ftest-coverage")
-#set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage")
-#set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage")
-#SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
-
 if (APPLE)
-	#set(CMAKE_OSX_ARCHITECTURES x86_64;i386)
 	set(CMAKE_OSX_ARCHITECTURES x86_64)
 endif ()
 
