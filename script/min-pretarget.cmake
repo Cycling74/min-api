@@ -19,7 +19,6 @@ endif ()
 include(${CMAKE_CURRENT_LIST_DIR}/../max-api/script/max-pretarget.cmake)
 
 set(C74_INCLUDES ${C74_INCLUDES} "${CMAKE_CURRENT_LIST_DIR}/../include")
-file(GLOB_RECURSE C74_MIN_HEADERS ${CMAKE_CURRENT_LIST_DIR}/../include/*.h)
 
 add_definitions(-DC74_MIN_API)
 
