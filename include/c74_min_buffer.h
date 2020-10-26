@@ -30,10 +30,41 @@ namespace c74::min {
         // takes a single arg, but cannot be marked explicit unless we are willing to decorate all using code with a cast to this type
         // thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
 
-        buffer_reference(object_base* an_owner, const function& a_function = nullptr)
+        buffer_reference(object_base* an_owner, const function& a_function = nullptr, const bool create_messages = true)
         : m_owner { *an_owner }
         , m_notification_callback { a_function }
-        {}
+        {
+            if (create_messages) {
+                // Messages added to the owning object for this buffer~ reference
+
+                m_set_meth = std::make_unique<message<>>(&m_owner, "set", "Choose a named buffer~ from which to read.",
+                     MIN_FUNCTION {
+                        set(args[0]);
+                        return {};
+                     }
+                );
+
+                m_dblclick_meth = std::make_unique<message<>>(&m_owner, "dblclick",
+                     MIN_FUNCTION {
+                         max::buffer_view(max::buffer_ref_getobject(m_instance));
+                         return {};
+                     }
+                 );
+
+                 m_notify_meth = std::make_unique<message<>>( &m_owner, "notify",
+                     MIN_FUNCTION {
+                         return handle_notification(&m_owner, args);
+                    }
+                 );
+            }
+        }
+
+        // copy/move constructors and assignment
+        buffer_reference(const buffer_reference& source) = delete;
+        buffer_reference(buffer_reference&& source)      = delete;
+        buffer_reference& operator=(const buffer_reference& source) = delete;
+        buffer_reference& operator=(buffer_reference&& source) = delete;
+
 
 
         /// Destroy a buffer reference.
@@ -70,6 +101,21 @@ namespace c74::min {
         }
 
 
+        atoms handle_notification(object_base* an_owner, const atoms& args) {
+            notification n { args };
+
+            if (m_notification_callback) {
+                if (n.name() == k_sym_globalsymbol_binding)
+                    m_notification_callback({k_sym_binding}, -1);
+                else if (n.name() == k_sym_globalsymbol_unbinding)
+                    m_notification_callback({k_sym_unbinding}, -1);
+                else if (n.name() == k_sym_buffer_modified)
+                    m_notification_callback({k_sym_modified}, -1);
+            }
+            return { max::buffer_ref_notify(m_instance, n.registration(), n.name(), n.source(), n.data()) };
+        }
+
+
     private:
         max::t_buffer_ref* m_instance { nullptr };
         object_base&       m_owner;
@@ -77,36 +123,9 @@ namespace c74::min {
 
         // Messages added to the owning object for this buffer~ reference
 
-        message<> set_meth = { &m_owner, "set", "Choose a named buffer~ from which to read.",
-            MIN_FUNCTION {
-                set(args[0]);
-                return {};
-            }
-        };
-
-        message<> dblclick_meth = { &m_owner, "dblclick",
-            MIN_FUNCTION {
-                max::buffer_view(max::buffer_ref_getobject(m_instance));
-                return {};
-            }
-        };
-
-        message<> notify_meth = { &m_owner, "notify",
-            MIN_FUNCTION {
-                notification n { args };
-
-                if (m_notification_callback) {
-                    if (n.name() == k_sym_globalsymbol_binding)
-                        m_notification_callback({k_sym_binding}, -1);
-                    else if (n.name() == k_sym_globalsymbol_unbinding)
-                        m_notification_callback({k_sym_unbinding}, -1);
-                    else if (n.name() == k_sym_buffer_modified)
-                        m_notification_callback({k_sym_modified}, -1);
-                }
-                return { max::buffer_ref_notify(m_instance, n.registration(), n.name(), n.source(), n.data()) };
-            }
-        };
-
+        unique_ptr<message<>> m_set_meth {};
+        unique_ptr<message<>> m_dblclick_meth {};
+        unique_ptr<message<>> m_notify_meth {};
     };
 
 
