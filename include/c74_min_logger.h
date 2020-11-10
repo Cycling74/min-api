@@ -21,6 +21,7 @@ namespace c74::min {
 	/// @see min::object::cout
 	/// @see min::object::cerr
 	/// @see min::object::cwarn
+	/// @see min::endl
 
 
 	class loggerbuf : public std::basic_stringbuf<char> {
@@ -50,26 +51,27 @@ namespace c74::min {
 
 			switch (m_target) {
 				case type::message:
-					std::cout << s << std::endl;
+					std::cout << s;
 
 					// if the max object is present then it is safe to post even if the owner isn't yet fully initialized
 					if (m_owner.initialized() || k_sym_max)
 						max::object_post(m_owner, s.c_str());
 					break;
 				case type::warning:
-					std::cerr << s << std::endl;
+					std::cerr << s;
 
 					// if the max object is present then it is safe to post even if the owner isn't yet fully initialized
 					if (m_owner.initialized() || k_sym_max)
 						max::object_warn(m_owner, s.c_str());
 					break;
 				case type::error:
-					std::cerr << s << std::endl;
+					std::cerr << s;
 					// if the max object is present then it is safe to post even if the owner isn't yet fully initialized
 					if (m_owner.initialized() || k_sym_max)
 						max::object_error(m_owner, s.c_str());
 					break;
 			}
+			str("");
 			return 0;
 		}
 
@@ -78,12 +80,12 @@ namespace c74::min {
 		loggerbuf::type m_target;
 	};
 
-	class logger : public std::iostream {
+	class logger : public std::ostream {
 	public:
 		logger() = delete;
 		explicit logger(object_base* an_owner, loggerbuf::type a_type)
 		: buf(an_owner, a_type)
-		, std::iostream(&buf) { }
+		, std::ostream(&buf) { }
 		using type = loggerbuf::type;
 
 	private:
