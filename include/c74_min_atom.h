@@ -53,19 +53,12 @@ namespace c74::min {
             return *this;
         }
 
-#ifdef C74_X64
-        atom& operator=(const long long value) {
+        atom& operator=(const int64_t value) {
             atom_setlong(this, value);
             return *this;
         }
-#else
-        atom& operator=(const long value) {
-            atom_setlong(this, value);
-            return *this;
-        }
-#endif
 
-        atom& operator=(const int value) {
+        atom& operator=(const int32_t value) {
             atom_setlong(this, value);
             return *this;
         }
