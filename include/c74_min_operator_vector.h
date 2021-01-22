@@ -344,6 +344,7 @@ namespace c74::min {
     || has_m_dspsetup<min_class_type>::value>::type
     min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, const short* count, const double samplerate, const long maxvectorsize, const long flags) {
         self->m_min_object.samplerate(samplerate);
+        self->m_min_object.vector_size(maxvectorsize);
         min_dsp64_io(self, count);
         min_dsp64_attrmap(self, count);
 
@@ -364,6 +365,7 @@ namespace c74::min {
     && !has_m_dspsetup<min_class_type>::value>::type
     min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, const short* count, const double samplerate, const long maxvectorsize, const long flags) {
         self->m_min_object.samplerate(samplerate);
+        self->m_min_object.vector_size(maxvectorsize);
         min_dsp64_io(self, count);
         min_dsp64_attrmap(self, count);
         min_dsp64_add_perform(self, dsp64);
