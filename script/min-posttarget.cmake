@@ -6,14 +6,14 @@ include(${C74_MAX_API_DIR}/script/max-posttarget.cmake)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
+option(C74_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+
 if (APPLE)
-    if ("${PROJECT_NAME}" MATCHES "min.")
-        set(MAKE_ALL_WARNINGS_ERRORS "-Werror")
-    else ()
-        set(MAKE_ALL_WARNINGS_ERRORS "")
+    set(C74_XCODE_WARNING_CFLAGS "-Wall -Wmissing-field-initializers -Wno-unused-lambda-capture -Wno-unknown-warning-option")
+    if (${C74_WARNINGS_AS_ERRORS})
+        set(C74_XCODE_WARNING_CFLAGS "${C74_XCODE_WARNING_CFLAGS} -Werror")
     endif ()
 
     # enforce a strict warning policy
-    set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_ATTRIBUTE_WARNING_CFLAGS "-Wall ${MAKE_ALL_WARNINGS_ERRORS} -Wmissing-field-initializers -Wno-unused-lambda-capture -Wno-unknown-warning-option")
-    # -Wmost -Wno-four-char-constants -Wno-unknown-pragmas $(inherited)
+    set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_ATTRIBUTE_WARNING_CFLAGS ${C74_XCODE_WARNING_CFLAGS})
 endif ()
