@@ -16,10 +16,6 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 		"${C74_MIN_API_DIR}/test"
 		# "${C74_MIN_API_DIR}/test/mock"
 	)
-    
-	add_definitions(
-		-DMIN_TEST
-	)
 
 	set(TEST_SOURCE_FILES "")
 	FOREACH(SOURCE_FILE ${SOURCE_FILES})
@@ -45,6 +41,8 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 	endif ()
 
 	add_executable(${TEST_NAME} ${TEST_NAME}.cpp ${TEST_SOURCE_FILES})
+
+	target_compile_definitions(${TEST_NAME} PUBLIC -DMIN_TEST)
 
 	set_property(TARGET ${TEST_NAME} PROPERTY CXX_STANDARD 17)
 	set_property(TARGET ${TEST_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
