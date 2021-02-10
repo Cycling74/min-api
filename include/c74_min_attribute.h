@@ -502,6 +502,12 @@ namespace c74::min {
             return m_range;
         }
 
+        void set_range(const std::vector<T>& range) {
+            m_range = range;
+            auto value = static_cast<atoms>(*this);
+            set(value);
+        }
+
 
         // DO NOT USE
         // This is an internal method used to fetch the range in string format when creating the peer Max attribute.
