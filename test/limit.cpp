@@ -2,9 +2,8 @@
 ///	@ingroup 	minapi
 ///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
 ///	@license	Use of this source code is governed by the MIT License found in the License.md file.
-
-#define CATCH_CONFIG_MAIN
-#include "c74_min_catch.h"
+#include "catch.hpp"
+#include "c74_min_api.h"
 
 using namespace c74::min;
 
