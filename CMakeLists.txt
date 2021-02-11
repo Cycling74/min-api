@@ -12,9 +12,13 @@ if (${CMAKE_GENERATOR} MATCHES "Xcode")
 		endif ()
 endif ()
 
-
-include(${CMAKE_CURRENT_SOURCE_DIR}/script/min-package.cmake)
-
+if (WIN32)
+    add_definitions(
+		-DMAXAPI_USE_MSCRT
+		-DWIN_VERSION
+		-D_USE_MATH_DEFINES
+	)
+endif ()
 
 file(GLOB_RECURSE MIN_API_HEADERS
 	 RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
