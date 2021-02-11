@@ -16,7 +16,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIRECTORY}")
 set(C74_MOCK_TARGET_DIR ${OUTPUT_DIRECTORY})
 
 set(SOURCES
+	atom.cpp
+	limit.cpp
 	main.cpp
+	object.cpp
+	symbol.cpp
 )
 
 add_executable(min-tests ${SOURCES})
