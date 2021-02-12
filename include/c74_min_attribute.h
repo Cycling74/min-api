@@ -771,7 +771,7 @@ namespace c74::min {
 
         template<class U = T, typename enable_if<!is_same<limit_type<U>, limit::none<U>>::value, int>::type = 0>
         void constrain(atoms& args) const {
-            // TODO: type checking on the above so that it is not applied to vectors or colors
+            static_assert(std::is_arithmetic<T>::value, "limiting can only be applied to arithmetic types");
             args[0] = limit_type<T>::apply(args[0], m_range[0], m_range[1]);
         }
 
