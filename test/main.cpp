@@ -34,10 +34,6 @@ TEST_CASE("Attribute - repetitions", "[attribute]") {
 		my_attr = 5.0;
 		my_attr.set_range({7.5, 10.0});
 
-		// EXPECTED:
-		// REQUIRE(static_cast<number>(my_attr) == 7.5);
-
-		// ACTUAL:
-		REQUIRE(static_cast<number>(my_attr) == 5.0);
+		REQUIRE(static_cast<number>(my_attr) == 7.5);
 	}
 }

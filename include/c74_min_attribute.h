@@ -596,7 +596,7 @@ namespace c74::min {
             if (!writable() && !override_readonly)
                 return;    // we're all done... unless this is a readonly attr that we are forcing to update
 
-            if (repetitions == allow_repetitions::no && compare_to_current_value(args))
+            if (repetitions == allow_repetitions::no && compare_to_current_value(constrain(args)))
                 return;
 
 #ifndef MIN_TEST    // At this time the Mock Kernel does not implement object_attr_setvalueof(), so we can't use it for unit tests
