@@ -25,3 +25,19 @@ TEST_CASE("Attribute - ranges", "[attribute]") {
 		REQUIRE(static_cast<number>(my_attr) == std::max(new_minimum, new_value));
 	}
 }
+
+TEST_CASE("Attribute - repetitions", "[attribute]") {
+	TestObject my_object;
+	attribute<number, threadsafe::no, limit::clamp, allow_repetitions::no> my_attr {&my_object, "My Attribute", 0.0, range {-10.0, 10.0}};
+
+	SECTION("Filtering out repetitions does not filter out a value when the range has changed") {
+		my_attr = 5.0;
+		my_attr.set_range({7.5, 10.0});
+
+		// EXPECTED:
+		// REQUIRE(static_cast<number>(my_attr) == 7.5);
+
+		// ACTUAL:
+		REQUIRE(static_cast<number>(my_attr) == 5.0);
+	}
+}
