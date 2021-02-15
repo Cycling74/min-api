@@ -149,6 +149,9 @@ TEST_CASE( "scaling", "[limits]" ) {
     REQUIRE( scale(2.0, 0.0, 1.0, 0.0, 127.0) == 254.0);
     REQUIRE( scale(-1.0, 0.0, 1.0, 0.0, 127.0) == -127.0);
 
+    REQUIRE(scale(1.0, 1.0, 1.0, 0.0, 127.0) == 0.0);
+    REQUIRE(scale(0.0, 0.0, 0.0, 0.0, 127.0) == 0.0);
+
     // the same but with integers
 
     REQUIRE( scale(0, 0, 1, 0, 127) == 0);
