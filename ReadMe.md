@@ -14,3 +14,6 @@ This folder contains the support files you will need to compile an external obje
 
 Use of this Max-API distribution is governed by the MIT License as stated in the accompanying `License.md` file.
 
+## Breaking changes
+
+April 9, 2021 - Min-API now requires CMake 3.19.0 or later. Use the pre-cmake-3_19 branch if you depend on an earlier CMake version.
