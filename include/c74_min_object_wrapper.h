@@ -48,6 +48,8 @@ namespace c74::min {
             self->m_min_object.set_classname(name);
 
             self->setup();
+
+            //setup : a special method called when your instance is being instantiated
             self->m_min_object.try_call("setup");
 
             if (self->m_min_object.is_ui_class()) {
