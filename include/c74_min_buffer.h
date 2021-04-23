@@ -26,7 +26,10 @@ namespace c74::min {
         /// @param	an_owner	The owning object for the buffer reference. Typically you will pass `this`.
         /// @param	a_function	An optional function to be executed when the buffer reference issues notifications.
         ///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
-
+        /// @param	create_messages	Optionally have min create "set", "dblclick" and "notify" messages on `an_owner` and
+        ///                         associate them with this buffer references.
+        ///                         *NOTE* if your owner uses the notify method or has multiple buffers, you'll need to set 
+        ///                         this to false and set up your own notify method handling.
         // takes a single arg, but cannot be marked explicit unless we are willing to decorate all using code with a cast to this type
         // thus we ignore the advice of C.46 @ https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
 
@@ -82,6 +85,12 @@ namespace c74::min {
                 m_instance = max::buffer_ref_new(m_owner, name);
             else
                 buffer_ref_set(m_instance, name);
+            m_name = name;
+        }
+
+        /// Get the latest bound buffer name.
+        symbol name() { 
+          return m_name;
         }
 
 
@@ -115,8 +124,32 @@ namespace c74::min {
             return { max::buffer_ref_notify(m_instance, n.registration(), n.name(), n.source(), n.data()) };
         }
 
+        /// Handle notifications for a collection of pointers to buffer references.
+        /// Only dispatches to the appropriate buffer reference(s).
+        template<typename Iter>
+            static atoms handle_notification(object_base* an_owner, const c74::min::atoms& args, Iter begin, Iter end) {
+                notification n { args };
+                if (n.name() == k_sym_globalsymbol_binding || n.name() == k_sym_globalsymbol_unbinding || n.name() == k_sym_buffer_modified) {
+                    //the data is the buffer being bound/unbound. it should have the name
+                    auto buf = n.data();
+                    c74::max::t_symbol * name = nullptr;
+                    c74::max::object_method(buf, c74::max::gensym("getname"), &name);
+                    if (name != nullptr) {
+                        //look for buffer references that have a matching name and call their handlers
+                        c74::min::symbol mname(name);
+                        for (auto it = begin; it != end; it++) {
+                            if ((*it)->name() == mname) {
+                                (*it)->handle_notification(an_owner, args);
+                            }
+                        }
+                    }
+                }
+                return {};
+            }
+
 
     private:
+        symbol m_name;
         max::t_buffer_ref* m_instance { nullptr };
         object_base&       m_owner;
         function           m_notification_callback;

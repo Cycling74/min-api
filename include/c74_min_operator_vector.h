@@ -308,8 +308,10 @@ namespace c74::min {
 
     template<class min_class_type>
     void min_dsp64_io(minwrap<min_class_type>* self, const short* count) {
-        int i = 0;
+        if (count == nullptr)
+            return;
 
+        int i = 0;
         while (i < self->m_min_object.inlets().size()) {
             self->m_min_object.inlets()[i]->update_signal_connection(count[i] != 0);
             ++i;
