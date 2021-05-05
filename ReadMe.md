@@ -10,6 +10,7 @@ This folder contains the support files you will need to compile an external obje
 * `script` : resources to be included and used by CMake
 * `test` : supporting code and resources for unit testing
 * [max-sdk-base](https://github.com/Cycling74/max-sdk-base) : a git submodule that provides the low-level bindings to the Max application
+* [Conan.md](Conan.md) : information about how to create and use conan packages with `min-api`
 
 ## License
 
