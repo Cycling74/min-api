@@ -17,39 +17,17 @@ namespace c74::min {
     template<timer_options options = timer_options::deliver_on_scheduler>
     class timer;
 
-    extern "C" void timer_tick_callback(timer<>* an_owner);    // defined in c74_min_impl.h
-    extern "C" void timer_qfn_callback(timer<>* a_timer);      // defined in c74_min_impl.h
+	class timer_base;
 
 
-    /// The timer class allows you to schedule a function to be called in the future using Max's scheduler.
-    /// Note: the name `timer` was chosen instead of `clock` because of the use of the type is `clock` is ambiguous on
-    /// the Mac OS when not explicitly specifying the `c74::min` namespace.
-    /// @tparam		options		Optional argument to alter the delivery from the scheduler thread to the main thread.
-    ///
-    ///	@seealso	#time_value
-    /// @seealso	#queue
-    /// @seealso	#fifo
 
-    template<timer_options options>
-    class timer {
-    public:
-        /// Create a timer.
-        /// @param	an_owner	The owning object for the timer. Typically you will pass `this`.
-        /// @param	a_function	A function to be executed when the timer is called.
-        ///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
+    extern "C" void timer_tick_callback(timer_base* an_owner);    // defined in c74_min_impl.h
+    extern "C" void timer_qfn_callback(timer_base* a_timer);      // defined in c74_min_impl.h
 
-        timer(object_base* an_owner, const function a_function)
-        : m_owner { an_owner }
-        , m_function { a_function } {
-            m_instance = max::clock_new(this, reinterpret_cast<max::method>(timer_tick_callback));
-            if (options == timer_options::defer_delivery)
-                m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(timer_qfn_callback));
-        }
+	class timer_base {
+	public:
 
-
-        /// Destroy a timer.
-
-        ~timer() {
+        ~timer_base() {
             object_free(m_instance);
             if (m_qelem)
                 max::qelem_free(m_qelem);
@@ -59,8 +37,8 @@ namespace c74::min {
         // Timers cannot be copied.
         // If they are then the ownership of the internal t_clock becomes ambiguous.
 
-        timer(const timer&) = delete;
-        timer& operator=(const timer& value) = delete;
+        timer_base(const timer_base&) = delete;
+        timer_base& operator=(const timer_base& value) = delete;
 
 
         /// Set the timer to fire after a specified delay.
@@ -110,17 +88,55 @@ namespace c74::min {
             std::cout << m_instance << &m_function << m_owner << std::endl;
         }
 
+    protected:
+        timer_base(object_base* an_owner, timer_options options, const function a_function)
+        : m_owner { an_owner }
+        , m_function { a_function } {
+            m_instance = max::clock_new(this, reinterpret_cast<max::method>(timer_tick_callback));
+            if (options == timer_options::defer_delivery)
+                m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(timer_qfn_callback));
+        }
+
     private:
         object_base*  m_owner;
         function      m_function;
         max::t_clock* m_instance    { nullptr };
         max::t_qelem* m_qelem       { nullptr };
 
-        friend void timer_tick_callback(timer<>* an_owner);
+        friend void timer_tick_callback(timer_base* an_owner);
         
         void defer() {
             max::qelem_set(m_qelem);
         }
+    };
+
+
+    /// The timer class allows you to schedule a function to be called in the future using Max's scheduler.
+    /// Note: the name `timer` was chosen instead of `clock` because of the use of the type is `clock` is ambiguous on
+    /// the Mac OS when not explicitly specifying the `c74::min` namespace.
+    /// @tparam		options		Optional argument to alter the delivery from the scheduler thread to the main thread.
+    ///
+    ///	@seealso	#time_value
+    /// @seealso	#queue
+    /// @seealso	#fifo
+
+    template<timer_options options>
+    class timer : public timer_base {
+    public:
+        /// Create a timer.
+        /// @param	an_owner	The owning object for the timer. Typically you will pass `this`.
+        /// @param	a_function	A function to be executed when the timer is called.
+        ///						Typically the function is defined using a C++ lambda with the #MIN_FUNCTION signature.
+
+        timer(object_base* an_owner, const function a_function) : timer_base(an_owner, options, a_function)
+		{
+		}
+
+        // Timers cannot be copied.
+        // If they are then the ownership of the internal t_clock becomes ambiguous.
+
+        timer(const timer&) = delete;
+        timer& operator=(const timer& value) = delete;
     };
 
 
