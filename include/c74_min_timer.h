@@ -19,15 +19,26 @@ namespace c74::min {
 
 	class timer_base;
 
+    static const char* timer_impl_name = "min_timer_impl";
 
+    // important! this class is used by all min-based externals that use min's timer class. If you make significant changes to the
+    // timer_impl object we're registering here, consider changing the timer_impl_name to avoid conflicts with other externals that
+    // use an older version of min-api.
+    struct timer_impl {
+        max::t_object m_obj;
+        timer_base* m_owner;
+    };
 
-    extern "C" void timer_tick_callback(timer_base* an_owner);    // defined in c74_min_impl.h
-    extern "C" void timer_qfn_callback(timer_base* a_timer);      // defined in c74_min_impl.h
+    static max::t_class* s_timer_impl_class = nullptr;
+
+    extern "C" void timer_tick_callback(timer_impl* an_owner);    // defined in c74_min_impl.h
+    extern "C" void timer_qfn_callback(timer_impl* a_timer);      // defined in c74_min_impl.h
 
 	class timer_base {
 	public:
 
         ~timer_base() {
+            max::object_free(m_timer_impl);
             object_free(m_instance);
             if (m_qelem)
                 max::qelem_free(m_qelem);
@@ -88,13 +99,43 @@ namespace c74::min {
             std::cout << m_instance << &m_function << m_owner << std::endl;
         }
 
+        void tick_callback() {
+            if (should_defer())
+                defer();
+            else
+                tick();
+        }
+
+        void qfn_callback() {
+            tick();
+        }
+
     protected:
         timer_base(object_base* an_owner, timer_options options, const function a_function)
         : m_owner { an_owner }
         , m_function { a_function } {
-            m_instance = max::clock_new(this, reinterpret_cast<max::method>(timer_tick_callback));
+
+            if (!s_timer_impl_class) {
+                // the timer_impl Max object is potentially already registered by another min based object
+                if (const auto registered_class = max::class_findbyname(const_cast<max::t_symbol*>(max::CLASS_NOBOX), max::gensym(timer_impl_name))) {
+                    s_timer_impl_class = registered_class;
+                } else {
+                    // important! this class is used by all min-based externals that use min's timer class. If you make significant changes to the
+                    // timer_impl object we're registering here, consider changing the timer_impl_name to avoid conflicts with other externals that
+                    // use an older version of min-api.
+                    s_timer_impl_class = max::class_new(timer_impl_name, (max::method)0, (max::method)0, sizeof(timer_impl), 0, NULL);
+                    max::class_register(max::CLASS_NOBOX, s_timer_impl_class);
+                }
+            }
+
+            m_timer_impl = (timer_impl*)max::object_alloc(s_timer_impl_class);
+            m_timer_impl->m_owner = this;
+            const auto s = max::scheduler_fromobject(an_owner->maxobj());
+            max::object_obex_storeflags(m_timer_impl, max::gensym("#S"), reinterpret_cast<max::t_object*>(s), max::OBJ_FLAG_REF);
+
+            m_instance = max::clock_new(m_timer_impl, reinterpret_cast<max::method>(timer_tick_callback));
             if (options == timer_options::defer_delivery)
-                m_qelem = max::qelem_new(this, reinterpret_cast<max::method>(timer_qfn_callback));
+                m_qelem = max::qelem_new(m_timer_impl, reinterpret_cast<max::method>(timer_qfn_callback));
         }
 
     private:
@@ -102,8 +143,9 @@ namespace c74::min {
         function      m_function;
         max::t_clock* m_instance    { nullptr };
         max::t_qelem* m_qelem       { nullptr };
+        timer_impl* m_timer_impl;
 
-        friend void timer_tick_callback(timer_base* an_owner);
+        friend void timer_tick_callback(timer_impl* an_owner);
         
         void defer() {
             max::qelem_set(m_qelem);
