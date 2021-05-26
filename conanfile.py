@@ -12,7 +12,7 @@ class MinAPI(ConanFile):
         if tag:
             self.version = tag.replace("/", "_")
         else:
-            self.version = "%s_%s" % (git.get_branch().replace("/", "_"), git.get_revision())
+            self.version = ("%s_%s" % (git.get_branch().replace("/", "_"), git.get_revision()))[:51]
 
     def package_id(self):
         self.info.header_only()
