@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.19)
 set(AUTHOR_DOMAIN "com.cycling74")
 set(COPYRIGHT_STRING "Copyright (c) 2020 Cycling '74")
 
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
+endif()
+
 #don't pollute the source directory
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/externals/" CACHE FILEPATH "The destination path for the built external")
 
@@ -16,9 +20,9 @@ include(${CMAKE_BINARY_DIR}/conan.cmake)
 conan_check(VERSION 1.29.0 REQUIRED)
 
 conan_add_remote(
-	NAME cycling-jfrog
+	NAME cycling-public
 	INDEX 1
-	URL https://xnor.jfrog.io/artifactory/api/conan/cycling74
+	URL https://conan-public.cycling74.com
 	VERIFY_SSL True
 )
 
@@ -26,9 +30,11 @@ conan_cmake_configure(
 	REQUIRES min-api/xnor_conan_981e563d455d4697f76dd0d0607d40e2357e5228@xnor/testing
 	GENERATORS cmake_paths
 )
+conan_cmake_autodetect(settings)
 conan_cmake_install(
 	PATH_OR_REFERENCE .
-	REMOTE cycling-jfrog
+	BUILD missing
+	SETTINGS ${settings}
 )
 
 include(${CMAKE_CURRENT_BINARY_DIR}/conan_paths.cmake)
