@@ -602,7 +602,7 @@ namespace c74::min {
 #ifndef MIN_TEST    // At this time the Mock Kernel does not implement object_attr_setvalueof(), so we can't use it for unit tests
             if (notify && this_class) {    // Use the Max API to set the attribute value
                 max::object_attr_setvalueof(
-                    m_owner, m_name, static_cast<long>(args.size()), static_cast<const c74::max::t_atom*>(&args[0]));
+                    m_owner, m_name, static_cast<long>(args.size()), (c74::max::t_atom*)&args[0]);
             }
             else
 #endif           // !MIN_TEST

@@ -37,7 +37,7 @@ namespace c74::min {
     minwrap<min_class_type>* wrapper_new(const max::t_symbol* name, const long ac, const max::t_atom* av) {
         try {
             const atom_reference args(ac, av);
-            long           attrstart = attr_args_offset(static_cast<short>(args.size()), args.begin());    // support normal arguments
+            long           attrstart = attr_args_offset(static_cast<short>(args.size()), const_cast<max::t_atom*>(args.begin()));    // support normal arguments
             auto           self      = static_cast<minwrap<min_class_type>*>(max::object_alloc(this_class));
             auto           self_ob   = reinterpret_cast<max::t_object*>(self);
 
@@ -53,7 +53,7 @@ namespace c74::min {
             self->m_min_object.try_call("setup");
 
             if (self->m_min_object.is_ui_class()) {
-                max::t_dictionary* d = object_dictionaryarg(ac, av);
+                max::t_dictionary* d = object_dictionaryarg(ac, const_cast<max::t_atom*>(av));
                 if (d) {
                     max::attr_dictionary_process(self, d);
                     max::jbox_ready((max::t_jbox*)self);
@@ -62,7 +62,7 @@ namespace c74::min {
             else {
                 max::object_attach_byptr_register(
                     self, self, k_sym_box);    // so that objects can get notifications about their own attributes
-                max::attr_args_process(self, static_cast<short>(args.size()), args.begin());
+                max::attr_args_process(self, static_cast<short>(args.size()), const_cast<max::t_atom*>(args.begin()));
             }
             return self;
         }
@@ -283,7 +283,7 @@ namespace c74::min {
         if (is_base_of<ui_operator_base, min_class_type>::value) {
             auto err = wrapper_method_self_sym_sym_ptr_ptr___err<min_class_type, message_name_type>(o, s1, s2, p1, p2);
             if (!err)
-                return c74::max::jbox_notify(reinterpret_cast<c74::max::t_jbox*>(o), s1, s2, p1, p2);
+                return c74::max::jbox_notify(reinterpret_cast<c74::max::t_jbox*>(o), const_cast<max::t_symbol*>(s1), const_cast<max::t_symbol*>(s2), const_cast<void*>(p1), const_cast<void*>(p2));
             else
                 return err;
         }
@@ -328,7 +328,7 @@ namespace c74::min {
     void wrapper_method_dictionary(max::t_object* o, const max::t_symbol* s) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
-        auto  d    = dictobj_findregistered_retain(s);
+        auto  d    = dictobj_findregistered_retain(const_cast<max::t_symbol*>(s));
         atoms as   = {atom(d)};
 
         meth(as);
@@ -387,7 +387,7 @@ namespace c74::min {
 
     template<class min_class_type>
     max::t_max_err wrapper_method_setvalueof(max::t_object* o, const long ac, const max::t_atom* av) {
-        return max::object_attr_setvalueof(o, k_sym_value, ac, av);
+        return max::object_attr_setvalueof(o, k_sym_value, ac, const_cast<max::t_atom*>(av));
     }
 
     template<class min_class_type>
@@ -579,6 +579,7 @@ namespace c74::min {
                 c, reinterpret_cast<method>(min_attr_getter<min_class_type>), reinterpret_cast<method>(min_attr_setter<min_class_type>));
 
             // Attribute Metadata
+            using namespace c74::max;
             CLASS_ATTR_LABEL(c, attr_name.c_str(), 0, attr.label_string());
 
             if (attr.editor_style() != style::none) {
@@ -757,7 +758,7 @@ namespace c74::min {
         }
         else {
             // add mop
-            auto mop = max::jit_object_new(max::_jit_sym_jit_mop, inlet_count, outlet_count);
+            auto mop = (max::t_jit_object*)max::jit_object_new(max::_jit_sym_jit_mop, inlet_count, outlet_count);
             max::jit_class_addadornment(this_jit_class, mop);
 
             // add methods
@@ -773,6 +774,7 @@ namespace c74::min {
                 reinterpret_cast<method>(min_attr_setter<min_class_type>), true);
 
             // Attribute Metadata
+            using namespace c74::max;
             CLASS_ATTR_LABEL(this_jit_class, attr_name.c_str(), 0, attr.label_string());
 
             if (attr.editor_style() != style::none) {
@@ -846,9 +848,9 @@ namespace c74::min {
                     class_addmethod(this_jit_class, reinterpret_cast<method>(wrapper_method_generic<min_class_type>),
                         a_message.first.c_str(), max::A_CANT, 0);
                     class_addtypedwrapper(this_jit_class, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>),
-                        a_message.first.c_str(), a_message.second->type(), 0);
+                        (char*)a_message.first.c_str(), a_message.second->type(), 0);
                     max_jit_class_addmethod_defer_low(
-                        c, reinterpret_cast<method>(max::max_jit_obex_gimmeback_dumpout), a_message.first.c_str());
+                        c, reinterpret_cast<method>(max::max_jit_obex_gimmeback_dumpout), (char*)a_message.first.c_str());
                 }
                 else {
                     // all other messages are added to the jitter class
@@ -910,7 +912,7 @@ namespace c74::min {
                 c74::max::atom_setsym(&a, c74::max::gensym(folder_name.c_str()));
                 c74::max::atomarray_appendatom(aa, &a);
             }
-            c74::max::fileusage_addpackage(w, package_name.c_str(), (c74::max::t_object*)aa);
+            c74::max::fileusage_addpackage(w, package_name.c_str(), aa);
         }
     }
 

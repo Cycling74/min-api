@@ -123,15 +123,15 @@ namespace c74::min {
 
             if (m_min_object.is_ui_class()) {
                 max::t_pxjbox* x = m_max_header;
-                x->z_misc |= max::Z_NO_INPLACE;
+                x->z_misc |= Z_NO_INPLACE;
                 if (is_base_of<mc_operator_base, min_class_type>::value)
-                    x->z_misc |= max::Z_MC_INLETS;
+                    x->z_misc |= Z_MC_INLETS;
             }
             else {
                 max::t_pxobject* x = m_max_header;
-                x->z_misc |= max::Z_NO_INPLACE;
+                x->z_misc |= Z_NO_INPLACE;
                 if (is_base_of<mc_operator_base, min_class_type>::value)
-                    x->z_misc |= max::Z_MC_INLETS;
+                    x->z_misc |= Z_MC_INLETS;
             }
 
             m_min_object.create_outlets();
@@ -333,7 +333,8 @@ namespace c74::min {
     template<class min_class_type>
     void min_dsp64_add_perform(minwrap<min_class_type>* self, max::t_object* dsp64) {
         // find the perform method and add it
-        object_method_direct(void, (max::t_object*, max::t_object*, const max::t_perfroutine64, const long, const void*), dsp64, symbol("dsp_add64"),
+        using namespace c74::max;
+        object_method_direct(void, (void*, max::t_object*, const max::t_perfroutine64, const long, const void*), dsp64, symbol("dsp_add64"),
             self->maxobj(), reinterpret_cast<max::t_perfroutine64>(performer<min_class_type>::perform), 0, NULL);
     }
 

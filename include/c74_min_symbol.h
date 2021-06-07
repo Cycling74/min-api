@@ -134,7 +134,7 @@ namespace c74::min {
             if (!ps_dictionary)
                 ps_dictionary = max::gensym("dictionary");
             if (object_classname_compare(s->s_thing, ps_dictionary))
-                return s->s_thing;
+                return (max::t_dictionary*)s->s_thing;
             else
                 return nullptr;
         }
@@ -156,6 +156,13 @@ namespace c74::min {
         bool empty() const {
             return (s == nullptr) || (s == max::gensym(""));
         }
+
+		operator max::t_atom_long() const {
+			// maybe object_method should use t_ptr_size
+			// instead of t_atom_long, but this is for
+			// object_method support
+			return (max::t_atom_long)s;
+		}
 
     private:
         max::t_symbol* s;

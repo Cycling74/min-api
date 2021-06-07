@@ -8,7 +8,7 @@ This folder contains the support files you will need to compile an external obje
 * `doc` : documentation
 * `script` : resources to be included and used by CMake
 * `test` : supporting code and resources for unit testing
-* `max-api` : a git submodule that provides the low-level bindings to the Max application
+* `max-sdk` : the Max SDK as a submodule
 
 ## License
 
