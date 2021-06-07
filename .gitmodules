@@ -4,3 +4,6 @@
 [submodule "test/mock"]
 	path = test/mock
 	url = https://github.com/Cycling74/mock.git
+[submodule "max-sdk"]
+	path = max-sdk
+	url = https://github.com/Cycling74/max-sdk.git
