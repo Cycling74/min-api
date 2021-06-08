@@ -61,7 +61,7 @@ namespace c74::min {
             }
 
             const c74::max::t_atom* argv = args.empty() ? nullptr : &args[0];
-            c74::max::jbox_new(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()), flags, static_cast<long>(args.size()), argv);
+            c74::max::jbox_new(reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj()), flags, static_cast<long>(args.size()), const_cast<max::t_atom*>(argv));
             reinterpret_cast<c74::max::t_jbox*>(m_instance->maxobj())->b_firstin = m_instance->maxobj();
         }
 

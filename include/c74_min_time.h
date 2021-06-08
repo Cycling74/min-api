@@ -20,7 +20,7 @@ namespace c74::min {
         , m_name { attrname }
         , m_timeobj { nullptr } {
             if (owner->maxobj())
-                m_timeobj = max::time_new(owner->maxobj(), attrname, nullptr, 0);
+                m_timeobj = (max::t_object*)max::time_new(const_cast<max::t_object*>(owner->maxobj()), attrname, nullptr, 0);
             set_milliseconds(initial_interval);
         }
 

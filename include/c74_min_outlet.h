@@ -28,7 +28,7 @@ namespace c74::min {
     template<typename outlet_type>
     inline void outlet_do_send(const t_max_outlet maxoutlet, const outlet_type& value) {
         if (value[0].a_type == max::A_LONG || value[0].a_type == max::A_FLOAT)
-            max::outlet_list(maxoutlet, nullptr, static_cast<short>(value.size()), static_cast<const max::t_atom*>(&value[0]));
+            max::outlet_list(maxoutlet, nullptr, static_cast<short>(value.size()), static_cast<max::t_atom*>(&value[0]));
         else {
             if (value.size() > 1)
                 max::outlet_anything(maxoutlet, value[0], static_cast<short>(value.size() - 1), static_cast<const max::t_atom*>(&value[1]));

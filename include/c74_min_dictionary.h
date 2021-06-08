@@ -36,7 +36,7 @@ namespace c74::min {
                 m_instance = max::dictionary_new();
             else {
                 if (take_ownership)
-                    max::object_retain(d);
+                    max::object_retain((max::t_object*)d);
                 else
                     m_has_ownership = false;
                 m_instance = d;
@@ -49,7 +49,7 @@ namespace c74::min {
             m_instance = static_cast<max::t_dictionary*>(max::atom_getobj(a));
             if (!m_instance)
                 error("no dictionary in atom");
-            auto err = max::object_retain(m_instance);
+            auto err = max::object_retain((max::t_object*)m_instance);
             error(err, "failed to retain dictionary instance");
         }
 
@@ -82,8 +82,8 @@ namespace c74::min {
         // TODO: we don't have a copy constructor!
 
         operator max::t_object*() const {
-            max::object_retain(m_instance);
-            return static_cast<max::t_object*>(m_instance);
+            max::object_retain((max::t_object*)m_instance);
+            return (max::t_object*)m_instance;
         }
 
 

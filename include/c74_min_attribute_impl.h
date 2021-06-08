@@ -85,7 +85,7 @@ namespace c74::min {
             class_time_addattr(c, m_name.c_str(), m_title.c_str(), attr_flags);
         }
         else if (isjitclass) {
-            auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset,
+            auto jit_attr = (max::t_jit_object*)max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
                 reinterpret_cast<void*>(flags(isjitclass)), reinterpret_cast<void*>(getter), reinterpret_cast<void*>(setter), nullptr,
                 nullptr, nullptr);
@@ -108,7 +108,7 @@ namespace c74::min {
             attr_flags |= max::ATTR_SET_OPAQUE_USER;
 
         if (isjitclass) {
-            auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
+            auto jit_attr = (max::t_jit_object*)max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
                 reinterpret_cast<void*>(0xFFFF), reinterpret_cast<void*>(flags(isjitclass)), reinterpret_cast<void*>(getter),
                 reinterpret_cast<void*>(setter), reinterpret_cast<void*>(size_offset()), nullptr);
@@ -132,7 +132,7 @@ namespace c74::min {
             attr_flags |= max::ATTR_SET_OPAQUE_USER;
 
         if (isjitclass) {
-            auto jit_attr = max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
+            auto jit_attr = (max::t_jit_object*)max::object_new_imp(max::gensym("jitter"), max::_jit_sym_jit_attr_offset_array,
                 const_cast<void*>(static_cast<const void*>(m_name.c_str())), static_cast<max::t_symbol*>(datatype()),
                 reinterpret_cast<void*>(0xFFFF), reinterpret_cast<void*>(flags(isjitclass)), reinterpret_cast<void*>(getter),
                 reinterpret_cast<void*>(setter), reinterpret_cast<void*>(size_offset()), nullptr);
