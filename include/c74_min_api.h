@@ -5,8 +5,6 @@
 
 #pragma once
 
-#define C74_MIN_API
-
 #include <array>
 #include <atomic>
 #include <chrono>
