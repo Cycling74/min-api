@@ -848,9 +848,9 @@ namespace c74::min {
                     class_addmethod(this_jit_class, reinterpret_cast<method>(wrapper_method_generic<min_class_type>),
                         a_message.first.c_str(), max::A_CANT, 0);
                     class_addtypedwrapper(this_jit_class, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>),
-                        a_message.first.c_str(), a_message.second->type(), 0);
+                        (char*)a_message.first.c_str(), a_message.second->type(), 0);
                     max_jit_class_addmethod_defer_low(
-                        c, reinterpret_cast<method>(max::max_jit_obex_gimmeback_dumpout), a_message.first.c_str());
+                        c, reinterpret_cast<method>(max::max_jit_obex_gimmeback_dumpout), (char*)a_message.first.c_str());
                 }
                 else {
                     // all other messages are added to the jitter class
