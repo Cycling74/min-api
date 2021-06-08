@@ -57,7 +57,7 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
     target_link_libraries(${TEST_NAME} PUBLIC "mock_kernel")
 
 	if (APPLE)
-        set_target_properties(${TEST_NAME} PROPERTIES LINK_FLAGS "-Wl,-F'${C74_MAX_API_DIR}/lib/mac', -weak_framework JitterAPI")
+        set_target_properties(${TEST_NAME} PROPERTIES LINK_FLAGS "-Wl,-F'${MAX_SDK_JIT_INCLUDES}', -weak_framework JitterAPI")
 		target_compile_options(${TEST_NAME} PRIVATE -DCATCH_CONFIG_NO_CPP17_UNCAUGHT_EXCEPTIONS)
 	endif ()
 	if (WIN32)
