@@ -123,15 +123,15 @@ namespace c74::min {
 
             if (m_min_object.is_ui_class()) {
                 max::t_pxjbox* x = m_max_header;
-                x->z_misc |= max::Z_NO_INPLACE;
+                x->z_misc |= Z_NO_INPLACE;
                 if (is_base_of<mc_operator_base, min_class_type>::value)
-                    x->z_misc |= max::Z_MC_INLETS;
+                    x->z_misc |= Z_MC_INLETS;
             }
             else {
                 max::t_pxobject* x = m_max_header;
-                x->z_misc |= max::Z_NO_INPLACE;
+                x->z_misc |= Z_NO_INPLACE;
                 if (is_base_of<mc_operator_base, min_class_type>::value)
-                    x->z_misc |= max::Z_MC_INLETS;
+                    x->z_misc |= Z_MC_INLETS;
             }
 
             m_min_object.create_outlets();

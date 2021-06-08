@@ -26,16 +26,16 @@ namespace c74::min {
                 return;
 
             long flags = 0
-                | c74::max::JBOX_DRAWFIRSTIN		// 0
-                | c74::max::JBOX_NODRAWBOX		// 1
-                | c74::max::JBOX_DRAWINLAST		// 2
+                | JBOX_DRAWFIRSTIN		// 0
+                | JBOX_NODRAWBOX		// 1
+                | JBOX_DRAWINLAST		// 2
              //	| JBOX_TRANSPARENT		// 3
              //	| JBOX_NOGROW			// 4
              //	| JBOX_GROWY			// 5
-                | c74::max::JBOX_GROWBOTH			// 6
+                | JBOX_GROWBOTH			// 6
              //	| JBOX_IGNORELOCKCLICK	// 7
              //	| JBOX_HILITE			// 8
-                | c74::max::JBOX_BACKGROUND		// 9
+                | JBOX_BACKGROUND		// 9
              //	| JBOX_NOFLOATINSPECTOR	// 10
              // | c74::max::JBOX_TEXTFIELD		// 11
              //   | c74::max::JBOX_MOUSEDRAGDELTA	// 12
@@ -51,13 +51,13 @@ namespace c74::min {
             strings tags = instance->tags();
             auto tag_iter = std::find(tags.begin(), tags.end(), "multitouch");
             if (tag_iter != tags.end()) {
-                flags |= c74::max::JBOX_MULTITOUCH;
+                flags |= JBOX_MULTITOUCH;
             }
             if (m_instance->has_mousedragdelta()) {
-                flags |= c74::max::JBOX_MOUSEDRAGDELTA;
+                flags |= JBOX_MOUSEDRAGDELTA;
             }
             if (m_instance->is_focusable()) {
-                flags |= c74::max::JBOX_HILITE;
+                flags |= JBOX_HILITE;
             }
 
             const c74::max::t_atom* argv = args.empty() ? nullptr : &args[0];
@@ -121,7 +121,7 @@ namespace c74::min {
         strings tags = instance.tags();
         auto tag_iter = std::find(tags.begin(), tags.end(), "multitouch");
         if (tag_iter != tags.end()) {
-            flags |= c74::max::JBOX_MULTITOUCH;
+            flags |= JBOX_MULTITOUCH;
         }
 
         // flags |= c74::max::JBOX_TEXTFIELD;
