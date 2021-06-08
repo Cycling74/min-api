@@ -5,10 +5,14 @@
 
 #pragma once
 
+#define C74_MIN_API
+
 #include "c74_max.h"
 #include "c74_ui.h"
 #include "c74_ui_graphics.h"
 #include "c74_msp.h"
+
+using c74::max::t_atom_long;
 
 #include <array>
 #include <atomic>

@@ -1,11 +1,15 @@
 # Copyright 2020 The Min-API Authors. All rights reserved.
 # Use of this source code is governed by the MIT License found in the License.md file.
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.20)
 
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 enable_testing()
+
+if (APPLE)
+	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
+endif ()
 
 project(min-tests)
 
@@ -29,7 +33,10 @@ target_compile_definitions(min-tests PUBLIC -DMIN_TEST)
 
 target_include_directories(min-tests PUBLIC
 	"${C74_MIN_API_DIR}/include"
-	"${C74_MIN_API_DIR}/max-api/include"
+	"${C74_MIN_API_DIR}/max-sdk/source/c74support"
+	"${C74_MIN_API_DIR}/max-sdk/source/c74support/max-includes"
+	"${C74_MIN_API_DIR}/max-sdk/source/c74support/msp-includes"
+	"${C74_MIN_API_DIR}/max-sdk/source/c74support/jit-includes"
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -41,7 +48,8 @@ set_target_properties(min-tests PROPERTIES CXX_STANDARD 17)
 set_target_properties(min-tests PROPERTIES CXX_STANDARD_REQUIRED ON)
 
 if (APPLE)
-	set_target_properties(min-tests PROPERTIES LINK_FLAGS "-Wl,-F'${CMAKE_CURRENT_SOURCE_DIR}/../max-api/lib/mac', -weak_framework JitterAPI")
+	#target_link_libraries(min-tests stdc++ "-framework CoreServices" "-framework CoreFoundation")
+	set_target_properties(min-tests PROPERTIES LINK_FLAGS "-Wl,-F'${CMAKE_CURRENT_SOURCE_DIR}/../max-sdk/source/c74support/jit-includes', -weak_framework JitterAPI")
 	target_compile_options(min-tests PRIVATE -DCATCH_CONFIG_NO_CPP17_UNCAUGHT_EXCEPTIONS)
 endif ()
 

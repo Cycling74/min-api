@@ -68,7 +68,7 @@ namespace c74::min {
 
         dict& operator=(const atom& value) {
             auto a = static_cast<const max::t_atom*>(&value);
-            if (max::atomisdictionary(a))
+            if (max::atomisdictionary((max::t_atom *)a))
                 m_instance = static_cast<max::t_dictionary*>(max::atom_getobj(a));
             return *this;
         }
