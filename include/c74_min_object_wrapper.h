@@ -62,7 +62,7 @@ namespace c74::min {
             else {
                 max::object_attach_byptr_register(
                     self, self, k_sym_box);    // so that objects can get notifications about their own attributes
-                max::attr_args_process(self, static_cast<short>(args.size()), args.begin());
+                max::attr_args_process(self, static_cast<short>(args.size()), const_cast<max::t_atom*>(args.begin()));
             }
             return self;
         }
