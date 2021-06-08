@@ -134,8 +134,8 @@ namespace c74::min {
         /// Cast this object to it's corresponding t_object pointer as understood by the older C Max API.
         /// @return The t_object pointer for this object.
 
-        operator max::t_object*() {
-            return maxobj();
+        operator max::t_object*() const {
+            return const_cast<max::t_object*>(maxobj());
         }
 
 
