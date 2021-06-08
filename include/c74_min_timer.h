@@ -39,7 +39,7 @@ namespace c74::min {
 
         ~timer_base() {
             max::object_free(m_timer_impl);
-            object_free(m_instance);
+            max::object_free(m_instance);
             if (m_qelem)
                 max::qelem_free(m_qelem);
         }
@@ -57,7 +57,7 @@ namespace c74::min {
         /// @param	duration_in_ms	The length of the delay (from "now") before the timer fires.
 
         void delay(const double duration_in_ms) {
-            clock_fdelay(m_instance, duration_in_ms);
+            max::clock_fdelay(m_instance, duration_in_ms);
         }
 
 
@@ -65,7 +65,7 @@ namespace c74::min {
 
         void stop() {
             if (m_instance)
-                clock_unset(m_instance);
+                max::clock_unset(m_instance);
         }
 
 
