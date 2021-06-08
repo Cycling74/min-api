@@ -52,6 +52,11 @@ namespace c74::min {
             *this = *init;
             return *this;
         }
+      
+        atom& operator=(long value) {
+            max::atom_setlong(this, max::t_atom_long(value));
+            return *this;
+        }
 
         atom& operator=(const int64_t value) {
             max::atom_setlong(this, max::t_atom_long(value));
