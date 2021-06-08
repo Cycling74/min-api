@@ -103,10 +103,10 @@ namespace c74::min {
         dollar,
         dollar_symbol,
         gimmeback,
-        defer     = max::A_DEFER,
-        usurp     = max::A_USURP,
-        defer_low = max::A_DEFER_LOW,
-        usurp_low = max::A_USURP_LOW,
+        defer     = A_DEFER,
+        usurp     = A_USURP,
+        defer_low = A_DEFER_LOW,
+        usurp_low = A_USURP_LOW,
         ellipsis
     };
 
