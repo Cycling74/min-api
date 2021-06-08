@@ -579,6 +579,7 @@ namespace c74::min {
                 c, reinterpret_cast<method>(min_attr_getter<min_class_type>), reinterpret_cast<method>(min_attr_setter<min_class_type>));
 
             // Attribute Metadata
+            using namespace c74::max;
             CLASS_ATTR_LABEL(c, attr_name.c_str(), 0, attr.label_string());
 
             if (attr.editor_style() != style::none) {
@@ -773,6 +774,7 @@ namespace c74::min {
                 reinterpret_cast<method>(min_attr_setter<min_class_type>), true);
 
             // Attribute Metadata
+            using namespace c74::max;
             CLASS_ATTR_LABEL(this_jit_class, attr_name.c_str(), 0, attr.label_string());
 
             if (attr.editor_style() != style::none) {

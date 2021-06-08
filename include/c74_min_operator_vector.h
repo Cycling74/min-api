@@ -333,6 +333,7 @@ namespace c74::min {
     template<class min_class_type>
     void min_dsp64_add_perform(minwrap<min_class_type>* self, max::t_object* dsp64) {
         // find the perform method and add it
+        using namespace c74::max;
         object_method_direct(void, (max::t_object*, max::t_object*, const max::t_perfroutine64, const long, const void*), dsp64, symbol("dsp_add64"),
             self->maxobj(), reinterpret_cast<max::t_perfroutine64>(performer<min_class_type>::perform), 0, NULL);
     }

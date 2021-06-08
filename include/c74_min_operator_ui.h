@@ -134,6 +134,7 @@ namespace c74::min {
         default_patching_rect += std::to_string(instance.default_height());
 
         auto attr = (c74::max::t_object*)c74::max::class_attr_get(c, c74::max::gensym("patching_rect"));
+        using namespace c74::max;
         auto attr_type = (c74::max::t_symbol*)object_method(attr, c74::max::gensym("gettype"));
         c74::max::class_attr_addattr_parse(c, "patching_rect", "default", attr_type, 0, default_patching_rect.c_str());
     }
