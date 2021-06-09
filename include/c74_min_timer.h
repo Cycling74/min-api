@@ -123,7 +123,7 @@ namespace c74::min {
                     // important! this class is used by all min-based externals that use min's timer class. If you make significant changes to the
                     // timer_impl object we're registering here, consider changing the timer_impl_name to avoid conflicts with other externals that
                     // use an older version of min-api.
-                    s_timer_impl_class = max::class_new(timer_impl_name, (max::method)0, (max::method)0, sizeof(timer_impl), 0, NULL);
+                    s_timer_impl_class = max::class_new(timer_impl_name, (max::method)0, (max::method)0, sizeof(timer_impl), (max::method)0, 0);
                     max::class_register(max::CLASS_NOBOX, s_timer_impl_class);
                 }
             }
