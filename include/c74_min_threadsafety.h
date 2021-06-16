@@ -121,7 +121,7 @@ namespace c74::min {
 
 
         virtual ~thread_trigger() {
-            object_free(m_clock);
+			max::object_free(m_clock);
         }
 
 
