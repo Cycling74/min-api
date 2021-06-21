@@ -5,95 +5,91 @@
 
 #pragma once
 
+#include <ostream>
+#include <streambuf>
 namespace c74::min {
 
-    class logger_line_ending {};       ///< A type to represent line endings for the min::logger class.
-    static logger_line_ending endl;    ///< An instance of a line ending for convenience.
+	// for backword compatibility. min::endl is no longer a empty class but an alias to std::endl.
+	using std::endl;
+
+	/// Logging utility to deliver console messages
+	/// in such a way that they are mirrored to the Max window.
+	///
+	/// This class is not intended to be used directly,
+	/// but rather through instances that are provided in min::object<> base class.
+	///
+	/// @see min::object::cout
+	/// @see min::object::cerr
+	/// @see min::object::cwarn
+	/// @see min::endl
 
 
-    /// Logging utility to deliver console messages
-    /// in such a way that they are mirrored to the Max window.
-    ///
-    /// This class is not intended to be used directly,
-    /// but rather through instances that are provided in min::object<> base class.
-    ///
-    /// @see min::object::cout
-    /// @see min::object::cerr
-    /// @see min::endl
+	class loggerbuf : public std::basic_stringbuf<char> {
+	public:
+		/// The output type of the message.
+		/// These are not `levels` as in some languages (e.g. Ruby) but distinct targets.
 
-    class logger {
-    public:
-        /// The output type of the message.
-        /// These are not `levels` as in some languages (e.g. Ruby) but distinct targets.
-
-        enum class type {
-            message = 0,    ///< A regular console post to the Max Window.
-            warning,		///< A highlighted and trappable warning post to the Max Window.
-            error           ///< A highlighted and trappable error post to the Max Window.
-        };
+		enum class type {
+			message = 0,    ///< A regular console post to the Max Window.
+			warning,        ///< A highlighted and trappable warning post to the Max Window.
+			error           ///< A highlighted and trappable error post to the Max Window.
+		};
 
 
-        /// Constructor: typically you do not call this directly,
-        /// it used by min::object to create cout and cerr
-        /// @param an_owner		Your object instance
-        /// @param a_type		The type of console output to deliver
+		/// Constructor: typically you do not call this directly,
+		/// it used by min::object to create cout and cerr
+		/// @param an_owner		Your object instance
+		/// @param a_type		The type of console output to deliver
 
-        logger(const object_base* an_owner, const logger::type a_type)
-        : m_owner { *an_owner }
-        , m_target { a_type }
-        {}
+		loggerbuf(object_base* an_owner, loggerbuf::type a_type)
+		: std::basic_stringbuf<char>()
+		, m_owner {*an_owner}
+		, m_target {a_type} { }
 
+		virtual int sync() override {
+			const std::string& s = str();
 
-        /// Use the insertion operator as for any other stream to build the output message
-        /// @param	x	A token to be added to the output stream.
-        /// @return		A reference to the output stream.
-
-        template<typename T>
-        logger& operator<<(const T& x) {
-            m_stream << x;
-            return *this;
-        }
-
-
-        /// Pass endl to the insertion operator to complete the console post and flush it.
-        /// @param x	The min::endl token
-        /// @return		A reference to the output stream.
-
-        logger& operator<<(const logger_line_ending& x) {
-            const std::string& s = m_stream.str();
-
-            switch (m_target) {
+			switch (m_target) {
 				case type::message:
-                    std::cout << s << std::endl;
+					std::cout << s;
 
-                    // if the max object is present then it is safe to post even if the owner isn't yet fully initialized
-                    if (m_owner.initialized() || k_sym_max)
-                        max::object_post(m_owner, s.c_str());
-                    break;
+					// if the max object is present then it is safe to post even if the owner isn't yet fully initialized
+					if (m_owner.initialized() || k_sym_max)
+						max::object_post(m_owner, s.c_str());
+					break;
 				case type::warning:
-                    std::cerr << s << std::endl;
+					std::cerr << s;
 
-                    // if the max object is present then it is safe to post even if the owner isn't yet fully initialized
-                    if (m_owner.initialized() || k_sym_max)
-                        max::object_warn(m_owner, s.c_str());
-                    break;
+					// if the max object is present then it is safe to post even if the owner isn't yet fully initialized
+					if (m_owner.initialized() || k_sym_max)
+						max::object_warn(m_owner, s.c_str());
+					break;
 				case type::error:
-                    std::cerr << s << std::endl;
+					std::cerr << s;
+					// if the max object is present then it is safe to post even if the owner isn't yet fully initialized
+					if (m_owner.initialized() || k_sym_max)
+						max::object_error(m_owner, s.c_str());
+					break;
+			}
+			str("");
+			return 0;
+		}
 
-                    // if the max object is present then it is safe to post even if the owner isn't yet fully initialized
-                    if (m_owner.initialized() || k_sym_max)
-                        max::object_error(m_owner, s.c_str());
-                    break;
-            }
+	private:
+		object_base&    m_owner;
+		loggerbuf::type m_target;
+	};
 
-            m_stream.str("");
-            return *this;
-        }
+	class logger : public std::ostream {
+	public:
+		logger() = delete;
+		explicit logger(object_base* an_owner, loggerbuf::type a_type)
+		: buf(an_owner, a_type)
+		, std::ostream(&buf) { }
+		using type = loggerbuf::type;
 
-    private:
-        const object_base&  m_owner;
-        const logger::type  m_target;
-        std::stringstream   m_stream;
-    };
+	private:
+		loggerbuf buf;
+	};
 
 }    // namespace c74::min
