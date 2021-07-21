@@ -86,11 +86,11 @@ namespace c74::min {
             }
             else {
                 if (typeid(T1) != typeid(atom))
-                  return {}; //m.fn(m.ob, arg1);
+                    return CALL_METHOD(m.fn, m.ob, arg1);
                 else {
                     // atoms must be converted to native types and then reinterpreted as void*
                     // doubles cannot be converted -- supporting those will need to be handled separately
-                  return {}; //m.fn(m.ob, atom_to_generic(arg1));
+                    return CALL_METHOD(m.fn, m.ob, atom_to_generic(arg1));
                 }
             }
         }
@@ -113,11 +113,11 @@ namespace c74::min {
             }
             else {
                 if (typeid(T1) != typeid(atom))
-                  return {}; //m.fn(m.ob, arg1, arg2);
+                    return CALL_METHOD(m.fn, m.ob, arg1, arg2);
                 else {
                     // atoms must be converted to native types and then reinterpreted as void*
                     // doubles cannot be converted -- supporting those will need to be handled separately
-                  return {}; //m.fn(m.ob, atom_to_generic(arg1), atom_to_generic(arg2));
+                    return CALL_METHOD(m.fn, m.ob, atom_to_generic(arg1), atom_to_generic(arg2));
                 }
             }
         }
