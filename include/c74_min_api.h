@@ -40,6 +40,7 @@
 #include "c74_msp.h"
 
 using c74::max::t_atom_long;
+using c74::max::t_ptr_int;
 
 namespace c74::min {
 
