@@ -9,7 +9,7 @@ if (${CMAKE_GENERATOR} MATCHES "Xcode")
 endif ()
 
 
-set(C74_MAX_SDK_DIR ${CMAKE_CURRENT_LIST_DIR}/../max-sdk)
+set(C74_MAX_SDK_DIR ${CMAKE_CURRENT_LIST_DIR}/../max-sdk-base)
 
 if (APPLE)
     if (CMAKE_OSX_ARCHITECTURES STREQUAL "")
