@@ -33,10 +33,10 @@ target_compile_definitions(min-tests PUBLIC -DMIN_TEST)
 
 target_include_directories(min-tests PUBLIC
 	"${C74_MIN_API_DIR}/include"
-	"${C74_MIN_API_DIR}/max-sdk/source/c74support"
-	"${C74_MIN_API_DIR}/max-sdk/source/c74support/max-includes"
-	"${C74_MIN_API_DIR}/max-sdk/source/c74support/msp-includes"
-	"${C74_MIN_API_DIR}/max-sdk/source/c74support/jit-includes"
+	"${C74_MIN_API_DIR}/max-sdk-base/c74support"
+	"${C74_MIN_API_DIR}/max-sdk-base/c74support/max-includes"
+	"${C74_MIN_API_DIR}/max-sdk-base/c74support/msp-includes"
+	"${C74_MIN_API_DIR}/max-sdk-base/c74support/jit-includes"
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -49,7 +49,7 @@ set_target_properties(min-tests PROPERTIES CXX_STANDARD_REQUIRED ON)
 
 if (APPLE)
 	#target_link_libraries(min-tests stdc++ "-framework CoreServices" "-framework CoreFoundation")
-	set_target_properties(min-tests PROPERTIES LINK_FLAGS "-Wl,-F'${CMAKE_CURRENT_SOURCE_DIR}/../max-sdk/source/c74support/jit-includes', -weak_framework JitterAPI")
+	set_target_properties(min-tests PROPERTIES LINK_FLAGS "-Wl,-F'${CMAKE_CURRENT_SOURCE_DIR}/../max-sdk-base/c74support/jit-includes', -weak_framework JitterAPI")
 	target_compile_options(min-tests PRIVATE -DCATCH_CONFIG_NO_CPP17_UNCAUGHT_EXCEPTIONS)
 endif ()
 
