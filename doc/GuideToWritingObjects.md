@@ -179,7 +179,7 @@ A "number" message will be called for either "float" or "int" input. If you want
 
 ## Attributes
 
-Attributes are simply variables that are exposed to Max. To do this you create attribute instance specialized with the datatype the attribute is to represent.
+Attributes are simply variables that are exposed to Max. To do this you create an attribute instance specialized with the datatype the attribute is to represent.
 
 Attributes have 3 required arguments: a pointer to the owning instance of your class (`this`), a string for the attribute name in Max, and a default value for initialization.
 
@@ -362,7 +362,7 @@ Dictionaries are Max's implementation of an associative array container mapping 
 
 ### Handling Dictionary Input
 
-To respond to a dictionary coming into an inlet, define a message named "dictionary". It' first argument will be an atom containing a dictionary.
+To respond to a dictionary coming into an inlet, define a message named "dictionary". Its first argument will be an atom containing a dictionary.
 
 ``` c++
 message<> dictionary { this, "dictionary", 
@@ -408,7 +408,7 @@ message<> savestate { this, "savestate",
 };
 ```
 
-To recall your saved state when the patcher is loaded, the object is pasted into another patcher, etc. you call the inherited `state()` method to get your instance's dictionary from the patcher.
+To recall your saved state when the patcher is loaded, or when the object is pasted into another patcher, etc. you call the inherited `state()` method to get your instance's dictionary from the patcher.
 
 ```c++
 auto saved_state = state();						
