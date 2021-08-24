@@ -1,4 +1,5 @@
 # Min-API
+![CI](https://github.com/Cycling74/min-api/actions/workflows/test.yml/badge.svg)
 
 This folder contains the support files you will need to compile an external object written in C++ using a high-level declarative application programming interface. It is distributed as a part of the [Min-DevKit Package](https://github.com/Cycling74/min-devkit). Please refer to that package for additional documentation and best practices.
 
