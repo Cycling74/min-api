@@ -10,7 +10,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 #don't pollute the source directory
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/externals/" CACHE FILEPATH "The destination path for the built external")
+set(C74_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/externals/" CACHE FILEPATH "The destination path for the built external")
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
 	message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
@@ -29,7 +29,7 @@ conan_add_remote(
 )
 
 conan_cmake_configure(
-	REQUIRES min-api/xnor_conan_981e563d455d4697f76dd0d0607d40e2357e5228@xnor/testing
+	REQUIRES min-api/main_768519f556edaeecffee7e6f002b3e07ea1a539c@xnor/testing
 	GENERATORS cmake_paths
 )
 conan_cmake_autodetect(settings)
