@@ -51,7 +51,7 @@ namespace c74::min {
 
         // path initialized by name
         path(const std::string& name, const filetype type = filetype::any, const bool create = false) {
-            strncpy(m_filename, name.c_str(), MAX_PATH_CHARS);
+            strncpy(m_filename, name.c_str(), max::MAX_PATH_CHARS);
 
             auto           types = typelist(type);
             max::t_fourcc* first_type { nullptr };
@@ -65,8 +65,8 @@ namespace c74::min {
             if (err) {
                 if (create) {
                     if (type == filetype::folder) {
-                        char fullpath[MAX_PATH_CHARS];
-                        char filename[MAX_FILENAME_CHARS];
+                        char fullpath[max::MAX_PATH_CHARS];
+                        char filename[max::MAX_FILENAME_CHARS];
                         max::path_nameconform(name.c_str(), fullpath, max::PATH_STYLE_MAX, max::PATH_TYPE_ABSOLUTE);
 
                         char* foldername         = strrchr(fullpath, '/');
@@ -154,7 +154,7 @@ namespace c74::min {
 
 
         operator string() const {
-            char pathname[MAX_PATH_CHARS];
+            char pathname[max::MAX_PATH_CHARS];
 
             max::path_toabsolutesystempath(m_path, m_filename, pathname);
             std::string s = pathname;
@@ -192,7 +192,7 @@ namespace c74::min {
             if (!m_path)
                 return;
 
-            char fullpath_to_this_folder[MAX_PATH_CHARS];
+            char fullpath_to_this_folder[max::MAX_PATH_CHARS];
             max::path_topathname(m_path, m_filename, fullpath_to_this_folder);
             // TODO: error checking
 
@@ -227,7 +227,7 @@ namespace c74::min {
 
         string name() const {
             if (m_directory) {
-                char pathname[MAX_PATH_CHARS];
+                char pathname[max::MAX_PATH_CHARS];
                 max::path_toabsolutesystempath(m_path, m_filename, pathname);
                 char* last = strrchr(pathname, '/') + 1;
                 return last;
@@ -250,7 +250,7 @@ namespace c74::min {
 
     private:
         short         m_path                     {};
-        char          m_filename[MAX_PATH_CHARS] {};
+        char          m_filename[max::MAX_PATH_CHARS] {};
         max::t_fourcc m_type                     {};
         bool          m_directory                {};
     };

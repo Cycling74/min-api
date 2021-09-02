@@ -26,7 +26,7 @@ namespace c74::min {
         /// constructor with enum initializer
         template<class T, typename enable_if<std::is_enum<T>::value, int>::type = 0>
         atom(const T initial_value) {
-            *this = static_cast<max::t_atom_long>(initial_value);
+            *this = static_cast<int>(initial_value);
         }
 
         atom(const event& e) {
@@ -52,39 +52,44 @@ namespace c74::min {
             *this = *init;
             return *this;
         }
+      
+        atom& operator=(long value) {
+            max::atom_setlong(this, max::t_atom_long(value));
+            return *this;
+        }
 
         atom& operator=(const int64_t value) {
-            atom_setlong(this, value);
+            max::atom_setlong(this, max::t_atom_long(value));
             return *this;
         }
 
         atom& operator=(const int32_t value) {
-            atom_setlong(this, value);
+            max::atom_setlong(this, max::t_atom_long(value));
             return *this;
         }
 
         atom& operator=(const bool value) {
-            atom_setlong(this, value);
+            max::atom_setlong(this, max::t_atom_long(value));
             return *this;
         }
 
         atom& operator=(const double value) {
-            atom_setfloat(this, value);
+            max::atom_setfloat(this, double(value));
             return *this;
         }
 
         atom& operator=(const max::t_symbol* value) {
-            atom_setsym(this, value);
+            max::atom_setsym(this, (max::t_symbol*)(value));
             return *this;
         }
 
         atom& operator=(const symbol value) {
-            atom_setsym(this, value);
+            max::atom_setsym(this, symbol(value));
             return *this;
         }
 
         atom& operator=(const char* value) {
-            atom_setsym(this, symbol(value));
+            max::atom_setsym(this, symbol(value));
             return *this;
         }
 
@@ -94,22 +99,22 @@ namespace c74::min {
         }
 
         atom& operator=(max::t_object* value) {
-            atom_setobj(this, static_cast<void*>(value));
+            max::atom_setobj(this, static_cast<void*>(value));
             return *this;
         }
 
         atom& operator=(max::t_class* value) {
-            atom_setobj(this, static_cast<void*>(value));
+            max::atom_setobj(this, static_cast<void*>(value));
             return *this;
         }
 
         atom& operator=(const void* value) {
-            atom_setobj(this, const_cast<void*>(value));
+            max::atom_setobj(this, const_cast<void*>(value));
             return *this;
         }
 
         atom& operator=(void* value) {
-            atom_setobj(this, value);
+            max::atom_setobj(this, value);
             return *this;
         }
 
@@ -125,7 +130,7 @@ namespace c74::min {
         }
 
         operator double() const {
-            return atom_getfloat(this);
+            return max::atom_getfloat(this);
         }
 
         operator int() const {
@@ -394,7 +399,7 @@ namespace std {
         char*  text     = nullptr;
         string str;
 
-        auto err = c74::max::atom_gettext((long)as.size(), &as[0], &textsize, &text, c74::max::OBEX_UTIL_ATOM_GETTEXT_SYM_NO_QUOTE);
+        auto err = c74::max::atom_gettext((long)as.size(), (c74::max::t_atom *)&as[0], &textsize, &text, c74::max::OBEX_UTIL_ATOM_GETTEXT_SYM_NO_QUOTE);
         if (!err)
             str = text;
         else

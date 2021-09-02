@@ -5,11 +5,6 @@
 
 #pragma once
 
-#include "c74_max.h"
-#include "c74_ui.h"
-#include "c74_ui_graphics.h"
-#include "c74_msp.h"
-
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -37,6 +32,15 @@
 #endif
 
 #include "murmur/Murmur3.h"    // used for constexpr hash function
+
+#include "c74_max.h"
+#include "c74_ui.h"
+#include "c74_ui_graphics.h"
+#include "c74_jitter.h"
+#include "c74_msp.h"
+
+using c74::max::t_atom_long;
+using c74::max::t_ptr_int;
 
 namespace c74::min {
 
@@ -99,10 +103,10 @@ namespace c74::min {
         dollar,
         dollar_symbol,
         gimmeback,
-        defer     = max::A_DEFER,
-        usurp     = max::A_USURP,
-        defer_low = max::A_DEFER_LOW,
-        usurp_low = max::A_USURP_LOW,
+        defer     = A_DEFER,
+        usurp     = A_USURP,
+        defer_low = A_DEFER_LOW,
+        usurp_low = A_USURP_LOW,
         ellipsis
     };
 
