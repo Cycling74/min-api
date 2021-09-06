@@ -175,12 +175,24 @@ namespace c74::min {
         auto inlets() -> std::vector<inlet_base*>& {
             return m_inlets;
         }
+       
+    	/// Get a reference to this object's inlets.
+        /// @return	A reference to this object's inlets.
+        auto inlets() const -> const std::vector<inlet_base*>& {
+            return m_inlets;
+        }
 
 
         /// Get a reference to this object's outlets.
         /// @return	A reference to this object's outlets.
 
         auto outlets() -> std::vector<outlet_base*>& {
+            return m_outlets;
+        }
+        
+        /// Get a reference to this object's outlets.
+        /// @return	A reference to this object's outlets.
+        auto outlets() const -> const std::vector<outlet_base*>& {
             return m_outlets;
         }
 
