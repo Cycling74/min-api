@@ -139,10 +139,9 @@ namespace c74::min {
 		/// Register an existing dictionary
 		/// @param name   name to register the dictionary under
 		void register_as(const symbol name) {
-			auto d_name = max::dictobj_namefromptr(m_instance);
-			if (!d_name && m_instance != nullptr) {
+			if (m_instance != nullptr) {
 				max::t_symbol* s = name;
-				max::dictobj_register(m_instance, &s);
+				m_instance = max::dictobj_register(m_instance, &s);
 			}
 		}
 
