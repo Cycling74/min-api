@@ -136,6 +136,16 @@ namespace c74::min {
         }
 
 
+		/// Register an existing dictionary
+		/// @param name   name to register the dictionary under
+		void register_as(const symbol name) {
+			if (m_instance != nullptr) {
+				max::t_symbol* s = name;
+				m_instance = max::dictobj_register(m_instance, &s);
+			}
+		}
+
+
     private:
         max::t_dictionary* m_instance       { nullptr };
         bool               m_has_ownership  { true };
