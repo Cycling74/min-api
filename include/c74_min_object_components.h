@@ -257,7 +257,7 @@ namespace c74::min {
             auto err = max::object_obex_lookup(maxobj(), k_sym__pound_p, &p);
             if (err != max::MAX_ERR_NONE)
                 error("unable to obtain owning patcher for object");
-            return min::patcher(p);
+            return {p};
         }
 
 
@@ -267,7 +267,7 @@ namespace c74::min {
             auto err = max::object_obex_lookup(maxobj(), k_sym__pound_b, &b);
             if (err != max::MAX_ERR_NONE)
                 error("unable to obtain owning patcher for object");
-            return min::box(b);
+            return {b};
         }
 
 
