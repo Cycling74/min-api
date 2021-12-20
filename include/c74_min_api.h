@@ -22,12 +22,12 @@
 #include <unordered_map>
 #include <utility>
 
-#ifdef MAC_VERSION
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
 #include "readerwriterqueue/readerwriterqueue.h"
-#ifdef MAC_VERSION
+#ifdef __clang__
 #pragma clang diagnostic pop
 #endif
 
