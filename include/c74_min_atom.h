@@ -52,16 +52,12 @@ namespace c74::min {
             *this = *init;
             return *this;
         }
-      
-        atom& operator=(max::t_atom_long value) {
-            max::atom_setlong(this, value);
-            return *this;
-        }
 
-        atom& operator=(int32_t value) {
-            max::atom_setlong(this, static_cast<max::t_atom_long>(value));
+        template<typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
+          atom& operator=(T value) {
+            max::atom_setlong(this, static_cast<t_atom_long>(value));
             return *this;
-        }
+          }     
 
         atom& operator=(double value) {
             max::atom_setfloat(this, value);
