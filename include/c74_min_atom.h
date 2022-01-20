@@ -26,7 +26,7 @@ namespace c74::min {
         /// constructor with enum initializer
         template<class T, typename enable_if<std::is_enum<T>::value, int>::type = 0>
         atom(const T initial_value) {
-            *this = static_cast<int>(initial_value);
+            *this = static_cast<max::t_atom_long>(initial_value);
         }
 
         atom(const event& e) {
@@ -52,29 +52,15 @@ namespace c74::min {
             *this = *init;
             return *this;
         }
-      
-        atom& operator=(long value) {
-            max::atom_setlong(this, max::t_atom_long(value));
-            return *this;
-        }
 
-        atom& operator=(const int64_t value) {
-            max::atom_setlong(this, max::t_atom_long(value));
+        template<typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
+          atom& operator=(T value) {
+            max::atom_setlong(this, static_cast<t_atom_long>(value));
             return *this;
-        }
+          }     
 
-        atom& operator=(const int32_t value) {
-            max::atom_setlong(this, max::t_atom_long(value));
-            return *this;
-        }
-
-        atom& operator=(const bool value) {
-            max::atom_setlong(this, max::t_atom_long(value));
-            return *this;
-        }
-
-        atom& operator=(const double value) {
-            max::atom_setfloat(this, double(value));
+        atom& operator=(double value) {
+            max::atom_setfloat(this, value);
             return *this;
         }
 

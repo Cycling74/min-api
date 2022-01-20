@@ -251,7 +251,7 @@ namespace c74::min {
         }
 
 
-        patcher patcher() {
+        min::patcher patcher() {
             max::t_object* p {};
 
             auto err = max::object_obex_lookup(maxobj(), k_sym__pound_p, &p);
@@ -261,7 +261,7 @@ namespace c74::min {
         }
 
 
-        box box() {
+        min::box box() {
             max::t_object* b {};
 
             auto err = max::object_obex_lookup(maxobj(), k_sym__pound_b, &b);
