@@ -2,15 +2,31 @@
 # Use of this source code is governed by the MIT License found in the License.md file.
 
 cmake_minimum_required(VERSION 3.19)
-project(MinAPI)
 
+option(C74_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 
 if (${CMAKE_GENERATOR} MATCHES "Xcode")
- 		if (${XCODE_VERSION} VERSION_LESS 10)
-  			message(STATUS "Xcode 10 or later is required. Please install from the Mac App Store.")
-			return ()
-		endif ()
+ 	if (${XCODE_VERSION} VERSION_LESS 10)
+  		message(STATUS "Xcode 10 or later is required. Please install from the Mac App Store.")
+		return ()
+	endif ()
 endif ()
+
+# Add the max sdk, if it exists
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/max-sdk-base/CMakeLists.txt")
+    add_subdirectory(max-sdk-base)
+else()
+    message(FATAL_ERROR "The max-sdk-base repository is missing. Maybe you did not clone recursively?")
+endif ()
+
+include(script/c74_add_min_target.cmake)
+include(test/c74_add_min_unit_test.cmake)
+
+
+
+
+project(MinAPI)
+
 
 if (WIN32)
     add_definitions(
@@ -21,12 +37,31 @@ if (WIN32)
 endif ()
 
 file(GLOB_RECURSE MIN_API_HEADERS
-	 RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-	 ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
-add_custom_target( API ALL
-	SOURCES ${MIN_API_HEADERS}
+	 RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+	 "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
 )
 
+set(version 0.6.0)
+set(target min-api)
+
+add_library(${target} INTERFACE ${MIN_API_HEADERS})
+
+set_target_properties(${target} PROPERTIES FOLDER "C74_Libraries")
+set_target_properties(${target} PROPERTIES VERSION ${version})
+
+target_include_directories(${target} INTERFACE 
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include/include>"
+)
+
+add_library(API ALIAS min-api) # alias for backwards compatibility
+
+
+
+# Target for including the test headers
+set(target min-api-test-headers)
+add_library(${target} INTERFACE)
+target_include_directories(${target} INTERFACE test)
 
 
 enable_testing()
