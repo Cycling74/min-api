@@ -66,6 +66,7 @@ target_include_directories(${target} INTERFACE test)
 
 enable_testing()
 
+set(C74_MOCK_TARGET_DIR "${CMAKE_CURRENT_LIST_DIR}/../../tests")###
 # min-devkit and probably many user projects add the min-api as a subdirectory,
 # however, we want the min-api to be able to act as a standalone project as well.
 # so projects including the min-api should use the various .cmake scripts instead
@@ -74,7 +75,9 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
 else()
     message(DEPRECATION "Adding min-api via add_subdirectory() is deprecated and might break your setup in the future. Please remove the add_subdirectory() line from your CMakeLists.txt file.")
+    add_subdirectory(test/mock "${CMAKE_BINARY_DIR}/mock")
 endif()
+set_target_properties(mock_kernel PROPERTIES FOLDER "C74_Libraries")
 
 find_package (Doxygen QUIET)
 option (BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})

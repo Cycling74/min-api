@@ -16,6 +16,7 @@
 # )
 
 function(c74_add_unit_test target)
+	set(options LINK_TO_C74_LIBS)
 	set(oneValueArgs OUTPUT_DIRECTORY)
 	set(multiValueArgs SOURCES)
 	cmake_parse_arguments(PARSE_ARGV 0 PARAMS "${options}" "${oneValueArgs}" "${multiValueArgs}")
@@ -31,7 +32,9 @@ function(c74_add_unit_test target)
 		MAX_SDK_JIT_INCLUDES
 			${MAX_SDK_JIT_INCLUDES}  # these are initialized in the c74_pre_project_calls()
 		SOURCES 
-			${TEST_NAME}.cpp ${TEST_SOURCE_FILES}
+			${PARAMS_SOURCES}
+		DO_LINK_TO_C74_LIBS
+			${PARAMS_LINK_TO_C74_LIBS}
 	)
 endfunction()
 
@@ -58,10 +61,10 @@ function(c74_add_auto_unit_test target)
 	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 		c74_test_source_files_macro()
 
-		if (NOT TARGET mock_kernel)
-			set(C74_MOCK_TARGET_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../tests")###
-			add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../../min-api/test/mock" "${CMAKE_BINARY_DIR}/mock")###
-		endif ()
+		#if (NOT TARGET mock_kernel)
+		#	set(C74_MOCK_TARGET_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../tests")###
+		#	#add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../../min-api/test/mock" "${CMAKE_BINARY_DIR}/mock")###
+		#endif ()
 		
 		c74_add_unit_test(${TEST_NAME} 
 			OUTPUT_DIRECTORY 
@@ -90,11 +93,10 @@ endmacro()
 
 
 function(c74_add_unit_test_impl target)
-	set(oneValueArgs OUTPUT_DIRECTORY MAX_SDK_JIT_INCLUDES)
+	set(oneValueArgs OUTPUT_DIRECTORY MAX_SDK_JIT_INCLUDES DO_LINK_TO_C74_LIBS)
 	set(multiValueArgs SOURCES)
 	cmake_parse_arguments(PARSE_ARGV 0 PARAMS "${options}" "${oneValueArgs}" "${multiValueArgs}")
 
-	
 	enable_testing()
 	
 	# set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage")
@@ -115,6 +117,10 @@ function(c74_add_unit_test_impl target)
 
 	target_link_libraries(${target} PUBLIC mock_kernel)
 	target_link_libraries(${target} PRIVATE max-sdk-base-headers min-api min-api-test-headers)
+	
+	if (PARAMS_DO_LINK_TO_C74_LIBS)
+		target_link_libraries(${target} PRIVATE max-sdk-base)
+	endif ()
 
 	if (APPLE)
 		set_target_properties(${target} PROPERTIES LINK_FLAGS "-Wl,-F'${PARAMS_MAX_SDK_JIT_INCLUDES}', -weak_framework JitterAPI")
@@ -122,10 +128,10 @@ function(c74_add_unit_test_impl target)
 	endif ()
 	if (WIN32)
 		set_target_properties(${target} PROPERTIES COMPILE_PDB_NAME ${target})
-
-		# target_link_libraries(${TEST_NAME} ${MaxAPI_LIB})
-		# target_link_libraries(${TEST_NAME} ${MaxAudio_LIB})
-		# target_link_libraries(${TEST_NAME} ${Jitter_LIB})
+		
+		##target_link_libraries(${target} PUBLIC ${MaxAPI_LIB})
+		##target_link_libraries(${target} PUBLIC ${MaxAudio_LIB})
+		##target_link_libraries(${target} PUBLIC ${Jitter_LIB})
 	endif ()
 
 	add_test(NAME ${target} COMMAND ${target})
