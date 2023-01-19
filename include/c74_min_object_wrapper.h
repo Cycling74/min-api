@@ -572,12 +572,12 @@ namespace c74::min {
                 max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_mousewheel<min_class_type, wrapper_message_name_mousewheel>), "mousewheel", max::A_CANT, 0);
 
             else {
-              if (a_message.second->type() == max::A_GIMMEBACK) {
-                max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>),
-                    a_message.first.c_str(), a_message.second->type(), 0);
-              }
-              else {
-                max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>),
+                if (a_message.second->type() == max::A_GIMMEBACK) {
+                    max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>),
+                        a_message.first.c_str(), a_message.second->type(), 0);
+                }
+                else {
+                    max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>),
                         a_message.first.c_str(), a_message.second->type(), 0);
                 }
             }
