@@ -21,9 +21,3 @@ set(SOURCE_FILES "min.example.cpp")
 add_library(${PROJECT_NAME} MODULE ${SOURCE_FILES})
 
 include(${CONAN_MIN-API_ROOT}/script/min-posttarget.cmake)
-
-set_target_properties(min.example PROPERTIES SUFFIX ".mxl_${CMAKE_SYSTEM_PROCESSOR}")
-target_link_libraries(min.example PUBLIC 
-  ${CMAKE_CURRENT_LIST_DIR}/MaxAudioAPI.so
-  ${CMAKE_CURRENT_LIST_DIR}/libJitterAPI.so
-  )
