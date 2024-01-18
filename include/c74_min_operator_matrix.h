@@ -525,7 +525,7 @@ namespace c74::min {
         if (max::object_classname(in_matrix) != max::_jit_sym_jit_matrix)
             in_matrix = static_cast<max::t_object*>(max::object_method(in_matrix, static_cast<max::t_symbol*>(k_sym_getmatrix)));
         if (max::object_classname(out_matrix) != max::_jit_sym_jit_matrix)
-            out_matrix = static_cast<max::t_object*>(max::object_method(out_matrix, static_cast<max::t_symbol*>(k_sym_getmatrix));
+            out_matrix = static_cast<max::t_object*>(max::object_method(out_matrix, static_cast<max::t_symbol*>(k_sym_getmatrix)));
 
         if (!self || !in_matrix || !out_matrix)
             err = max::JIT_ERR_INVALID_PTR;
