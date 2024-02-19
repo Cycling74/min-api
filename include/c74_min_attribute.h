@@ -206,6 +206,13 @@ namespace c74::min {
         symbol name() const {
             return m_name;
         }
+        
+        /// Determine the size of the attribute
+        /// @return the size of the attribute
+        
+        size_t size() const {
+            return m_size;
+        }
 
 
         /// Is the attribute writable (meaning settable)?

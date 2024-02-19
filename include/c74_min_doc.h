@@ -112,6 +112,34 @@ namespace c74::min {
         returned_description = "Unknown";
     }
 
+    #define MIN_DISCUSSION static constexpr const char* class_discussion
+
+    template<typename min_class_type>
+    struct has_class_discussion {
+        template<class, class>
+        class checker;
+
+        template<typename C>
+        static std::true_type test(checker<C, decltype(&C::class_discussion)>*);
+
+        template<typename C>
+        static std::false_type test(...);
+
+        typedef decltype(test<min_class_type>(nullptr)) type;
+        static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
+    };
+
+    template<class min_class_type>
+    typename enable_if<has_class_discussion<min_class_type>::value>::type doc_get_discussion(std::string& returned_class_discussion) {
+        returned_class_discussion = min_class_type::class_discussion;
+    }
+    
+    template<class min_class_type>
+    typename enable_if<!has_class_discussion<min_class_type>::value>::type doc_get_discussion(std::string& returned_class_discussion) {
+        returned_class_discussion = "";
+    }
+
+
 
     template<class min_class_type>
     void doc_generate(const min_class_type& instance, const std::string& refpage_fullpath, const std::string& max_class_name, const std::string& min_class_name) {
@@ -179,6 +207,46 @@ namespace c74::min {
         refpage_file << "	</metadatalist>" << endl;
         refpage_file << endl << endl;
 
+        // inlets
+        
+        const auto& inlets = instance.inlets();
+        if (!inlets.empty()) {
+            refpage_file << "    <!--INLETS-->" << endl;
+            refpage_file << "    <inletlist>" << endl;
+            for(auto i=0;i<inlets.size();i++) { //need to get i for inlet id
+                const string description = inlets[i]->description();
+                const string attr_type   = inlets[i]->type();
+                
+                refpage_file << "        <inlet id='" << i << "' type='" << attr_type << "'>" << endl;
+                refpage_file << "           <description>" << endl;
+                refpage_file << "               " << description << endl;
+                refpage_file << "           </description>" << endl;
+                refpage_file << "        </inlet>" << endl;
+            }
+            refpage_file << "    </inletlist>" << endl;
+            
+        }
+        
+        // outlet
+        
+        const auto& outlets = instance.outlets();
+        if (!outlets.empty()) {
+            refpage_file << "    <!--OUTLETS-->" << endl;
+            refpage_file << "    <outletlist>" << endl;
+            for(auto i=0;i<outlets.size();i++) { //need to get i for inlet id
+                const string description = outlets[i]->description();
+                const string attr_type   = outlets[i]->type();
+                
+                refpage_file << "        <outlets id='" << i << "' type='" << attr_type << "'>" << endl;
+                refpage_file << "           <description>" << endl;
+                refpage_file << "               " << description << endl;
+                refpage_file << "           </description>" << endl;
+                refpage_file << "        </outlets>" << endl;
+            }
+            refpage_file << "    </outletlist>" << endl;
+            
+        }
+        
         // arguments
 
         refpage_file << "	<!--ARGUMENTS-->" << endl << endl;
@@ -265,10 +333,51 @@ namespace c74::min {
                     c = strchr(digest, '.');
                 if (c)
                     *c = 0;
-
-                refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='" << attr_object.writable() << "' type='" << attr_type << "' size='1' >" << endl;
+          
+                if(attr_object.size() > 1) {
+                    refpage_file << "        <attribute name='" << attr_object.name() << "' get='1' set='" << attr_object.writable() << "' type='" << attr_type << "' size='" << attr_object.size() << "'" << ">" << endl;;
+                } else {
+                    refpage_file << "        <attribute name='" << attr_object.name() << "' get='1' set='" << attr_object.writable() << "' type='" << attr_type << "' size='1'" << ">" << endl;;
+                }
                 refpage_file << "			<digest>" << digest << "</digest>" << endl;
-                refpage_file << "			<description>" << description << "</description>" << endl;
+                
+                refpage_file << "            <description>" << description;
+                
+                if(attr_object.default_string() != "") {
+                    refpage_file << " (default = " << attr_object.default_string() << ")" ;
+                }
+                refpage_file << "           </description>" << endl;
+                
+                if((attr_type == "symbol" ) && (!attr_object.range_string().empty())) {
+                    vector <string> tokens;
+                    istringstream iss(attr_object.range_string());
+                    while(iss) {
+                        string word;
+                        iss >> word;
+                        if(word != "") {
+                            tokens.push_back(word);
+                        }
+                    }
+                    
+                    refpage_file << "           <attributelist>" << endl;
+                    refpage_file << "               <attribute name='enumvals' get='1' set='1' type='atom' size='" << tokens.size() <<"'" << ">" << endl;
+                    refpage_file << "                   <enumlist>" << endl;
+                   
+                    
+                    for(auto i=0;i<tokens.size();i++) {
+                        refpage_file << "                       <enum name=" << tokens[i] << ">" << endl ;
+                        refpage_file << "                       </enum>" << endl ;
+                    }
+                    
+                    refpage_file << "                   </enumlist>" << endl;
+                    refpage_file << "               </attribute>" << endl;
+                    refpage_file << "               <attribute name='label' get='1' set='1' type='symbol' size='1' value='" << attr_object.label_string() << "' />" << endl;
+                    refpage_file << "               <attribute name='style' get='1' set='1' type='symbol' size='1' value='enum' />" << endl;
+                    refpage_file << "           </attributelist>" << endl;
+                    
+                    refpage_file << endl;
+                }
+               
                 refpage_file << "		</attribute>" << endl << endl;
             }
             catch (...) {
@@ -290,8 +399,19 @@ namespace c74::min {
         refpage_file << "	</seealsolist>" << endl;
         refpage_file << endl << endl;
 
-        // footer
+       
+        
+        // discussion
+        refpage_file << "    <!--DISCUSSION-->" << endl << endl;
 
+        string class_discussion;
+        doc_get_discussion<min_class_type>(class_discussion);
+        if(class_discussion != "") {
+            refpage_file << "    <discussion>" << class_discussion << "</discussion>" << endl;
+        }
+        
+        
+         // footer
         refpage_file << "</c74object>" << endl;
     }
 
