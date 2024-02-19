@@ -133,6 +133,19 @@ namespace c74::min {
             max::object_attr_setchar(m_instance, attribute_name, value);
         }
 
+        void set_long(const symbol attribute_name, const long value) {
+            max::object_attr_setlong(m_instance, attribute_name, value);
+        }
+        
+        void set_float(const symbol attribute_name, const float value) {
+            max::object_attr_setfloat(m_instance, attribute_name, value);
+        }
+
+        void set_atoms(const symbol attribute_name, atoms values) {
+            if (values.size () > 0)
+                max::object_attr_setvalueof(m_instance, attribute_name, values.size (), (max::atom*)&values[0]);
+        }
+
         template<typename T>
         T get(const symbol attribute_name) const {
             long argc {};
