@@ -504,8 +504,7 @@ namespace c74::min {
 
         void set_range(const std::vector<T>& range) {
             m_range = range;
-            const auto value = static_cast<atoms>(*this);
-            set(value);
+            set(get_atoms());
         }
 
 
@@ -650,6 +649,16 @@ namespace c74::min {
                 return to_atoms(m_value);
         }
 
+
+        /// Get the attribute value as a vector of atoms.
+        /// @return The value of the attribute
+
+        atoms get_atoms() const {
+            if (m_getter)
+                return m_getter();
+            else
+                return to_atoms(m_value);
+        }
 
         /// Get the attribute value as a const reference to the native datatype.
         /// We need to return by const reference in cases where the type of the attribute is a class.
