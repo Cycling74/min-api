@@ -310,6 +310,8 @@ namespace c74::min {
             return (found_message != m_messages.end());
         }
 
+        dict get_parameter_info(const std::string& name) const;
+
     private:
         max::t_object*                                   m_maxobj;       // initialized prior to placement new
         long                                             m_min_magic;    // should be valid if m_maxobj has been assigned

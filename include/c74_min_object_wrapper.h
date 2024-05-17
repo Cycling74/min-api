@@ -330,6 +330,16 @@ namespace c74::min {
     }
 
     template<class min_class_type, class message_name_type>
+    void wrapper_method_getparameterinfo(max::t_object* o, const max::t_symbol* param, max::t_dictionary** d) {
+        auto self = wrapper_find_self<min_class_type>(o);
+        auto p = std::string(param->s_name);
+        max::t_object* info = self->m_min_object.get_parameter_info(p);
+
+        *d = max::dictionary_new();
+        max::dictionary_clone_to_existing(reinterpret_cast<max::t_dictionary*>(info), *d);
+    }
+
+    template<class min_class_type, class message_name_type>
     void wrapper_method_getplaystate(max::t_object* o, long* play, double* pos, long* loop) {
         auto  self = wrapper_find_self<min_class_type>(o);
         auto& meth = *self->m_min_object.messages()[message_name_type::name];
@@ -471,6 +481,7 @@ namespace c74::min {
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(float)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(focusgained)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(focuslost)
+    MIN_WRAPPER_CREATE_TYPE_FROM_STRING(getparameterinfo)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(getplaystate)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(int)
     MIN_WRAPPER_CREATE_TYPE_FROM_STRING(key)
@@ -587,6 +598,8 @@ namespace c74::min {
                 max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_int<min_class_type, wrapper_message_name_float>), "int", max::A_LONG, 0);
             }
         }
+
+        max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_getparameterinfo<min_class_type, wrapper_message_name_getparameterinfo>), "getparameterinfo", max::A_CANT, 0);
 
         // attributes
 

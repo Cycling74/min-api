@@ -288,6 +288,14 @@ namespace c74::min {
             max::object_attr_touch(m_owner, m_name);
         }
 
+
+        /// Get parameter information about this attribute
+
+        dict get_parameter_info() const {
+            return m_parameterinfo;
+        }
+
+
     protected:
         object_base& m_owner;
         symbol       m_name;
@@ -303,6 +311,7 @@ namespace c74::min {
         symbol       m_category;                // Max inspector category
         int          m_order { 0 };             // Max inspector ordering
 		symbol       m_live_color { k_sym__empty };
+        dict         m_parameterinfo {};        // For use when calling the "getparameterinfo" object method
 
         // calculate the offset of the size member as required for array/vector attributes
 
@@ -363,6 +372,7 @@ namespace c74::min {
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, title>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             m_title = arg;
+            m_parameterinfo["title"] = arg;
         }
 
 
@@ -371,6 +381,7 @@ namespace c74::min {
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, description>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             m_description = arg;
+            m_parameterinfo["description"] = arg;
         }
 
 
@@ -379,6 +390,10 @@ namespace c74::min {
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, range>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             m_range_args = arg;
+            m_parameterinfo["usemin"] = 1;
+            m_parameterinfo["min"] = static_cast<double>(arg[0]);
+            m_parameterinfo["usemax"] = 1;
+            m_parameterinfo["max"] = static_cast<double>(arg[1]);
         }
 
 
@@ -411,6 +426,7 @@ namespace c74::min {
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, readonly>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             m_readonly = arg;
+            m_parameterinfo["readonly"] = arg;
         }
 
 
@@ -419,6 +435,7 @@ namespace c74::min {
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, visibility>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             m_visibility = arg;
+            m_parameterinfo["visibility"] = arg;
         }
 
 
@@ -435,6 +452,7 @@ namespace c74::min {
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, category>::value>::type assign_from_argument(const argument_type& arg) noexcept {
             m_category = arg;
+            m_parameterinfo["category"] = arg;
         }
 
 
@@ -443,6 +461,7 @@ namespace c74::min {
         template<typename argument_type>
         constexpr typename enable_if<is_same<argument_type, order>::value>::type assign_from_argument(const argument_type& arg) noexcept {
            m_order = arg;
+            m_parameterinfo["order"] = arg;
         }
 
         

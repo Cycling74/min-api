@@ -34,6 +34,15 @@ namespace c74::min {
             (*m_arguments[i])(args[i]);
     }
 
+    dict object_base::get_parameter_info(const std::string& name) const {
+        auto found_attribute = m_attributes.find(name);
+        if (found_attribute == m_attributes.end()) {
+            // cannot get parameter info for an attribute that doesn't exist
+            assert(false);
+        }
+        return found_attribute->second->get_parameter_info();
+    }
+
 
     // inlets have to be created as a separate step (by the wrapper) because
     // max creates them from right-to-left

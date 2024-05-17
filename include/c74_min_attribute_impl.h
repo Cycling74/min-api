@@ -45,6 +45,10 @@ namespace c74::min {
 
         m_default = a_default_value;
 
+        if constexpr (is_same<T, number>::value || is_same<T, int>::value) {
+            m_parameterinfo["default"] = static_cast<double>(a_default_value);
+        }
+
         if (is_same<T,ui::color>::value && an_owner->is_ui_class()) {
             auto ui_op = dynamic_cast<ui_operator_base*>(an_owner);
             ui_op->add_color_attribute({a_name,this});
