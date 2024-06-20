@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 namespace c74::min {
 
 
