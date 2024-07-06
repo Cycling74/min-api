@@ -11,7 +11,7 @@ namespace c74::min {
 
 
     template<>
-    buffer_lock<true>::buffer_lock(buffer_reference& a_buffer_ref)
+    inline buffer_lock<true>::buffer_lock(buffer_reference& a_buffer_ref)
     : m_buffer_ref { a_buffer_ref } {
         m_buffer_obj = buffer_ref_getobject(m_buffer_ref.m_instance);
         m_tab        = buffer_locksamples(m_buffer_obj);
@@ -19,7 +19,7 @@ namespace c74::min {
     }
 
     template<>
-    buffer_lock<false>::buffer_lock(buffer_reference& a_buffer_ref)
+    inline buffer_lock<false>::buffer_lock(buffer_reference& a_buffer_ref)
     : m_buffer_ref { a_buffer_ref } {
         max::t_buffer_info info;
 
@@ -31,13 +31,13 @@ namespace c74::min {
 
 
     template<>
-    buffer_lock<true>::~buffer_lock() {
+    inline buffer_lock<true>::~buffer_lock() {
         if (m_tab)
             buffer_unlocksamples(m_buffer_obj);
     }
 
     template<>
-    buffer_lock<false>::~buffer_lock() {
+    inline buffer_lock<false>::~buffer_lock() {
         buffer_edit_end(m_buffer_obj, true);
     }
 
