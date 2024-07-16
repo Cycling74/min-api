@@ -453,7 +453,7 @@ namespace c74::min {
         struct wrapper_message_name_##str {                                  \
             static const char name[];                                        \
         };                                                                   \
-        const char wrapper_message_name_##str::name[] = #str;
+        inline const char wrapper_message_name_##str::name[] = #str;
     #else
     #define MIN_WRAPPER_CREATE_TYPE_FROM_STRING(str)                         \
         struct wrapper_message_name_##str {                                  \
