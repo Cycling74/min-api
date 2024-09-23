@@ -645,6 +645,16 @@ max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* 
             else if (attr.datatype() == "long" && attr.editor_style() == style::enum_index) {
                 CLASS_ATTR_ENUMINDEX(c, attr_name.c_str(), 0, range_string.c_str());
             }
+            else if (attr.datatype() == "float64") {
+                // istream_iterator splits using spaces by default
+                std::istringstream iss(range_string);
+                if (const std::vector tokens(std::istream_iterator<std::string>{iss},
+                                             std::istream_iterator<std::string>());
+                    tokens.size() == 2) {
+                    CLASS_ATTR_MIN(c, attr_name.c_str(), 0, tokens[0].c_str());
+                    CLASS_ATTR_MAX(c, attr_name.c_str(), 0, tokens[1].c_str());
+                }
+            }
         }
 
         if (instance.is_ui_class()) {
@@ -825,6 +835,16 @@ void wrap_as_max_external(const char* cppname, const char* cmaxname, void* resou
             }
             else if (attr.datatype() == "long" && attr.editor_style() == style::enum_index) {
                 CLASS_ATTR_ENUMINDEX(this_jit_class, attr_name.c_str(), 0, range_string.c_str());
+            }
+            else if (attr.datatype() == "float64") {
+                // istream_iterator splits using spaces by default
+                std::istringstream iss(range_string);
+                if (const std::vector tokens(std::istream_iterator<std::string>{iss},
+                                             std::istream_iterator<std::string>());
+                    tokens.size() == 2) {
+                    CLASS_ATTR_MIN(this_jit_class, attr_name.c_str(), 0, tokens[0].c_str());
+                    CLASS_ATTR_MAX(this_jit_class, attr_name.c_str(), 0, tokens[1].c_str());
+                }
             }
         }
     }
