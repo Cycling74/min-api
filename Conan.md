@@ -21,15 +21,15 @@ If you tag the git branch you'll make a version of the package with that name,
 which will make using it easier later.
 
 ```shell
-git tag v1.2.3
+git tag v0.6.9
 conan create . xnor/testing
 ```
 
-To upload, you'll have to have a repository, here I've set up `cycling-jfrog` as a remote.
-For example, if the version is `xnor_conan_v1.2.3` and I tagged with `xnor/testing`.
+To upload, you'll have to have a repository, here I've set up `cycling-public` as a remote.
+For example, if the version is `v0.6.9` and I tagged with `xnor/testing`.
 
 ```shell
-conan upload min-api/xnor_conan_v1.2.3@xnor/testing --all -r cycling-jfrog
+conan upload min-api/v0.6.9@xnor/testing --all -r cycling-public
 ```
 
 Once you've uploaded the package you can use it as detailed below, and if your
