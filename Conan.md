@@ -13,6 +13,12 @@ building the example.
 
 ## Creating and Uploading packages
 
+Make sure you have your submodules updated.
+
+```shell
+git submodule update --init --recursive
+```
+
 To create a new version of the conan package based on the current checkout,
 you'll want to run the commands below, but replace the tags with something
 reasonable.
