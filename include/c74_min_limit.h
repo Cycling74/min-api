@@ -4,6 +4,8 @@
 ///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 #pragma once
 
+#include <algorithm>
+
 namespace c74::min {
 
 /// Limit values to within a specified range, clamping the values to the outer bounds of the range if neccessary.
