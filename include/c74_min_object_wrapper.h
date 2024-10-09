@@ -645,7 +645,7 @@ max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* 
             else if (attr.datatype() == "long" && attr.editor_style() == style::enum_index) {
                 CLASS_ATTR_ENUMINDEX(c, attr_name.c_str(), 0, range_string.c_str());
             }
-            else if (attr.datatype() == "float64") {
+            else if (attr.datatype() == "float64" || attr.datatype() == "long") {
                 // istream_iterator splits using spaces by default
                 std::istringstream iss(range_string);
                 if (const std::vector tokens(std::istream_iterator<std::string>{iss},
@@ -836,7 +836,7 @@ void wrap_as_max_external(const char* cppname, const char* cmaxname, void* resou
             else if (attr.datatype() == "long" && attr.editor_style() == style::enum_index) {
                 CLASS_ATTR_ENUMINDEX(this_jit_class, attr_name.c_str(), 0, range_string.c_str());
             }
-            else if (attr.datatype() == "float64") {
+            else if (attr.datatype() == "float64" || attr.datatype() == "long") {
                 // istream_iterator splits using spaces by default
                 std::istringstream iss(range_string);
                 if (const std::vector tokens(std::istream_iterator<std::string>{iss},
