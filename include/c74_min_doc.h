@@ -284,34 +284,42 @@ void doc_generate(const min_class_type& instance, const std::string& refpage_ful
     refpage_file << "	<attributelist>" << endl
                  << endl;
 
+    // Write the attributes in alphabetical order
     const auto& attributes = instance.attributes();
+    std::vector<std::string> attr_names;
+    for (const auto& [name, value]: attributes) {
+        attr_names.push_back(name);
+    }
+    std::sort(attr_names.begin(), attr_names.end());
 
-    for (const auto& p : attributes) {
-        try {
-            const auto& attr_object = *p.second;
-            const auto& description = doc_format(attr_object.description_string());
-            const auto& attr_type = attr_object.datatype();
+    for (const auto& name : attr_names) {
+        if (const auto& p = attributes.find(name); p != attributes.end()) {
+            try {
+                const auto& attr_object = *p.second;
+                const auto& description = doc_format(attr_object.description_string());
+                const auto& attr_type = attr_object.datatype();
 
-            if (attr_object.visible() == visibility::hide) {
-                continue;
+                if (attr_object.visible() == visibility::hide) {
+                    continue;
+                }
+
+                strncpy(digest, description.c_str(), digest_length_max);
+                char* c = strstr(digest, ". ");
+                if (!c) {
+                    c = strchr(digest, '.');
+                }
+                if (c) {
+                    *c = 0;
+                }
+
+                refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='" << attr_object.writable() << "' type='" << attr_type << "' size='1' >" << endl;
+                refpage_file << "			<digest>" << digest << "</digest>" << endl;
+                refpage_file << "			<description>" << description << "</description>" << endl;
+                refpage_file << "		</attribute>" << endl
+                             << endl;
+            } catch (...) {
+                // if an attr doesn't have a description or there is some other problem, just ignore this attribute
             }
-
-            strncpy(digest, description.c_str(), digest_length_max);
-            char* c = strstr(digest, ". ");
-            if (!c) {
-                c = strchr(digest, '.');
-            }
-            if (c) {
-                *c = 0;
-            }
-
-            refpage_file << "		<attribute name='" << attr_object.name() << "' get='1' set='" << attr_object.writable() << "' type='" << attr_type << "' size='1' >" << endl;
-            refpage_file << "			<digest>" << digest << "</digest>" << endl;
-            refpage_file << "			<description>" << description << "</description>" << endl;
-            refpage_file << "		</attribute>" << endl
-                         << endl;
-        } catch (...) {
-            // if an attr doesn't have a description or there is some other problem, just ignore this attribute
         }
     }
 
