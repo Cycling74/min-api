@@ -295,7 +295,7 @@ void doc_generate(const min_class_type& instance, const std::string& refpage_ful
     for (const auto& name : attr_names) {
         if (const auto& p = attributes.find(name); p != attributes.end()) {
             try {
-                const auto& attr_object = *p.second;
+                const auto& attr_object = *p->second;
                 const auto& description = doc_format(attr_object.description_string());
                 const auto& attr_type = attr_object.datatype();
 
