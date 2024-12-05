@@ -3,6 +3,7 @@
 ///	@copyright	Copyright 2018 The Min-API Authors. All rights reserved.
 ///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 #pragma once
+#include <algorithm>
 
 namespace c74::min {
 
