@@ -5,6 +5,8 @@
 #pragma once
 #include <algorithm>
 
+#include <algorithm>
+
 namespace c74::min {
 
 /// Limit values to within a specified range, clamping the values to the outer bounds of the range if neccessary.
