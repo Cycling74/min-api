@@ -80,11 +80,13 @@ template <class min_class_type>
 void wrapper_method_assist(minwrap<min_class_type>* self, const void* b, const long m, const long a, char* s)
 {
     if (m == 2) {
-        const auto& outlet = self->m_min_object.outlets()[a];
-        strncpy(s, outlet->description().c_str(), 256);
+        if (a < self->m_min_object.outlets().size()) {
+            const auto& outlet = self->m_min_object.outlets()[a];
+            strncpy(s, outlet->description().c_str(), 256);
+        }
     }
     else {
-        if (!self->m_min_object.inlets().empty()) {
+        if (!self->m_min_object.inlets().empty() && a < self->m_min_object.inlets().size()) {
             const auto& inlet = self->m_min_object.inlets()[a];
             strncpy(s, inlet->description().c_str(), 256);
         }
@@ -648,7 +650,7 @@ max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* 
             else if (attr.datatype() == "float64" || attr.datatype() == "long") {
                 // istream_iterator splits using spaces by default
                 std::istringstream iss(range_string);
-                if (const std::vector tokens(std::istream_iterator<std::string>{iss},
+                if (const std::vector tokens(std::istream_iterator<std::string>{ iss },
                                              std::istream_iterator<std::string>());
                     tokens.size() == 2) {
                     CLASS_ATTR_MIN(c, attr_name.c_str(), 0, tokens[0].c_str());
@@ -839,7 +841,7 @@ void wrap_as_max_external(const char* cppname, const char* cmaxname, void* resou
             else if (attr.datatype() == "float64" || attr.datatype() == "long") {
                 // istream_iterator splits using spaces by default
                 std::istringstream iss(range_string);
-                if (const std::vector tokens(std::istream_iterator<std::string>{iss},
+                if (const std::vector tokens(std::istream_iterator<std::string>{ iss },
                                              std::istream_iterator<std::string>());
                     tokens.size() == 2) {
                     CLASS_ATTR_MIN(this_jit_class, attr_name.c_str(), 0, tokens[0].c_str());
