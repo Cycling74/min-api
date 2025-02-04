@@ -679,6 +679,23 @@ max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* 
             }
             else if (attr.datatype() == "long" && attr.editor_style() == style::enum_index) {
                 CLASS_ATTR_ENUMINDEX(c, attr_name.c_str(), 0, range_string.c_str());
+                // The range string for an enum attr contains each name surrounded by quotes, so we
+                // can count the number of elements in order to set the min/max attr attrs
+                size_t count = 0;
+                bool in_quotes = false;
+                std::string str = attr.range_string();
+                for (size_t i = 0; i < str.length(); ++i) {
+                    if (str[i] == '"') {
+                        if (!in_quotes) {
+                            count++;
+                        }
+                        in_quotes = !in_quotes;
+                    }
+                }
+                if (count > 0) {
+                    CLASS_ATTR_MIN(c, attr_name.c_str(), 0, "0");
+                    CLASS_ATTR_MAX(c, attr_name.c_str(), 0, std::to_string(count - 1).c_str());
+                }
             }
             else if (attr.datatype() == "float64" || attr.datatype() == "long") {
                 // istream_iterator splits using spaces by default
