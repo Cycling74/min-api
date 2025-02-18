@@ -273,7 +273,7 @@ template <class min_class_type, class message_name_type>
 void wrapper_method_multitouch(max::t_object* o, max::t_object* a_patcherview, const max::t_mouseevent* an_event)
 {
     auto self = wrapper_find_self<min_class_type>(o);
-    auto name = message_name_type::name;
+    std::string name = message_name_type::name;
 
     if (name == "mt_mouseenter") {
         name = "mouseenter";
