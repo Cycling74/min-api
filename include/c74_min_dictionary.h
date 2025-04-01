@@ -157,6 +157,29 @@ class dict
         }
     }
 
+    /// Get number of entries of dictionary
+    long entrycount()
+    {
+        return static_cast<long>(max::dictionary_getentrycount(m_instance));
+    }
+
+    /// Returns a vector of symbols with dictionary keys
+    std::vector<symbol> keys()
+    {
+        std::vector<symbol> k;
+        max::t_symbol** keys = NULL;
+        long numkeys = 0;
+
+        max::dictionary_getkeys(m_instance, &numkeys, &keys);
+        for (long i = 0; i < numkeys; i++) {
+            k.push_back(symbol(keys[i]));
+        }
+        if (keys) {
+            max::dictionary_freekeys(m_instance, numkeys, keys);
+        }
+        return k;
+    }
+
   private:
     max::t_dictionary* m_instance{ nullptr };
     bool m_has_ownership{ true };
