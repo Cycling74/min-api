@@ -216,6 +216,12 @@ class attribute_base
         return m_visibility;
     }
 
+    /// Set the attribute's visibility
+    void set_visibility(const visibility v)
+    {
+        m_visibility = v;
+    }
+
     /// Fetch the title/label as a string.
     /// This is how the name appears in the inspector.
     /// @return The attribute's label.
