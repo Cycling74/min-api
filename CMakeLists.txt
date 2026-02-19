@@ -4,6 +4,12 @@
 cmake_minimum_required(VERSION 3.19)
 project(MinAPI)
 
+set(MINAPI_DIR
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    CACHE PATH "Root of min-api" FORCE)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 
 if (${CMAKE_GENERATOR} MATCHES "Xcode")
  		if (${XCODE_VERSION} VERSION_LESS 10)
@@ -51,6 +57,10 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     )
     FetchContent_MakeAvailable(readerwriterqueue)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
+endif()
+
+if(TARGET Max::Max)
+    include(Min/Targets)
 endif()
 
 find_package (Doxygen QUIET)
