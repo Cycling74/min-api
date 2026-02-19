@@ -6,6 +6,20 @@ get_property(
     PROPERTY min::external)
 if(_is_ext)
     set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY max::external YES)
+
+    # If no explicit source list is set, pre-populate max::sources with a glob that
+    # excludes *_test.cpp so the test files don't end up compiled into the module.
+    get_property(_explicit_sources DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY max::sources)
+    if(NOT _explicit_sources)
+        file(GLOB _min_sources CONFIGURE_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+        list(FILTER _min_sources EXCLUDE REGEX "_test\\.cpp$")
+        set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY max::sources "${_min_sources}")
+        unset(_min_sources)
+    endif()
+    unset(_explicit_sources)
 endif()
 
 # Delegate to max-sdk-base's After.cmake — checks max::external, creates the MODULE target,
