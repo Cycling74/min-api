@@ -43,9 +43,14 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
         GIT_TAG        f3e555a5069c0efecc53135da30994ccbb869f90
     )
     FetchContent_MakeAvailable(max-sdk-base)
+    FetchContent_Declare(
+        readerwriterqueue
+        GIT_REPOSITORY https://github.com/cameron314/readerwriterqueue.git
+        GIT_TAG        a500a29fe07c759fa793a95f4782645088ce5b7a
+        SOURCE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/include/readerwriterqueue"
+    )
+    FetchContent_MakeAvailable(readerwriterqueue)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
-else()
-    message(DEPRECATION "Adding min-api via add_subdirectory() is deprecated and might break your setup in the future. Please remove the add_subdirectory() line from your CMakeLists.txt file.")
 endif()
 
 find_package (Doxygen QUIET)

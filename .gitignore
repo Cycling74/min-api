@@ -3,3 +3,6 @@ tmp
 doc/doxyfile
 doc/html
 .DS_Store
+max-sdk-base/
+include/readerwriterqueue/
+test/mock/

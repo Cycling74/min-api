@@ -19,13 +19,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIRECTORY}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIRECTORY}")
 set(C74_MOCK_TARGET_DIR ${OUTPUT_DIRECTORY})
 
-set(SOURCES
-	atom.cpp
-	limit.cpp
-	main.cpp
-	object.cpp
-	symbol.cpp
-)
+include(FetchContent)
+fetchcontent_declare(
+    mock
+    GIT_REPOSITORY https://github.com/Cycling74/mock.git
+    GIT_TAG c4c23c49ceda913b506a0834b59e0ec71d2ec06f
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/mock")
+fetchcontent_makeavailable(mock)
+
+set(SOURCES atom.cpp limit.cpp main.cpp object.cpp symbol.cpp)
 
 add_executable(min-tests ${SOURCES})
 
@@ -39,8 +41,6 @@ target_include_directories(min-tests PUBLIC
 	"${MAXSDK_BASE_DIR}/c74support/jit-includes"
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-add_subdirectory(mock)
 
 target_link_libraries(min-tests mock_kernel)
 
