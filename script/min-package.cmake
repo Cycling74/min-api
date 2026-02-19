@@ -2,11 +2,12 @@
 # Use of this source code is governed by the MIT License found in the License.md file.
 
 include(FetchContent)
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/max-sdk-base-version.cmake")
 
 fetchcontent_declare(
     max-sdk-base
     GIT_REPOSITORY https://github.com/Cycling74/max-sdk-base.git
-    GIT_TAG f3e555a5069c0efecc53135da30994ccbb869f90)
+    GIT_TAG "${MAX_SDK_BASE_GIT_TAG}")
 fetchcontent_makeavailable(max-sdk-base)
 
 # Header-only queue library; SOURCE_DIR keeps it at include/readerwriterqueue

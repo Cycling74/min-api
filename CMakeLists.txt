@@ -43,10 +43,11 @@ enable_testing()
 # of including min-api as a subdirectory.
 if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     include(FetchContent)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/max-sdk-base-version.cmake")
     FetchContent_Declare(
         max-sdk-base
         GIT_REPOSITORY https://github.com/Cycling74/max-sdk-base.git
-        GIT_TAG        f3e555a5069c0efecc53135da30994ccbb869f90
+        GIT_TAG        "${MAX_SDK_BASE_GIT_TAG}"
     )
     FetchContent_MakeAvailable(max-sdk-base)
     FetchContent_Declare(
