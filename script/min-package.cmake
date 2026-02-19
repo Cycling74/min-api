@@ -19,3 +19,10 @@ fetchcontent_declare(
 fetchcontent_makeavailable(readerwriterqueue)
 
 include(${MAXSDK_BASE_DIR}/script/max-package.cmake)
+
+# min-api/CMakeLists.txt skips Min/Targets when Max::Max isn't available yet (e.g.
+# when min-api is fetched before max-sdk-base).  Create the target now that Max::
+# targets exist.
+if(NOT TARGET Min::API)
+    include("${CMAKE_CURRENT_LIST_DIR}/../cmake/Min/Targets.cmake")
+endif()
