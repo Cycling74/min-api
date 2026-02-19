@@ -17,14 +17,25 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 		# "${C74_MIN_API_DIR}/test/mock"
 	)
 
+	# Fall back to max::sources directory property when SOURCE_FILES is not set
+	if(NOT SOURCE_FILES)
+		get_property(_max_sources DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY max::sources)
+		if(_max_sources)
+			set(SOURCE_FILES ${_max_sources})
+		endif()
+		unset(_max_sources)
+	endif()
+
 	set(TEST_SOURCE_FILES "")
 	FOREACH(SOURCE_FILE ${SOURCE_FILES})
+		get_filename_component(_src_name "${SOURCE_FILE}" NAME)
 		set(ORIGINAL_WITH_EXT "${ORIGINAL_NAME}.cpp")
-		if (SOURCE_FILE STREQUAL ORIGINAL_WITH_EXT)
+		if (_src_name STREQUAL ORIGINAL_WITH_EXT)
 			set(TEST_SOURCE_FILES ${TEST_SOURCE_FILES} ${TEST_NAME}.cpp)
 		else()
 			set(TEST_SOURCE_FILES "${TEST_SOURCE_FILES}" ${SOURCE_FILE})
 		endif()
+		unset(_src_name)
 	ENDFOREACH()
 	
 	# set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage")
