@@ -39,7 +39,14 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cpp")
 
 	if (NOT TARGET mock_kernel)
 		set(C74_MOCK_TARGET_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../tests")
-		add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../test/mock ${CMAKE_BINARY_DIR}/mock)
+		include(FetchContent)
+		FetchContent_Declare(
+			mock
+			GIT_REPOSITORY https://github.com/Cycling74/mock.git
+			GIT_TAG        c4c23c49ceda913b506a0834b59e0ec71d2ec06f
+			SOURCE_DIR     "${CMAKE_CURRENT_LIST_DIR}/../test/mock"
+		)
+		FetchContent_MakeAvailable(mock)
 	endif ()
 
 	add_dependencies(${TEST_NAME} mock_kernel)
