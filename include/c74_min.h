@@ -16,7 +16,7 @@
 // Alternatively defined C74_USE_MIN_LIB using CMake
 #if defined(C74_USE_MIN_LIB)
 #include "../../min-lib/include/c74_lib.h"
-#elif __has_include("../../min-lib/include/c74_lib.h")
+#elif !defined(C74_NO_MIN_LIB_SUBMODULE) && __has_include("../../min-lib/include/c74_lib.h")
 #include "../../min-lib/include/c74_lib.h"
 #endif
 
