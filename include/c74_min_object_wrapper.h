@@ -54,12 +54,14 @@ minwrap<min_class_type>* wrapper_new(const max::t_symbol* name, const long ac, c
             max::t_dictionary* d = object_dictionaryarg(ac, const_cast<max::t_atom*>(av));
             if (d) {
                 max::attr_dictionary_process(self, d);
+                self->m_min_object.try_call("post_attribute_setup");
                 max::jbox_ready((max::t_jbox*)self);
             }
         }
         else {
             max::object_attach_byptr_register(
                 self, self, k_sym_box); // so that objects can get notifications about their own attributes
+            self->m_min_object.try_call("post_attribute_setup");
             max::attr_args_process(self, static_cast<short>(args.size()), const_cast<max::t_atom*>(args.begin()));
         }
         return self;
