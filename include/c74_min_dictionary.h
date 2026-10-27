@@ -122,6 +122,13 @@ class dict
         return (*this)[skey];
     };
 
+    /// Store a list of atoms under key, replacing any existing value for that key.
+    void append_atoms(const symbol key, const atoms& values)
+    {
+        auto err = max::dictionary_appendatoms(m_instance, key, static_cast<long>(values.size()), const_cast<atom*>(values.data()));
+        error(err, "could not append atoms to dictionary");
+    }
+
     symbol name() const
     {
         return dictobj_namefromptr(m_instance);
