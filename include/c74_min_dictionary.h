@@ -38,14 +38,14 @@ class dict
 
     /// Create an unregistered dictionary
     /// @param d				optionally getting a handle to an old-school t_dictionary
-    /// @param take_ownership	defaults to true, change to false only in exceptional cases
-    dict(max::t_dictionary* d = nullptr, const bool take_ownership = true)
+    /// @param retain			true to share ownership of d; false to borrow it, in which case d must outlive this dict
+    dict(max::t_dictionary* d = nullptr, const bool retain = true)
     {
         if (d == nullptr) {
             m_instance = max::dictionary_new();
         }
         else {
-            if (take_ownership) {
+            if (retain) {
                 max::object_retain((max::t_object*)d);
             }
             else {
