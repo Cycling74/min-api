@@ -431,19 +431,10 @@ class element
     }
 
     /// constructor utility
-    constexpr void handle_arguments() noexcept
+    template <typename... ARGS>
+    constexpr void handle_arguments(ARGS const&... args) noexcept
     {
-        ;
-    }
-
-    /// constructor utility
-    template <typename FIRST_ARG, typename... REMAINING_ARGS>
-    constexpr void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const&... args) noexcept
-    {
-        assign_from_argument(first);
-        if (sizeof...(args) > 0) {
-            handle_arguments(args...); // recurse
-        }
+        (assign_from_argument(args), ...);
     }
 
     void update()
