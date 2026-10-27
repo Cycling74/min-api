@@ -54,7 +54,7 @@ enum class style
 /// @ingroup attributes
 /// @see style
 
-static std::unordered_map<style, symbol> style_symbols{
+inline std::unordered_map<style, symbol> style_symbols{
     { style::text, "text" },
     { style::onoff, "onoff" },
     { style::enum_symbol, "enum" },
