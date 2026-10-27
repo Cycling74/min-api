@@ -1,9 +1,7 @@
 # Changelog
 
-This file records changes that can break code written against Min-API. Additions
-and ordinary bug fixes are not listed.
-
-History before v0.2.0 is not covered.
+This file records breaking changes, additions, and bug fixes in Min-API. Before
+0.6.0, it lists only breaking changes and history before v0.2.0 is not covered.
 
 ## [Unreleased]
 
@@ -22,7 +20,7 @@ History before v0.2.0 is not covered.
   ```
 - Setting a non-list attribute (anything other than `numbers` or `ints`) with
   no arguments is now ignored and the setter is not called. Previously the
-  setter ran and read `args[0]` from an empty list.
+  setter ran and read `args[0]` from an empty list. ([#204])
 - `quittask` is now a reserved message name. A `message<>` with that name is
   no longer callable from a patcher; it is called when Max quits.
 - `dict::keys()` returns keys in insertion order rather than the dictionary's
@@ -38,6 +36,38 @@ History before v0.2.0 is not covered.
   dict incoming { args[0] };
   ```
 
+### Added
+
+- `atom_reference` converts to `std::vector<number>` and
+  `std::vector<symbol>`. ([#203], [#206])
+- `min::event` has `is_left_button_down()`, `is_right_button_down()`,
+  `is_middle_button_down()`, and `modifiers()`. ([#195])
+- `inlet<>::hot()` gets and sets whether an inlet is drawn as hot or cold.
+  ([#139])
+- A `message<>` named `quittask` is called when Max quits. ([#121])
+- `dict::append_atoms()` stores a list of atoms under a key. ([#82])
+- `dict::for_each()` visits every entry in insertion order, and
+  `dict::read()` and `dict::write()` load and save JSON files.
+- `dict::instance()` returns the underlying `max::t_dictionary*` without
+  retaining it.
+- `dict` has a move constructor.
+- Defining `C74_NO_MIN_LIB_SUBMODULE` stops `c74_min.h` from picking up a
+  sibling `min-lib` checkout through `__has_include`. ([#211])
+
+### Fixed
+
+- Copying a `dict` that owns its dictionary no longer frees the dictionary
+  twice; the copy now retains it.
+- Self-assignment of a `dict` no longer clones the dictionary onto itself.
+- Constructing a `dict` from empty dict-syntax creates an empty dictionary
+  instead of indexing an empty vector.
+- Vector operators update the signal connection state of their outlets.
+  Previously outlets were skipped when an object had at least as many inlets
+  as outlets, and non-signal outlets threw off the indexing. ([#160])
+- Matrix operators value-initialize their temporary plane arrays. ([#143])
+- Unit tests that call `object_register` now link against the mock kernel.
+  ([#181])
+
 ## [0.6.11]
 
 ### Breaking
@@ -48,12 +78,32 @@ History before v0.2.0 is not covered.
   with the suffix `.mxl_<processor>`, and `max-linker-flags.txt` is applied
   only on macOS (from max-sdk-base).
 
+### Added
+
+- `attribute_base::set_visibility()`.
+- `dict::entrycount()` and `dict::keys()`. ([#202], [min-devkit#222])
+
+### Fixed
+
+- The `assist` method checks the inlet or outlet index, fixing a crash when
+  MC Wrapper adds an extra outlet.
+- Reference pages list attributes in alphabetical order.
+- `c74_min_limit.h` includes `<algorithm>`.
+- MSVC warning C4130 (logical operation on address of string constant) in the
+  object wrapper. ([#153])
+
 ## [0.6.10]
 
 ### Breaking
 
 - Integer and bool attributes now set Max `min` and `max` attribute attributes
   from their `range`. See 0.6.8.
+
+## [0.6.9]
+
+### Fixed
+
+- `c74_min_api.h` includes `<iterator>`.
 
 ## [0.6.8]
 
@@ -71,6 +121,18 @@ History before v0.2.0 is not covered.
 - `attribute_base` has a new pure virtual `atoms get_atoms() const`. Classes
   deriving directly from `attribute_base` must implement it. `attribute<T>`
   already does.
+
+## [0.6.6]
+
+### Added
+
+- `attribute<T>::get_atoms()` returns the value as `atoms`, using the getter
+  if there is one.
+
+### Fixed
+
+- `attribute<T>::set_range()` no longer fails to compile on Windows because of
+  an ambiguous conversion to `atoms`.
 
 ## [0.6.4]
 
@@ -112,10 +174,26 @@ History before v0.2.0 is not covered.
   ```
 - `vector_size()` on `sample_operator`, `vector_operator`, and `mc_operator`
   returns `int` instead of `double`. Expressions such as `n / vector_size()`
-  with an integer `n` now use integer division.
+  with an integer `n` now use integer division. ([#196])
 - `mousewheel` is now a reserved message name. A `message<>` with that name is
   no longer callable from a patcher; it is called on mouse wheel events with
   `{event, delta_x, delta_y}`.
+
+### Added
+
+- UI objects can handle `mousewheel`; `min::event` has `wheel_delta_x()` and
+  `wheel_delta_y()`. ([#193])
+- `dict::register_as()` registers an existing dictionary under a name.
+  ([#182])
+
+### Fixed
+
+- Clang diagnostic pragmas are guarded by `__clang__` instead of
+  `MAC_VERSION`, so they also apply to Clang on Windows.
+- `object_base::patcher()` and `object_base::box()` no longer clash with the
+  `patcher` and `box` type names.
+- Calls to `max::object_method` and `max::object_new` with a `min::symbol`
+  argument compile against the current Max SDK.
 
 ## [0.6.0]
 
@@ -173,12 +251,70 @@ Attributes:
 - `visibility::hide` now hides the attribute from the inspector and the
   reference page.
 - Every attribute now registers its default value with Max, which affects the
-  inspector and saving of default values.
+  inspector and saving of default values. ([#146])
 
 Other:
 
-- `symbol::operator void*()` was removed. Use `sym.object()`.
+- `symbol::operator void*()` was removed. Use `sym.object()`. ([#155])
 - `buffer_reference` can no longer be copied or moved.
+
+### Added
+
+Platforms and builds:
+
+- Apple Silicon (arm64) builds, through max-sdk-base.
+- `C74_WARNINGS_AS_ERRORS` CMake option.
+- A `min-tests` target that builds and runs the unit tests from this
+  repository, and a GitHub Actions workflow that runs it.
+- A Conan recipe and example (`Conan.md`, `examples/min.conan`).
+
+Objects and UI:
+
+- UI objects can take keyboard focus by defining `focusgained` and
+  `focuslost` messages. The member must be named `focusgained` or
+  `m_focusgained`.
+- A `dspstate` message is called when audio is turned on or off.
+- A vector operator's `dspsetup` handler is found when the member is named
+  `m_dspsetup` as well as `dspsetup`.
+- `ui::color` has `operator==` and `operator!=`.
+- `position`, `origin`, and `destination` can be constructed from a
+  `max::t_pt`.
+- `atom` can be assigned from a `const void*`.
+
+Attributes:
+
+- `attribute<ints>` is fully supported.
+- `attribute<T>::set_range()` changes the range at runtime and applies it to
+  the current value.
+- The `live_color` attribute option maps a color attribute to a Max for Live
+  theme color.
+
+Buffers:
+
+- `buffer_reference` takes an optional `create_messages` argument. Passing
+  `false` stops it from adding `set`, `dblclick`, and `notify` messages to its
+  owner, for objects with several buffers or their own `notify` handling.
+- `buffer_reference::name()` returns the name of the bound buffer, and the
+  static `buffer_reference::handle_notification(owner, args, begin, end)`
+  dispatches a notification to the matching references in a collection.
+
+### Fixed
+
+- Constructing a UI object with no arguments no longer throws.
+- Calling a method with no arguments through `instance::operator()` compiles.
+- `atom` equality compared the left atom's type with itself instead of with
+  the right atom's type. ([#166])
+- `to_atoms()` handles an empty string returned by the Max API.
+- Messages no longer dereference a null owner or Max object when looking up
+  the current inlet during class setup.
+- Vector operators set `vector_size()` during DSP setup, before `dspsetup` is
+  called. Previously it was never updated.
+- Vector operators no longer crash when Max passes a null connection count.
+- An attribute's range is applied before comparing against the current value
+  when repetitions are not allowed.
+- `scale()` no longer divides by zero when the input range is empty.
+- Outlets using `thread_action::first` passed the wrong arguments when
+  sending their deferred value.
 
 ## [0.5.0]
 
@@ -440,3 +576,24 @@ CMake:
 [0.4.1]: https://github.com/Cycling74/min-api/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Cycling74/min-api/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Cycling74/min-api/compare/v0.2.0...v0.3.0
+
+[#82]: https://github.com/Cycling74/min-api/issues/82
+[#121]: https://github.com/Cycling74/min-api/issues/121
+[#139]: https://github.com/Cycling74/min-api/issues/139
+[#143]: https://github.com/Cycling74/min-api/issues/143
+[#146]: https://github.com/Cycling74/min-api/issues/146
+[#153]: https://github.com/Cycling74/min-api/issues/153
+[#155]: https://github.com/Cycling74/min-api/issues/155
+[#160]: https://github.com/Cycling74/min-api/issues/160
+[#166]: https://github.com/Cycling74/min-api/issues/166
+[#181]: https://github.com/Cycling74/min-api/issues/181
+[#182]: https://github.com/Cycling74/min-api/pull/182
+[#193]: https://github.com/Cycling74/min-api/pull/193
+[#195]: https://github.com/Cycling74/min-api/issues/195
+[#196]: https://github.com/Cycling74/min-api/pull/196
+[#202]: https://github.com/Cycling74/min-api/pull/202
+[#203]: https://github.com/Cycling74/min-api/issues/203
+[#204]: https://github.com/Cycling74/min-api/issues/204
+[#206]: https://github.com/Cycling74/min-api/pull/206
+[#211]: https://github.com/Cycling74/min-api/pull/211
+[min-devkit#222]: https://github.com/Cycling74/min-devkit/issues/222
