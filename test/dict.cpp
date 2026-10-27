@@ -6,6 +6,7 @@
 #include "c74_min_api.h"
 
 extern "C" long mock_refcount(void* x);
+extern "C" long mock_dictobj_release_count();
 
 using namespace c74;
 
@@ -109,6 +110,53 @@ TEST_CASE("Dict Class", "[dict]") {
 		}
 		REQUIRE( mock_refcount(raw) == 1 );
 		max::object_free(raw);
+	}
+
+	SECTION("a dict found by name is released with dictobj_release") {
+		auto raw = max::dictionary_new();
+		max::t_symbol* name = min::symbol("dict_found_by_name");
+		max::dictobj_register(raw, &name);
+
+		auto releases = mock_dictobj_release_count();
+		{
+			min::dict d { min::symbol("dict_found_by_name") };
+			REQUIRE( d.instance() == raw );
+			REQUIRE( mock_refcount(raw) == 2 );
+		}
+		REQUIRE( mock_refcount(raw) == 1 );
+		REQUIRE( mock_dictobj_release_count() == releases + 1 );
+		max::object_free(raw);
+	}
+
+	SECTION("copies of a dict found by name are released with object_free and moves with dictobj_release") {
+		auto raw = max::dictionary_new();
+		max::t_symbol* name = min::symbol("dict_found_by_name_copied");
+		max::dictobj_register(raw, &name);
+
+		auto releases = mock_dictobj_release_count();
+		{
+			min::dict a { min::symbol("dict_found_by_name_copied") };
+			{
+				min::dict b { a };
+				REQUIRE( mock_refcount(raw) == 3 );
+			}
+			REQUIRE( mock_dictobj_release_count() == releases );
+			REQUIRE( mock_refcount(raw) == 2 );
+
+			min::dict c { std::move(a) };
+		}
+		REQUIRE( mock_refcount(raw) == 1 );
+		REQUIRE( mock_dictobj_release_count() == releases + 1 );
+		max::object_free(raw);
+	}
+
+	SECTION("a dict created under a new name is released with object_free") {
+		auto releases = mock_dictobj_release_count();
+		{
+			min::dict d { min::symbol("dict_created_by_name") };
+			REQUIRE( mock_refcount(d.instance()) == 1 );
+		}
+		REQUIRE( mock_dictobj_release_count() == releases );
 	}
 
 	SECTION("empty dict-syntax creates an empty dictionary") {

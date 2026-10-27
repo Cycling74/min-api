@@ -22,6 +22,7 @@ class dict
         }
         else {
             m_instance = d;
+            m_retained_from_registry = true;
         }
     }
 
@@ -66,7 +67,7 @@ class dict
         error(err, "failed to retain dictionary instance");
     }
 
-    /// Refer to the same dictionary as other, retaining it if other does.
+    /// Refer to the same dictionary as other, retaining it with object_retain() if other owns it.
     dict(const dict& other)
         : m_instance{ other.m_instance }
         , m_has_ownership{ other.m_has_ownership }
@@ -79,13 +80,19 @@ class dict
     dict(dict&& other) noexcept
         : m_instance{ std::exchange(other.m_instance, nullptr) }
         , m_has_ownership{ other.m_has_ownership }
+        , m_retained_from_registry{ other.m_retained_from_registry }
     {
     }
 
     ~dict()
     {
         if (m_has_ownership && m_instance) {
-            object_free(m_instance);
+            if (m_retained_from_registry) {
+                max::dictobj_release(m_instance);
+            }
+            else {
+                object_free(m_instance);
+            }
         }
     }
 
@@ -281,6 +288,7 @@ class dict
   private:
     max::t_dictionary* m_instance{ nullptr };
     bool m_has_ownership{ true };
+    bool m_retained_from_registry{ false }; ///< retained by dictobj_findregistered_retain(), so released with dictobj_release()
 };
 
 } // namespace c74::min

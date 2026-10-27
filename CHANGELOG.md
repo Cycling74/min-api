@@ -59,6 +59,8 @@ This file records breaking changes, additions, and bug fixes in Min-API. Before
 - Copying a `dict` that owns its dictionary no longer frees the dictionary
   twice; the copy now retains it.
 - Self-assignment of a `dict` no longer clones the dictionary onto itself.
+- A `dict` constructed from the name of an existing dictionary releases it
+  with `dictobj_release()`, matching `dictobj_findregistered_retain()`.
 - Constructing a `dict` from empty dict-syntax creates an empty dictionary
   instead of indexing an empty vector.
 - Vector operators update the signal connection state of their outlets.
