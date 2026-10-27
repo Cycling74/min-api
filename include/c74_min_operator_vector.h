@@ -272,14 +272,19 @@ void min_dsp64_io(minwrap<min_class_type>* self, const short* count)
         return;
     }
 
-    int i = 0;
-    while (i < self->m_min_object.inlets().size()) {
-        self->m_min_object.inlets()[i]->update_signal_connection(count[i] != 0);
-        ++i;
+    auto& inlets = self->m_min_object.inlets();
+    for (size_t i = 0; i < inlets.size(); ++i) {
+        inlets[i]->update_signal_connection(count[i] != 0);
     }
-    while (i < self->m_min_object.outlets().size()) {
-        self->m_min_object.outlets()[i - self->m_min_object.inlets().size()]->update_signal_connection(count[i] != 0);
-        ++i;
+
+    // count holds one entry per inlet (dsp_setup makes them all signal inlets),
+    // then one entry per signal outlet only; non-signal outlets are skipped.
+    auto signal_index = inlets.size();
+    for (auto* outlet : self->m_min_object.outlets()) {
+        const auto type = outlet->type();
+        if (type == "signal" || type == "multichannelsignal") {
+            outlet->update_signal_connection(count[signal_index++] != 0);
+        }
     }
 }
 
