@@ -282,21 +282,11 @@ class outlet : public outlet_base
         m_accumulated_output.push_back(arg);
     }
 
-    // utility: empty argument handling (required for all recursive variadic templates)
-    void handle_arguments() noexcept
+    // utility: handle N arguments of any type by matching each to its queue_argument overload
+    template <typename... ARGS>
+    void handle_arguments(ARGS const&... args) noexcept
     {
-        ;
-    }
-
-    // utility: handle N arguments of any type by recursively working through them
-    //	and matching them to the type-matched routine above.
-    template <typename FIRST_ARG, typename... REMAINING_ARGS>
-    void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const&... args) noexcept
-    {
-        queue_argument(first);
-        if (sizeof...(args)) {
-            handle_arguments(args...); // recurse
-        }
+        (queue_argument(args), ...);
     }
 
   public:

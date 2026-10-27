@@ -16,6 +16,7 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -322,6 +323,7 @@ bool equivalent(const T lhs, const T rhs, const double epsilon = std::numeric_li
 } // namespace c74::min
 
 namespace c74::min {
+// Deliberately static rather than inline: each translation unit wraps its own class.
 static max::t_class* this_class{ nullptr };
 static bool this_class_init{ false };
 static max::t_symbol* this_class_name{ nullptr };

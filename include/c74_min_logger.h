@@ -7,7 +7,7 @@
 namespace c74::min {
 
 class logger_line_ending {}; ///< A type to represent line endings for the min::logger class.
-static logger_line_ending endl; ///< An instance of a line ending for convenience.
+inline logger_line_ending endl; ///< An instance of a line ending for convenience.
 
 /// Logging utility to deliver console messages
 /// in such a way that they are mirrored to the Max window.

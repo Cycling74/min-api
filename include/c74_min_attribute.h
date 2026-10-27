@@ -54,7 +54,7 @@ enum class style
 /// @ingroup attributes
 /// @see style
 
-static std::unordered_map<style, symbol> style_symbols{
+inline std::unordered_map<style, symbol> style_symbols{
     { style::text, "text" },
     { style::onoff, "onoff" },
     { style::enum_symbol, "enum" },
@@ -451,23 +451,12 @@ class attribute : public attribute_base
         m_live_color = static_cast<symbol>(arg);
     }
 
-    // constructor utility: empty argument handling (required for handling recursive variadic templates)
+    // constructor utility: handle N arguments of any type by matching each to its assign_from_argument overload
 
-    constexpr void handle_arguments() noexcept
+    template <typename... ARGS>
+    constexpr void handle_arguments(ARGS const&... args) noexcept
     {
-        ;
-    }
-
-    // constructor utility: handle N arguments of any type by recursively working through them
-    //	and matching them to the type-matched routine above.
-
-    template <typename FIRST_ARG, typename... REMAINING_ARGS>
-    constexpr void handle_arguments(FIRST_ARG const& first, REMAINING_ARGS const&... args) noexcept
-    {
-        assign_from_argument(first);
-        if (sizeof...(args) > 0) {
-            handle_arguments(args...); // recurse
-        }
+        (assign_from_argument(args), ...);
     }
 
   public:

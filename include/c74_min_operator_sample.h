@@ -265,9 +265,7 @@ class performer<min_class_type,
             for (auto i = 0; i < sampleframes; ++i) {
                 callable_samples<min_class_type, min_class_type::input_count()> ins(self);
 
-                for (auto& inletnum_and_attr : attrs) {
-                    int inletnum{ inletnum_and_attr.first };
-                    attribute_base* attr{ inletnum_and_attr.second };
+                for (auto& [inletnum, attr] : attrs) {
                     auto value{ in_chans[inletnum][i] };
                     atoms a{ { value } };
 

@@ -19,7 +19,7 @@ class timer;
 
 class timer_base;
 
-static const char* timer_impl_name = "min_timer_impl";
+inline const char* timer_impl_name = "min_timer_impl";
 
 // important! this class is used by all min-based externals that use min's timer class. If you make significant changes to the
 // timer_impl object we're registering here, consider changing the timer_impl_name to avoid conflicts with other externals that
@@ -30,7 +30,7 @@ struct timer_impl
     timer_base* m_owner;
 };
 
-static max::t_class* s_timer_impl_class = nullptr;
+inline max::t_class* s_timer_impl_class = nullptr;
 
 extern "C" void timer_tick_callback(timer_impl* an_owner); // defined in c74_min_impl.h
 extern "C" void timer_qfn_callback(timer_impl* a_timer); // defined in c74_min_impl.h

@@ -186,6 +186,7 @@ class matrix_operator : public matrix_operator_base
 };
 
 // this is for the jitter object (the normal one is used for the max wrapper of that)
+// Deliberately static rather than inline: each translation unit wraps its own class.
 static max::t_class* this_jit_class = nullptr;
 
 // NOTE: For Jitter, minwrap is the nobox Jitter Object

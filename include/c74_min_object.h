@@ -11,109 +11,50 @@ namespace c74::min {
 
 using tags = std::vector<std::string>;
 
-template <typename min_class_type>
-struct has_class_tags
-{
-    template <class, class>
-    class checker;
+template <class T, class = void>
+struct has_class_tags : std::false_type {};
 
-    template <typename C>
-    static std::true_type test(checker<C, decltype(&C::class_tags)>*);
-
-    template <typename C>
-    static std::false_type test(...);
-
-    typedef decltype(test<min_class_type>(nullptr)) type;
-    static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
-};
+template <class T>
+struct has_class_tags<T, std::void_t<decltype(&T::class_tags)>> : std::true_type {};
 
 template <class min_class_type>
-typename enable_if<has_class_tags<min_class_type>::value>::type get_tags(tags& returned_tags)
+void get_tags(tags& returned_tags)
 {
-    returned_tags = str::split(min_class_type::class_tags, ',');
+    if constexpr (has_class_tags<min_class_type>::value) {
+        returned_tags = str::split(min_class_type::class_tags, ',');
+    }
+    else {
+        returned_tags = {};
+    }
 }
 
-template <class min_class_type>
-typename enable_if<!has_class_tags<min_class_type>::value>::type get_tags(tags& returned_tags)
-{
-    returned_tags = {};
-}
+// Detects a member named mousedragdelta or m_mousedragdelta.
+// NOTE: Matches the C++ member name, not the Max message name.
+template <class T, class = void>
+struct has_mousedragdelta : std::false_type {};
 
-// SFINAE implementation used internally to determine if the Min class has a member named mousedragdelta.
-// NOTE: This relies on the C++ member name being "mousedragdelta" -- not just the Max message name being "mousedragdelta".
-//
-// To test this in isolation, for a class named slide, use the following code:
-// static_assert(has_mousedragdelta<slide>::value, "error");
-template <typename min_class_type>
-struct has_mousedragdelta
-{
-    template <class, class>
-    class checker;
+template <class T>
+struct has_mousedragdelta<T, std::void_t<decltype(&T::mousedragdelta)>> : std::true_type {};
 
-    template <typename C>
-    static std::true_type test(checker<C, decltype(&C::mousedragdelta)>*);
+template <class T, class = void>
+struct has_m_mousedragdelta : std::false_type {};
 
-    template <typename C>
-    static std::false_type test(...);
+template <class T>
+struct has_m_mousedragdelta<T, std::void_t<decltype(&T::m_mousedragdelta)>> : std::true_type {};
 
-    typedef decltype(test<min_class_type>(nullptr)) type;
-    static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
-};
+// Detects a member named focusgained or m_focusgained.
+// NOTE: Matches the C++ member name, not the Max message name.
+template <class T, class = void>
+struct has_focusgained : std::false_type {};
 
-// An alternative to the above to all "m_mousedragdelta" in addition to "mousedragdelta"
-template <typename min_class_type>
-struct has_m_mousedragdelta
-{
-    template <class, class>
-    class checker;
+template <class T>
+struct has_focusgained<T, std::void_t<decltype(&T::focusgained)>> : std::true_type {};
 
-    template <typename C>
-    static std::true_type test(checker<C, decltype(&C::m_mousedragdelta)>*);
+template <class T, class = void>
+struct has_m_focusgained : std::false_type {};
 
-    template <typename C>
-    static std::false_type test(...);
-
-    typedef decltype(test<min_class_type>(nullptr)) type;
-    static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
-};
-
-// SFINAE implementation used internally to determine if the Min class has a member named focusgained.
-// NOTE: This relies on the C++ member name being "focusgained" -- not just the Max message name being "focusgained".
-//
-// To test this in isolation, for a class named slide, use the following code:
-// static_assert(has_focusgained<slide>::value, "error");
-template <typename min_class_type>
-struct has_focusgained
-{
-    template <class, class>
-    class checker;
-
-    template <typename C>
-    static std::true_type test(checker<C, decltype(&C::focusgained)>*);
-
-    template <typename C>
-    static std::false_type test(...);
-
-    typedef decltype(test<min_class_type>(nullptr)) type;
-    static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
-};
-
-// An alternative to the above to all "m_focusgained" in addition to "focusgained"
-template <typename min_class_type>
-struct has_m_focusgained
-{
-    template <class, class>
-    class checker;
-
-    template <typename C>
-    static std::true_type test(checker<C, decltype(&C::m_focusgained)>*);
-
-    template <typename C>
-    static std::false_type test(...);
-
-    typedef decltype(test<min_class_type>(nullptr)) type;
-    static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
-};
+template <class T>
+struct has_m_focusgained<T, std::void_t<decltype(&T::m_focusgained)>> : std::true_type {};
 
 /// The base class for all first-class objects that are to be exposed in the Max environment.
 ///

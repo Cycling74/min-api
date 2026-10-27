@@ -244,44 +244,20 @@ class performer
     }
 };
 
-// SFINAE implementation used internally to determine if the Min class has a member named dspsetup.
-// NOTE: This relies on the C++ member name being "dspsetup" -- not just the Max message name being "dspsetup".
+// Detects a member named dspsetup or m_dspsetup.
+// NOTE: Matches the C++ member name, not the Max message name.
 // See the min.buffer.loop~ object for an example.
-//
-// To test this in isolation, for a class named slide, use the following code:
-// static_assert(has_dspsetup<slide>::value, "error");
-template <typename min_class_type>
-struct has_dspsetup
-{
-    template <class, class>
-    class checker;
+template <class T, class = void>
+struct has_dspsetup : std::false_type {};
 
-    template <typename C>
-    static std::true_type test(checker<C, decltype(&C::dspsetup)>*);
+template <class T>
+struct has_dspsetup<T, std::void_t<decltype(&T::dspsetup)>> : std::true_type {};
 
-    template <typename C>
-    static std::false_type test(...);
+template <class T, class = void>
+struct has_m_dspsetup : std::false_type {};
 
-    typedef decltype(test<min_class_type>(nullptr)) type;
-    static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
-};
-
-// An alternative to the above to all "m_dspsetup" in addition to "dspsetup"
-template <typename min_class_type>
-struct has_m_dspsetup
-{
-    template <class, class>
-    class checker;
-
-    template <typename C>
-    static std::true_type test(checker<C, decltype(&C::m_dspsetup)>*);
-
-    template <typename C>
-    static std::false_type test(...);
-
-    typedef decltype(test<min_class_type>(nullptr)) type;
-    static const bool value = is_same<std::true_type, decltype(test<min_class_type>(nullptr))>::value;
-};
+template <class T>
+struct has_m_dspsetup<T, std::void_t<decltype(&T::m_dspsetup)>> : std::true_type {};
 
 // The "dsp64" method for Max audio objects is split up into several components here.
 // The main "dsp64" method is min_dsp64(), which needs to obey basic C rules because it is called by Max.
@@ -322,36 +298,21 @@ void min_dsp64_add_perform(minwrap<min_class_type>* self, max::t_object* dsp64)
                          self->maxobj(), reinterpret_cast<max::t_perfroutine64>(performer<min_class_type>::perform), 0, NULL);
 }
 
-// A specialization of min_dsp64_sel for classes that have a custom "dspsetup" message.
 template <class min_class_type>
-typename enable_if<has_dspsetup<min_class_type>::value
-                   || has_m_dspsetup<min_class_type>::value>::type
-min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, const short* count, const double samplerate, const long maxvectorsize, const long flags)
+void min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, const short* count, const double samplerate, const long maxvectorsize, const long flags)
 {
     self->m_min_object.samplerate(samplerate);
     self->m_min_object.vector_size(maxvectorsize);
     min_dsp64_io(self, count);
     min_dsp64_attrmap(self, count);
 
-    atoms args;
-    args.push_back(atom(samplerate));
-    args.push_back(atom(max::t_atom_long(maxvectorsize)));
-    self->m_min_object.dspsetup(args);
+    if constexpr (has_dspsetup<min_class_type>::value || has_m_dspsetup<min_class_type>::value) {
+        atoms args;
+        args.push_back(atom(samplerate));
+        args.push_back(atom(max::t_atom_long(maxvectorsize)));
+        self->m_min_object.dspsetup(args);
+    }
 
-    min_dsp64_add_perform(self, dsp64);
-}
-
-// A (non)specialization of min_dsp64_sel for classes that do _not_ have a custom "dspsetup" message
-// (which is most audio classes).
-template <class min_class_type>
-typename enable_if<!has_dspsetup<min_class_type>::value
-                   && !has_m_dspsetup<min_class_type>::value>::type
-min_dsp64_sel(minwrap<min_class_type>* self, max::t_object* dsp64, const short* count, const double samplerate, const long maxvectorsize, const long flags)
-{
-    self->m_min_object.samplerate(samplerate);
-    self->m_min_object.vector_size(maxvectorsize);
-    min_dsp64_io(self, count);
-    min_dsp64_attrmap(self, count);
     min_dsp64_add_perform(self, dsp64);
 }
 
@@ -364,18 +325,21 @@ min_dsp64(minwrap<min_class_type>* self, max::t_object* dsp64, const short* coun
 }
 
 // Add audio support to a Max external when the max::t_class is being setup.
-// A call to wrap_as_max_external_audio() will be called for all externals when wrapping the Min class.
-// Only in cases where the class is actually and audio class (inherits from vector_operator or sample_operator)
-// will this this specialization be called.
-template <class min_class_type, enable_if_audio_class<min_class_type> = 0>
+// Called for every Min class; does nothing unless the class is an audio class
+// (inherits from vector_operator, mc_operator, or sample_operator).
+template <class min_class_type>
 void wrap_as_max_external_audio(max::t_class* c)
 {
-    max::class_addmethod(c, reinterpret_cast<max::method>(min_dsp64<min_class_type>), "dsp64", max::A_CANT, 0);
-    if (is_base_of<ui_operator_base, min_class_type>::value) {
-        max::class_dspinitjbox(c);
-    }
-    else {
-        max::class_dspinit(c);
+    if constexpr (is_base_of<vector_operator_base, min_class_type>::value
+                  || is_base_of<mc_operator_base, min_class_type>::value
+                  || is_base_of<sample_operator_base, min_class_type>::value) {
+        max::class_addmethod(c, reinterpret_cast<max::method>(min_dsp64<min_class_type>), "dsp64", max::A_CANT, 0);
+        if (is_base_of<ui_operator_base, min_class_type>::value) {
+            max::class_dspinitjbox(c);
+        }
+        else {
+            max::class_dspinit(c);
+        }
     }
 }
 
