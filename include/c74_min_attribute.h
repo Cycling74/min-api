@@ -582,6 +582,13 @@ class attribute : public attribute_base
             return; // we're all done... unless this is a readonly attr that we are forcing to update
         }
 
+        // Only list attributes can hold an empty value; every other type reads args[0].
+        if constexpr (!is_same<T, numbers>::value && !is_same<T, ints>::value) {
+            if (args.empty()) {
+                return;
+            }
+        }
+
         if (repetitions == allow_repetitions::no && compare_to_current_value(constrain(args))) {
             return;
         }
@@ -589,7 +596,7 @@ class attribute : public attribute_base
 #ifndef MIN_TEST // At this time the Mock Kernel does not implement object_attr_setvalueof(), so we can't use it for unit tests
         if (notify && this_class) { // Use the Max API to set the attribute value
             max::object_attr_setvalueof(
-                m_owner, m_name, static_cast<long>(args.size()), (c74::max::t_atom*)&args[0]);
+                m_owner, m_name, static_cast<long>(args.size()), (c74::max::t_atom*)args.data());
         }
         else
 #endif // !MIN_TEST
