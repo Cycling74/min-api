@@ -71,6 +71,8 @@ This file records breaking changes, additions, and bug fixes in Min-API. Before
   Previously outlets were skipped when an object had at least as many inlets
   as outlets, and non-signal outlets threw off the indexing. ([#160])
 - Matrix operators value-initialize their temporary plane arrays. ([#143])
+- Sending to an outlet that has no Max counterpart is a no-op instead of a
+  crash.
 - Unit tests that call `object_register` now link against the mock kernel.
   ([#181])
 

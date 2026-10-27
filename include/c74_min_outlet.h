@@ -22,9 +22,15 @@ using t_max_outlet = void*;
 //
 // Regardless of how the threading is handled, when it comes time to actually send the data to the outlet the
 // outlet_do_send() helper function is called.
+//
+// A null maxoutlet is a no-op: an outlet has no Max counterpart when its owner was created without a box,
+// e.g. a matrix_operator instantiated from JS.
 template <typename outlet_type>
 inline void outlet_do_send(const t_max_outlet maxoutlet, const outlet_type& value)
 {
+    if (!maxoutlet) {
+        return;
+    }
     if (value[0].a_type == max::A_LONG || value[0].a_type == max::A_FLOAT) {
         max::outlet_list(maxoutlet, nullptr, static_cast<short>(value.size()), (max::t_atom*)&value[0]);
     }
@@ -41,13 +47,17 @@ inline void outlet_do_send(const t_max_outlet maxoutlet, const outlet_type& valu
 template <>
 inline void outlet_do_send<max::t_atom_long>(const t_max_outlet maxoutlet, const max::t_atom_long& value)
 {
-    max::outlet_int(maxoutlet, value);
+    if (maxoutlet) {
+        max::outlet_int(maxoutlet, value);
+    }
 }
 
 template <>
 inline void outlet_do_send<double>(const t_max_outlet maxoutlet, const double& value)
 {
-    max::outlet_float(maxoutlet, value);
+    if (maxoutlet) {
+        max::outlet_float(maxoutlet, value);
+    }
 }
 
 #ifdef MAC_VERSION
