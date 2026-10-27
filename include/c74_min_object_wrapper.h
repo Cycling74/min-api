@@ -754,12 +754,6 @@ max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* 
 }
 
 template <class min_class_type>
-type_enable_if_not_audio_class<min_class_type> wrap_as_max_external_audio(max::t_class*) {}
-
-template <class min_class_type>
-type_enable_if_not_ui_class<min_class_type> wrap_as_max_external_ui(max::t_class*, min_class_type&) {}
-
-template <class min_class_type>
 void wrap_as_max_external_finish(max::t_class* c, const min_class_type& instance)
 {
     max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_assist<min_class_type>), "assist", max::A_CANT, 0);

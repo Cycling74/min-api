@@ -123,30 +123,31 @@ class ui_operator : public ui_operator_base
 };
 
 template <class min_class_type>
-typename enable_if<is_base_of<ui_operator_base, min_class_type>::value>::type
-wrap_as_max_external_ui(max::t_class* c, min_class_type& instance)
+void wrap_as_max_external_ui(max::t_class* c, min_class_type& instance)
 {
-    long flags{};
+    if constexpr (is_base_of<ui_operator_base, min_class_type>::value) {
+        long flags{};
 
-    strings tags = instance.tags();
-    auto tag_iter = std::find(tags.begin(), tags.end(), "multitouch");
-    if (tag_iter != tags.end()) {
-        flags |= JBOX_MULTITOUCH;
+        strings tags = instance.tags();
+        auto tag_iter = std::find(tags.begin(), tags.end(), "multitouch");
+        if (tag_iter != tags.end()) {
+            flags |= JBOX_MULTITOUCH;
+        }
+
+        // flags |= c74::max::JBOX_TEXTFIELD;
+        jbox_initclass(c, flags);
+        c->c_flags |= c74::max::CLASS_FLAG_NEWDICTIONARY; // to specify dictionary constructor
+
+        string default_patching_rect{ "0. 0. " };
+        default_patching_rect += std::to_string(instance.default_width());
+        default_patching_rect += " ";
+        default_patching_rect += std::to_string(instance.default_height());
+
+        auto attr = (c74::max::t_object*)c74::max::class_attr_get(c, c74::max::gensym("patching_rect"));
+        using namespace c74::max;
+        auto attr_type = (c74::max::t_symbol*)object_method(attr, c74::max::gensym("gettype"));
+        c74::max::class_attr_addattr_parse(c, "patching_rect", "default", attr_type, 0, default_patching_rect.c_str());
     }
-
-    // flags |= c74::max::JBOX_TEXTFIELD;
-    jbox_initclass(c, flags);
-    c->c_flags |= c74::max::CLASS_FLAG_NEWDICTIONARY; // to specify dictionary constructor
-
-    string default_patching_rect{ "0. 0. " };
-    default_patching_rect += std::to_string(instance.default_width());
-    default_patching_rect += " ";
-    default_patching_rect += std::to_string(instance.default_height());
-
-    auto attr = (c74::max::t_object*)c74::max::class_attr_get(c, c74::max::gensym("patching_rect"));
-    using namespace c74::max;
-    auto attr_type = (c74::max::t_symbol*)object_method(attr, c74::max::gensym("gettype"));
-    c74::max::class_attr_addattr_parse(c, "patching_rect", "default", attr_type, 0, default_patching_rect.c_str());
 }
 
 } // namespace c74::min
