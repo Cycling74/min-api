@@ -21,6 +21,7 @@ set(C74_MOCK_TARGET_DIR ${OUTPUT_DIRECTORY})
 
 set(SOURCES
 	atom.cpp
+	dict.cpp
 	limit.cpp
 	main.cpp
 	object.cpp
