@@ -432,6 +432,21 @@ else
 	; // atoms were returned so do something with them
 ```
 
+## Quitting Max
+
+If an instance needs to do work before Max shuts down, such as writing data to disk or closing a connection to hardware, define a 'quittask' message. It is called once per instance when Max quits. Instances freed before then are not called.
+
+```c++
+message<> quittask { this, "quittask",
+    MIN_FUNCTION {
+		flush_to_disk();
+		return {};
+	}
+};
+```
+
+For cleanup that should happen only once regardless of how many instances exist, call `c74::max::quittask_install()` directly from your 'maxclass_setup' message instead.
+
 ## Custom Max Class and Instance Callbacks
 
 In some cases you may wish to do some advanced class setup. The example below could (and should) be done with optional parameters to the attribute, but it demonstrates how the mechanism works.

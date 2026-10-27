@@ -91,6 +91,9 @@ class object_base
     virtual ~object_base()
     {
         // TODO: free proxy inlets!
+        if (m_quittask_installed) {
+            max::quittask_remove2(reinterpret_cast<max::method>(quittask_callback), this);
+        }
     }
 
   public:
@@ -290,6 +293,7 @@ class object_base
     max::t_object* m_maxobj; // initialized prior to placement new
     long m_min_magic; // should be valid if m_maxobj has been assigned
     bool m_initialized{ false };
+    bool m_quittask_installed{ false };
     std::vector<inlet_base*> m_inlets;
     std::vector<outlet_base*> m_outlets;
     std::vector<argument_base*> m_arguments;
@@ -344,6 +348,16 @@ class object_base
     void postinitialize()
     {
         m_initialized = true;
+
+        if (has_call("quittask")) {
+            max::quittask_install(reinterpret_cast<max::method>(quittask_callback), this);
+            m_quittask_installed = true;
+        }
+    }
+
+    static void quittask_callback(object_base* self)
+    {
+        self->try_call("quittask");
     }
 
     // Called by the wrapper once the object is initialized so that it is possible to know what object name

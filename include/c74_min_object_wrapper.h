@@ -616,6 +616,7 @@ max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* 
             max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_ellipsis<min_class_type>), name.c_str(), max::A_CANT, 0);
         else if (name == "dspsetup"); // skip -- handle it in operator classes
         else if (name == "maxclass_setup"); // for min class construction only, do not add for exposure to max
+        else if (name == "quittask"); // installed per instance with quittask_install(), do not add for exposure to max
         else if (name == "savestate")
             max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
         else if (name == "mousewheel")
@@ -924,6 +925,7 @@ void wrap_as_max_external(const char* cppname, const char* cmaxname, void* resou
             max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
         else if (name == "dspsetup"); // skip -- handle it in operator classes
         else if (name == "maxclass_setup"); // for min class construction only, do not add for exposure to max
+        else if (name == "quittask"); // installed per instance with quittask_install(), do not add for exposure to max
         else if (name == "jitclass_setup"); // for min class construction only, do not add for exposure to max
         else if (name == "mop_setup"); // for min class construction only, do not add for exposure to max
         else if (name == "maxob_setup"); // for min class construction only, do not add for exposure to max
