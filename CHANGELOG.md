@@ -35,6 +35,10 @@ This file records breaking changes, additions, and bug fixes in Min-API. Before
   // after
   dict incoming { args[0] };
   ```
+- `dict`'s conversion to `max::t_object*` is `explicit`. It retains the
+  dictionary, so implicit conversions, including constructing an `atom` from a
+  `dict`, leaked a reference. Use `instance()` for a non-retaining pointer, or
+  cast explicitly and release the result with `object_free()`.
 
 ### Added
 

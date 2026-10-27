@@ -130,7 +130,7 @@ class dict
     }
 
     /// The underlying dictionary, retained. The caller must release it with object_free(); prefer instance() to avoid leaking.
-    operator max::t_object*() const
+    explicit operator max::t_object*() const
     {
         max::object_retain((max::t_object*)m_instance);
         return (max::t_object*)m_instance;
