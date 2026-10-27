@@ -61,16 +61,36 @@ class dict
         error(err, "failed to retain dictionary instance");
     }
 
+    /// Refer to the same dictionary as other, retaining it if other does.
+    dict(const dict& other)
+        : m_instance{ other.m_instance }
+        , m_has_ownership{ other.m_has_ownership }
+    {
+        if (m_has_ownership && m_instance) {
+            max::object_retain((max::t_object*)m_instance);
+        }
+    }
+
+    dict(dict&& other) noexcept
+        : m_instance{ std::exchange(other.m_instance, nullptr) }
+        , m_has_ownership{ other.m_has_ownership }
+    {
+    }
+
     ~dict()
     {
-        if (m_has_ownership) {
+        if (m_has_ownership && m_instance) {
             object_free(m_instance);
         }
     }
 
+    /// Replace the contents with a copy of value's contents, keeping this dictionary's identity and registered name.
+    /// There is deliberately no move assignment, so assigning a temporary also copies contents.
     dict& operator=(const dict& value)
     {
-        max::dictionary_clone_to_existing(value.m_instance, m_instance);
+        if (this != &value) {
+            max::dictionary_clone_to_existing(value.m_instance, m_instance);
+        }
         return *this;
     }
 

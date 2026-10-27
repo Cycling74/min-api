@@ -41,4 +41,42 @@ TEST_CASE("Dict Class", "[dict]") {
 		REQUIRE( mock_refcount(raw) == 1 );
 		max::object_free(raw);
 	}
+
+	SECTION("copying an owning dict retains the shared dictionary") {
+		auto raw = max::dictionary_new();
+		{
+			min::dict a { raw };
+			{
+				min::dict b { a };
+				REQUIRE( mock_refcount(raw) == 3 );
+			}
+			REQUIRE( mock_refcount(raw) == 2 );
+		}
+		REQUIRE( mock_refcount(raw) == 1 );
+		max::object_free(raw);
+	}
+
+	SECTION("copying a borrowing dict also borrows") {
+		auto raw = max::dictionary_new();
+		{
+			min::dict a { raw, false };
+			min::dict b { a };
+			REQUIRE( mock_refcount(raw) == 1 );
+		}
+		REQUIRE( mock_refcount(raw) == 1 );
+		max::object_free(raw);
+	}
+
+	SECTION("moving a dict transfers its reference") {
+		auto raw = max::dictionary_new();
+		{
+			min::dict a { raw };
+			min::dict b { std::move(a) };
+			REQUIRE( mock_refcount(raw) == 2 );
+			REQUIRE( !a.valid() );
+			REQUIRE( b.valid() );
+		}
+		REQUIRE( mock_refcount(raw) == 1 );
+		max::object_free(raw);
+	}
 }
