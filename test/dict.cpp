@@ -95,4 +95,19 @@ TEST_CASE("Dict Class", "[dict]") {
 		max::object_free(target);
 		max::object_free(source);
 	}
+
+	SECTION("instance() borrows and casting to t_object* retains") {
+		auto raw = max::dictionary_new();
+		{
+			min::dict d { raw };
+			REQUIRE( d.instance() == raw );
+			REQUIRE( mock_refcount(raw) == 2 );
+
+			auto o = static_cast<max::t_object*>(d);
+			REQUIRE( mock_refcount(raw) == 3 );
+			max::object_free(o);
+		}
+		REQUIRE( mock_refcount(raw) == 1 );
+		max::object_free(raw);
+	}
 }

@@ -110,13 +110,14 @@ class dict
         return *this;
     }
 
-    /// Cast the dictionary to a Max t_object so that, e.g., it can be used with the C Max API.
-    /// Be exceedingly careful with this!
-    /// When you pass the pointer out are you pointing the instance without incrementing the reference count?
+    /// The underlying dictionary for use with the C Max API, without retaining it.
+    /// The pointer is only valid while this dict, or another reference to the dictionary, is alive.
+    max::t_dictionary* instance() const
+    {
+        return m_instance;
+    }
 
-    // TODO: We need copy (retain) and move (don't retain) semantics ????
-    // TODO: we don't have a copy constructor!
-
+    /// The underlying dictionary, retained. The caller must release it with object_free(); prefer instance() to avoid leaking.
     operator max::t_object*() const
     {
         max::object_retain((max::t_object*)m_instance);
