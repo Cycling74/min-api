@@ -94,11 +94,18 @@ class dict
         return *this;
     }
 
+    /// Replace the contents with a copy of the contents of the dictionary in value.
     dict& operator=(const atom& value)
     {
         auto a = static_cast<const max::t_atom*>(&value);
-        if (max::atomisdictionary((max::t_atom*)a)) {
-            m_instance = static_cast<max::t_dictionary*>(max::atom_getobj(a));
+        if (!max::atomisdictionary((max::t_atom*)a)) {
+            error("no dictionary in atom");
+            return *this;
+        }
+
+        auto d = static_cast<max::t_dictionary*>(max::atom_getobj(a));
+        if (d != m_instance) {
+            max::dictionary_clone_to_existing(d, m_instance);
         }
         return *this;
     }

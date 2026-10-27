@@ -79,4 +79,20 @@ TEST_CASE("Dict Class", "[dict]") {
 		REQUIRE( mock_refcount(raw) == 1 );
 		max::object_free(raw);
 	}
+
+	SECTION("assigning an atom copies contents without changing either dictionary's refcount") {
+		auto target = max::dictionary_new();
+		auto source = max::dictionary_new();
+		{
+			min::dict d { target };
+			min::atom a { source };
+			d = a;
+			REQUIRE( mock_refcount(target) == 2 );
+			REQUIRE( mock_refcount(source) == 1 );
+		}
+		REQUIRE( mock_refcount(target) == 1 );
+		REQUIRE( mock_refcount(source) == 1 );
+		max::object_free(target);
+		max::object_free(source);
+	}
 }

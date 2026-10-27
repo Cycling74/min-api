@@ -27,6 +27,16 @@ History before v0.2.0 is not covered.
   no longer callable from a patcher; it is called when Max quits.
 - `dict::keys()` returns keys in insertion order rather than the dictionary's
   internal order.
+- Assigning an `atom` to a `dict` copies the atom's dictionary contents into
+  the existing dictionary instead of rebinding to it, matching assignment from
+  another `dict`. Code that wrote through the dict to modify the incoming
+  dictionary should construct a new `dict` from the atom instead.
+  ```cpp
+  // before
+  d = args[0];
+  // after
+  dict incoming { args[0] };
+  ```
 
 ## [0.6.11]
 
