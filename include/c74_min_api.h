@@ -16,6 +16,7 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <thread>
 #include <vector>

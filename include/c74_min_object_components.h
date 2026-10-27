@@ -415,40 +415,21 @@ struct minwrap<min_class_type, typename enable_if<!is_base_of<vector_operator_ba
 /// @return				A string with the deduced object name as it will be exposed to the Max environment.
 inline std::string deduce_maxclassname(const char* maxname)
 {
-    std::string smaxname;
+    std::string_view name{ maxname };
 
-    const char* start = strrchr(maxname, '/'); // mac paths
-    if (start) {
-        start += 1;
-    }
-    else {
-        start = strrchr(maxname, '\\'); // windows paths
-        if (start) {
-            start += 1;
-        }
-        else {
-            start = maxname;
-        }
+    if (auto slash = name.find_last_of("/\\"); slash != std::string_view::npos) {
+        name.remove_prefix(slash + 1);
     }
 
-    const char* end = strstr(start, "_tilde.cpp"); // audio objects
-    if (end) {
-        smaxname.assign(start, end - start);
-        smaxname += '~';
+    if (auto tilde = name.find("_tilde.cpp"); tilde != std::string_view::npos) { // audio objects
+        return std::string{ name.substr(0, tilde) } + '~';
     }
-    else { // all other objects
-        const char* end = strrchr(start, '.');
-        if (!end) {
-            end = start + strlen(start);
-        }
-        if (!strcmp(end, ".cpp")) {
-            smaxname.assign(start, end - start);
-        }
-        else {
-            smaxname = start;
-        }
+
+    constexpr std::string_view cpp_suffix{ ".cpp" };
+    if (name.size() >= cpp_suffix.size() && name.substr(name.size() - cpp_suffix.size()) == cpp_suffix) {
+        name.remove_suffix(cpp_suffix.size());
     }
-    return smaxname;
+    return std::string{ name };
 }
 
 } // namespace c74::min
