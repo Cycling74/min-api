@@ -1,0 +1,432 @@
+# Changelog
+
+This file records changes that can break code written against Min-API. Additions
+and ordinary bug fixes are not listed.
+
+History before v0.2.0 is not covered.
+
+## [Unreleased]
+
+### Breaking
+
+- `atom_reference` (the result of `dict::operator[]` and `dict::at()`) gained
+  conversions to `std::vector<number>` and `std::vector<symbol>`. Assigning a
+  dict entry to an `attribute<numbers>` is now ambiguous and fails to compile,
+  as does passing one to any overload set that takes both `numbers` and
+  `atoms`.
+  ```cpp
+  // before
+  my_attr = d["key"];
+  // after
+  my_attr = static_cast<atoms>(d["key"]);
+  ```
+- Setting a non-list attribute (anything other than `numbers` or `ints`) with
+  no arguments is now ignored and the setter is not called. Previously the
+  setter ran and read `args[0]` from an empty list.
+- `quittask` is now a reserved message name. A `message<>` with that name is
+  no longer callable from a patcher; it is called when Max quits.
+- `dict::keys()` returns keys in insertion order rather than the dictionary's
+  internal order.
+
+## [0.6.11]
+
+### Breaking
+
+- Enum attributes now set the Max `min` and `max` attribute attributes from
+  their `range`, so the inspector and `attrui` constrain them. See 0.6.8.
+- Builds on platforms other than macOS and Windows now produce externals
+  with the suffix `.mxl_<processor>`, and `max-linker-flags.txt` is applied
+  only on macOS (from max-sdk-base).
+
+## [0.6.10]
+
+### Breaking
+
+- Integer and bool attributes now set Max `min` and `max` attribute attributes
+  from their `range`. See 0.6.8.
+
+## [0.6.8]
+
+### Breaking
+
+- Float attributes now set Max `min` and `max` attribute attributes from their
+  `range`. Previously a `range` was only enforced when the attribute had a
+  clamping `limit`; now the inspector and `attrui` constrain values to the
+  range even without one.
+
+## [0.6.7]
+
+### Breaking
+
+- `attribute_base` has a new pure virtual `atoms get_atoms() const`. Classes
+  deriving directly from `attribute_base` must implement it. `attribute<T>`
+  already does.
+
+## [0.6.4]
+
+### Breaking
+
+- The `#undef` of `object_method`, `object_new`, and `jit_object_new` added in
+  0.6.2 was removed; code that worked around it can drop the workaround.
+
+## [0.6.3]
+
+### Breaking
+
+- macOS externals are now code-signed after every build by default (from
+  max-sdk-base), using an ad-hoc identity unless `MAX_SDK_CODESIGN_IDENTITY`
+  is set. Packages with their own signing step can pass
+  `-DMAX_SDK_CODESIGN_EXTERNS=OFF`.
+
+## [0.6.2]
+
+### Breaking
+
+- `c74_min_api.h` `#undef`s the Max SDK macros `object_method`, `object_new`,
+  and `jit_object_new`. Code using them must call the `c74::max::` functions
+  directly. Reverted in 0.6.4.
+
+## [0.6.1]
+
+### Breaking
+
+- Assigning an unscoped enum to an existing `atom` now stores a float instead
+  of an int, because `atom::operator=` for integers only accepts integral
+  types and enums fall through to the `double` overload. Constructing an atom
+  from an enum (`atom a = e;`, `atoms{e}`) still stores an int.
+  ```cpp
+  // before
+  a = my_enum;
+  // after
+  a = static_cast<long>(my_enum);
+  ```
+- `vector_size()` on `sample_operator`, `vector_operator`, and `mc_operator`
+  returns `int` instead of `double`. Expressions such as `n / vector_size()`
+  with an integer `n` now use integer division.
+- `mousewheel` is now a reserved message name. A `message<>` with that name is
+  no longer callable from a patcher; it is called on mouse wheel events with
+  `{event, delta_x, delta_y}`.
+
+## [0.6.0]
+
+### Breaking
+
+CMake and the Max SDK:
+
+- The `max-api` submodule was replaced by `max-sdk-base`. `C74_MAX_API_DIR` is
+  now `C74_MAX_SDK_DIR`, and `C74_INCLUDES` points at the
+  `max-sdk-base/c74support` include directories. Paths built from the old
+  variable must be updated.
+- CMake 3.19 or later is required.
+- To change where externals are built, set `C74_LIBRARY_OUTPUT_DIRECTORY`;
+  `CMAKE_LIBRARY_OUTPUT_DIRECTORY` is ignored.
+- `CMAKE_OSX_DEPLOYMENT_TARGET` is forced to 10.11, overriding any value the
+  package sets.
+- `add_subdirectory(min-api)` no longer includes `min-package.cmake`, adds
+  `test/mock`, or adds unit tests. Packages must include
+  `script/min-package.cmake` themselves. `test/min-api-unittest.cmake` was
+  removed.
+- `-Werror` is no longer added automatically; set `C74_WARNINGS_AS_ERRORS` to
+  opt in.
+- The `c74::max` namespace now wraps the real Max SDK C headers rather than
+  hand-written C++ declarations. Many constants (for example `JBOX_*` and
+  `Z_NO_INPLACE`) are now preprocessor macros and must not be qualified with
+  `max::`. Several functions such as `object_new` now return `void*` and take
+  non-`const` pointers, so some calls need casts.
+
+Objects:
+
+- `MIN_EXTERNAL_CUSTOM(cls, name)` now registers the class under `name`.
+  Previously it used the source file name, so such objects may change their
+  Max class name.
+- A message named `setup` is now called on every new instance right after
+  construction.
+- `maxclass_setup` runs before the class is registered and before Min adds its
+  own `assist` method, so an `assist` method added there is replaced.
+- `object_base::maxobj() const` returns `const max::t_object*`.
+- UI objects get `JBOX_MOUSEDRAGDELTA` only when the class has a member named
+  `mousedragdelta` or `m_mousedragdelta`, and `JBOX_HILITE` only when it has a
+  member named `focusgained` or `m_focusgained`. Previously every UI object got
+  drag-delta mouse handling.
+- `key` is now an A_CANT message, and its handler's return value is read as
+  the result. Handlers must return `{1}` (handled) or `{0}`, not `{}`.
+- `timer<>` now fires on the scheduler of its owning object, which can differ
+  from the global scheduler in hosts such as Live.
+
+Attributes:
+
+- An attribute with a clamping, wrapping, or folding `limit` must have an
+  arithmetic type; for example `attribute<numbers, threadsafe::no,
+  limit::clamp>` no longer compiles.
+- `set()` and `operator=` take `const atoms&`, so the caller's arguments are no
+  longer modified by limiting.
+- `visibility::hide` now hides the attribute from the inspector and the
+  reference page.
+- Every attribute now registers its default value with Max, which affects the
+  inspector and saving of default values.
+
+Other:
+
+- `symbol::operator void*()` was removed. Use `sym.object()`.
+- `buffer_reference` can no longer be copied or moved.
+
+## [0.5.0]
+
+### Breaking
+
+- C++17 is required, along with Xcode 10 or later and Visual Studio 2017 or
+  later.
+- UI mouse messages (`mouseenter`, `mouseleave`, `mousedown`, `mouseup`,
+  `mousemove`, `mousedragdelta`, `mousedoubleclick`) now receive a single
+  atom wrapping a `min::event` instead of the raw Max arguments.
+  ```cpp
+  // before
+  MIN_FUNCTION {
+      ui::target t {args};
+      double x {args[2]};
+      double y {args[3]};
+      ...
+  }
+  // after
+  MIN_FUNCTION {
+      event e {args};
+      auto t {e.target()};
+      double x {e.x()};
+      double y {e.y()};
+      ...
+  }
+  ```
+- The class tag `multitouch` in `MIN_TAGS` now switches UI objects to
+  multitouch mouse handling.
+- `ui::color` predefined colors are now a scoped enum: `color::black` becomes
+  `color::predefined::black`.
+- `logger::type` is now an `enum class`: `logger::warning` becomes
+  `logger::type::warning`.
+- `doc_get_tags<T>()` was renamed `get_tags<T>()`, and `MIN_TAGS` moved from
+  `c74_min_doc.h` to `c74_min_object.h`.
+- `min::error()` no longer throws while the dummy instance is being
+  constructed during class setup.
+
+## [0.4.1]
+
+### Breaking
+
+Messages and callbacks:
+
+- `min::function` takes the inlet number as a second argument. `MIN_FUNCTION`
+  was updated to match, but hand-written lambdas and `std::function`s passed
+  to `message<>`, attribute setters, `timer`, `queue`, and `buffer_reference`
+  must add the parameter.
+  ```cpp
+  // before
+  message<> m {this, "foo", [this](const atoms& args) -> atoms { ... }};
+  // after
+  message<> m {this, "foo", [this](const atoms& args, const int inlet) -> atoms { ... }};
+  ```
+- `object_base::current_inlet()` was removed. Use the `inlet` parameter of the
+  callback.
+- `message_type` values were renamed: `nothing` to `no_argument`, `long_arg`
+  to `int_argument`, `float_arg` to `float_argument`, `symbol_arg` to
+  `symbol_argument`, and `long_optional` to `int_optional`.
+- The `message_type` argument to `message<>` is now honored; it was previously
+  ignored.
+- Deferred messages are delivered through `max::defer()` and a fixed-size
+  queue instead of one qelem per message, which changes their ordering
+  relative to other low-priority events.
+- `threadsafe` gained a first value, `undefined`, which is now the default for
+  `message<>` and `attribute<>` and means "inherit from the object".
+  `object<T>` became `object<T, threadsafe = threadsafe::no>`.
+
+Timers and queues:
+
+- `timer` is a class template and its options are a template argument.
+  `timer::options` became `timer_options`.
+  ```cpp
+  // before
+  timer t {this, MIN_FUNCTION { ... }, timer::options::defer_delivery};
+  // after
+  timer<timer_options::defer_delivery> t {this, MIN_FUNCTION { ... }};
+  ```
+- `queue` is a class template and must be written `queue<>`.
+
+Atoms and symbols:
+
+- On 64-bit builds, constructing or assigning an `atom` from `long` is
+  ambiguous and fails to compile. Cast to `max::t_atom_long` or `int`.
+- Attribute `order` values are `int` instead of `long`; an `order` passed as a
+  `long` is not recognized.
+- `atom` comparison operators are members, so a plain `max::t_atom` on the
+  left of `==` no longer compiles.
+- `symbol::operator float()` is deleted, so `float f = sym;` and
+  `double d = sym;` no longer compile.
+- Converting a `symbol` to `max::t_dictionary*` returns `nullptr` unless the
+  symbol is bound to a dictionary.
+
+Attributes and state:
+
+- `attribute` has a fourth template parameter, `allow_repetitions`. This only
+  affects forward declarations and template-template arguments.
+- An attribute named `value` now gets automatic preset, pattr, and snapshot
+  support, and the object gains `getvalueof`, `setvalueof`, and `preset`
+  methods.
+- The special handling of a message named `appendtodictionary` was removed.
+  Use `savestate`, which now works and receives the dictionary as its
+  argument.
+
+UI:
+
+- UI support returned (see 0.4.0). Compared with 0.3.0, UI objects now call
+  `jbox_notify` after a user `notify` returns `0`, and `ui::color` attributes
+  are refreshed from the style system on every paint, which can overwrite
+  values set directly.
+
+CMake and testing:
+
+- Xcode 9 or later is required.
+- Catch was updated to the single-header Catch2 v2.5.0 at `test/catch.hpp`.
+  Include paths that referenced `test/catch/include` must change, and
+  `Approx` follows Catch2 semantics.
+- `min-object-unittest.cmake` no longer calls `project()`, so the test target
+  lives in the object's project.
+- `CMAKE_OSX_ARCHITECTURES` defaults to `x86_64`; 32-bit Mac builds are no
+  longer the default.
+
+## [0.4.0]
+
+### Breaking
+
+- UI support was removed: `c74_min_operator_ui.h` was deleted and
+  `c74_min_graphics.h` is no longer included. Restored in 0.4.1.
+- `samplerate_set(double)` on audio operators was renamed `samplerate(double)`.
+- `MIN_CLAMP` expands to an unqualified `clamp`, so it needs
+  `c74::min` in scope.
+- The unit test CMake helpers link `mock_kernel` with the keyword form of
+  `target_link_libraries`, so packages adding libraries to the test target
+  must also use the keyword form.
+
+## [0.3.0]
+
+### Breaking
+
+Objects:
+
+- The global `define_min_external*` functions became
+  `c74::min::wrap_as_max_external*`. `MIN_EXTERNAL` is unchanged.
+- `minwrap<T>` members were renamed: `obj` to `m_min_object` and `base` to
+  `m_max_header`. `maxobject_base` became `maxobject_header`.
+- On `object_base`, `methods()` became `messages()`, `m_maxobj` became private
+  (use `maxobj()`), and `inlets()` and `outlets()` hold `inlet_base*` and
+  `outlet_base*`.
+- A `notify` handler must return a value such as `{0}`; returning `{}` throws.
+- Objects attach to themselves, so `notify` also fires for their own attribute
+  changes.
+- The `savestate` message is no longer called; the wrapper only handles a
+  message named `appendtodictionary`. (Restored in 0.4.1.)
+- The `toggle` special message was removed.
+- Messages named `setup`, `fileusage`, `maxob_setup`, `mop_setup`,
+  `jitclass_setup`, `mouseenter`, `mouseleave`, `mousedown`, `mouseup`,
+  `mousedragdelta`, and `mousedoubleclick` are now A_CANT and cannot be sent
+  from a patcher.
+- A reference page `<name>.maxref.xml` is written to the package's `docs`
+  folder when the external is newer than the existing page. Opt out with
+  `MIN_FLAGS { documentation_flags::do_not_generate };`.
+
+Inlets, outlets, and messages:
+
+- `inlet` became `inlet<>`, and `outlet` became `outlet<>`.
+- `method` became `message<>`, and `c74_min_method.h` became
+  `c74_min_message.h`.
+- The public fields of ports and messages (`owner`, `description`, `type`,
+  `function`, `instance`, `signal_connection`) were removed or made private.
+  `description()` and `type()` are now methods.
+- `outlet::send()` with an `int` or `bool` outputs an int instead of a float.
+- In debug builds, the default outlet asserts when called from a thread other
+  than the main or scheduler thread.
+- A default `message<>` called off the main thread is deferred to the main
+  thread and returns immediately. Use `message<threadsafe::yes>` for the old
+  behavior.
+
+Attributes:
+
+- `attribute_base::set()` takes `(atoms&, bool notify, bool override_readonly)`,
+  so a braced temporary such as `a.set({x})` no longer compiles.
+- `readonly{true}` is enforced: neither Max nor the object's own `operator=`
+  can change the value. Use `set(as, false, true)` from inside the object.
+- An attribute set off the main thread is applied later on the main thread.
+  Use `attribute<T, threadsafe::yes>` for the old behavior.
+- `attribute` has three template parameters, `<T, threadsafe, limit_type>`.
+- `title` is its own type and no longer accepts a plain `std::string`.
+- A `getter` is now used by `operator atoms()`.
+
+Atoms, symbols, dictionaries, and paths:
+
+- `atom` can no longer be constructed from `const t_object*`,
+  `const t_class*`, or `const t_dictionary*`, and its broader implicit
+  conversions can make user overloads taking `atom` ambiguous.
+- `symbol::operator bool` returns whether the symbol is bound (`s_thing` is
+  non-null), so `if (sym)` is no longer true for every non-null symbol.
+- Converting a `symbol` to `void*` yields its `s_thing`, not the `t_symbol*`.
+- `dict::at()` throws when the key is missing.
+- Converting a `path` to `std::string` gives an absolute system path rather
+  than a Max-style path.
+- `timer` can no longer be copied.
+- `texteditor` calls its callback when the text is empty.
+
+Audio:
+
+- `perform_operator` became `vector_operator<>`, and
+  `c74_min_operator_perform.h` became `c74_min_operator_vector.h`.
+  `perform(in, out)` became the pure virtual
+  `void operator()(audio_bundle input, audio_bundle output)`.
+- `audio_bundle` fields became methods: `samples()`, `samples(channel)`,
+  `channel_count()`, and `frame_count()`.
+- In `sample_operator`, `calculate(...)` became `operator()(...)`, and
+  `inputcount()` and `outputcount()` became `input_count()` and
+  `output_count()`.
+- `Z_NO_INPLACE` is set on all audio objects, so input and output buffers no
+  longer alias.
+- `sample_operator<1,1>` does not compile in 0.3.0; fixed in 0.3.1.
+
+Buffers:
+
+- `buffer_lock` became `buffer_lock<>`.
+- `framecount()` became `frame_count()`, and `channelcount()` became
+  `channel_count()`, which returns `size_t`.
+
+Jitter:
+
+- `matrix_operator` became `matrix_operator<>`.
+- `matrix_info::planecount()` and `dimcount()` became `plane_count()` and
+  `dim_count()`. The public fields `in_info`, `bip`, `out_info`, and `bop`
+  became `m_in_info`, `m_bip`, `m_out_info`, and `m_bop`, and the byte
+  pointers changed from `char*` to `uchar*`.
+- Defining `jitclass_setup` or `maxclass_setup` on a `matrix_operator`
+  replaces the standard setup instead of running in addition to it.
+- `gl_operator`, `glchunk`, and `c74_min_operator_gl.h` were removed.
+
+Removed helpers:
+
+- `c74_min_accessories.h` was removed. Math, filter, and easing helpers moved
+  to Min-Lib. `MIN_CLAMP` is in `c74_min_limit.h`.
+- `min::map` and `c74_min_map.h` were removed.
+
+CMake:
+
+- Xcode builds add `-Wall -Werror -Wmissing-field-initializers`.
+- If `min-lib` exists next to the package's `min-api`, `C74_USE_MIN_LIB` is
+  defined and `c74_min.h` includes Min-Lib automatically.
+
+[Unreleased]: https://github.com/Cycling74/min-api/compare/v0.6.11...HEAD
+[0.6.11]: https://github.com/Cycling74/min-api/compare/v0.6.10...v0.6.11
+[0.6.10]: https://github.com/Cycling74/min-api/compare/v0.6.9...v0.6.10
+[0.6.8]: https://github.com/Cycling74/min-api/compare/v0.6.7...v0.6.8
+[0.6.7]: https://github.com/Cycling74/min-api/compare/v0.6.6...v0.6.7
+[0.6.4]: https://github.com/Cycling74/min-api/compare/v0.6.3...v0.6.4
+[0.6.3]: https://github.com/Cycling74/min-api/compare/v0.6.2...v0.6.3
+[0.6.2]: https://github.com/Cycling74/min-api/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/Cycling74/min-api/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Cycling74/min-api/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/Cycling74/min-api/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/Cycling74/min-api/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Cycling74/min-api/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/Cycling74/min-api/compare/v0.2.0...v0.3.0
