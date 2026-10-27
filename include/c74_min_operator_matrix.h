@@ -308,7 +308,7 @@ void jit_calculate_vector(
                     *op = out_cell[0];
                 }
                 else {
-                    std::array<U, 1> tmp;
+                    std::array<U, 1> tmp{};
                     if (ip) {
                         tmp = { { *ip } };
                     }
@@ -392,7 +392,7 @@ void jit_calculate_vector(
         if (self->m_min_object.direction() != matrix_operator_base::iteration_direction::reverse) {
             for (auto j = 0; j < n; ++j) {
                 matrix_coord position(j, i);
-                std::array<U, max::JIT_MATRIX_MAX_PLANECOUNT> tmp;
+                std::array<U, max::JIT_MATRIX_MAX_PLANECOUNT> tmp{};
 
                 if (ip) {
                     for (auto k = 0; k < info.m_in_info->planecount; ++k) {
@@ -420,7 +420,7 @@ void jit_calculate_vector(
 
             for (auto j = n - 1; j >= 0; --j) {
                 matrix_coord position(j, i);
-                std::array<U, max::JIT_MATRIX_MAX_PLANECOUNT> tmp;
+                std::array<U, max::JIT_MATRIX_MAX_PLANECOUNT> tmp{};
 
                 if (ip) {
                     for (auto k = 0; k < info.m_in_info->planecount; ++k) {
