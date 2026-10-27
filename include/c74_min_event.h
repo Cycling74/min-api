@@ -75,6 +75,28 @@ class event
         return (m_modifiers & c74::max::eShiftKey);
     }
 
+    bool is_left_button_down() const
+    {
+        return (m_modifiers & c74::max::eLeftButton);
+    }
+
+    bool is_right_button_down() const
+    {
+        return (m_modifiers & c74::max::eRightButton);
+    }
+
+    bool is_middle_button_down() const
+    {
+        return (m_modifiers & c74::max::eMiddleButton);
+    }
+
+    /// The raw modifier bitmask, made of c74::max::t_modifiers flags.
+
+    auto modifiers() const
+    {
+        return m_modifiers;
+    }
+
     /// The name of the notification message
     /// @return the name of the notification
 
