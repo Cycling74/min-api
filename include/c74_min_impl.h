@@ -51,7 +51,16 @@ void object_base::create_inlets()
 void object_base::create_outlets()
 {
     for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet) {
-        (*outlet)->create();
+        (*outlet)->create(m_maxobj);
+    }
+}
+
+void object_base::create_nonmatrix_outlets(max::t_object* box)
+{
+    for (auto outlet = m_outlets.rbegin(); outlet != m_outlets.rend(); ++outlet) {
+        if ((*outlet)->type() != "matrix") {
+            (*outlet)->create(box);
+        }
     }
 }
 

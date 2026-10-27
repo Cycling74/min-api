@@ -259,6 +259,7 @@ class handle_unsafe_outlet_send<check_type, thread_action::assert, outlet_type>
 class outlet_base : public port
 {
     friend void object_base::create_outlets();
+    friend void object_base::create_nonmatrix_outlets(max::t_object* box);
 
   public:
     outlet_base(object_base* an_owner, const string& a_description, const string& a_type)
@@ -269,7 +270,7 @@ class outlet_base : public port
     virtual ~outlet_base() {}
 
   private:
-    virtual void create() = 0;
+    virtual void create(max::t_object* box) = 0;
 
   protected:
     t_max_outlet m_instance{ nullptr };
@@ -434,14 +435,13 @@ class outlet : public outlet_base
     atoms m_accumulated_output;
     outlet_queue<check, action> m_queue_storage{ this->m_instance };
 
-    // called by object_base::create_outlets() when the owning object is constructed
-    void create() override
+    void create(max::t_object* box) override
     {
         if (type() == "") {
-            m_instance = max::outlet_new(m_owner->maxobj(), nullptr);
+            m_instance = max::outlet_new(box, nullptr);
         }
         else {
-            m_instance = max::outlet_new(m_owner->maxobj(), type().c_str());
+            m_instance = max::outlet_new(box, type().c_str());
         }
         m_queue_storage.update_baton(m_instance);
     }

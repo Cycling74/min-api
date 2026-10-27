@@ -316,6 +316,9 @@ class object_base
     template <class min_class_type>
     friend max::t_object* jit_new(const max::t_symbol* s);
 
+    template <class min_class_type>
+    friend void* max_jit_mop_new(const max::t_symbol* s, const long argc, const max::t_atom* argv);
+
     // Internal method called by the wrapper when creating an instance.
     // There are potentially two ways for objects to be instantiated:
     //
@@ -343,6 +346,10 @@ class object_base
     // Called by the wrapper to create the Max counterparts to the Min outlets
     // after the Min object construction is complete.
     void create_outlets();
+
+    // Creates the Max counterparts to the non-matrix outlets on the given box.
+    // A matrix_operator needs this because its own maxobj() is the boxless Jitter object.
+    void create_nonmatrix_outlets(max::t_object* box);
 
     // Called by the wrapper to indicate that it is done creating our instance.
     void postinitialize()

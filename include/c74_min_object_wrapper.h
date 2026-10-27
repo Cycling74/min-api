@@ -838,17 +838,29 @@ void wrap_as_max_external(const char* cppname, const char* cmaxname, void* resou
                                                                    reinterpret_cast<method>(jit_free<min_class_type>),
                                                                    sizeof(minwrap<min_class_type>), 0));
 
+    const bool custom_mop_setup = instance->has_call("mop_setup");
+
     size_t inlet_count = 0;
     for (auto i : instance->inlets()) {
         if (i->type() == "matrix") {
             inlet_count++;
         }
+        else if (!custom_mop_setup) {
+            max::object_error(nullptr, "%s: non-matrix inlets are not supported by matrix_operator", maxname.c_str());
+        }
     }
 
     size_t outlet_count = 0;
+    bool nonmatrix_outlet_seen = false;
     for (auto i : instance->outlets()) {
         if (i->type() == "matrix") {
             outlet_count++;
+            if (nonmatrix_outlet_seen && !custom_mop_setup) {
+                max::object_error(nullptr, "%s: matrix outlets must be declared before non-matrix outlets", maxname.c_str());
+            }
+        }
+        else {
+            nonmatrix_outlet_seen = true;
         }
     }
 
@@ -962,7 +974,7 @@ void wrap_as_max_external(const char* cppname, const char* cmaxname, void* resou
         if (ownsinput) {
             max::max_jit_class_addmethod_usurp_low(c, reinterpret_cast<method>(min_jit_mop_outputmatrix<min_class_type>), (char*)"outputmatrix");
         }
-        max::class_addmethod(c, reinterpret_cast<method>(max::max_jit_mop_assist), "assist", max::A_CANT, 0); // standard matrix-operator (mop) assist fn
+        max::class_addmethod(c, reinterpret_cast<method>(min_jit_mop_assist<min_class_type>), "assist", max::A_CANT, 0);
     }
 
     this_class_name = symbol(cppname);

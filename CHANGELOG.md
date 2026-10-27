@@ -71,8 +71,11 @@ This file records breaking changes, additions, and bug fixes in Min-API. Before
   Previously outlets were skipped when an object had at least as many inlets
   as outlets, and non-signal outlets threw off the indexing. ([#160])
 - Matrix operators value-initialize their temporary plane arrays. ([#143])
-- Sending to an outlet that has no Max counterpart is a no-op instead of a
-  crash.
+- Matrix operators create their non-matrix outlets, between the matrix
+  outlets and dumpout. Previously these outlets were never created and
+  sending to one crashed. Non-matrix inlets, and matrix outlets declared after
+  a non-matrix outlet, now post an error when the class is registered.
+  ([#108], [#210])
 - Unit tests that call `object_register` now link against the mock kernel.
   ([#181])
 
@@ -586,6 +589,7 @@ CMake:
 [0.3.0]: https://github.com/Cycling74/min-api/compare/v0.2.0...v0.3.0
 
 [#82]: https://github.com/Cycling74/min-api/issues/82
+[#108]: https://github.com/Cycling74/min-api/issues/108
 [#121]: https://github.com/Cycling74/min-api/issues/121
 [#139]: https://github.com/Cycling74/min-api/issues/139
 [#143]: https://github.com/Cycling74/min-api/issues/143
@@ -603,5 +607,6 @@ CMake:
 [#203]: https://github.com/Cycling74/min-api/issues/203
 [#204]: https://github.com/Cycling74/min-api/issues/204
 [#206]: https://github.com/Cycling74/min-api/pull/206
+[#210]: https://github.com/Cycling74/min-api/issues/210
 [#211]: https://github.com/Cycling74/min-api/pull/211
 [min-devkit#222]: https://github.com/Cycling74/min-devkit/issues/222

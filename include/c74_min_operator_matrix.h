@@ -244,7 +244,14 @@ void* max_jit_mop_new(const max::t_symbol* s, const long argc, const max::t_atom
         job->m_min_object.try_call("mop_setup", atomargs);
     }
     else {
-        max_jit_mop_setup_simple(self, o, args.size(), args.begin());
+        // max_jit_mop_setup_simple() expanded, so that the non-matrix outlets land between the matrix outlets and dumpout.
+        max::max_jit_obex_jitob_set(self, o);
+        max::max_jit_obex_dumpout_set(self, max::outlet_new(self, nullptr));
+        job->m_min_object.create_nonmatrix_outlets(&self->m_ob);
+        max::max_jit_mop_setup(self);
+        max::max_jit_mop_inputs(self);
+        max::max_jit_mop_outputs(self);
+        max::max_jit_mop_matrix_args(self, args.size(), args.begin());
     }
 
     max_jit_attr_args(self, static_cast<short>(args.size()), args.begin());
@@ -683,6 +690,35 @@ void min_jit_mop_outputmatrix(max_jit_wrapper* self)
     else {
         max::max_jit_mop_outputmatrix(self);
     }
+}
+
+// The standard mop assist only knows the matrix outlets and dumpout, so describe the non-matrix outlets between them here.
+template <class min_class_type, enable_if_matrix_operator<min_class_type> = 0>
+void min_jit_mop_assist(max_jit_wrapper* self, void* b, long m, long a, char* s)
+{
+    auto jitob = static_cast<minwrap<min_class_type>*>(max::max_jit_obex_jitob_get(self));
+    auto& min_object = jitob->m_min_object;
+
+    if (m == 2 && !min_object.has_call("mop_setup")) {
+        std::vector<outlet_base*> nonmatrix_outlets;
+        for (auto outlet : min_object.outlets()) {
+            if (outlet->type() != "matrix") {
+                nonmatrix_outlets.push_back(outlet);
+            }
+        }
+
+        const auto matrix_outlet_count = static_cast<long>(min_object.outlets().size() - nonmatrix_outlets.size());
+        const auto nonmatrix_outlet_count = static_cast<long>(nonmatrix_outlets.size());
+
+        if (a >= matrix_outlet_count && a < matrix_outlet_count + nonmatrix_outlet_count) {
+            strncpy(s, nonmatrix_outlets[a - matrix_outlet_count]->description().c_str(), 256);
+            return;
+        }
+        if (a >= matrix_outlet_count + nonmatrix_outlet_count) {
+            a -= nonmatrix_outlet_count;
+        }
+    }
+    max::max_jit_mop_assist(self, b, m, a, s);
 }
 
 } // namespace c74::min
