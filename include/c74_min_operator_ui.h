@@ -104,12 +104,12 @@ class ui_operator : public ui_operator_base
     {
         auto& self = *dynamic_cast<object_base*>(this);
 
-        for (const auto& color_attr : m_color_attributes) {
+        for (const auto& [attr_name, attr_ptr] : m_color_attributes) {
             long ac{ 4 };
             c74::max::t_atom avs[4];
             c74::max::t_atom* av = &avs[0];
-            attribute_base& attr{ *color_attr.second };
-            auto err = c74::max::object_attr_getvalueof(self, color_attr.first, &ac, &av);
+            attribute_base& attr{ *attr_ptr };
+            auto err = c74::max::object_attr_getvalueof(self, attr_name, &ac, &av);
             if (!err) {
                 atoms a{ av[0], av[1], av[2], av[3] };
                 attr.set(a, false); // notify must be false to prevent feedback loops

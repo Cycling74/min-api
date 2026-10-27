@@ -540,7 +540,7 @@ MIN_WRAPPER_CREATE_TYPE_FROM_STRING(patchlineupdate)
 // Simplify the meth switches in the following code to reduce excessive and tedious code duplication
 
 #define MIN_WRAPPER_ADDMETHOD(c, methname, wrappermethod, methtype)                                                                                     \
-    if (a_message.first == #methname) {                                                                                                                 \
+    if (name == #methname) {                                                                                                                            \
         max::class_addmethod(c,                                                                                                                         \
                              reinterpret_cast<max::method>(wrapper_method_##wrappermethod<min_class_type, wrapper_message_name_##methname>), #methname, \
                              max::methtype, 0);                                                                                                         \
@@ -569,7 +569,7 @@ max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* 
 
     // messages
 
-    for (auto& a_message : instance.messages()) {
+    for (auto& [name, msg] : instance.messages()) {
         // clang-format off
         MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
         else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT)
@@ -604,36 +604,35 @@ max::t_class* wrap_as_max_external_common(min_class_type& instance, const char* 
         else MIN_WRAPPER_ADDMETHOD(c, focusgained, self_ptr, A_CANT)
         else MIN_WRAPPER_ADDMETHOD(c, focuslost, self_ptr, A_CANT)
         else MIN_WRAPPER_ADDMETHOD(c, key, self_ptr_long_long_long, A_CANT)
-        else if (static_cast<message_type>(*a_message.second) == message_type::ellipsis)
-            max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_ellipsis<min_class_type>), a_message.first.c_str(), max::A_CANT, 0);
-        else if (a_message.first == "dspsetup"); // skip -- handle it in operator classes
-        else if (a_message.first == "maxclass_setup"); // for min class construction only, do not add for exposure to max
-        else if (a_message.first == "savestate")
+        else if (static_cast<message_type>(*msg) == message_type::ellipsis)
+            max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_ellipsis<min_class_type>), name.c_str(), max::A_CANT, 0);
+        else if (name == "dspsetup"); // skip -- handle it in operator classes
+        else if (name == "maxclass_setup"); // for min class construction only, do not add for exposure to max
+        else if (name == "savestate")
             max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
-        else if (a_message.first == "mousewheel")
+        else if (name == "mousewheel")
             max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_mousewheel<min_class_type, wrapper_message_name_mousewheel>), "mousewheel", max::A_CANT, 0);
         // clang-format on
         else {
-            if (a_message.second->type() == max::A_GIMMEBACK) {
+            if (msg->type() == max::A_GIMMEBACK) {
                 max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>),
-                                     a_message.first.c_str(), a_message.second->type(), 0);
+                                     name.c_str(), msg->type(), 0);
             }
             else {
                 max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_generic<min_class_type>),
-                                     a_message.first.c_str(), a_message.second->type(), 0);
+                                     name.c_str(), msg->type(), 0);
             }
         }
 
         // if there is a 'float' message but no 'int' message, generate a wrapper for it
-        if (a_message.first == "float" && (instance.messages().find("int") == instance.messages().end())) {
+        if (name == "float" && (instance.messages().find("int") == instance.messages().end())) {
             max::class_addmethod(c, reinterpret_cast<method>(wrapper_method_int<min_class_type, wrapper_message_name_float>), "int", max::A_LONG, 0);
         }
     }
 
     // attributes
-    for (auto& an_attribute : instance.attributes()) {
-        std::string attr_name{ an_attribute.first };
-        attribute_base& attr{ *an_attribute.second };
+    for (auto& [attr_name, attr_ptr] : instance.attributes()) {
+        attribute_base& attr{ *attr_ptr };
 
         if (attr.visible() == visibility::disable) {
             continue;
@@ -859,9 +858,8 @@ void wrap_as_max_external(const char* cppname, const char* cmaxname, void* resou
             this_jit_class, reinterpret_cast<method>(jit_matrix_calc<min_class_type>), "matrix_calc", max::A_CANT, 0);
     }
 
-    for (auto& an_attribute : instance->attributes()) {
-        std::string attr_name = an_attribute.first;
-        attribute_base& attr = *an_attribute.second;
+    for (auto& [attr_name, attr_ptr] : instance->attributes()) {
+        attribute_base& attr = *attr_ptr;
 
         attr.create(this_jit_class, reinterpret_cast<method>(min_attr_getter<min_class_type>),
                     reinterpret_cast<method>(min_attr_setter<min_class_type>), true);
@@ -911,32 +909,32 @@ void wrap_as_max_external(const char* cppname, const char* cmaxname, void* resou
 
     // add special messages to max class, and object messages to jitter class
     // must happen pror to max_jit_class_wrap_standard call
-    for (auto& a_message : instance->messages()) {
+    for (auto& [name, msg] : instance->messages()) {
         MIN_WRAPPER_ADDMETHOD(c, bang, zero, A_NOTHING)
-        else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, dspstate, int, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, anything, anything, A_GIMME) else MIN_WRAPPER_ADDMETHOD(c, int, int, A_LONG) else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT) else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary, A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, notify, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, paint, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mouseenter, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mouseleave, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mousedown, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mouseup, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousemove, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mousemove, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedrag, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mousedrag, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, mouse, A_CANT) else if (a_message.first == "savestate")
+        else MIN_WRAPPER_ADDMETHOD(c, dblclick, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, dspstate, int, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, okclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, edclose, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, loadbang, zero, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, anything, anything, A_GIMME) else MIN_WRAPPER_ADDMETHOD(c, int, int, A_LONG) else MIN_WRAPPER_ADDMETHOD(c, float, float, A_FLOAT) else MIN_WRAPPER_ADDMETHOD(c, dictionary, dictionary, A_SYM) else MIN_WRAPPER_ADDMETHOD(c, notify, notify, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, patchlineupdate, self_ptr_long_ptr_long_ptr_long, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, fileusage, ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, paint, paint, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseenter, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mouseenter, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseleave, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mouseleave, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedown, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mousedown, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mouseup, self_ptr, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mouseup, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousemove, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mousemove, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedrag, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mt_mousedrag, multitouch, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, oksize, oksize, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedragdelta, mouse, A_CANT) else MIN_WRAPPER_ADDMETHOD(c, mousedoubleclick, mouse, A_CANT) else if (name == "savestate")
             max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_savestate<min_class_type>), "appendtodictionary", max::A_CANT, 0);
-        else if (a_message.first == "dspsetup"); // skip -- handle it in operator classes
-        else if (a_message.first == "maxclass_setup"); // for min class construction only, do not add for exposure to max
-        else if (a_message.first == "jitclass_setup"); // for min class construction only, do not add for exposure to max
-        else if (a_message.first == "mop_setup"); // for min class construction only, do not add for exposure to max
-        else if (a_message.first == "maxob_setup"); // for min class construction only, do not add for exposure to max
-        else if (a_message.first == "setup"); // for min class construction only, do not add for exposure to max
-        else if (a_message.first == "mousewheel")
+        else if (name == "dspsetup"); // skip -- handle it in operator classes
+        else if (name == "maxclass_setup"); // for min class construction only, do not add for exposure to max
+        else if (name == "jitclass_setup"); // for min class construction only, do not add for exposure to max
+        else if (name == "mop_setup"); // for min class construction only, do not add for exposure to max
+        else if (name == "maxob_setup"); // for min class construction only, do not add for exposure to max
+        else if (name == "setup"); // for min class construction only, do not add for exposure to max
+        else if (name == "mousewheel")
             max::class_addmethod(c, reinterpret_cast<max::method>(wrapper_method_mousewheel<min_class_type, wrapper_message_name_mousewheel>), "mousewheel", max::A_CANT, 0);
         else {
-            if (a_message.second->type() == max::A_GIMMEBACK) {
+            if (msg->type() == max::A_GIMMEBACK) {
                 // add handlers for gimmeback messages, allowing for return values in JS and max wrapper dumpout
                 class_addmethod(this_jit_class, reinterpret_cast<method>(wrapper_method_generic<min_class_type>),
-                                a_message.first.c_str(), max::A_CANT, 0);
+                                name.c_str(), max::A_CANT, 0);
                 class_addtypedwrapper(this_jit_class, reinterpret_cast<method>(wrapper_method_generic_typed<min_class_type>),
-                                      (char*)a_message.first.c_str(), a_message.second->type(), 0);
+                                      (char*)name.c_str(), msg->type(), 0);
                 max_jit_class_addmethod_defer_low(
-                    c, reinterpret_cast<method>(max::max_jit_obex_gimmeback_dumpout), (char*)a_message.first.c_str());
+                    c, reinterpret_cast<method>(max::max_jit_obex_gimmeback_dumpout), (char*)name.c_str());
             }
             else {
                 // all other messages are added to the jitter class
                 class_addmethod(this_jit_class, reinterpret_cast<method>(wrapper_method_generic<min_class_type>),
-                                a_message.first.c_str(), a_message.second->type(), 0);
+                                name.c_str(), msg->type(), 0);
             }
         }
     }

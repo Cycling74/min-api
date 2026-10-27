@@ -251,8 +251,8 @@ void doc_generate(const min_class_type& instance, const std::string& refpage_ful
 
     const auto& messages = instance.messages();
 
-    for (const auto& p : messages) {
-        const auto& message_object = *p.second;
+    for (const auto& [name, msg] : messages) {
+        const auto& message_object = *msg;
         if (message_object.type() != max::A_CANT) {
             const auto& description = doc_format(message_object.description_string());
 
