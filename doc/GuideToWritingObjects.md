@@ -109,6 +109,19 @@ In most cases you will likely use generic inlets and outlets that accept (and pr
 * dictionary
 * matrix
 
+### Hot and Cold Inlets
+
+Inlets are drawn as hot by default. Call `hot(false)` to draw an inlet as cold, either in your constructor or at runtime (for example, from an attribute setter). This only changes how the inlet is drawn; your message handlers still decide whether input to that inlet produces output.
+
+```c++
+inlet<>		left	{ this, "(number) left operand, triggers output" };
+inlet<>		right	{ this, "(number) right operand" };
+
+my_object(const atoms& args = {}) {
+	right.hot(false);
+}
+```
+
 ### Configuring Inlets and Outlets at Runtime
 
 In most cases configuring inlets and outlets at compile time is the ideal solution. There are cases, however, where you may wish to define the inlets and outlets at runtime based on the arguments passed to your object's constructor. 

@@ -27,8 +27,27 @@ class inlet_base : public port
     virtual bool has_attribute_mapping() const = 0;
     virtual attribute_base* attribute() const = 0;
 
+    /// Is this inlet drawn as hot in the patcher?
+    /// This only affects how the inlet is drawn. Whether input triggers output is up to the object.
+    bool hot() const
+    {
+        return m_hot;
+    }
+
+    /// Set whether this inlet is drawn as hot or cold, redrawing the object's box if it is in a patcher.
+    void hot(bool is_hot)
+    {
+        m_hot = is_hot;
+
+        max::t_object* box{};
+        if (m_owner->maxobj() && max::object_obex_lookup(m_owner->maxobj(), k_sym__pound_b, &box) == max::MAX_ERR_NONE && box) {
+            max::jbox_redraw(reinterpret_cast<max::t_jbox*>(box));
+        }
+    }
+
   private:
     t_max_inlet m_instance{ nullptr };
+    bool m_hot{ true };
 };
 
 /// An inlet.
