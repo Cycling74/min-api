@@ -50,3 +50,16 @@ SCENARIO ("classname deduction is called") {
     }
 
 }
+
+
+SCENARIO ("the object registration api links against the mock kernel") {
+    using namespace c74::max;
+
+    int  obj {};
+    auto name_space = gensym("box");
+    auto name = gensym("foo");
+
+    REQUIRE( object_register(name_space, name, &obj) == &obj );
+    REQUIRE( object_findregistered(name_space, name) == nullptr );
+    REQUIRE( object_unregister(&obj) == 0 );
+}
