@@ -205,13 +205,13 @@ class dict
     }
 
     /// Get number of entries of dictionary
-    long entrycount()
+    long entrycount() const
     {
         return static_cast<long>(max::dictionary_getentrycount(m_instance));
     }
 
     /// Returns the dictionary keys in insertion order
-    std::vector<symbol> keys()
+    std::vector<symbol> keys() const
     {
         std::vector<symbol> k;
         max::t_symbol** keys = NULL;
