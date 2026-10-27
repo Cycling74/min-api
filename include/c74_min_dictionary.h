@@ -25,10 +25,15 @@ class dict
         }
     }
 
-    /// Create an unregistered dictionary from dict-syntax
+    /// Create an unregistered dictionary from dict-syntax, or an empty one if content is empty.
     dict(const atoms& content)
     {
-        max::dictobj_dictionaryfromatoms(&m_instance, static_cast<long>(content.size()), &content[0]);
+        if (content.empty()) {
+            m_instance = max::dictionary_new();
+        }
+        else {
+            max::dictobj_dictionaryfromatoms(&m_instance, static_cast<long>(content.size()), content.data());
+        }
     }
 
     /// Create an unregistered dictionary

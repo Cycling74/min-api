@@ -110,4 +110,10 @@ TEST_CASE("Dict Class", "[dict]") {
 		REQUIRE( mock_refcount(raw) == 1 );
 		max::object_free(raw);
 	}
+
+	SECTION("empty dict-syntax creates an empty dictionary") {
+		min::dict d { min::atoms{} };
+		REQUIRE( d.valid() );
+		REQUIRE( mock_refcount(d.instance()) == 1 );
+	}
 }
