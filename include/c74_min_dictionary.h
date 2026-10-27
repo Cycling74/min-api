@@ -170,14 +170,14 @@ class dict
         return static_cast<long>(max::dictionary_getentrycount(m_instance));
     }
 
-    /// Returns a vector of symbols with dictionary keys
+    /// Returns the dictionary keys in insertion order
     std::vector<symbol> keys()
     {
         std::vector<symbol> k;
         max::t_symbol** keys = NULL;
         long numkeys = 0;
 
-        max::dictionary_getkeys(m_instance, &numkeys, &keys);
+        max::dictionary_getkeys_ordered(m_instance, &numkeys, &keys);
         for (long i = 0; i < numkeys; i++) {
             k.push_back(symbol(keys[i]));
         }
@@ -185,6 +185,64 @@ class dict
             max::dictionary_freekeys(m_instance, numkeys, keys);
         }
         return k;
+    }
+
+    /// Call fn for every entry in insertion order. Assigning to the atom_reference updates the entry in place.
+    void for_each(const std::function<void(const symbol key, atom_reference value)>& fn)
+    {
+        for (const auto& key : keys()) {
+            fn(key, at(key));
+        }
+    }
+
+    /// Replace the contents with a JSON file found by name in the Max search path, or by absolute path.
+    void read(const std::string& name)
+    {
+        char filename[max::MAX_PATH_CHARS]{};
+        strncpy(filename, name.c_str(), max::MAX_PATH_CHARS - 1);
+
+        short path_id{};
+        max::t_fourcc type{};
+        if (max::locatefile_extended(filename, &path_id, &type, nullptr, 0)) {
+            error("file not found");
+            return;
+        }
+
+        max::t_dictionary* d{ nullptr };
+        auto err = max::dictionary_read(filename, path_id, &d);
+        if (err || !d) {
+            error("could not read dictionary from file");
+            return;
+        }
+
+        // Clone into the existing instance so a registered name stays attached.
+        max::dictionary_clone_to_existing(d, m_instance);
+        object_free(d);
+    }
+
+    /// Write the contents as JSON to an absolute path, creating or overwriting the file.
+    void write(const std::string& filepath)
+    {
+        char fullpath[max::MAX_PATH_CHARS]{};
+        max::path_nameconform(filepath.c_str(), fullpath, max::PATH_STYLE_MAX, max::PATH_TYPE_ABSOLUTE);
+
+        // The file may not exist yet, so resolve its parent folder instead of the file itself.
+        char* filename = strrchr(fullpath, '/');
+        if (!filename) {
+            error("no filename provided");
+            return;
+        }
+        *filename++ = 0;
+
+        short folder_path{};
+        char unused[max::MAX_FILENAME_CHARS]{};
+        if (max::path_frompathname(fullpath, &folder_path, unused)) {
+            error("folder not found");
+            return;
+        }
+
+        auto err = max::dictionary_write(m_instance, filename, folder_path);
+        error(err, "could not write dictionary to file");
     }
 
   private:
